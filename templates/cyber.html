@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BatCode — Cyber Security Intel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <div class="bat-logo" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#111"></rect>
+          <path d="M8 36c6-8 14-10 24-2 10-8 18-6 24 2-6-2-12-2-18 4-6-6-12-6-18 0-6-6-12-6-18-4z" fill="#ffcc00"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h1>BatCode — Cyber Security Intel</h1>
+        <p class="tag">Real-time vulnerability data from the NIST National Vulnerability Database</p>
+      </div>
+      <nav class="top-nav">
+        <a href="/">Playground</a>
+        <a href="/cyber" class="active">Cyber Intel</a>
+        <a href="/ai">AI Agent</a>
+      </nav>
+    </header>
+
+    <main class="cyber-container">
+      <!-- Search panel -->
+      <section class="cyber-search">
+        <div class="search-box">
+          <input type="search" id="cveSearch" placeholder="Search CVEs… (e.g. Apache, log4j, Windows)" autocomplete="off" />
+          <button id="searchBtn">Search</button>
+          <button id="latestBtn" class="secondary">Latest CVEs</button>
+        </div>
+        <div class="search-meta">
+          <span id="resultCount"></span>
+          <span id="searchStatus"></span>
+        </div>
+      </section>
+
+      <!-- CVE cards -->
+      <section id="cveGrid" class="cve-grid">
+        <!-- populated by JS -->
+      </section>
+
+      <!-- Detail modal -->
+      <div id="cveModal" class="modal hidden">
+        <div class="modal-content">
+          <button class="modal-close" id="modalClose">&times;</button>
+          <h2 id="modalId"></h2>
+          <span class="modal-badge" id="modalSeverity"></span>
+          <span class="modal-score" id="modalScore"></span>
+          <p class="modal-date" id="modalDate"></p>
+          <p class="modal-desc" id="modalDesc"></p>
+          <a id="modalLink" class="modal-link" target="_blank" rel="noopener noreferrer">View on NVD &rarr;</a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const grid = document.getElementById('cveGrid');
+      const searchInput = document.getElementById('cveSearch');
+      const statusEl = document.getElementById('searchStatus');
+      const countEl = document.getElementById('resultCount');
+
+      function severityClass(sev) {
+        if (!sev) return 'sev-unknown';
+        const s = sev.toUpperCase();
+        if (s === 'CRITICAL') return 'sev-critical';
+        if (s === 'HIGH') return 'sev-high';
+        if (s === 'MEDIUM') return 'sev-medium';
+        if (s === 'LOW') return 'sev-low';
+        return 'sev-unknown';
+      }
+
+      function renderCves(cves) {
+        grid.innerHTML = '';
+        if (!cves || cves.length === 0) {
+          grid.innerHTML = '<p class="no-results">No vulnerabilities found.</p>';
+          return;
+        }
+        cves.forEach(cve => {
+          const card = document.createElement('div');
+          card.className = `cve-card ${severityClass(cve.severity)}`;
+          card.innerHTML = `
+            <div class="cve-header">
+              <span class="cve-id">${esc(cve.id)}</span>
+              <span class="cve-badge">${esc(cve.severity || 'N/A')}</span>
+            </div>
+            <p class="cve-desc">${esc(cve.description || 'No description available.')}</p>
+            <div class="cve-footer">
+              <span class="cve-date">${esc(cve.published)}</span>
+              ${cve.score != null ? `<span class="cve-score">CVSS ${cve.score}</span>` : ''}
+            </div>
+          `;
+          card.addEventListener('click', () => showModal(cve));
+          grid.appendChild(card);
+        });
+      }
+
+      function esc(str) {
+        const d = document.createElement('div');
+        d.textContent = str || '';
+        return d.innerHTML;
+      }
+
+      function showModal(cve) {
+        document.getElementById('modalId').textContent = cve.id;
+        const sevEl = document.getElementById('modalSeverity');
+        sevEl.textContent = cve.severity || 'N/A';
+        sevEl.className = `modal-badge ${severityClass(cve.severity)}`;
+        document.getElementById('modalScore').textContent = cve.score != null ? `CVSS ${cve.score}` : '';
+        document.getElementById('modalDate').textContent = `Published: ${cve.published}`;
+        document.getElementById('modalDesc').textContent = cve.description || 'No description available.';
+        document.getElementById('modalLink').href = cve.url;
+        document.getElementById('cveModal').classList.remove('hidden');
+      }
+
+      document.getElementById('modalClose').addEventListener('click', () => {
+        document.getElementById('cveModal').classList.add('hidden');
+      });
+      document.getElementById('cveModal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+      });
+
+      async function fetchLatest() {
+        statusEl.textContent = 'Loading latest CVEs…';
+        countEl.textContent = '';
+        grid.innerHTML = '<p class="loading">Scanning the Bat-Database…</p>';
+        try {
+          const res = await fetch('/api/cves?limit=20');
+          const data = await res.json();
+          if (data.ok) {
+            countEl.textContent = `${data.cves.length} of ${data.total.toLocaleString()} total`;
+            renderCves(data.cves);
+            statusEl.textContent = '';
+          } else {
+            grid.innerHTML = `<p class="no-results">Error: ${esc(data.error)}</p>`;
+            statusEl.textContent = '';
+          }
+        } catch (err) {
+          grid.innerHTML = `<p class="no-results">Network error: ${esc(err.message)}</p>`;
+          statusEl.textContent = '';
+        }
+      }
+
+      async function searchCves(keyword) {
+        if (!keyword.trim()) { fetchLatest(); return; }
+        statusEl.textContent = `Searching "${keyword}"…`;
+        countEl.textContent = '';
+        grid.innerHTML = '<p class="loading">Investigating…</p>';
+        try {
+          const res = await fetch(`/api/cves/search?keyword=${encodeURIComponent(keyword)}&limit=20`);
+          const data = await res.json();
+          if (data.ok) {
+            countEl.textContent = `${data.cves.length} of ${data.total.toLocaleString()} results`;
+            renderCves(data.cves);
+            statusEl.textContent = '';
+          } else {
+            grid.innerHTML = `<p class="no-results">Error: ${esc(data.error)}</p>`;
+            statusEl.textContent = '';
+          }
+        } catch (err) {
+          grid.innerHTML = `<p class="no-results">Network error: ${esc(err.message)}</p>`;
+          statusEl.textContent = '';
+        }
+      }
+
+      document.getElementById('searchBtn').addEventListener('click', () => searchCves(searchInput.value));
+      document.getElementById('latestBtn').addEventListener('click', () => { searchInput.value = ''; fetchLatest(); });
+      searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchCves(searchInput.value); });
+
+      // Load latest on page load
+      fetchLatest();
+    </script>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 venv/
 __pycache__/
 *.pyc
-temp*
+/temp_*/
 .env
 .DS_Store
 generated/

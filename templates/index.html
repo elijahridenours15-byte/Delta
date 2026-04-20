@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BatCode Playground</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <div class="bat-logo" aria-hidden="true">
+        <!-- simple bat glyph -->
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#111"></rect>
+          <path d="M8 36c6-8 14-10 24-2 10-8 18-6 24 2-6-2-12-2-18 4-6-6-12-6-18 0-6-6-12-6-18-4z" fill="#ffcc00"/>
+        </svg>
+      </div>
+      <div class="title">
+        <h1>BatCode Playground</h1>
+        <p class="tag">Run Python and Java snippets — Gotham style</p>
+      </div>
+      <nav class="top-nav">
+        <a href="/" class="active">Playground</a>
+        <a href="/cyber">Cyber Intel</a>
+        <a href="/ai">AI Agent</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="editor">
+        <div class="controls">
+          <label for="language">Language</label>
+          <select id="language">
+            <option value="python">Python 3</option>
+            <option value="java">Java</option>
+          </select>
+          <button id="run">Run</button>
+          <button id="reset">Reset</button>
+        </div>
+        <div id="editor" style="height:100%;"></div>
+      </section>
+
+      <aside class="output">
+        <div class="agent-controls">
+          <h2>Agent</h2>
+          <textarea id="instruction" placeholder="Tell the agent what to build (e.g., 'create a Flask web API')"></textarea>
+          <div class="agent-row">
+              <input id="project_name" placeholder="project name (optional)" />
+              <label><input type="checkbox" id="agent_execute" /> Execute</label>
+              <label><input type="checkbox" id="agent_confirm" /> Confirm</label>
+              <label title="Use LLM to expand instruction"><input type="checkbox" id="use_llm" /> LLM</label>
+              <button id="askAgent">Ask Agent</button>
+            </div>
+            <div class="agent-row">
+              <button id="downloadProject" disabled>Download Last</button>
+              <button id="refreshProjects" onclick="fetchProjects()">Refresh</button>
+            </div>
+            <div id="projectList" style="margin-top:8px"></div>
+        </div>
+
+        <h2>Output</h2>
+        <pre id="output">Awaiting code...</pre>
+
+        <h3>Agent Result</h3>
+        <pre id="agent_output">No agent activity yet.</pre>
+      </aside>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+    <script>
+      const pythonTemplate = `print("Hello, Batman!")\nfor i in range(3):\n    print("Night:", i)`;
+      const javaTemplate = `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Batman!");\n        for (int i=0;i<3;i++) System.out.println("Night: " + i);\n    }\n}`;
+
+      const langEl = document.getElementById('language');
+      // Ace editor
+      const editor = ace.edit('editor');
+      editor.setTheme('ace/theme/monokai');
+      editor.session.setMode('ace/mode/python');
+      editor.setOptions({fontSize: '13px', showPrintMargin: false});
+      const outEl = document.getElementById('output');
+
+      function setTemplate(){
+        const val = langEl.value === 'python' ? pythonTemplate : javaTemplate;
+        editor.session.setMode(langEl.value === 'python' ? 'ace/mode/python' : 'ace/mode/java');
+        editor.setValue(val, -1);
+      }
+
+      langEl.addEventListener('change', setTemplate);
+
+      document.getElementById('run').addEventListener('click', async ()=>{
+        outEl.textContent = 'Running...';
+        try{
+          const codeVal = editor.getValue();
+          const res = await fetch('/run', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({language: langEl.value, code: codeVal})
+          });
+          const data = await res.json();
+          if (data.compile_error) outEl.textContent = data.compile_error;
+          else if (data.error) outEl.textContent = data.error;
+          else outEl.textContent = (data.stderr || '') + (data.stdout || '');
+        } catch (err) {
+          outEl.textContent = 'Network or server error: ' + err.message;
+        }
+      });
+
+      document.getElementById('reset').addEventListener('click', setTemplate);
+      setTemplate();
+
+      // Agent UI
+      const instrEl = document.getElementById('instruction');
+      const agentOutEl = document.getElementById('agent_output');
+      let lastProject = null;
+      document.getElementById('askAgent').addEventListener('click', async ()=>{
+        agentOutEl.textContent = 'Working...';
+        try{
+          const res = await fetch('/agent', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              instruction: instrEl.value,
+              project_name: document.getElementById('project_name').value,
+              execute: document.getElementById('agent_execute').checked,
+              confirm: document.getElementById('agent_confirm').checked,
+              use_llm: document.getElementById('use_llm') ? document.getElementById('use_llm').checked : false,
+            })
+          });
+          const data = await res.json();
+          agentOutEl.textContent = JSON.stringify(data, null, 2);
+          if (data && data.project_name) {
+            lastProject = data.project_name;
+            document.getElementById('downloadProject').disabled = false;
+            await fetchProjects();
+          }
+        } catch (err) {
+          agentOutEl.textContent = 'Network or server error: ' + err.message;
+        }
+      });
+
+      // Projects list + download
+      async function fetchProjects(){
+        try{
+          const res = await fetch('/projects');
+          const data = await res.json();
+          const list = document.getElementById('projectList');
+          list.innerHTML = '';
+          (data.projects || []).forEach(p=>{
+            const el = document.createElement('div');
+            el.className = 'project-item';
+            el.textContent = p;
+            const btn = document.createElement('button');
+            btn.textContent = 'Download';
+            btn.addEventListener('click', ()=> window.location = `/download/${encodeURIComponent(p)}`);
+            el.appendChild(btn);
+            list.appendChild(el);
+          });
+        }catch(e){console.warn(e)}
+      }
+
+      document.getElementById('downloadProject').addEventListener('click', ()=>{
+        if (lastProject) window.location = `/download/${encodeURIComponent(lastProject)}`;
+      });
+
+      // init
+      setTemplate();
+      fetchProjects();
+    </script>
+  </body>
+</html>
