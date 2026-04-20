@@ -5,6 +5,8 @@ import shutil
 import os
 import subprocess
 import uuid
+import hashlib
+import base64
 import requests as http_requests
 from agent.agent import run_instruction
 from agent import generate_with_llm
@@ -13,6 +15,9 @@ import io
 import zipfile
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+# In-memory store for shared code snippets (use DB in production)
+_shared_snippets = {}
 
 def _which(candidates):
     for c in candidates:
@@ -31,7 +36,7 @@ def run_code():
     language = data.get('language', 'python')
     code = data.get('code', '')
     run_id = uuid.uuid4().hex[:8]
-    tempdir = tempfile.mkdtemp(prefix=f'batcode_{run_id}_')
+    tempdir = tempfile.mkdtemp(prefix=f'delta_{run_id}_')
     try:
         if language == 'python':
             script_path = os.path.join(tempdir, 'script.py')
@@ -61,6 +66,34 @@ def run_code():
                 return jsonify({'stdout': run_proc.stdout, 'stderr': run_proc.stderr, 'returncode': run_proc.returncode})
             except subprocess.TimeoutExpired:
                 return jsonify({'error': 'Execution timed out'}), 504
+
+        elif language == 'html':
+            css = data.get('css', '')
+            js = data.get('js', '')
+            # Inject CSS and JS into the HTML if provided separately
+            combined = code
+            if css:
+                if '</head>' in combined:
+                    combined = combined.replace('</head>', f'<style>{css}</style>\n</head>')
+                else:
+                    combined = f'<style>{css}</style>\n' + combined
+            if js:
+                if '</body>' in combined:
+                    combined = combined.replace('</body>', f'<script>{js}</script>\n</body>')
+                else:
+                    combined = combined + f'\n<script>{js}</script>'
+            return jsonify({'html': combined})
+
+        elif language == 'css':
+            # Preview CSS with a sample HTML structure
+            html_code = data.get('html', '')
+            if not html_code:
+                html_code = '<!DOCTYPE html><html><head></head><body>\n<h1>Heading 1</h1>\n<h2>Heading 2</h2>\n<p>Paragraph text for preview.</p>\n<a href="#">Link</a>\n<button>Button</button>\n<ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>\n<div class="box">Box div</div>\n</body></html>'
+            if '</head>' in html_code:
+                html_code = html_code.replace('</head>', f'<style>{code}</style>\n</head>')
+            else:
+                html_code = f'<style>{code}</style>\n' + html_code
+            return jsonify({'html': html_code})
 
         else:
             return jsonify({'error': 'Unsupported language'}), 400
@@ -115,6 +148,28 @@ def list_projects():
     return jsonify({'projects': projects})
 
 
+@app.route('/api/projects/delete', methods=['POST'])
+def delete_projects():
+    """Delete one or more generated projects."""
+    data = request.get_json(force=True)
+    names = data.get('projects', [])
+    if not names:
+        return jsonify({'ok': False, 'error': 'No projects specified'}), 400
+    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    deleted = []
+    errors = []
+    for name in names:
+        # Prevent path traversal
+        safe_name = os.path.basename(name)
+        project_dir = os.path.join(base_dir, safe_name)
+        if os.path.isdir(project_dir):
+            shutil.rmtree(project_dir)
+            deleted.append(safe_name)
+        else:
+            errors.append(f'{safe_name} not found')
+    return jsonify({'ok': True, 'deleted': deleted, 'errors': errors})
+
+
 @app.route('/download/<project_name>', methods=['GET'])
 def download_project(project_name):
     base_dir = os.path.join(os.path.dirname(__file__), 'generated')
@@ -131,6 +186,29 @@ def download_project(project_name):
                 zf.write(abs_path, arcname)
     mem.seek(0)
     return send_file(mem, mimetype='application/zip', as_attachment=True, download_name=f'{project_name}.zip')
+
+
+@app.route('/api/projects/download', methods=['POST'])
+def download_multiple():
+    """Download multiple projects as a single zip."""
+    data = request.get_json(force=True)
+    names = data.get('projects', [])
+    if not names:
+        return jsonify({'ok': False, 'error': 'No projects specified'}), 400
+    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    mem = io.BytesIO()
+    with zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for name in names:
+            safe_name = os.path.basename(name)
+            project_dir = os.path.join(base_dir, safe_name)
+            if os.path.isdir(project_dir):
+                for root, dirs, files in os.walk(project_dir):
+                    for f in files:
+                        abs_path = os.path.join(root, f)
+                        arcname = os.path.join(safe_name, os.path.relpath(abs_path, project_dir))
+                        zf.write(abs_path, arcname)
+    mem.seek(0)
+    return send_file(mem, mimetype='application/zip', as_attachment=True, download_name='delta_projects.zip')
 
 
 # ── Cyber Security page ──────────────────────────────────────────────
@@ -249,7 +327,7 @@ def api_ai():
     temperature = float(data.get('temperature', 0.7))
 
     messages = [
-        {'role': 'system', 'content': 'You are BatAgent, a helpful AI coding assistant. Provide clear, concise answers with code examples when relevant.'},
+        {'role': 'system', 'content': 'You are Delta AI, a tactical coding assistant. Provide clear, precise answers with code examples when relevant.'},
         {'role': 'user', 'content': prompt},
     ]
 
@@ -315,6 +393,190 @@ def api_ai_models():
         {'id': 'microsoft/Phi-3-mini-4k-instruct', 'name': 'Phi-3 Mini (HF)', 'desc': 'Requires free HF token', 'provider': 'huggingface'},
     ]
     return jsonify({'ok': True, 'models': models})
+
+
+# ── Code Sharing ──────────────────────────────────────────────────────
+
+@app.route('/api/share', methods=['POST'])
+def share_code():
+    """Save a code snippet and return a share ID."""
+    data = request.get_json(force=True)
+    code = data.get('code', '')
+    language = data.get('language', 'python')
+    if not code.strip():
+        return jsonify({'ok': False, 'error': 'No code to share'}), 400
+    share_id = hashlib.sha256(code.encode()).hexdigest()[:10]
+    _shared_snippets[share_id] = {'code': code, 'language': language}
+    return jsonify({'ok': True, 'id': share_id})
+
+
+@app.route('/api/share/<share_id>')
+def get_shared(share_id):
+    snippet = _shared_snippets.get(share_id)
+    if not snippet:
+        return jsonify({'ok': False, 'error': 'Snippet not found'}), 404
+    return jsonify({'ok': True, **snippet})
+
+
+@app.route('/share/<share_id>')
+def share_page(share_id):
+    return render_template('index.html')
+
+
+# ── Cyber Security Tools ─────────────────────────────────────────────
+
+@app.route('/api/cyber/encrypt', methods=['POST'])
+def encrypt_text():
+    """Encrypt/hash text using various algorithms (all local, no data sent externally)."""
+    data = request.get_json(force=True)
+    text = data.get('text', '')
+    algo = data.get('algorithm', 'sha256')
+    if not text:
+        return jsonify({'ok': False, 'error': 'text required'}), 400
+
+    results = {}
+    text_bytes = text.encode('utf-8')
+
+    if algo in ('all', 'sha256'):
+        results['sha256'] = hashlib.sha256(text_bytes).hexdigest()
+    if algo in ('all', 'sha512'):
+        results['sha512'] = hashlib.sha512(text_bytes).hexdigest()
+    if algo in ('all', 'md5'):
+        results['md5'] = hashlib.md5(text_bytes).hexdigest()
+    if algo in ('all', 'sha1'):
+        results['sha1'] = hashlib.sha1(text_bytes).hexdigest()
+    if algo in ('all', 'base64'):
+        results['base64_encode'] = base64.b64encode(text_bytes).decode()
+    if algo in ('all', 'base64_decode'):
+        try:
+            results['base64_decode'] = base64.b64decode(text_bytes).decode()
+        except Exception:
+            results['base64_decode'] = '(invalid base64 input)'
+    if not results:
+        return jsonify({'ok': False, 'error': f'Unknown algorithm: {algo}'}), 400
+    return jsonify({'ok': True, 'results': results, 'algorithm': algo})
+
+
+@app.route('/api/cyber/headers')
+def check_headers():
+    """Check security headers of any public URL."""
+    url = request.args.get('url', '').strip()
+    if not url:
+        return jsonify({'ok': False, 'error': 'url parameter required'}), 400
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+
+    security_headers = [
+        'Strict-Transport-Security',
+        'Content-Security-Policy',
+        'X-Content-Type-Options',
+        'X-Frame-Options',
+        'X-XSS-Protection',
+        'Referrer-Policy',
+        'Permissions-Policy',
+        'Cross-Origin-Opener-Policy',
+        'Cross-Origin-Resource-Policy',
+    ]
+
+    try:
+        resp = http_requests.get(url, timeout=10, allow_redirects=True,
+                                  headers={'User-Agent': 'DeltaCoding-SecurityScanner/1.0'})
+        found = {}
+        missing = []
+        for h in security_headers:
+            val = resp.headers.get(h)
+            if val:
+                found[h] = val
+            else:
+                missing.append(h)
+
+        grade = 'A' if len(missing) == 0 else 'B' if len(missing) <= 2 else 'C' if len(missing) <= 4 else 'D' if len(missing) <= 6 else 'F'
+        return jsonify({
+            'ok': True,
+            'url': url,
+            'status_code': resp.status_code,
+            'headers_found': found,
+            'headers_missing': missing,
+            'grade': grade,
+            'total_checked': len(security_headers),
+            'ssl': url.startswith('https://'),
+        })
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 502
+
+
+@app.route('/api/cyber/resources')
+def cyber_resources():
+    """Return curated list of free cybersecurity tools and platforms."""
+    resources = [
+        {'name': 'OWASP Top 10', 'url': 'https://owasp.org/www-project-top-ten/', 'category': 'Learning', 'desc': 'Top 10 web application security risks'},
+        {'name': 'Have I Been Pwned', 'url': 'https://haveibeenpwned.com/', 'category': 'Breach Check', 'desc': 'Check if your email has been in a data breach'},
+        {'name': 'SSL Labs', 'url': 'https://www.ssllabs.com/ssltest/', 'category': 'SSL Scanner', 'desc': 'Deep analysis of SSL/TLS configuration'},
+        {'name': 'SecurityHeaders.com', 'url': 'https://securityheaders.com/', 'category': 'Headers', 'desc': 'Analyze HTTP response headers'},
+        {'name': 'VirusTotal', 'url': 'https://www.virustotal.com/', 'category': 'Malware', 'desc': 'Scan files and URLs for malware'},
+        {'name': 'Shodan', 'url': 'https://www.shodan.io/', 'category': 'Recon', 'desc': 'Search engine for Internet-connected devices'},
+        {'name': 'CyberChef', 'url': 'https://gchq.github.io/CyberChef/', 'category': 'Encryption', 'desc': 'Web app for encryption, encoding, compression'},
+        {'name': 'Exploit Database', 'url': 'https://www.exploit-db.com/', 'category': 'Exploits', 'desc': 'Archive of public exploits and software'},
+        {'name': 'NIST NVD', 'url': 'https://nvd.nist.gov/', 'category': 'CVE', 'desc': 'National Vulnerability Database'},
+        {'name': 'CTFtime', 'url': 'https://ctftime.org/', 'category': 'Practice', 'desc': 'Capture The Flag competitions and writeups'},
+        {'name': 'TryHackMe', 'url': 'https://tryhackme.com/', 'category': 'Practice', 'desc': 'Free hands-on cybersecurity training'},
+        {'name': 'HackTheBox', 'url': 'https://www.hackthebox.com/', 'category': 'Practice', 'desc': 'Penetration testing labs and challenges'},
+        {'name': 'CRT.sh', 'url': 'https://crt.sh/', 'category': 'Certificates', 'desc': 'Certificate transparency log search'},
+        {'name': 'DNSDumpster', 'url': 'https://dnsdumpster.com/', 'category': 'Recon', 'desc': 'Free domain research and DNS recon'},
+        {'name': "Let's Encrypt", 'url': 'https://letsencrypt.org/', 'category': 'SSL', 'desc': 'Free SSL/TLS certificates'},
+        {'name': 'Mozilla Observatory', 'url': 'https://observatory.mozilla.org/', 'category': 'Scanner', 'desc': 'Free website security scanner'},
+    ]
+    return jsonify({'ok': True, 'resources': resources})
+
+
+# ── Tactical Map ──────────────────────────────────────────────────────
+
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
+
+# ── Scripture Intel ──────────────────────────────────────────────────
+
+@app.route('/bible')
+def bible_page():
+    return render_template('bible.html')
+
+
+@app.route('/api/bible')
+def api_bible():
+    ref = request.args.get('ref', 'John 3:16')
+    translation = request.args.get('translation', 'web')
+    try:
+        url = f'https://bible-api.com/{ref}?translation={translation}'
+        resp = http_requests.get(url, timeout=10)
+        data = resp.json()
+        if 'error' in data:
+            return jsonify({'error': data['error']}), 404
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ── Drone Command ────────────────────────────────────────────────────
+
+@app.route('/drone')
+def drone_page():
+    return render_template('drone.html')
+
+
+# ── SIGINT Radio Lab (hidden page) ───────────────────────────────────
+
+@app.route('/radio')
+def radio_page():
+    return render_template('radio.html')
+
+
+# ── The Truth (hidden page — cross in logo) ──────────────────────────
+
+@app.route('/truth')
+def truth_page():
+    return render_template('truth.html')
 
 
 if __name__ == '__main__':
