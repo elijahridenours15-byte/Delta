@@ -1,0 +1,125 @@
+services:
+  - type: web
+    name: batcode-playground
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT run:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: FLASK_ENV
+        value: production
+      - key: HF_API_TOKEN
+        sync: true
+      - key: OPENAI_API_KEY
+        sync: true
+      - key: AZURE_OPENAI_API_KEY
+        sync: true
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: true
+      - key: AZURE_OPENAI_DEPLOYMENT
+        sync: true
+      - key: AZURE_OPENAI_API_VERSION
+        sync: true
+      - key: AZURE_OPENAI_REGION
+        sync: true
+      - key: BATCODE_PLAYGROUND_HOST
+        value: "http://127.0.0.1:5000"
+      - key: BATCODE_PLAYGROUND_PORT
+        value: "5000"
+      - key: BATCODE_PLAYGROUND_DEBUG
+        value: "false"
+      - key: BATCODE_PLAYGROUND_LOG_LEVEL
+        value: "info"
+      - key: BATCODE_PLAYGROUND_MAX_WORKERS
+        value: "2"
+      - key: BATCODE_PLAYGROUND_TIMEOUT
+        value: "30"
+      - key: BATCODE_PLAYGROUND_RELOAD
+        value: "false"
+      - key: BATCODE_PLAYGROUND_THREADS
+        value: "1"
+      - key: BATCODE_PLAYGROUND_KEEP_ALIVE
+        value: "2"
+      - key: BATCODE_PLAYGROUND_BACKLOG
+        value: "2048"
+      - key: BATCODE_PLAYGROUND_ACCESS_LOG
+        value: "false"
+      - key: BATCODE_PLAYGROUND_ERROR_LOG
+        value: "false"
+      - key: BATCODE_PLAYGROUND_WORKER_CLASS
+        value: "sync"
+      - key: BATCODE_PLAYGROUND_WORKER_CONNECTIONS
+        value: "1000"
+      - key: BATCODE_PLAYGROUND_WORKER_TIMEOUT
+        value: "30"
+      - key: BATCODE_PLAYGROUND_WORKER_KEEP_ALIVE
+        value: "2"
+      - key: BATCODE_PLAYGROUND_WORKER_MAX_REQUESTS
+        value: "1000"
+      - key: BATCODE_PLAYGROUND_WORKER_MAX_REQUESTS_JITTER
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_TMP_DIR
+        value: "/tmp"
+      - key: BATCODE_PLAYGROUND_WORKER_USER
+        value: "nobody"
+      - key: BATCODE_PLAYGROUND_WORKER_GROUP
+        value: "nogroup"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_LEVEL
+        value: "info"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE
+        value: "-"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_MODE
+        value: "a"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ENCODING
+        value: "utf-8"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_BACKUP_COUNT
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_FORMAT
+        value: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_DATE_FORMAT
+        value: "%Y-%m-%d %H:%M:%S"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_UTC
+        value: "false"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_DELAY
+        value: "false"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE
+        value: "false"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_INTERVAL
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_SIZE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_BACKUP_COUNT 
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_AGE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BACKUP_COUNT
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_AGE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BACKUP_COUNT
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_AGE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BACKUP_COUNT
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_AGE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BACKUP_COUNT
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BYTES
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_AGE
+        value: "0"
+      - key: BATCODE_PLAYGROUND_WORKER_LOG_FILE_ROTATE_MAX_BACKUP_COUNT
+        value: "0"
