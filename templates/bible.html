@@ -75,6 +75,27 @@
       .bible-search button{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--accent2);color:#fff;font-weight:700;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px}
       .bible-search button:hover{background:var(--accent)}
 
+      /* WORD/PHRASE SEARCH */
+      .word-search-bar{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+      .word-search-bar input{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:8px 14px;border-radius:6px;width:280px}
+      .word-search-bar input::placeholder{color:var(--muted)}
+      .word-search-bar input:focus{outline:none;border-color:var(--gold)}
+      .word-search-bar select{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:8px 10px;border-radius:6px;cursor:pointer}
+      .word-search-bar button{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--gold);color:#1a1f16;font-weight:700;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;letter-spacing:1px}
+      .word-search-bar button:hover{filter:brightness(1.15)}
+      .word-search-bar .ws-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);letter-spacing:1px;white-space:nowrap}
+      .ws-result{margin-bottom:18px;padding:12px 16px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0}
+      .ws-ref{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:4px;letter-spacing:.5px}
+      .ws-ref a{color:var(--gold);text-decoration:none;cursor:pointer}
+      .ws-ref a:hover{text-decoration:underline}
+      .ws-text{font-size:.92rem;line-height:1.75;color:var(--text)}
+      .ws-text mark{background:rgba(var(--gold-rgb,200,170,80),.28);color:var(--gold, #c8b050);border-radius:2px;padding:0 2px}
+      .ws-count{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:14px;text-align:center}
+      .ws-page-btns{text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+      .ws-page-btns button{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:6px 14px;border-radius:5px;cursor:pointer}
+      .ws-page-btns button:hover{border-color:var(--gold);color:var(--gold)}
+      .ws-page-btns button.active{background:var(--gold);color:#1a1f16;border-color:var(--gold)}
+
       .bible-bookmarks{margin-bottom:16px;text-align:center}
       .bible-bookmarks button{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--gold);border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;margin:2px}
       .bible-bookmarks button:hover{border-color:var(--gold)}
@@ -147,6 +168,27 @@
           <input type="text" id="verse-search" placeholder="Search: e.g. John 3:16 or Romans 8:28-30">
           <button id="btn-search">SEARCH</button>
         </div>
+
+        <!-- WORD / PHRASE SEARCH -->
+        <div class="word-search-bar" id="word-search-bar">
+          <span class="ws-label">&#x2315; WORD SEARCH:</span>
+          <input type="text" id="ws-input" placeholder="e.g. love one another, fear not, Holy Spirit...">
+          <select id="ws-type" title="Match type">
+            <option value="phrase">Exact Phrase</option>
+            <option value="any">Any Word</option>
+            <option value="all">All Words</option>
+          </select>
+          <select id="ws-bible" title="Translation">
+            <option value="kjv" selected>KJV</option>
+            <option value="kjvs">KJV Strong's</option>
+            <option value="web">WEB</option>
+            <option value="asv">ASV</option>
+            <option value="darby">DARBY</option>
+            <option value="ylt">YLT</option>
+          </select>
+          <button id="ws-btn">&#x1F50D; FIND</button>
+        </div>
+        <div id="ws-results"></div>
 
         <div class="bible-bookmarks" id="bookmarks-bar">
           <span class="bm-title">&#x2605; BOOKMARKS:</span>
@@ -397,6 +439,141 @@
         bar.appendChild(addBtn);
       }
       renderBookmarks();
+
+      // ══════════════════════════════════════════════════════════
+      // WORD / PHRASE SEARCH — BibleSuperSearch free API (no key)
+      // https://www.biblesupersearch.com/api/
+      // ══════════════════════════════════════════════════════════
+      const wsInput  = document.getElementById('ws-input');
+      const wsBtn    = document.getElementById('ws-btn');
+      const wsType   = document.getElementById('ws-type');
+      const wsBible  = document.getElementById('ws-bible');
+      const wsDiv    = document.getElementById('ws-results');
+      const WS_PAGE  = 25;
+      let wsLastQuery = '', wsLastType = '', wsLastBible = '', wsAllResults = [], wsPage = 0;
+
+      wsBtn.addEventListener('click', runWordSearch);
+      wsInput.addEventListener('keydown', e => { if(e.key==='Enter') runWordSearch(); });
+
+      async function runWordSearch(){
+        const q = wsInput.value.trim();
+        if(!q){ wsDiv.innerHTML=''; return; }
+        wsDiv.innerHTML = '<div class="loading">&#x2315; SCANNING SCRIPTURE FOR &ldquo;' + escHtml(q) + '&rdquo;...</div>';
+        const type  = wsType.value;
+        const bible = wsBible.value;
+        // BibleSuperSearch public API — free, no key required
+        const url = 'https://api.biblesupersearch.com/api?bible=' + encodeURIComponent(bible)
+                  + '&search=' + encodeURIComponent(q)
+                  + '&search_type=' + encodeURIComponent(type)
+                  + '&page=1&page_limit=500';
+        try {
+          const resp = await fetch(url);
+          const data = await resp.json();
+          if(!data || data.errors && data.errors.length){
+            const msg = (data.errors||[]).join(' ') || 'No results found.';
+            wsDiv.innerHTML = '<div class="error">&#x26A0; ' + escHtml(msg) + '</div>';
+            return;
+          }
+          // Flatten results from all returned bibles
+          let rows = [];
+          if(data.results){
+            Object.values(data.results).forEach(bObj => {
+              if(bObj && bObj.verses) rows = rows.concat(bObj.verses);
+              else if(Array.isArray(bObj)) rows = rows.concat(bObj);
+            });
+          }
+          if(!rows.length){
+            wsDiv.innerHTML = '<div class="loading" style="color:var(--muted)">No verses found for &ldquo;' + escHtml(q) + '&rdquo;</div>';
+            return;
+          }
+          wsAllResults  = rows;
+          wsLastQuery   = q;
+          wsLastType    = type;
+          wsLastBible   = bible;
+          wsPage        = 0;
+          renderWsPage(q);
+        } catch(err){
+          wsDiv.innerHTML = '<div class="error">&#x26A0; SEARCH FAILED: ' + escHtml(err.message) + '</div>';
+        }
+      }
+
+      function renderWsPage(q){
+        const total  = wsAllResults.length;
+        const start  = wsPage * WS_PAGE;
+        const end    = Math.min(start + WS_PAGE, total);
+        const pages  = Math.ceil(total / WS_PAGE);
+        const slice  = wsAllResults.slice(start, end);
+        let html = '<div class="ws-count">' + total + ' verse' + (total===1?'':'s') + ' matched &mdash; showing ' + (start+1) + '&ndash;' + end + '</div>';
+        slice.forEach(v => {
+          const ref   = v.book_name + ' ' + v.chapter + ':' + v.verse;
+          const text  = highlightWords(v.verse_text || v.text || '', q, wsLastType);
+          html += '<div class="ws-result">';
+          html += '<div class="ws-ref"><a onclick="wsLoadVerse(\''+escAttr(v.book_name)+'\','+v.chapter+',' + v.verse + ')">' + escHtml(ref) + '</a></div>';
+          html += '<div class="ws-text">' + text + '</div>';
+          html += '</div>';
+        });
+        // Pagination
+        if(pages > 1){
+          html += '<div class="ws-page-btns">';
+          for(let p=0;p<pages;p++){
+            html += '<button onclick="wsGoPage('+p+')"' + (p===wsPage?' class="active"':'') + '>' + (p+1) + '</button>';
+          }
+          html += '</div>';
+        }
+        wsDiv.innerHTML = html;
+        wsDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }
+
+      window.wsGoPage = function(p){
+        wsPage = p;
+        renderWsPage(wsLastQuery);
+      };
+
+      // Click a result ref → load that chapter in the reader and jump to the verse
+      window.wsLoadVerse = function(bookName, chapter, verse){
+        const idx = BOOKS.findIndex(b => b.name.toLowerCase() === bookName.toLowerCase());
+        if(idx < 0) return;
+        bookSel.value = idx;
+        updateChapters();
+        chapSel.value = chapter;
+        // Map ws bible to a supported translation (approximate)
+        const bmap = {kjv:'kjv',kjvs:'kjv',web:'web',asv:'asv',darby:'darby',ylt:'ylt'};
+        transSel.value = bmap[wsLastBible] || 'web';
+        loadChapter().then(() => {
+          // Scroll to and highlight the verse
+          setTimeout(() => {
+            const vEls = textDiv.querySelectorAll('.verse');
+            vEls.forEach(el => {
+              const numEl = el.querySelector('.verse-num');
+              if(numEl && parseInt(numEl.textContent) === parseInt(verse)){
+                el.scrollIntoView({behavior:'smooth',block:'center'});
+                el.style.outline = '2px solid var(--gold)';
+                el.style.borderRadius = '4px';
+                setTimeout(()=>{ el.style.outline=''; }, 3000);
+              }
+            });
+          }, 600);
+        }).catch(()=>{});
+      };
+
+      function highlightWords(text, q, type){
+        const safe = escHtml(text);
+        if(type === 'phrase'){
+          const re = new RegExp(escRe(q), 'gi');
+          return safe.replace(re, m => '<mark>' + m + '</mark>');
+        }
+        const words = q.split(/\s+/).filter(Boolean);
+        let result = safe;
+        words.forEach(w => {
+          const re = new RegExp('\\b' + escRe(w) + '\\b', 'gi');
+          result = result.replace(re, m => '<mark>' + m + '</mark>');
+        });
+        return result;
+      }
+
+      function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      function escAttr(s){ return String(s).replace(/'/g,'\\&#39;'); }
+      function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
       // ══════════════════════════════════════════════════════════
       // BIBLE AUDIO — Real Human Voice (KJV from WordProject.org)
