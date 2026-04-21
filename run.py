@@ -30,6 +30,11 @@ def _which(candidates):
 def index():
     return render_template('index.html')
 
+
+@app.route('/healthz')
+def healthz():
+    return jsonify({'ok': True, 'service': 'delta-coding'})
+
 @app.route('/run', methods=['POST'])
 def run_code():
     data = request.get_json(force=True)
@@ -580,6 +585,13 @@ def truth_page():
 
 
 if __name__ == '__main__':
-    import webbrowser, threading
-    threading.Timer(1.2, lambda: webbrowser.open('http://127.0.0.1:5000')).start()
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    import threading
+    import webbrowser
+
+    port = int(os.environ.get('PORT', '5000'))
+    debug = os.environ.get('FLASK_DEBUG') == '1'
+
+    if port == 5000 and os.environ.get('OPEN_BROWSER', '1') == '1':
+        threading.Timer(1.2, lambda: webbrowser.open('http://127.0.0.1:5000')).start()
+
+    app.run(debug=debug, host='127.0.0.1', port=port)

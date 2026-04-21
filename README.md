@@ -59,8 +59,14 @@ To build the Docker image:
 
 ```bash
 docker build -t batcode-playground:latest .
-docker run -p 5000:5000 batcode-playground:latest
+docker run -p 5000:8080 batcode-playground:latest
 ```
+
+IONOS Deploy Now
+- This repo is prepared for container-based deployment on IONOS Deploy Now.
+- The production container installs a headless JDK so the Java playground still works after deployment.
+- The web process binds to the `PORT` environment variable and exposes a health endpoint at `/healthz`.
+- See `IONOS_DEPLOY.md` for the deployment and custom-domain steps for `futurecodedelta.org`.
 
 LLM usage
 - To enable LLM-assisted instruction expansion, set `OPENAI_API_KEY` and then check the `LLM` box in the Agent UI.
