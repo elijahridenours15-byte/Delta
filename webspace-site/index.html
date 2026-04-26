@@ -2,126 +2,378 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Future Code Delta | Browser Edition</title>
-    <meta
-      name="description"
-      content="A professional browser-facing edition of the batcode-playground folder, shaped for IONOS webspace and built to show what lives in the project."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="assets/site.css" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Tactical Dev Platform</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
   </head>
-  <body data-page="home">
-    <div class="site-bg" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html">
-        <span class="brand-mark">FD</span>
-        <span class="brand-copy">
-          <strong>Future Code Delta</strong>
-          <small>BatCode Playground webspace edition</small>
-        </span>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
       </a>
-      <nav class="topnav" aria-label="Primary">
-        <a class="active" href="index.html">Overview</a>
-        <a href="workbench.html">Workbench</a>
-        <a href="deploy.html">Deploy Plan</a>
+      <div class="title">
+        <h1>DELTA CODING</h1>
+        <p class="tag">TACTICAL DEV PLATFORM — Python &bull; Java &bull; HTML &bull; CSS &bull; JS</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html" class="active">Ops Center</a>
+        <a href="cyber.html">Cyber Intel</a>
+        <a href="ai.html">AI Recon</a>
+        <a href="map.html">Tac Map</a>
+        <a href="bible.html">Scripture</a>
+        <a href="drone.html">Drone</a>
       </nav>
     </header>
 
-    <main class="page-shell">
-      <section class="hero panel reveal">
-        <div class="hero-copy">
-          <p class="eyebrow">IONOS-ready browser experience</p>
-          <h1>Fit the folder into a full website without breaking the build story.</h1>
-          <p class="lede">
-            This site turns the current <span class="mono">batcode-playground</span> folder into a
-            professional, browser-accessible presentation layer that works on your existing IONOS
-            webspace and shows what is built inside the project.
-          </p>
-          <div class="actions">
-            <a class="button button-primary" href="workbench.html">Open the Workbench</a>
-            <a class="button button-secondary" href="deploy.html">See the IONOS plan</a>
+    <main class="container">
+      <section class="editor">
+        <div class="controls">
+          <label for="language">Language</label>
+          <select id="language">
+            <option value="python">Python 3</option>
+            <option value="java">Java</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="web">Web (HTML+CSS+JS)</option>
+          </select>
+          <button id="run">Run</button>
+          <button id="reset">Reset</button>
+        </div>
+        <div id="editor" class="editor-pane"></div>
+        <div id="webEditors" class="web-editors" style="display:none;">
+          <div class="editor-tabs">
+            <button class="etab active" data-pane="html">HTML</button>
+            <button class="etab" data-pane="css">CSS</button>
+            <button class="etab" data-pane="js">JS</button>
           </div>
-        </div>
-
-        <div class="hero-side">
-          <div class="stat-card">
-            <span id="stat-pages">0</span>
-            <small>frontend modules mapped</small>
-          </div>
-          <div class="stat-card">
-            <span id="stat-routes">0</span>
-            <small>Flask routes inventoried</small>
-          </div>
-          <div class="stat-card">
-            <span id="stat-files">0</span>
-            <small>source files surfaced</small>
-          </div>
+          <div id="editorHtml" class="editor-pane sub-editor active"></div>
+          <div id="editorCss" class="editor-pane sub-editor" style="display:none;"></div>
+          <div id="editorJs" class="editor-pane sub-editor" style="display:none;"></div>
         </div>
       </section>
 
-      <section class="story-grid reveal stagger">
-        <article class="panel story-card">
-          <h2>Public-facing now</h2>
-          <p>
-            A clean, browser-ready website that explains the product, the architecture, the modules,
-            and the route surface already living in the folder.
-          </p>
-        </article>
-        <article class="panel story-card">
-          <h2>Built from the real project</h2>
-          <p>
-            The site inventory is driven by the current project structure, route map, and templates so
-            it reflects what is actually inside the repository.
-          </p>
-        </article>
-        <article class="panel story-card">
-          <h2>Upgrade path preserved</h2>
-          <p>
-            The full Flask runtime remains intact in the repo, ready for a later move to Python-capable
-            hosting when you want live execution, agent workflows, and backend APIs online.
-          </p>
-        </article>
-      </section>
-
-      <section class="section-block reveal">
-        <div class="section-head">
-          <p class="eyebrow">Module map</p>
-          <h2>What the folder already contains</h2>
+      <aside class="output">
+        <div class="agent-controls">
+          <h2>Agent</h2>
+          <textarea id="instruction" placeholder="Tell the agent what to build (e.g., 'create a Flask web API')"></textarea>
+          <div class="agent-row">
+              <input id="project_name" placeholder="project name (optional)" />
+              <label><input type="checkbox" id="agent_execute" /> Execute</label>
+              <label><input type="checkbox" id="agent_confirm" /> Confirm</label>
+              <label title="Use LLM to expand instruction"><input type="checkbox" id="use_llm" /> LLM</label>
+              <button id="askAgent">Ask Agent</button>
+            </div>
+            <div class="agent-row">
+              <button id="downloadProject" disabled>Download Last</button>
+              <button id="refreshProjects" onclick="fetchProjects()">Refresh</button>
+            </div>
+            <div class="project-toolbar" id="projectToolbar" style="display:none;margin-top:8px;">
+              <label class="select-all-label"><input type="checkbox" id="selectAll" /> Select All</label>
+              <button id="downloadSelected" class="toolbar-btn" disabled>Download Selected</button>
+              <button id="deleteSelected" class="toolbar-btn danger" disabled>Delete Selected</button>
+            </div>
+            <div id="projectList" style="margin-top:8px"></div>
         </div>
-        <div class="card-grid" id="page-grid"></div>
-      </section>
 
-      <section class="section-block reveal">
-        <div class="section-head">
-          <p class="eyebrow">Technology line</p>
-          <h2>Core stack running through the build</h2>
-        </div>
-        <div class="chip-row" id="stack-chips"></div>
-      </section>
+        <h2>Output</h2>
+        <pre id="output">Awaiting code...</pre>
+        <iframe id="htmlPreview" class="html-preview" style="display:none" sandbox="allow-scripts"></iframe>
 
-      <section class="section-block reveal">
-        <div class="section-head">
-          <p class="eyebrow">Capability preview</p>
-          <h2>Route surface at a glance</h2>
-        </div>
-        <div class="route-preview" id="route-preview"></div>
-      </section>
+        <h3>Agent Result</h3>
+        <pre id="agent_output">No agent activity yet.</pre>
+      </aside>
     </main>
 
-    <footer class="site-footer">
-      <p>
-        Future Code Delta is the professional browser edition of the
-        <span class="mono">batcode-playground</span> folder for shared IONOS hosting.
-      </p>
-      <p class="footer-meta">Built from the repository inventory and prepared for futurecodedelta.org.</p>
-    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
+    <script>
+      const pythonTemplate = `print("Delta Coding — Operational")\nfor i in range(3):\n    print(f"Mission {i+1}: Complete")`;
+      const javaTemplate = `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Delta Coding — Operational");\n        for (int i=1;i<=3;i++) System.out.println("Mission " + i + ": Complete");\n    }\n}`;
+      const htmlTemplate = `<!DOCTYPE html>\n<html>\n<head>\n  <title>Delta Page</title>\n</head>\n<body>\n  <h1>Delta Coding</h1>\n  <p>Tactical development platform.</p>\n</body>\n</html>`;
+      const cssTemplate = `body {\n  background: #1a1f16;\n  color: #C8D5A3;\n  font-family: 'Courier New', monospace;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100vh;\n  margin: 0;\n}\n\nh1 {\n  font-size: 3rem;\n  text-shadow: 0 0 20px rgba(139,157,106,.5);\n  letter-spacing: 4px;\n  text-transform: uppercase;\n}`;
+      const webHtmlTemplate = `<!DOCTYPE html>\n<html>\n<head>\n  <title>Delta Page</title>\n</head>\n<body>\n  <div class="command-center">\n    <h1>DELTA CODING</h1>\n    <p>Tactical development platform</p>\n    <button id="btn">ENGAGE</button>\n    <p id="counter"></p>\n  </div>\n</body>\n</html>`;
+      const webCssTemplate = `.command-center {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  height: 100vh;\n  margin: 0;\n  background: linear-gradient(135deg, #1a1f16, #2d3328);\n  color: #C8D5A3;\n  font-family: 'Courier New', monospace;\n}\n\nh1 {\n  font-size: 3rem;\n  letter-spacing: 6px;\n  text-shadow: 0 0 30px rgba(139,157,106,.4);\n}\n\nbutton {\n  background: linear-gradient(135deg, #6B7F4E, #8B9D6A);\n  color: #1a1f16;\n  border: 2px solid #4a5a36;\n  padding: 14px 28px;\n  font-size: 14px;\n  border-radius: 4px;\n  cursor: pointer;\n  font-weight: bold;\n  letter-spacing: 3px;\n  text-transform: uppercase;\n  font-family: monospace;\n}\n\nbutton:hover {\n  background: linear-gradient(135deg, #8B9D6A, #A4B87A);\n  box-shadow: 0 0 20px rgba(139,157,106,.3);\n}`;
+      const webJsTemplate = `let count = 0;\ndocument.getElementById('btn').addEventListener('click', () => {\n  count++;\n  document.getElementById('counter').textContent = 'Operations executed: ' + count;\n});`;
 
-    <script src="assets/site.js" defer></script>
+      const langEl = document.getElementById('language');
+      const outEl = document.getElementById('output');
+      const previewEl = document.getElementById('htmlPreview');
+
+      const editor = ace.edit('editor');
+      editor.setTheme('ace/theme/monokai');
+      editor.session.setMode('ace/mode/python');
+      editor.setOptions({fontSize: '13px', showPrintMargin: false});
+
+      const editorHtml = ace.edit('editorHtml');
+      const editorCss = ace.edit('editorCss');
+      const editorJs = ace.edit('editorJs');
+      [editorHtml, editorCss, editorJs].forEach(e => {
+        e.setTheme('ace/theme/monokai');
+        e.setOptions({fontSize: '13px', showPrintMargin: false});
+      });
+      editorHtml.session.setMode('ace/mode/html');
+      editorCss.session.setMode('ace/mode/css');
+      editorJs.session.setMode('ace/mode/javascript');
+
+      document.querySelectorAll('.editor-tabs .etab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.etab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.sub-editor').forEach(t => { t.style.display = 'none'; t.classList.remove('active'); });
+          btn.classList.add('active');
+          const pane = document.getElementById('editor' + btn.dataset.pane.charAt(0).toUpperCase() + btn.dataset.pane.slice(1));
+          pane.style.display = 'block';
+          pane.classList.add('active');
+          const aceMap = {html: editorHtml, css: editorCss, js: editorJs};
+          aceMap[btn.dataset.pane].resize();
+        });
+      });
+
+      let liveTimer = null;
+      function autoPreview() {
+        clearTimeout(liveTimer);
+        liveTimer = setTimeout(() => {
+          if (langEl.value === 'web') {
+            const h = editorHtml.getValue(), c = editorCss.getValue(), j = editorJs.getValue();
+            let combined = h;
+            if (c) combined = combined.includes('</head>') ? combined.replace('</head>', `<style>${c}</style>\n</head>`) : `<style>${c}</style>\n` + combined;
+            if (j) combined = combined.includes('</body>') ? combined.replace('</body>', `<script>${j}<\/script>\n</body>`) : combined + `\n<script>${j}<\/script>`;
+            previewEl.srcdoc = combined;
+          }
+        }, 400);
+      }
+      editorHtml.session.on('change', autoPreview);
+      editorCss.session.on('change', autoPreview);
+      editorJs.session.on('change', autoPreview);
+
+      const modes = { python: 'ace/mode/python', java: 'ace/mode/java', html: 'ace/mode/html', css: 'ace/mode/css' };
+      const templates = { python: pythonTemplate, java: javaTemplate, html: htmlTemplate, css: cssTemplate };
+
+      function setTemplate() {
+        const lang = langEl.value;
+        const singlePane = document.getElementById('editor');
+        const webPane = document.getElementById('webEditors');
+
+        if (lang === 'web') {
+          singlePane.style.display = 'none';
+          webPane.style.display = 'flex';
+          editorHtml.setValue(webHtmlTemplate, -1);
+          editorCss.setValue(webCssTemplate, -1);
+          editorJs.setValue(webJsTemplate, -1);
+          previewEl.style.display = 'block'; outEl.style.display = 'none';
+          editorHtml.resize(); editorCss.resize(); editorJs.resize();
+          autoPreview();
+        } else {
+          singlePane.style.display = 'block';
+          webPane.style.display = 'none';
+          editor.session.setMode(modes[lang] || 'ace/mode/text');
+          editor.setValue(templates[lang] || '', -1);
+          if (lang === 'html' || lang === 'css') { previewEl.style.display = 'block'; outEl.style.display = 'none'; }
+          else { previewEl.style.display = 'none'; outEl.style.display = 'block'; }
+        }
+      }
+
+      langEl.addEventListener('change', setTemplate);
+
+      document.getElementById('run').addEventListener('click', async () => {
+        const lang = langEl.value;
+        outEl.textContent = 'Running...';
+
+        if (lang === 'web') {
+          const h = editorHtml.getValue(), c = editorCss.getValue(), j = editorJs.getValue();
+          try {
+            const res = await fetch('/run', {
+              method: 'POST', headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({language: 'html', code: h, css: c, js: j})
+            });
+            const data = await res.json();
+            if (data.html) { previewEl.style.display = 'block'; outEl.style.display = 'none'; previewEl.srcdoc = data.html; }
+            else { previewEl.style.display = 'none'; outEl.style.display = 'block'; outEl.textContent = data.error || 'Static preview only.'; }
+          } catch (err) { outEl.textContent = 'Error: ' + err.message; }
+          return;
+        }
+
+        try {
+          const codeVal = editor.getValue();
+          const body = {language: lang, code: codeVal};
+          const res = await fetch('/run', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+          });
+          const data = await res.json();
+          if (data.html) {
+            previewEl.style.display = 'block'; outEl.style.display = 'none';
+            previewEl.srcdoc = data.html;
+          } else {
+            previewEl.style.display = 'none'; outEl.style.display = 'block';
+            if (data.compile_error) outEl.textContent = data.compile_error;
+            else if (data.error) outEl.textContent = data.error;
+            else outEl.textContent = (data.stderr || '') + (data.stdout || '');
+          }
+        } catch (err) { outEl.textContent = 'Network or server error: ' + err.message; }
+      });
+
+      document.getElementById('reset').addEventListener('click', setTemplate);
+      setTemplate();
+
+      const instrEl = document.getElementById('instruction');
+      const agentOutEl = document.getElementById('agent_output');
+      let lastProject = null;
+      document.getElementById('askAgent').addEventListener('click', async () => {
+        agentOutEl.textContent = 'Working...';
+        try {
+          const res = await fetch('/agent', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              instruction: instrEl.value,
+              project_name: document.getElementById('project_name').value,
+              execute: document.getElementById('agent_execute').checked,
+              confirm: document.getElementById('agent_confirm').checked,
+              use_llm: document.getElementById('use_llm') ? document.getElementById('use_llm').checked : false,
+            })
+          });
+          const data = await res.json();
+          agentOutEl.textContent = JSON.stringify(data, null, 2);
+          if (data && data.project_name) {
+            lastProject = data.project_name;
+            document.getElementById('downloadProject').disabled = false;
+            await fetchProjects();
+          }
+        } catch (err) {
+          agentOutEl.textContent = 'Network or server error: ' + err.message;
+        }
+      });
+
+      function getSelectedProjects() {
+        return [...document.querySelectorAll('.project-check:checked')].map(cb => cb.dataset.name);
+      }
+
+      function updateToolbar() {
+        const selected = getSelectedProjects();
+        document.getElementById('downloadSelected').disabled = selected.length === 0;
+        document.getElementById('deleteSelected').disabled = selected.length === 0;
+        document.getElementById('downloadSelected').textContent = selected.length > 0 ? `Download (${selected.length})` : 'Download Selected';
+        document.getElementById('deleteSelected').textContent = selected.length > 0 ? `Delete (${selected.length})` : 'Delete Selected';
+      }
+
+      async function fetchProjects() {
+        try {
+          const res = await fetch('/projects');
+          const data = await res.json();
+          const list = document.getElementById('projectList');
+          const toolbar = document.getElementById('projectToolbar');
+          list.innerHTML = '';
+          const projects = data.projects || [];
+          toolbar.style.display = projects.length > 0 ? 'flex' : 'none';
+          document.getElementById('selectAll').checked = false;
+
+          projects.forEach(p => {
+            const el = document.createElement('div');
+            el.className = 'project-item';
+            el.innerHTML = `
+              <label class="project-check-label">
+                <input type="checkbox" class="project-check" data-name="${p}" />
+                <span class="project-name">${p}</span>
+              </label>
+              <div class="project-actions">
+                <button class="proj-dl-btn" title="Download">&#8615;</button>
+                <button class="proj-del-btn danger" title="Delete">&times;</button>
+              </div>`;
+            el.querySelector('.project-check').addEventListener('change', updateToolbar);
+            el.querySelector('.proj-dl-btn').addEventListener('click', () => window.location = `download/${encodeURIComponent(p)}`);
+            el.querySelector('.proj-del-btn').addEventListener('click', async () => {
+              if (!confirm(`Delete project "${p}"?`)) return;
+              await fetch('/api/projects/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({projects: [p]}) });
+              fetchProjects();
+            });
+            list.appendChild(el);
+          });
+          updateToolbar();
+        } catch (e) { console.warn(e); }
+      }
+
+      document.getElementById('selectAll').addEventListener('change', e => {
+        document.querySelectorAll('.project-check').forEach(cb => { cb.checked = e.target.checked; });
+        updateToolbar();
+      });
+
+      document.getElementById('deleteSelected').addEventListener('click', async () => {
+        const selected = getSelectedProjects();
+        if (selected.length === 0) return;
+        if (!confirm(`Delete ${selected.length} project(s)?`)) return;
+        await fetch('/api/projects/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({projects: selected}) });
+        fetchProjects();
+      });
+
+      document.getElementById('downloadSelected').addEventListener('click', async () => {
+        const selected = getSelectedProjects();
+        if (selected.length === 0) return;
+        if (selected.length === 1) { window.location = `download/${encodeURIComponent(selected[0])}`; return; }
+        const res = await fetch('/api/projects/download', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({projects: selected}) });
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'delta_projects.zip'; a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('downloadProject').addEventListener('click', () => {
+        if (lastProject) window.location = `download/${encodeURIComponent(lastProject)}`;
+      });
+
+      setTemplate();
+      fetchProjects();
+    </script>
+
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
   </body>
 </html>

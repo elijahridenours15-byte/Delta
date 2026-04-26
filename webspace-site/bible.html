@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Scripture Intel</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
+    <style>
+      .container{display:block;height:auto}
+      .bible-wrap{max-width:960px;margin:0 auto;padding:20px}
+      .bible-header{text-align:center;margin-bottom:24px}
+      .bible-header h2{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.5rem;letter-spacing:2px;margin:0 0 4px}
+      .bible-header p{color:var(--muted);font-size:.85rem;margin:0}
+
+      .bible-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+      .bible-controls select,.bible-controls button{
+        font-family:'JetBrains Mono',monospace;font-size:.82rem;
+        background:var(--panel2);color:var(--text);border:1px solid var(--border2);
+        padding:8px 12px;border-radius:6px;cursor:pointer;
+      }
+      .bible-controls select:focus,.bible-controls button:focus{outline:none;border-color:var(--accent)}
+      .bible-controls select{min-width:140px}
+      .bible-controls button{background:var(--accent2);color:#fff;font-weight:700;letter-spacing:1px;min-width:80px}
+      .bible-controls button:hover{background:var(--accent)}
+      .bible-controls button:disabled{opacity:.5;cursor:not-allowed}
+
+      .bible-nav{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+      .bible-nav button{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--panel2);color:var(--text2);border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer}
+      .bible-nav button:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .bible-nav button:disabled{opacity:.3;cursor:not-allowed}
+
+      .bible-text{
+        background:var(--panel);border:1px solid var(--border);border-radius:8px;
+        padding:24px 28px;min-height:350px;
+        font-family:'Inter',sans-serif;line-height:1.85;font-size:.95rem;color:var(--text);
+      }
+      .bible-text .verse{margin-bottom:8px}
+      .bible-text .verse-num{color:var(--accent);font-weight:700;font-size:.75rem;margin-right:6px;font-family:'JetBrains Mono',monospace;vertical-align:super}
+      .bible-text .chapter-title{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;margin-bottom:16px;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px}
+      .bible-text .loading{color:var(--muted);font-style:italic;text-align:center;padding:40px}
+      .bible-text .error{color:var(--danger);text-align:center;padding:40px}
+
+      /* COMBINED SEARCH BAR */
+      .bible-search-combined{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px}
+      .bsc-divider{height:1px;background:var(--border);margin:2px 0}
+      .bsc-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+      .bsc-row input{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:7px 12px;border-radius:6px;flex:1;min-width:180px}
+      .bsc-row input::placeholder{color:var(--muted)}
+      .bsc-row input:focus{outline:none;border-color:var(--accent)}
+      .bsc-row select{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:7px 8px;border-radius:6px;cursor:pointer}
+      .bsc-row select:focus{outline:none;border-color:var(--accent)}
+      .bsc-lbl{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:1px;white-space:nowrap;padding:0 2px}
+      .bsc-lbl.ref{color:var(--accent)}
+      .bsc-lbl.find{color:var(--gold)}
+      .bsc-btn-ref{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--accent2);color:#fff;font-weight:700;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap}
+      .bsc-btn-ref:hover{background:var(--accent)}
+      .bsc-btn-find{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--gold);color:#1a1f16;font-weight:700;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap}
+      .bsc-btn-find:hover{filter:brightness(1.15)}
+      .ws-result{margin-bottom:18px;padding:12px 16px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0}
+      .ws-ref{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:4px;letter-spacing:.5px}
+      .ws-ref a{color:var(--gold);text-decoration:none;cursor:pointer}
+      .ws-ref a:hover{text-decoration:underline}
+      .ws-text{font-size:.92rem;line-height:1.75;color:var(--text)}
+      .ws-text mark{background:rgba(var(--gold-rgb,200,170,80),.28);color:var(--gold, #c8b050);border-radius:2px;padding:0 2px}
+      .ws-count{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:14px;text-align:center}
+      .ws-page-btns{text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+      .ws-page-btns button{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:6px 14px;border-radius:5px;cursor:pointer}
+      .ws-page-btns button:hover{border-color:var(--gold);color:var(--gold)}
+      .ws-page-btns button.active{background:var(--gold);color:#1a1f16;border-color:var(--gold)}
+
+      .bible-bookmarks{margin-bottom:16px;text-align:center}
+      .bible-bookmarks button{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--gold);border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;margin:2px}
+      .bible-bookmarks button:hover{border-color:var(--gold)}
+      .bible-bookmarks .bm-title{color:var(--muted);font-size:.72rem;font-family:'JetBrains Mono',monospace;margin-right:6px}
+
+      /* BIBLE AUDIO PLAYER */
+      .bible-audio-bar{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:14px}
+      .bible-audio-bar button{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;padding:7px 16px;border-radius:6px;cursor:pointer;letter-spacing:1px;border:1px solid var(--border2);background:var(--panel2);color:var(--text)}
+      .bible-audio-bar button:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .bible-audio-bar button.ba-active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+      .bible-audio-bar button:disabled{opacity:.4;cursor:not-allowed}
+      .bible-audio-bar .ba-status{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:1px}
+      .bible-audio-bar .ba-status.speaking{color:var(--accent-bright)}
+      .bible-audio-bar select{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:6px 8px;border-radius:6px;cursor:pointer}
+      .bible-audio-bar select:focus{outline:none;border-color:var(--accent)}
+      .bible-audio-bar input[type=range]{width:80px;accent-color:var(--accent)}
+
+      /* ── RESPONSIVE ── */
+      @media(max-width:600px){
+        .bible-wrap{padding:10px}
+        .bible-controls{padding:10px;gap:6px;flex-direction:column;align-items:stretch}
+        .bible-controls select{min-width:100%;width:100%}
+        .bible-controls button{width:100%}
+        .bible-nav{gap:4px}
+        .bible-nav button{font-size:.7rem;padding:5px 10px}
+        .bsc-row{flex-direction:column !important;align-items:stretch !important}
+        .bsc-row input{flex:none !important;width:100% !important;min-width:0 !important}
+        .bsc-row button{width:100%}
+        .bsc-row select{width:100%}
+        .bsc-lbl{display:none}
+        .bible-text{padding:14px 12px;font-size:.88rem;line-height:1.7}
+        .bible-audio-bar{padding:8px;gap:5px}
+        .bible-audio-bar button{font-size:.68rem;padding:5px 10px}
+        .bible-audio-bar select{font-size:.68rem}
+        .bible-audio-bar input[type=range]{width:60px}
+        .bible-bookmarks button{font-size:.64rem;padding:3px 7px}
+      }
+      @media(max-width:400px){
+        .bible-wrap{padding:6px}
+        .bible-text{padding:10px 8px;font-size:.82rem}
+        .bible-audio-bar{flex-direction:column}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA CODING</h1>
+        <p class="tag">SCRIPTURE INTEL — Read &bull; Study &bull; Listen</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html">Ops Center</a>
+        <a href="cyber.html">Cyber Intel</a>
+        <a href="ai.html">AI Recon</a>
+        <a href="map.html">Tac Map</a>
+        <a href="bible.html" class="active">Scripture</a>
+        <a href="drone.html">Drone</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="bible-wrap">
+        <div class="bible-header">
+          <h2>&#x2720; SCRIPTURE INTEL</h2>
+          <p>Read the Word of God — multiple translations</p>
+        </div>
+
+        <div class="bible-controls">
+          <select id="translation">
+            <option value="kjv">KJV — King James</option>
+            <option value="web" selected>WEB — World English</option>
+            <option value="bbe">BBE — Basic English</option>
+            <option value="asv">ASV — American Standard</option>
+            <option value="darby">DARBY — Darby</option>
+            <option value="ylt">YLT — Young's Literal</option>
+            <option value="oeb-us">OEB — Open English</option>
+            <option value="webbe">WEBBE — WEB British</option>
+            <option value="clementine">CLEMENTINE — Latin Vulgate</option>
+            <option value="almeida">ALMEIDA — Portuguese</option>
+          </select>
+          <select id="book"></select>
+          <select id="chapter"></select>
+          <button id="btn-load">LOAD</button>
+        </div>
+
+        <!-- COMBINED SEARCH BAR -->
+        <div class="bible-search-combined">
+          <!-- Row 1: Verse reference lookup -->
+          <div class="bsc-row">
+            <span class="bsc-lbl ref">&#x25B6; REF:</span>
+            <input type="text" id="verse-search" placeholder="e.g. John 3:16 or Romans 8:28-30">
+            <button class="bsc-btn-ref" id="btn-search">GO</button>
+          </div>
+          <div class="bsc-divider"></div>
+          <!-- Row 2: Full-text word/phrase search -->
+          <div class="bsc-row">
+            <span class="bsc-lbl find">&#x2315; FIND:</span>
+            <input type="text" id="ws-input" placeholder="e.g. love one another, fear not, Holy Spirit...">
+            <select id="ws-type" title="Match type">
+              <option value="phrase">Exact Phrase</option>
+              <option value="any">Any Word</option>
+              <option value="all">All Words</option>
+            </select>
+            <select id="ws-bible" title="Translation">
+              <option value="kjv" selected>KJV</option>
+              <option value="kjvs">KJV Strong's</option>
+              <option value="web">WEB</option>
+              <option value="asv">ASV</option>
+              <option value="darby">DARBY</option>
+              <option value="ylt">YLT</option>
+            </select>
+            <select id="ws-testament" title="Filter by testament">
+              <option value="all" selected>All Books</option>
+              <option value="ot">Old Testament</option>
+              <option value="nt">New Testament</option>
+            </select>
+            <button class="bsc-btn-find" id="ws-btn">&#x1F50D; SEARCH</button>
+          </div>
+        </div>
+        <div id="ws-results"></div>
+
+        <div class="bible-bookmarks" id="bookmarks-bar">
+          <span class="bm-title">&#x2605; BOOKMARKS:</span>
+        </div>
+
+        <div class="bible-nav">
+          <button id="prev-ch" title="Previous Chapter">&#x25C0; PREV</button>
+          <button id="next-ch" title="Next Chapter">NEXT &#x25B6;</button>
+        </div>
+
+        <div class="bible-audio-bar" id="bible-audio-bar">
+          <button id="ba-listen" title="Listen to chapter">&#x1F50A; LISTEN</button>
+          <button id="ba-pause" title="Pause/Resume" disabled>&#x23F8; PAUSE</button>
+          <button id="ba-stop" title="Stop" disabled>&#x25A0; STOP</button>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">VOL</label>
+          <input type="range" id="ba-vol" min="0" max="100" step="1" value="80" title="Volume" style="width:70px;accent-color:var(--accent)">
+          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">SPEED</label>
+          <select id="ba-speed" title="Playback Speed" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:4px 6px;border-radius:4px">
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+          </select>
+          <span class="ba-status" id="ba-status">REAL VOICE — KJV AUDIO</span>
+          <audio id="ba-audio" preload="none"></audio>
+        </div>
+
+        <div class="bible-text" id="bible-text">
+          <div class="loading">Select a book and chapter, then press LOAD...</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+
+    <script>
+    (function(){
+      // ══════════════════════════════════════════════════════════
+      // BIBLE DATA — Books & Chapter Counts
+      // ══════════════════════════════════════════════════════════
+      const BOOKS = [
+        {name:'Genesis',abbr:'Genesis',ch:50},{name:'Exodus',abbr:'Exodus',ch:40},{name:'Leviticus',abbr:'Leviticus',ch:27},
+        {name:'Numbers',abbr:'Numbers',ch:36},{name:'Deuteronomy',abbr:'Deuteronomy',ch:34},{name:'Joshua',abbr:'Joshua',ch:24},
+        {name:'Judges',abbr:'Judges',ch:21},{name:'Ruth',abbr:'Ruth',ch:4},{name:'1 Samuel',abbr:'1Samuel',ch:31},
+        {name:'2 Samuel',abbr:'2Samuel',ch:24},{name:'1 Kings',abbr:'1Kings',ch:22},{name:'2 Kings',abbr:'2Kings',ch:25},
+        {name:'1 Chronicles',abbr:'1Chronicles',ch:29},{name:'2 Chronicles',abbr:'2Chronicles',ch:36},
+        {name:'Ezra',abbr:'Ezra',ch:10},{name:'Nehemiah',abbr:'Nehemiah',ch:13},{name:'Esther',abbr:'Esther',ch:10},
+        {name:'Job',abbr:'Job',ch:42},{name:'Psalms',abbr:'Psalms',ch:150},{name:'Proverbs',abbr:'Proverbs',ch:31},
+        {name:'Ecclesiastes',abbr:'Ecclesiastes',ch:12},{name:'Song of Solomon',abbr:'SongofSolomon',ch:8},
+        {name:'Isaiah',abbr:'Isaiah',ch:66},{name:'Jeremiah',abbr:'Jeremiah',ch:52},{name:'Lamentations',abbr:'Lamentations',ch:5},
+        {name:'Ezekiel',abbr:'Ezekiel',ch:48},{name:'Daniel',abbr:'Daniel',ch:12},{name:'Hosea',abbr:'Hosea',ch:14},
+        {name:'Joel',abbr:'Joel',ch:3},{name:'Amos',abbr:'Amos',ch:9},{name:'Obadiah',abbr:'Obadiah',ch:1},
+        {name:'Jonah',abbr:'Jonah',ch:4},{name:'Micah',abbr:'Micah',ch:7},{name:'Nahum',abbr:'Nahum',ch:3},
+        {name:'Habakkuk',abbr:'Habakkuk',ch:3},{name:'Zephaniah',abbr:'Zephaniah',ch:3},{name:'Haggai',abbr:'Haggai',ch:2},
+        {name:'Zechariah',abbr:'Zechariah',ch:14},{name:'Malachi',abbr:'Malachi',ch:4},
+        // New Testament
+        {name:'Matthew',abbr:'Matthew',ch:28},{name:'Mark',abbr:'Mark',ch:16},{name:'Luke',abbr:'Luke',ch:24},
+        {name:'John',abbr:'John',ch:21},{name:'Acts',abbr:'Acts',ch:28},{name:'Romans',abbr:'Romans',ch:16},
+        {name:'1 Corinthians',abbr:'1Corinthians',ch:16},{name:'2 Corinthians',abbr:'2Corinthians',ch:13},
+        {name:'Galatians',abbr:'Galatians',ch:6},{name:'Ephesians',abbr:'Ephesians',ch:6},
+        {name:'Philippians',abbr:'Philippians',ch:4},{name:'Colossians',abbr:'Colossians',ch:4},
+        {name:'1 Thessalonians',abbr:'1Thessalonians',ch:5},{name:'2 Thessalonians',abbr:'2Thessalonians',ch:3},
+        {name:'1 Timothy',abbr:'1Timothy',ch:6},{name:'2 Timothy',abbr:'2Timothy',ch:4},
+        {name:'Titus',abbr:'Titus',ch:3},{name:'Philemon',abbr:'Philemon',ch:1},
+        {name:'Hebrews',abbr:'Hebrews',ch:13},{name:'James',abbr:'James',ch:5},
+        {name:'1 Peter',abbr:'1Peter',ch:5},{name:'2 Peter',abbr:'2Peter',ch:3},
+        {name:'1 John',abbr:'1John',ch:5},{name:'2 John',abbr:'2John',ch:1},{name:'3 John',abbr:'3John',ch:1},
+        {name:'Jude',abbr:'Jude',ch:1},{name:'Revelation',abbr:'Revelation',ch:22}
+      ];
+
+      const bookSel = document.getElementById('book');
+      const chapSel = document.getElementById('chapter');
+      const transSel = document.getElementById('translation');
+      const textDiv = document.getElementById('bible-text');
+
+      // Populate book selector
+      BOOKS.forEach((b,i) => {
+        const o = document.createElement('option');
+        o.value = i;
+        o.textContent = b.name;
+        bookSel.appendChild(o);
+      });
+
+      // Update chapters when book changes
+      function updateChapters(){
+        const b = BOOKS[bookSel.value];
+        chapSel.innerHTML = '';
+        for(let c=1; c<=b.ch; c++){
+          const o = document.createElement('option');
+          o.value = c;
+          o.textContent = 'Chapter ' + c;
+          chapSel.appendChild(o);
+        }
+      }
+      bookSel.addEventListener('change', updateChapters);
+      updateChapters();
+
+      // Load chapter
+      async function loadChapter(){
+        if(typeof stopAudio === 'function') stopAudio();
+        const b = BOOKS[bookSel.value];
+        const ch = chapSel.value;
+        const trans = transSel.value;
+        textDiv.innerHTML = '<div class="loading">RECEIVING SIGNAL... Loading ' + b.name + ' ' + ch + '...</div>';
+
+        try {
+          const ref = encodeURIComponent(b.name + ' ' + ch);
+          const resp = await fetch('/api/bible?ref=' + ref + '&translation=' + trans);
+          const data = await resp.json();
+          if(data.error){
+            textDiv.innerHTML = '<div class="error">&#x26A0; ' + data.error + '</div>';
+            return;
+          }
+          renderVerses(data, b.name + ' ' + ch);
+        } catch(e){
+          textDiv.innerHTML = '<div class="error">&#x26A0; COMMS FAILURE: ' + e.message + '</div>';
+        }
+      }
+
+      function renderVerses(data, title){
+        let html = '<div class="chapter-title">&#x2720; ' + title.toUpperCase() + ' [' + transSel.options[transSel.selectedIndex].text.split(' — ')[0] + ']</div>';
+        if(data.verses && data.verses.length){
+          data.verses.forEach(v => {
+            html += '<div class="verse"><span class="verse-num">' + v.verse + '</span>' + escapeHtml(v.text) + '</div>';
+          });
+        } else if(data.text){
+          html += '<div class="verse">' + escapeHtml(data.text) + '</div>';
+        } else {
+          html += '<div class="error">No text found for this reference.</div>';
+        }
+        textDiv.innerHTML = html;
+        textDiv.scrollTop = 0;
+      }
+
+      function escapeHtml(t){
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+      }
+
+      document.getElementById('btn-load').addEventListener('click', loadChapter);
+
+      // Prev / Next chapter
+      document.getElementById('prev-ch').addEventListener('click', () => {
+        let ci = parseInt(chapSel.value);
+        let bi = parseInt(bookSel.value);
+        if(ci > 1){ chapSel.value = ci - 1; }
+        else if(bi > 0){ bookSel.value = bi - 1; updateChapters(); chapSel.value = BOOKS[bi-1].ch; }
+        else return;
+        loadChapter();
+      });
+      document.getElementById('next-ch').addEventListener('click', () => {
+        let ci = parseInt(chapSel.value);
+        let bi = parseInt(bookSel.value);
+        const maxCh = BOOKS[bi].ch;
+        if(ci < maxCh){ chapSel.value = ci + 1; }
+        else if(bi < BOOKS.length - 1){ bookSel.value = bi + 1; updateChapters(); }
+        else return;
+        loadChapter();
+      });
+
+      // Search
+      document.getElementById('btn-search').addEventListener('click', doSearch);
+      document.getElementById('verse-search').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+      async function doSearch(){
+        const q = document.getElementById('verse-search').value.trim();
+        if(!q) return;
+        const trans = transSel.value;
+        textDiv.innerHTML = '<div class="loading">SEARCHING: ' + q + '...</div>';
+        try {
+          const resp = await fetch('/api/bible?ref=' + encodeURIComponent(q) + '&translation=' + trans);
+          const data = await resp.json();
+          if(data.error){
+            textDiv.innerHTML = '<div class="error">&#x26A0; ' + data.error + '</div>';
+            return;
+          }
+          renderVerses(data, q);
+        } catch(e){
+          textDiv.innerHTML = '<div class="error">&#x26A0; COMMS FAILURE: ' + e.message + '</div>';
+        }
+      }
+
+      // Bookmarks
+      function loadBookmarks(){
+        try { return JSON.parse(localStorage.getItem('deltaBibleBookmarks')) || []; } catch(e){ return []; }
+      }
+      function saveBookmarks(bm){ localStorage.setItem('deltaBibleBookmarks', JSON.stringify(bm)); }
+      function renderBookmarks(){
+        const bar = document.getElementById('bookmarks-bar');
+        bar.innerHTML = '<span class="bm-title">&#x2605; BOOKMARKS:</span>';
+        const bm = loadBookmarks();
+        if(!bm.length){ bar.innerHTML += '<span style="color:var(--muted);font-size:.72rem;font-family:JetBrains Mono,monospace">None saved</span>'; return; }
+        bm.forEach((b,i) => {
+          const btn = document.createElement('button');
+          btn.textContent = b.label;
+          btn.title = 'Click to load, Shift+Click to remove';
+          btn.addEventListener('click', e => {
+            if(e.shiftKey){ const bm2 = loadBookmarks(); bm2.splice(i,1); saveBookmarks(bm2); renderBookmarks(); return; }
+            bookSel.value = b.bookIdx;
+            updateChapters();
+            chapSel.value = b.chapter;
+            transSel.value = b.translation || 'web';
+            loadChapter();
+          });
+          bar.appendChild(btn);
+        });
+        // Add bookmark button
+        const addBtn = document.createElement('button');
+        addBtn.textContent = '+ ADD';
+        addBtn.style.color = 'var(--accent)';
+        addBtn.addEventListener('click', () => {
+          const bm = loadBookmarks();
+          const b = BOOKS[bookSel.value];
+          const label = b.name + ' ' + chapSel.value;
+          if(bm.find(x => x.label === label)) return;
+          bm.push({label, bookIdx: parseInt(bookSel.value), chapter: parseInt(chapSel.value), translation: transSel.value});
+          saveBookmarks(bm);
+          renderBookmarks();
+        });
+        bar.appendChild(addBtn);
+      }
+      renderBookmarks();
+
+      // ══════════════════════════════════════════════════════════
+      // WORD / PHRASE SEARCH — BibleSuperSearch free API (no key)
+      // https://www.biblesupersearch.com/api/
+      // ══════════════════════════════════════════════════════════
+      const wsInput      = document.getElementById('ws-input');
+      const wsBtn        = document.getElementById('ws-btn');
+      const wsType       = document.getElementById('ws-type');
+      const wsBible      = document.getElementById('ws-bible');
+      const wsTestament  = document.getElementById('ws-testament');
+      const wsDiv        = document.getElementById('ws-results');
+      const WS_PAGE      = 25;
+      // OT = BOOKS indices 0-38 (Genesis–Malachi), NT = indices 39-65 (Matthew–Revelation)
+      const OT_NAMES = new Set(BOOKS.slice(0,39).map(b=>b.name.toLowerCase()));
+      const NT_NAMES = new Set(BOOKS.slice(39).map(b=>b.name.toLowerCase()));
+      let wsLastQuery = '', wsLastType = '', wsLastBible = '', wsAllResults = [], wsFiltered = [], wsPage = 0;
+
+      wsBtn.addEventListener('click', runWordSearch);
+      wsInput.addEventListener('keydown', e => { if(e.key==='Enter') runWordSearch(); });
+      wsTestament.addEventListener('change', () => { if(wsAllResults.length){ wsPage=0; applyTestamentFilter(); renderWsPage(wsLastQuery); } });
+
+      async function runWordSearch(){
+        const q = wsInput.value.trim();
+        if(!q){ wsDiv.innerHTML=''; return; }
+        wsDiv.innerHTML = '<div class="loading">&#x2315; SCANNING SCRIPTURE FOR &ldquo;' + escHtml(q) + '&rdquo;...</div>';
+        const type  = wsType.value;
+        const bible = wsBible.value;
+        // BibleSuperSearch public API — free, no key required
+        const url = 'https://api.biblesupersearch.com/api?bible=' + encodeURIComponent(bible)
+                  + '&search=' + encodeURIComponent(q)
+                  + '&search_type=' + encodeURIComponent(type)
+                  + '&page=1&page_limit=500';
+        try {
+          const resp = await fetch(url);
+          const data = await resp.json();
+          if(!data || data.errors && data.errors.length){
+            const msg = (data.errors||[]).join(' ') || 'No results found.';
+            wsDiv.innerHTML = '<div class="error">&#x26A0; ' + escHtml(msg) + '</div>';
+            return;
+          }
+          // Flatten results from all returned bibles
+          let rows = [];
+          if(data.results){
+            Object.values(data.results).forEach(bObj => {
+              if(bObj && bObj.verses) rows = rows.concat(bObj.verses);
+              else if(Array.isArray(bObj)) rows = rows.concat(bObj);
+            });
+          }
+          if(!rows.length){
+            wsDiv.innerHTML = '<div class="loading" style="color:var(--muted)">No verses found for &ldquo;' + escHtml(q) + '&rdquo;</div>';
+            return;
+          }
+          wsAllResults = rows;
+          wsLastQuery  = q;
+          wsLastType   = type;
+          wsLastBible  = bible;
+          wsPage       = 0;
+          applyTestamentFilter();
+          renderWsPage(q);
+        } catch(err){
+          wsDiv.innerHTML = '<div class="error">&#x26A0; SEARCH FAILED: ' + escHtml(err.message) + '</div>';
+        }
+      }
+
+      function applyTestamentFilter(){
+        const t = wsTestament.value;
+        if(t === 'ot')       wsFiltered = wsAllResults.filter(v => OT_NAMES.has((v.book_name||'').toLowerCase()));
+        else if(t === 'nt')  wsFiltered = wsAllResults.filter(v => NT_NAMES.has((v.book_name||'').toLowerCase()));
+        else                 wsFiltered = wsAllResults;
+      }
+
+      function renderWsPage(q){
+        if(!wsFiltered.length && wsAllResults.length) applyTestamentFilter();
+        const total  = wsFiltered.length;
+        const start  = wsPage * WS_PAGE;
+        const end    = Math.min(start + WS_PAGE, total);
+        const pages  = Math.ceil(total / WS_PAGE);
+        const slice  = wsFiltered.slice(start, end);
+        const tLabel = wsTestament.value==='ot' ? ' (OT)' : wsTestament.value==='nt' ? ' (NT)' : '';
+        let html = '<div class="ws-count">' + total + ' verse' + (total===1?'':'s') + tLabel + ' matched &mdash; showing ' + (start+1) + '&ndash;' + end + '</div>';
+        slice.forEach(v => {
+          const ref   = v.book_name + ' ' + v.chapter + ':' + v.verse;
+          const text  = highlightWords(v.verse_text || v.text || '', q, wsLastType);
+          html += '<div class="ws-result">';
+          html += '<div class="ws-ref"><a onclick="wsLoadVerse(\''+escAttr(v.book_name)+'\','+v.chapter+',' + v.verse + ')">' + escHtml(ref) + '</a></div>';
+          html += '<div class="ws-text">' + text + '</div>';
+          html += '</div>';
+        });
+        // Pagination
+        if(pages > 1){
+          html += '<div class="ws-page-btns">';
+          for(let p=0;p<pages;p++){
+            html += '<button onclick="wsGoPage('+p+')"' + (p===wsPage?' class="active"':'') + '>' + (p+1) + '</button>';
+          }
+          html += '</div>';
+        }
+        wsDiv.innerHTML = html;
+        wsDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }
+
+      window.wsGoPage = function(p){
+        wsPage = p;
+        renderWsPage(wsLastQuery);
+        wsDiv.scrollIntoView({behavior:'smooth',block:'start'});
+      };
+
+      // Click a result ref → load that chapter in the reader and jump to the verse
+      window.wsLoadVerse = function(bookName, chapter, verse){
+        const idx = BOOKS.findIndex(b => b.name.toLowerCase() === bookName.toLowerCase());
+        if(idx < 0) return;
+        bookSel.value = idx;
+        updateChapters();
+        chapSel.value = chapter;
+        // Map ws bible to a supported translation (approximate)
+        const bmap = {kjv:'kjv',kjvs:'kjv',web:'web',asv:'asv',darby:'darby',ylt:'ylt'};
+        transSel.value = bmap[wsLastBible] || 'web';
+        loadChapter().then(() => {
+          // Scroll to and highlight the verse
+          setTimeout(() => {
+            const vEls = textDiv.querySelectorAll('.verse');
+            vEls.forEach(el => {
+              const numEl = el.querySelector('.verse-num');
+              if(numEl && parseInt(numEl.textContent) === parseInt(verse)){
+                el.scrollIntoView({behavior:'smooth',block:'center'});
+                el.style.outline = '2px solid var(--gold)';
+                el.style.borderRadius = '4px';
+                setTimeout(()=>{ el.style.outline=''; }, 3000);
+              }
+            });
+          }, 600);
+        }).catch(()=>{});
+      };
+
+      function highlightWords(text, q, type){
+        const safe = escHtml(text);
+        if(type === 'phrase'){
+          const re = new RegExp(escRe(q), 'gi');
+          return safe.replace(re, m => '<mark>' + m + '</mark>');
+        }
+        const words = q.split(/\s+/).filter(Boolean);
+        let result = safe;
+        words.forEach(w => {
+          const re = new RegExp('\\b' + escRe(w) + '\\b', 'gi');
+          result = result.replace(re, m => '<mark>' + m + '</mark>');
+        });
+        return result;
+      }
+
+      function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      function escAttr(s){ return String(s).replace(/'/g,'\\&#39;'); }
+      function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+      // ══════════════════════════════════════════════════════════
+      // BIBLE AUDIO — Real Human Voice (KJV from WordProject.org)
+      // Free public domain audio — professional narrator recordings
+      // ══════════════════════════════════════════════════════════
+      const baAudio = document.getElementById('ba-audio');
+      const baListen = document.getElementById('ba-listen');
+      const baPause = document.getElementById('ba-pause');
+      const baStop = document.getElementById('ba-stop');
+      const baVol = document.getElementById('ba-vol');
+      const baSpeed = document.getElementById('ba-speed');
+      const baStatus = document.getElementById('ba-status');
+      let audioPlaying = false;
+
+      function pad3(n){ return String(n).padStart(3,'0'); }
+
+      function getAudioUrl(){
+        // WordProject.org free KJV audio: /bibles/app/audio/1/b{book}_{chapter}.mp3
+        const bookIdx = parseInt(bookSel.value); // 0-based
+        const chapter = parseInt(chapSel.value);  // 1-based
+        const bookNum = pad3(bookIdx + 1); // 1-based, 3-digit
+        const chapNum = pad3(chapter);
+        return 'https://audio.wordproject.org/bibles/app/audio/1/b' + bookNum + '_' + chapNum + '.mp3';
+      }
+
+      baListen.addEventListener('click', () => {
+        if(audioPlaying && !baAudio.paused){return;}
+        if(audioPlaying && baAudio.paused){
+          baAudio.play().catch(()=>{});
+          baPause.textContent = '\u23F8 PAUSE';
+          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
+          baStatus.className = 'ba-status speaking';
+          return;
+        }
+        const url = getAudioUrl();
+        baStatus.textContent = 'LOADING AUDIO...';
+        baStatus.className = 'ba-status speaking';
+        baAudio.src = url;
+        baAudio.volume = baVol.value / 100;
+        baAudio.playbackRate = parseFloat(baSpeed.value);
+        baAudio.play().then(() => {
+          audioPlaying = true;
+          baListen.classList.add('ba-active');
+          baPause.disabled = false;
+          baStop.disabled = false;
+          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
+          baStatus.className = 'ba-status speaking';
+        }).catch(() => {
+          baStatus.textContent = 'AUDIO NOT AVAILABLE FOR THIS CHAPTER';
+          baStatus.className = 'ba-status';
+        });
+      });
+
+      baPause.addEventListener('click', () => {
+        if(!audioPlaying) return;
+        if(baAudio.paused){
+          baAudio.play().catch(()=>{});
+          baPause.textContent = '\u23F8 PAUSE';
+          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
+          baStatus.className = 'ba-status speaking';
+        } else {
+          baAudio.pause();
+          baPause.textContent = '\u25B6 RESUME';
+          baStatus.textContent = 'PAUSED';
+          baStatus.className = 'ba-status';
+        }
+      });
+
+      baStop.addEventListener('click', stopAudio);
+
+      baAudio.addEventListener('ended', () => {
+        // Auto-advance to next chapter
+        const nextBtn = document.getElementById('next-ch');
+        if(!nextBtn.disabled){
+          stopAudio();
+          nextBtn.click();
+          setTimeout(() => { baListen.click(); }, 1500);
+        } else {
+          stopAudio();
+        }
+      });
+
+      baAudio.addEventListener('error', () => {
+        baStatus.textContent = 'AUDIO NOT AVAILABLE';
+        baStatus.className = 'ba-status';
+        stopAudio();
+      });
+
+      baVol.addEventListener('input', () => { baAudio.volume = baVol.value / 100; });
+      baSpeed.addEventListener('change', () => { baAudio.playbackRate = parseFloat(baSpeed.value); });
+
+      function stopAudio(){
+        baAudio.pause();
+        baAudio.currentTime = 0;
+        baAudio.src = '';
+        audioPlaying = false;
+        baListen.classList.remove('ba-active');
+        baPause.disabled = true;
+        baStop.disabled = true;
+        baPause.textContent = '\u23F8 PAUSE';
+        baStatus.textContent = 'REAL VOICE — KJV AUDIO';
+        baStatus.className = 'ba-status';
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', e => {
+        if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        if(e.key === 'ArrowLeft'){ document.getElementById('prev-ch').click(); }
+        if(e.key === 'ArrowRight'){ document.getElementById('next-ch').click(); }
+      });
+    })();
+    </script>
+
+    <!-- RADIO FOOTER SCRIPT -->
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      // Restore state on load
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>

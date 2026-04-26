@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Cyber Intel</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — CYBER INTEL</h1>
+        <p class="tag">CVE DATABASE &bull; ENCRYPTION TOOLS &bull; SECURITY SCANNERS &bull; FIELD RESOURCES</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html">Ops Center</a>
+        <a href="cyber.html" class="active">Cyber Intel</a>
+        <a href="ai.html">AI Recon</a>
+        <a href="map.html">Tac Map</a>
+        <a href="bible.html">Scripture</a>
+        <a href="drone.html">Drone</a>
+      </nav>
+    </header>
+
+    <main class="cyber-container">
+      <div class="cyber-tabs">
+        <button class="tab active" data-tab="cves">CVE Database</button>
+        <button class="tab" data-tab="encrypt">Encryption Tools</button>
+        <button class="tab" data-tab="scanner">Security Scanner</button>
+        <button class="tab" data-tab="resources">Free Resources</button>
+      </div>
+
+      <!-- TAB: CVE DATABASE -->
+      <section id="tab-cves" class="tab-content active">
+        <div class="cyber-search">
+          <div class="search-box">
+            <input type="search" id="cveSearch" placeholder="Search CVEs… (e.g. Apache, log4j, Windows)" autocomplete="off" />
+            <button id="searchBtn">Search</button>
+            <button id="latestBtn" class="secondary">Latest CVEs</button>
+          </div>
+          <div class="search-meta">
+            <span id="resultCount"></span>
+            <span id="searchStatus"></span>
+          </div>
+        </div>
+        <section id="cveGrid" class="cve-grid"></section>
+        <div id="cveModal" class="modal hidden">
+          <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 id="modalId"></h2>
+            <span class="modal-badge" id="modalSeverity"></span>
+            <span class="modal-score" id="modalScore"></span>
+            <p class="modal-date" id="modalDate"></p>
+            <p class="modal-desc" id="modalDesc"></p>
+            <a id="modalLink" class="modal-link" target="_blank" rel="noopener noreferrer">View on NVD &rarr;</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: ENCRYPTION TOOLS -->
+      <section id="tab-encrypt" class="tab-content">
+        <div class="tool-panel">
+          <h3>Hash &amp; Encode</h3>
+          <p class="tool-desc">All processing happens on the server — your data is never sent to third parties.</p>
+          <textarea id="encryptInput" class="tool-input" rows="4" placeholder="Enter text to hash or encode…"></textarea>
+          <div class="tool-row">
+            <select id="encryptAlgo">
+              <option value="all">All Algorithms</option>
+              <option value="sha256">SHA-256</option>
+              <option value="sha512">SHA-512</option>
+              <option value="sha1">SHA-1</option>
+              <option value="md5">MD5</option>
+              <option value="base64">Base64 Encode</option>
+              <option value="base64_decode">Base64 Decode</option>
+            </select>
+            <button id="encryptBtn">Encrypt / Hash</button>
+          </div>
+          <div id="encryptResults" class="encrypt-results"></div>
+        </div>
+      </section>
+
+      <!-- TAB: SECURITY SCANNER -->
+      <section id="tab-scanner" class="tab-content">
+        <div class="tool-panel">
+          <h3>HTTP Security Headers Scanner</h3>
+          <p class="tool-desc">Check any website's security headers and get a grade.</p>
+          <div class="search-box">
+            <input type="text" id="scanUrl" placeholder="e.g. google.com or https://example.com" />
+            <button id="scanBtn">Scan</button>
+          </div>
+          <div id="scanResults" class="scan-results"></div>
+        </div>
+      </section>
+
+      <!-- TAB: FREE RESOURCES -->
+      <section id="tab-resources" class="tab-content">
+        <div id="resourceGrid" class="resource-grid">
+          <p class="loading">Loading resources…</p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Tabs
+      document.querySelectorAll('.cyber-tabs .tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+      });
+
+      function esc(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+      // ─── CVE Database ───
+      const grid = document.getElementById('cveGrid');
+      const searchInput = document.getElementById('cveSearch');
+      const statusEl = document.getElementById('searchStatus');
+      const countEl = document.getElementById('resultCount');
+
+      function severityClass(sev) {
+        if (!sev) return 'sev-unknown';
+        const s = sev.toUpperCase();
+        if (s === 'CRITICAL') return 'sev-critical';
+        if (s === 'HIGH') return 'sev-high';
+        if (s === 'MEDIUM') return 'sev-medium';
+        if (s === 'LOW') return 'sev-low';
+        return 'sev-unknown';
+      }
+
+      function renderCves(cves) {
+        grid.innerHTML = '';
+        if (!cves || cves.length === 0) { grid.innerHTML = '<p class="no-results">No vulnerabilities found.</p>'; return; }
+        cves.forEach(cve => {
+          const card = document.createElement('div');
+          card.className = `cve-card ${severityClass(cve.severity)}`;
+          card.innerHTML = `
+            <div class="cve-header"><span class="cve-id">${esc(cve.id)}</span><span class="cve-badge">${esc(cve.severity || 'N/A')}</span></div>
+            <p class="cve-desc">${esc(cve.description || 'No description available.')}</p>
+            <div class="cve-footer"><span class="cve-date">${esc(cve.published)}</span>${cve.score != null ? `<span class="cve-score">CVSS ${cve.score}</span>` : ''}</div>`;
+          card.addEventListener('click', () => showModal(cve));
+          grid.appendChild(card);
+        });
+      }
+
+      function showModal(cve) {
+        document.getElementById('modalId').textContent = cve.id;
+        const sevEl = document.getElementById('modalSeverity');
+        sevEl.textContent = cve.severity || 'N/A';
+        sevEl.className = `modal-badge ${severityClass(cve.severity)}`;
+        document.getElementById('modalScore').textContent = cve.score != null ? `CVSS ${cve.score}` : '';
+        document.getElementById('modalDate').textContent = `Published: ${cve.published}`;
+        document.getElementById('modalDesc').textContent = cve.description || 'No description available.';
+        document.getElementById('modalLink').href = cve.url;
+        document.getElementById('cveModal').classList.remove('hidden');
+      }
+      document.getElementById('modalClose').addEventListener('click', () => document.getElementById('cveModal').classList.add('hidden'));
+      document.getElementById('cveModal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
+
+      async function fetchLatest() {
+        statusEl.textContent = 'Loading latest CVEs…'; countEl.textContent = '';
+        grid.innerHTML = '<p class="loading">Scanning threat database…</p>';
+        try {
+          const res = await fetch('/api/cves?limit=20'); const data = await res.json();
+          if (data.ok) { countEl.textContent = `${data.cves.length} of ${data.total.toLocaleString()} total`; renderCves(data.cves); statusEl.textContent = ''; }
+          else { grid.innerHTML = `<p class="no-results">Error: ${esc(data.error)}</p>`; statusEl.textContent = ''; }
+        } catch (err) { grid.innerHTML = `<p class="no-results">Network error: ${esc(err.message)}</p>`; statusEl.textContent = ''; }
+      }
+
+      async function searchCves(keyword) {
+        if (!keyword.trim()) { fetchLatest(); return; }
+        statusEl.textContent = `Searching "${keyword}"…`; countEl.textContent = '';
+        grid.innerHTML = '<p class="loading">Investigating…</p>';
+        try {
+          const res = await fetch(`/api/cves/search?keyword=${encodeURIComponent(keyword)}&limit=20`); const data = await res.json();
+          if (data.ok) { countEl.textContent = `${data.cves.length} of ${data.total.toLocaleString()} results`; renderCves(data.cves); statusEl.textContent = ''; }
+          else { grid.innerHTML = `<p class="no-results">Error: ${esc(data.error)}</p>`; statusEl.textContent = ''; }
+        } catch (err) { grid.innerHTML = `<p class="no-results">Network error: ${esc(err.message)}</p>`; statusEl.textContent = ''; }
+      }
+
+      document.getElementById('searchBtn').addEventListener('click', () => searchCves(searchInput.value));
+      document.getElementById('latestBtn').addEventListener('click', () => { searchInput.value = ''; fetchLatest(); });
+      searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchCves(searchInput.value); });
+      fetchLatest();
+
+      // ─── Encryption Tools ───
+      document.getElementById('encryptBtn').addEventListener('click', async () => {
+        const text = document.getElementById('encryptInput').value;
+        const algo = document.getElementById('encryptAlgo').value;
+        const resultsDiv = document.getElementById('encryptResults');
+        if (!text.trim()) { resultsDiv.innerHTML = '<p class="no-results">Enter some text first.</p>'; return; }
+        resultsDiv.innerHTML = '<p class="loading">Computing…</p>';
+        try {
+          const res = await fetch('/api/cyber/encrypt', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ text, algorithm: algo }) });
+          const data = await res.json();
+          if (data.ok) {
+            let html = '';
+            for (const [alg, val] of Object.entries(data.results)) {
+              html += `<div class="encrypt-row"><span class="encrypt-label">${esc(alg.toUpperCase())}</span><code class="encrypt-value" title="Click to copy">${esc(val)}</code></div>`;
+            }
+            resultsDiv.innerHTML = html;
+            resultsDiv.querySelectorAll('.encrypt-value').forEach(el => {
+              el.addEventListener('click', () => { navigator.clipboard.writeText(el.textContent); el.classList.add('copied'); setTimeout(() => el.classList.remove('copied'), 1200); });
+            });
+          } else { resultsDiv.innerHTML = `<p class="no-results">${esc(data.error)}</p>`; }
+        } catch (err) { resultsDiv.innerHTML = `<p class="no-results">Error: ${esc(err.message)}</p>`; }
+      });
+
+      // ─── Security Scanner ───
+      document.getElementById('scanBtn').addEventListener('click', async () => {
+        const url = document.getElementById('scanUrl').value.trim();
+        const resultsDiv = document.getElementById('scanResults');
+        if (!url) { resultsDiv.innerHTML = '<p class="no-results">Enter a URL to scan.</p>'; return; }
+        resultsDiv.innerHTML = '<p class="loading">Scanning headers…</p>';
+        try {
+          const res = await fetch(`/api/cyber/headers?url=${encodeURIComponent(url)}`);
+          const data = await res.json();
+          if (data.ok) {
+            let html = `<div class="scan-summary"><div class="scan-grade grade-${data.grade}">${data.grade}</div><div class="scan-info"><strong>${esc(data.url)}</strong><br>Status: ${data.status_code} &bull; SSL: ${data.ssl ? '✅' : '❌'}<br>Found ${Object.keys(data.headers_found).length}/${data.total_checked} security headers</div></div>`;
+            if (Object.keys(data.headers_found).length > 0) {
+              html += '<h4>✅ Headers Found</h4>';
+              for (const [h, v] of Object.entries(data.headers_found)) { html += `<div class="header-row found"><span class="header-name">${esc(h)}</span><span class="header-val">${esc(v)}</span></div>`; }
+            }
+            if (data.headers_missing.length > 0) {
+              html += '<h4>⚠️ Missing Headers</h4>';
+              data.headers_missing.forEach(h => { html += `<div class="header-row missing"><span class="header-name">${esc(h)}</span><span class="header-val">Not set</span></div>`; });
+            }
+            resultsDiv.innerHTML = html;
+          } else { resultsDiv.innerHTML = `<p class="no-results">${esc(data.error)}</p>`; }
+        } catch (err) { resultsDiv.innerHTML = `<p class="no-results">Error: ${esc(err.message)}</p>`; }
+      });
+      document.getElementById('scanUrl').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('scanBtn').click(); });
+
+      // ─── Resources ───
+      (async () => {
+        try {
+          const res = await fetch('/api/cyber/resources'); const data = await res.json();
+          const rg = document.getElementById('resourceGrid');
+          if (data.ok) {
+            rg.innerHTML = '';
+            data.resources.forEach(r => {
+              const card = document.createElement('a');
+              card.className = 'resource-card';
+              card.href = r.url; card.target = '_blank'; card.rel = 'noopener noreferrer';
+              card.innerHTML = `<span class="resource-cat">${esc(r.category)}</span><strong>${esc(r.name)}</strong><p>${esc(r.desc)}</p>`;
+              rg.appendChild(card);
+            });
+          }
+        } catch (e) { console.warn(e); }
+      })();
+    </script>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1870 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Drone Command</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
+    <style>
+      .container{display:block;height:auto}
+      .drone-wrap{max-width:1200px;margin:0 auto;padding:16px}
+      .drone-header{text-align:center;margin-bottom:18px}
+
+      /* ── RESPONSIVE ── */
+      @media(max-width:860px){
+        .drone-grid{grid-template-columns:1fr}
+        .ctrl-sidebar{flex-direction:row;flex-wrap:wrap}
+        .ctrl-section{flex:1;min-width:200px}
+      }
+      @media(max-width:600px){
+        .drone-wrap{padding:10px}
+        .conn-panel{padding:10px;gap:8px}
+        .conn-card{min-width:100%}
+        .cam-feed{min-height:260px}
+        .cam-panel{min-height:260px}
+        .feeds-tabs{gap:3px}
+        .feeds-tab{font-size:.6rem;padding:5px 8px}
+        .feeds-grid{grid-template-columns:1fr}
+        .feed-thumb{height:120px}
+        .sat-map-wrap{height:280px}
+        .cctv-map-wrap{height:300px}
+        .mil-map-wrap{height:300px}
+        .cctv-cam-grid{grid-template-columns:1fr}
+        .mil-feed-grid{grid-template-columns:1fr}
+        .telem-grid{grid-template-columns:1fr 1fr}
+        .gimbal-pad{width:90px;height:90px}
+        .drone-log{max-height:100px;font-size:.62rem}
+        .settings-modal{width:96%;max-height:90vh}
+        .mil-source-tabs{gap:3px}
+        .mil-src{font-size:.58rem;padding:4px 8px}
+        .cctv-filters{gap:3px}
+        .cctv-filter{font-size:.6rem;padding:4px 8px}
+        .sat-controls{gap:3px}
+        .sat-btn{font-size:.6rem;padding:4px 8px}
+      }
+      @media(max-width:400px){
+        .drone-wrap{padding:6px}
+        .conn-card{padding:10px}
+        .feeds-tab{font-size:.55rem;padding:4px 6px}
+        .ctrl-section{padding:8px}
+      }
+      .drone-header h2{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.4rem;letter-spacing:2px;margin:0 0 4px}
+      .drone-header p{color:var(--muted);font-size:.82rem;margin:0}
+
+      /* ── CONNECTION PANEL ── */
+      .conn-panel{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+      .conn-card{flex:1;min-width:260px;max-width:380px;background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:14px}
+      .conn-card h3{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);margin:0 0 10px;letter-spacing:1px}
+      .conn-status{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+      .conn-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);flex-shrink:0;transition:background .3s}
+      .conn-dot.connected{background:var(--success);box-shadow:0 0 8px rgba(90,143,90,.6)}
+      .conn-dot.scanning{background:var(--warning);animation:pulse-dot 1s infinite}
+      @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+      .conn-label{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text2)}
+      .conn-card select{width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--bg2);color:var(--text);border:1px solid var(--border2);padding:6px 8px;border-radius:4px;margin-bottom:8px}
+      .conn-card select:focus{outline:none;border-color:var(--accent)}
+      .conn-btns{display:flex;gap:6px}
+      .conn-btn{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;padding:6px 12px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;flex:1;text-align:center}
+      .conn-btn.primary{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+      .conn-btn.primary:hover{background:var(--accent)}
+      .conn-btn.danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger)}
+      .conn-btn.scan{background:var(--panel);color:var(--gold);border-color:var(--gold)}
+      .conn-btn.scan:hover{background:rgba(196,162,101,.1)}
+      .conn-btn:disabled{opacity:.4;cursor:not-allowed}
+
+      /* ── MAIN GRID: CAMERA + CONTROLS ── */
+      .drone-grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:16px}
+      @media(max-width:860px){.drone-grid{grid-template-columns:1fr}}
+
+      /* Camera feed */
+      .cam-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative;min-height:400px}
+      .cam-feed{width:100%;height:100%;min-height:400px;background:#000;display:flex;align-items:center;justify-content:center;position:relative}
+      .cam-feed video{width:100%;height:100%;object-fit:contain;background:#000}
+      .cam-placeholder{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.85rem;text-align:center;padding:40px}
+      .cam-placeholder .icon{font-size:3rem;margin-bottom:12px;display:block}
+      .cam-hud{position:absolute;top:0;left:0;right:0;padding:8px 12px;display:flex;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 100%);pointer-events:none}
+      .cam-hud span{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent-bright);letter-spacing:1px}
+      .cam-hud .rec-badge{color:var(--danger);font-weight:700;display:none}
+      .cam-hud .rec-badge.active{display:inline;animation:pulse-dot 1s infinite}
+      .cam-bottom{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;display:flex;justify-content:center;gap:8px;background:linear-gradient(0deg,rgba(0,0,0,.7) 0%,transparent 100%)}
+      .cam-btn{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;padding:5px 12px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:4px;cursor:pointer;backdrop-filter:blur(4px)}
+      .cam-btn:hover{background:rgba(255,255,255,.2)}
+      .cam-btn.rec-active{background:rgba(204,68,68,.4);border-color:var(--danger);color:#fff}
+
+      /* ── CONTROLS SIDEBAR ── */
+      .ctrl-sidebar{display:flex;flex-direction:column;gap:10px}
+      .ctrl-section{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px}
+      .ctrl-section h4{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin:0 0 10px;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:6px}
+      .ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+      .ctrl-row:last-child{margin-bottom:0}
+      .ctrl-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2)}
+      .ctrl-val{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent-bright);min-width:50px;text-align:right}
+      .ctrl-slider{width:100px;accent-color:var(--accent)}
+      .ctrl-toggle{position:relative;width:36px;height:18px;background:var(--bg2);border-radius:9px;border:1px solid var(--border2);cursor:pointer;flex-shrink:0}
+      .ctrl-toggle::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:all .2s}
+      .ctrl-toggle.on{background:var(--accent2);border-color:var(--accent)}
+      .ctrl-toggle.on::after{left:20px;background:var(--accent-bright)}
+
+      /* Telemetry */
+      .telem-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+      .telem-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:6px 8px;text-align:center}
+      .telem-item .t-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+      .telem-item .t-val{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent-bright);font-weight:700}
+
+      /* Gimbal stick */
+      .gimbal-pad{width:120px;height:120px;margin:8px auto;background:var(--bg2);border:2px solid var(--border2);border-radius:50%;position:relative;cursor:crosshair;touch-action:none}
+      .gimbal-dot{width:20px;height:20px;border-radius:50%;background:var(--accent);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(139,157,106,.5);transition:none;pointer-events:none}
+      .gimbal-crosshair{position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border2)}
+      .gimbal-crosshair-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--border2)}
+      .gimbal-label{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:4px}
+
+      /* Settings panel */
+      .settings-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(4px)}
+      .settings-overlay.visible{display:flex;align-items:center;justify-content:center}
+      .settings-modal{background:var(--panel);border:1px solid var(--border);border-radius:10px;width:90%;max-width:640px;max-height:80vh;overflow-y:auto;padding:0}
+      .settings-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:1}
+      .settings-header h3{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent-bright);margin:0;letter-spacing:1px}
+      .settings-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px 8px}
+      .settings-close:hover{color:var(--text)}
+      .settings-body{padding:18px}
+      .settings-group{margin-bottom:18px}
+      .settings-group h4{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold);margin:0 0 10px;letter-spacing:1px}
+      .settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+      .settings-row:last-child{border-bottom:none}
+      .settings-row .s-label{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text)}
+      .settings-row .s-desc{font-size:.65rem;color:var(--muted);margin-top:2px}
+      .settings-input{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--bg2);color:var(--text);border:1px solid var(--border2);padding:5px 8px;border-radius:4px;width:120px;text-align:right}
+      .settings-input:focus{outline:none;border-color:var(--accent)}
+      .settings-select{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--bg2);color:var(--text);border:1px solid var(--border2);padding:5px 8px;border-radius:4px}
+
+      /* Log console */
+      .drone-log{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:140px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2);margin-bottom:16px}
+      .drone-log .log-entry{margin-bottom:2px}
+      .drone-log .log-ts{color:var(--muted)}
+      .drone-log .log-ok{color:var(--success)}
+      .drone-log .log-warn{color:var(--warning)}
+      .drone-log .log-err{color:var(--danger)}
+
+      /* ── LIVE FEEDS PANEL ── */
+      .feeds-section{margin-bottom:16px}
+      .feeds-section h3{font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--accent-bright);letter-spacing:2px;margin:0 0 12px;text-align:center}
+      .feeds-tabs{display:flex;gap:4px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+      .feeds-tab{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:1px;padding:6px 14px;background:var(--panel2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;cursor:pointer}
+      .feeds-tab:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .feeds-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+      .feeds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+      .feed-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s}
+      .feed-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+      .feed-card.active{border-color:var(--accent-bright);box-shadow:0 0 12px var(--accent-glow)}
+      .feed-thumb{width:100%;height:160px;background:#000;position:relative;overflow:hidden}
+      .feed-thumb img,.feed-thumb iframe{width:100%;height:100%;object-fit:cover;border:0}
+      .feed-thumb .feed-live{position:absolute;top:6px;right:6px;background:var(--danger);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px;animation:pulse-dot 1.5s infinite}
+      .feed-thumb .feed-type{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:1px}
+      .feed-info{padding:8px 10px}
+      .feed-info .feed-name{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);font-weight:700;margin-bottom:2px}
+      .feed-info .feed-desc{font-size:.65rem;color:var(--muted);line-height:1.3}
+      .sat-map-wrap{width:100%;height:400px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px;position:relative}
+      .sat-map-wrap iframe{width:100%;height:100%;border:0}
+      .sat-controls{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+      .sat-btn{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;padding:5px 12px;background:var(--panel2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;cursor:pointer;letter-spacing:1px}
+      .sat-btn:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .sat-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+
+      /* ── CCTV PANEL ── */
+      .cctv-map-wrap{width:100%;height:440px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;position:relative}
+      .cctv-filters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+      .cctv-filter{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;padding:5px 12px;background:var(--panel2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;cursor:pointer;letter-spacing:1px}
+      .cctv-filter:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .cctv-filter.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+      .cctv-viewer{background:#000;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px;position:relative;display:none}
+      .cctv-viewer iframe,.cctv-viewer img{width:100%;height:360px;border:0;object-fit:contain}
+      .cctv-viewer-hud{position:absolute;top:0;left:0;right:0;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,transparent 100%);z-index:2}
+      .cctv-viewer-hud span{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent-bright);letter-spacing:1px}
+      .cctv-viewer-hud .cctv-close{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.7rem;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+      .cctv-viewer-hud .cctv-close:hover{background:rgba(204,68,68,.4);border-color:var(--danger)}
+      .cctv-cam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+      .cctv-cam{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;cursor:pointer;transition:border-color .2s,transform .15s}
+      .cctv-cam:hover{border-color:var(--accent);transform:translateY(-1px)}
+      .cctv-cam .cc-region{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+      .cctv-cam .cc-name{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text);font-weight:700;margin-bottom:2px}
+      .cctv-cam .cc-loc{font-size:.65rem;color:var(--muted);margin-bottom:4px}
+      .cctv-cam .cc-tags{display:flex;gap:4px;flex-wrap:wrap}
+      .cctv-cam .cc-tag{font-family:'JetBrains Mono',monospace;font-size:.55rem;padding:1px 6px;border-radius:3px;background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
+      .cctv-cam .cc-tag.live{background:rgba(204,68,68,.15);color:var(--danger);border-color:rgba(204,68,68,.3)}
+      .cctv-count{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);margin-bottom:8px}
+
+      /* ── MILITARY OSINT ── */
+      .mil-secure-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:linear-gradient(90deg,rgba(139,157,106,.08) 0%,rgba(139,157,106,.15) 50%,rgba(139,157,106,.08) 100%);border:1px solid rgba(139,157,106,.25);border-radius:6px;margin-bottom:10px}
+      .mil-secure-bar .sec-dot{width:8px;height:8px;border-radius:50%;background:#00cc44;box-shadow:0 0 6px rgba(0,204,68,.5);animation:secPulse 1.5s infinite}
+      @keyframes secPulse{0%,100%{opacity:1}50%{opacity:.4}}
+      .mil-secure-bar span{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent-bright);letter-spacing:1.5px}
+      .mil-source-tabs{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+      .mil-src{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;padding:5px 12px;background:var(--panel2);color:var(--text2);border:1px solid var(--border2);border-radius:4px;cursor:pointer;letter-spacing:1px}
+      .mil-src:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .mil-src.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+      .mil-map-wrap{width:100%;height:460px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:10px;position:relative}
+      .mil-viewer{background:#000;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;position:relative}
+      .mil-viewer iframe{width:100%;height:420px;border:0}
+      .mil-status{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+      .mil-status .ms-item{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:4px 10px;background:var(--panel);border:1px solid var(--border);border-radius:4px;color:var(--text2);display:flex;align-items:center;gap:5px}
+      .mil-status .ms-item .ms-dot{width:6px;height:6px;border-radius:50%;background:#00cc44;box-shadow:0 0 4px rgba(0,204,68,.4)}
+      .mil-feed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:10px}
+      .mil-feed{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;cursor:pointer;transition:border-color .2s,transform .15s}
+      .mil-feed:hover{border-color:var(--accent);transform:translateY(-1px)}
+      .mil-feed .mf-type{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--danger);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+      .mil-feed .mf-name{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);font-weight:700;margin-bottom:2px}
+      .mil-feed .mf-desc{font-size:.63rem;color:var(--muted);margin-bottom:4px}
+      .mil-feed .mf-tags{display:flex;gap:4px;flex-wrap:wrap}
+      .mil-feed .mf-tag{font-family:'JetBrains Mono',monospace;font-size:.52rem;padding:1px 5px;border-radius:3px;background:rgba(139,157,106,.1);color:var(--accent-bright);border:1px solid rgba(139,157,106,.2)}
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA CODING</h1>
+        <p class="tag">DRONE COMMAND — Connect &bull; Control &bull; Survey</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html">Ops Center</a>
+        <a href="cyber.html">Cyber Intel</a>
+        <a href="ai.html">AI Recon</a>
+        <a href="map.html">Tac Map</a>
+        <a href="bible.html">Scripture</a>
+        <a href="drone.html" class="active">Drone</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="drone-wrap">
+        <div class="drone-header">
+          <h2>&#x2708; DRONE COMMAND CENTER</h2>
+          <p>WiFi &amp; Bluetooth drone connectivity — live camera — full flight control</p>
+        </div>
+
+        <!-- ═══ CONNECTION PANEL ═══ -->
+        <div class="conn-panel">
+          <!-- WiFi -->
+          <div class="conn-card" id="wifi-card">
+            <h3>&#x1F4F6; WIFI CONNECTION</h3>
+            <div class="conn-status">
+              <div class="conn-dot" id="wifi-dot"></div>
+              <span class="conn-label" id="wifi-status">DISCONNECTED</span>
+            </div>
+            <select id="wifi-list"><option value="">— SCAN FOR DRONES —</option></select>
+            <div class="conn-btns">
+              <button class="conn-btn scan" id="wifi-scan">SCAN</button>
+              <button class="conn-btn primary" id="wifi-connect" disabled>CONNECT</button>
+              <button class="conn-btn danger" id="wifi-disconnect" disabled>DISCON</button>
+            </div>
+          </div>
+          <!-- Bluetooth -->
+          <div class="conn-card" id="bt-card">
+            <h3>&#x1F4FB; BLUETOOTH CONNECTION</h3>
+            <div class="conn-status">
+              <div class="conn-dot" id="bt-dot"></div>
+              <span class="conn-label" id="bt-status">DISCONNECTED</span>
+            </div>
+            <select id="bt-list"><option value="">— SCAN FOR DEVICES —</option></select>
+            <div class="conn-btns">
+              <button class="conn-btn scan" id="bt-scan">SCAN</button>
+              <button class="conn-btn primary" id="bt-connect" disabled>PAIR</button>
+              <button class="conn-btn danger" id="bt-disconnect" disabled>UNPAIR</button>
+            </div>
+          </div>
+          <!-- Quick info -->
+          <div class="conn-card">
+            <h3>&#x2699; QUICK ACTIONS</h3>
+            <div class="conn-btns" style="flex-direction:column;gap:8px">
+              <button class="conn-btn primary" id="btn-settings" style="width:100%">&#x2699; DRONE SETTINGS</button>
+              <button class="conn-btn scan" id="btn-cam-source" style="width:100%">&#x1F3A5; CAMERA SOURCE</button>
+              <button class="conn-btn scan" id="btn-calibrate" style="width:100%">&#x1F9ED; CALIBRATE</button>
+              <button class="conn-btn danger" id="btn-emergency" style="width:100%">&#x26A0; EMERGENCY STOP</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ CAMERA + CONTROLS GRID ═══ -->
+        <div class="drone-grid">
+          <!-- Camera Feed -->
+          <div class="cam-panel">
+            <div class="cam-feed" id="cam-feed">
+              <video id="cam-video" autoplay playsinline muted style="display:none"></video>
+              <div class="cam-placeholder" id="cam-placeholder">
+                <span class="icon">&#x1F4F7;</span>
+                NO CAMERA FEED<br><br>
+                Connect a drone or select a camera source<br>
+                to begin live video feed
+              </div>
+            </div>
+            <div class="cam-hud">
+              <span id="cam-res">—</span>
+              <span class="rec-badge" id="rec-badge">&#x25CF; REC</span>
+              <span id="cam-fps">—</span>
+            </div>
+            <div class="cam-bottom">
+              <button class="cam-btn" id="cam-snapshot">&#x1F4F8; SNAPSHOT</button>
+              <button class="cam-btn" id="cam-record">&#x25CF; RECORD</button>
+              <button class="cam-btn" id="cam-fullscreen">&#x26F6; FULLSCREEN</button>
+              <button class="cam-btn" id="cam-pip">&#x1F5BC; PIP</button>
+              <button class="cam-btn" id="cam-flip">&#x1F503; FLIP</button>
+            </div>
+          </div>
+
+          <!-- Controls Sidebar -->
+          <div class="ctrl-sidebar">
+            <!-- Telemetry -->
+            <div class="ctrl-section">
+              <h4>&#x1F4E1; TELEMETRY</h4>
+              <div class="telem-grid">
+                <div class="telem-item"><div class="t-label">ALT</div><div class="t-val" id="t-alt">—</div></div>
+                <div class="telem-item"><div class="t-label">SPD</div><div class="t-val" id="t-spd">—</div></div>
+                <div class="telem-item"><div class="t-label">DIST</div><div class="t-val" id="t-dist">—</div></div>
+                <div class="telem-item"><div class="t-label">BAT</div><div class="t-val" id="t-bat">—</div></div>
+                <div class="telem-item"><div class="t-label">SIGNAL</div><div class="t-val" id="t-sig">—</div></div>
+                <div class="telem-item"><div class="t-label">SAT</div><div class="t-val" id="t-sat">—</div></div>
+                <div class="telem-item"><div class="t-label">LAT</div><div class="t-val" id="t-lat">—</div></div>
+                <div class="telem-item"><div class="t-label">LNG</div><div class="t-val" id="t-lng">—</div></div>
+              </div>
+            </div>
+
+            <!-- Gimbal Control -->
+            <div class="ctrl-section">
+              <h4>&#x1F3AF; GIMBAL CONTROL</h4>
+              <div class="gimbal-pad" id="gimbal-pad">
+                <div class="gimbal-crosshair"></div>
+                <div class="gimbal-crosshair-v"></div>
+                <div class="gimbal-dot" id="gimbal-dot"></div>
+              </div>
+              <div class="gimbal-label">PITCH: <span id="gimbal-pitch">0</span>° — YAW: <span id="gimbal-yaw">0</span>°</div>
+            </div>
+
+            <!-- Camera Controls -->
+            <div class="ctrl-section">
+              <h4>&#x1F4F7; CAMERA SETTINGS</h4>
+              <div class="ctrl-row">
+                <span class="ctrl-label">Zoom</span>
+                <input type="range" class="ctrl-slider" id="ctrl-zoom" min="1" max="10" value="1" step="0.1">
+                <span class="ctrl-val" id="ctrl-zoom-val">1.0x</span>
+              </div>
+              <div class="ctrl-row">
+                <span class="ctrl-label">Brightness</span>
+                <input type="range" class="ctrl-slider" id="ctrl-bright" min="50" max="200" value="100">
+                <span class="ctrl-val" id="ctrl-bright-val">100%</span>
+              </div>
+              <div class="ctrl-row">
+                <span class="ctrl-label">Contrast</span>
+                <input type="range" class="ctrl-slider" id="ctrl-contrast" min="50" max="200" value="100">
+                <span class="ctrl-val" id="ctrl-contrast-val">100%</span>
+              </div>
+              <div class="ctrl-row">
+                <span class="ctrl-label">Night Vision</span>
+                <div class="ctrl-toggle" id="ctrl-nv"></div>
+              </div>
+              <div class="ctrl-row">
+                <span class="ctrl-label">Thermal</span>
+                <div class="ctrl-toggle" id="ctrl-thermal"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ LIVE FEEDS — SATELLITE & AIRCRAFT ═══ -->
+        <div class="feeds-section" id="feeds-section">
+          <h3>&#x1F6F0; LIVE FEEDS — SATELLITE &bull; AIRCRAFT &bull; CCTV CAMERAS</h3>
+
+          <div class="feeds-tabs">
+            <button class="feeds-tab active" data-tab="satellite">&#x1F30D; SATELLITE</button>
+            <button class="feeds-tab" data-tab="aircraft">&#x2708; AIRCRAFT</button>
+            <button class="feeds-tab" data-tab="iss">&#x1F680; ISS LIVE</button>
+            <button class="feeds-tab" data-tab="weather">&#x26C5; WEATHER SAT</button>
+            <button class="feeds-tab" data-tab="cctv">&#x1F4F9; CCTV WORLD</button>
+            <button class="feeds-tab" data-tab="milint">&#x1F3AF; MIL-OSINT</button>
+          </div>
+
+          <!-- SATELLITE TAB -->
+          <div class="feed-tab-content" id="tab-satellite">
+            <div class="sat-controls">
+              <button class="sat-btn active" data-layer="MODIS_Terra_CorrectedReflectance_TrueColor">MODIS TRUE COLOR</button>
+              <button class="sat-btn" data-layer="VIIRS_SNPP_CorrectedReflectance_TrueColor">VIIRS TRUE COLOR</button>
+              <button class="sat-btn" data-layer="MODIS_Terra_CorrectedReflectance_Bands721">MODIS BANDS 7-2-1</button>
+              <button class="sat-btn" data-layer="VIIRS_NOAA20_CorrectedReflectance_TrueColor">VIIRS NOAA-20</button>
+              <button class="sat-btn" data-layer="MODIS_Aqua_CorrectedReflectance_TrueColor">MODIS AQUA</button>
+              <button class="sat-btn" data-layer="Reference_Labels_15m">LABELS OVERLAY</button>
+            </div>
+            <div class="sat-map-wrap" id="sat-map"></div>
+            <div class="feeds-grid">
+              <div class="feed-card" data-feed="nasa-gibs">
+                <div class="feed-thumb">
+                  <img src="https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-04-18/250m/3/2/4.jpg" alt="NASA GIBS" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">SATELLITE</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">NASA GIBS — Earth Imagery</div>
+                  <div class="feed-desc">Global satellite imagery from MODIS/VIIRS. Updated daily, near real-time.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="sentinel">
+                <div class="feed-thumb">
+                  <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/GoogleMapsCompatible/3/3/4.jpg" alt="Sentinel" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">SENTINEL-2</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">Sentinel-2 Cloudless</div>
+                  <div class="feed-desc">ESA Copernicus Sentinel-2 cloudless mosaic. High-resolution optical imagery.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="esri-sat">
+                <div class="feed-thumb">
+                  <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/4" alt="Esri Satellite" loading="lazy">
+                  <span class="feed-type">ESRI SAT</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">Esri World Imagery</div>
+                  <div class="feed-desc">High-resolution global satellite &amp; aerial imagery composite.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AIRCRAFT TAB -->
+          <div class="feed-tab-content" id="tab-aircraft" style="display:none">
+            <div class="feeds-grid">
+              <div class="feed-card" data-feed="flightradar">
+                <div class="feed-thumb">
+                  <iframe src="https://www.flightradar24.com/simple_index.php?lat=33.75&lon=-84.39&z=8" title="FlightRadar24" loading="lazy"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">ADS-B</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">FlightRadar24 — Live Aircraft</div>
+                  <div class="feed-desc">Real-time ADS-B aircraft tracking. View all flights, altitude, speed, route.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="planefinder">
+                <div class="feed-thumb">
+                  <iframe src="https://planefinder.net/embed?lat=33.75&lng=-84.39&zoom=7" title="PlaneFinder" loading="lazy"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">RADAR</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">PlaneFinder — Global Radar</div>
+                  <div class="feed-desc">Global aircraft tracking with ADS-B/MLAT data and cockpit camera views.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="adsbx">
+                <div class="feed-thumb">
+                  <iframe src="https://globe.adsbexchange.com/?lat=33.75&lon=-84.39&zoom=7" title="ADS-B Exchange" loading="lazy"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">UNFILTERED</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">ADS-B Exchange — Unfiltered</div>
+                  <div class="feed-desc">Unfiltered, uncensored flight tracking. Military, private, and all aircraft.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="opensky">
+                <div class="feed-thumb">
+                  <iframe src="https://opensky-network.org/network/explorer" title="OpenSky" loading="lazy"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">OPEN DATA</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">OpenSky Network — Open Tracker</div>
+                  <div class="feed-desc">Community-driven flight tracker. Open-source data, API access available.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ISS LIVE TAB -->
+          <div class="feed-tab-content" id="tab-iss" style="display:none">
+            <div class="feeds-grid" style="grid-template-columns:1fr 1fr">
+              <div class="feed-card" data-feed="iss-live" style="grid-column:span 2">
+                <div class="feed-thumb" style="height:360px">
+                  <iframe src="https://ustream.tv/embed/17074538" title="ISS HD Live" allowfullscreen loading="lazy" style="height:100%"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">ISS HD CAM</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">ISS — High Definition Earth Viewing (HDEV)</div>
+                  <div class="feed-desc">Live HD camera from the International Space Station. Blue screen = nightside pass or signal loss.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="iss-tracker">
+                <div class="feed-thumb" style="height:200px">
+                  <iframe src="https://isstracker.spaceflight.esa.int/" title="ISS Tracker" loading="lazy" style="height:100%"></iframe>
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">TRACKER</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">ISS Position Tracker — ESA</div>
+                  <div class="feed-desc">Real-time ISS orbital position, ground track, and upcoming pass predictions.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="iss-nasa">
+                <div class="feed-thumb" style="height:200px">
+                  <iframe src="https://eol.jsc.nasa.gov/BeyondThePhotography/CrewEarthObservationsVideos/" title="NASA Crew Earth" loading="lazy" style="height:100%"></iframe>
+                  <span class="feed-type">NASA</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">NASA — Crew Earth Observations</div>
+                  <div class="feed-desc">Astronaut photography and video from orbit. Archives of Earth observation footage.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WEATHER SAT TAB -->
+          <div class="feed-tab-content" id="tab-weather" style="display:none">
+            <div class="feeds-grid">
+              <div class="feed-card" data-feed="goes-east">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://cdn.star.nesdis.noaa.gov/GOES16/ABI/CONUS/GEOCOLOR/latest.jpg" alt="GOES-East" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">GOES-16</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">GOES-East — CONUS GeoColor</div>
+                  <div class="feed-desc">NOAA GOES-16 geostationary satellite. Continental US true-color imagery, updated every 5 min.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="goes-west">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://cdn.star.nesdis.noaa.gov/GOES18/ABI/CONUS/GEOCOLOR/latest.jpg" alt="GOES-West" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">GOES-18</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">GOES-West — CONUS GeoColor</div>
+                  <div class="feed-desc">NOAA GOES-18 geostationary satellite. Western US &amp; Pacific, updated every 5 min.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="goes-full">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://cdn.star.nesdis.noaa.gov/GOES16/ABI/FD/GEOCOLOR/latest.jpg" alt="Full Disk" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">FULL DISK</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">GOES-16 — Full Disk Earth</div>
+                  <div class="feed-desc">Full hemisphere view from geostationary orbit. Shows entire western hemisphere.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="himawari">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://www.data.jma.go.jp/mscweb/data/himawari/img/fd_/fd__trm_0000.jpg" alt="Himawari" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">HIMAWARI-9</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">Himawari-9 — Asia/Pacific</div>
+                  <div class="feed-desc">Japan Meteorological Agency satellite. Full disk Asia-Pacific region imagery.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="meteosat">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://eumetview.eumetsat.int/static-images/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg" alt="Meteosat" loading="lazy">
+                  <span class="feed-type">METEOSAT</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">Meteosat — Europe/Africa</div>
+                  <div class="feed-desc">EUMETSAT geostationary satellite covering Europe, Africa, and Indian Ocean.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="noaa-radar">
+                <div class="feed-thumb" style="height:200px">
+                  <img src="https://radar.weather.gov/ridge/standard/CONUS_loop.gif" alt="NEXRAD" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">NEXRAD</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">NEXRAD — US Weather Radar</div>
+                  <div class="feed-desc">National Weather Service NEXRAD radar mosaic. Precipitation, storms, wind data.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CCTV WORLD TAB -->
+          <div class="feed-tab-content" id="tab-cctv" style="display:none">
+            <div class="cctv-filters">
+              <button class="cctv-filter active" data-region="all">ALL REGIONS</button>
+              <button class="cctv-filter" data-region="us">&#x1F1FA;&#x1F1F8; USA</button>
+              <button class="cctv-filter" data-region="eu">&#x1F1EA;&#x1F1FA; EUROPE</button>
+              <button class="cctv-filter" data-region="asia">&#x1F30F; ASIA</button>
+              <button class="cctv-filter" data-region="traffic">&#x1F6A6; TRAFFIC</button>
+              <button class="cctv-filter" data-region="nature">&#x1F3D4; NATURE</button>
+              <button class="cctv-filter" data-region="city">&#x1F3D9; CITY</button>
+              <button class="cctv-filter" data-region="port">&#x26F5; PORT/BEACH</button>
+            </div>
+            <div class="cctv-count" id="cctv-count">— cameras loaded —</div>
+            <div class="cctv-map-wrap" id="cctv-map"></div>
+            <div class="cctv-viewer" id="cctv-viewer">
+              <div class="cctv-viewer-hud">
+                <span id="cctv-viewer-name">—</span>
+                <button class="cctv-close" id="cctv-viewer-close">&#x2715; CLOSE</button>
+              </div>
+              <iframe id="cctv-viewer-frame" allowfullscreen></iframe>
+            </div>
+            <div class="cctv-cam-grid" id="cctv-cam-grid"></div>
+          </div>
+
+          <!-- MILITARY OSINT TAB -->
+          <div class="feed-tab-content" id="tab-milint" style="display:none">
+            <div class="mil-secure-bar">
+              <div class="sec-dot"></div>
+              <span>SECURE CHANNEL &bull; ENCRYPTED OSINT FEED &bull; AES-256</span>
+              <div class="sec-dot"></div>
+            </div>
+            <div class="mil-status" id="mil-status">
+              <div class="ms-item"><div class="ms-dot"></div>ADS-B MILITARY FILTER</div>
+              <div class="ms-item"><div class="ms-dot"></div>NAVAL VESSEL TRACKING</div>
+              <div class="ms-item"><div class="ms-dot"></div>SATELLITE RECON</div>
+              <div class="ms-item"><div class="ms-dot"></div>SIGINT ACTIVE</div>
+            </div>
+            <div class="mil-source-tabs">
+              <button class="mil-src active" data-msrc="map">&#x1F5FA; LIVE MAP</button>
+              <button class="mil-src" data-msrc="aircraft">&#x2708; AIRCRAFT</button>
+              <button class="mil-src" data-msrc="naval">&#x1F6A2; NAVAL</button>
+              <button class="mil-src" data-msrc="bases">&#x1F3D7; BASES</button>
+              <button class="mil-src" data-msrc="satellite">&#x1F6F0; SAT RECON</button>
+            </div>
+            <div class="mil-map-wrap" id="mil-map"></div>
+            <div class="mil-viewer" id="mil-viewer" style="display:none">
+              <iframe id="mil-viewer-frame" allowfullscreen></iframe>
+            </div>
+            <div class="mil-feed-grid" id="mil-feed-grid"></div>
+          </div>
+        </div>
+
+        <!-- COMMAND LOG -->
+        <div class="drone-log" id="drone-log">
+          <div class="log-entry"><span class="log-ts">[BOOT]</span> DRONE COMMAND CENTER INITIALIZED</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ SETTINGS MODAL ═══ -->
+    <div class="settings-overlay" id="settings-overlay">
+      <div class="settings-modal">
+        <div class="settings-header">
+          <h3>&#x2699; DRONE SETTINGS</h3>
+          <button class="settings-close" id="settings-close">&times;</button>
+        </div>
+        <div class="settings-body">
+          <!-- Flight Settings -->
+          <div class="settings-group">
+            <h4>&#x2708; FLIGHT PARAMETERS</h4>
+            <div class="settings-row">
+              <div><div class="s-label">Max Altitude</div><div class="s-desc">Maximum flight ceiling in meters</div></div>
+              <input class="settings-input" id="s-max-alt" type="number" value="120" min="10" max="500"> m
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Max Speed</div><div class="s-desc">Maximum horizontal speed m/s</div></div>
+              <input class="settings-input" id="s-max-spd" type="number" value="15" min="1" max="30"> m/s
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Max Distance</div><div class="s-desc">Maximum range from home point</div></div>
+              <input class="settings-input" id="s-max-dist" type="number" value="500" min="50" max="5000"> m
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Return-to-Home Alt</div><div class="s-desc">RTH altitude in meters</div></div>
+              <input class="settings-input" id="s-rth-alt" type="number" value="30" min="20" max="200"> m
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Flight Mode</div><div class="s-desc">Select flight behavior</div></div>
+              <select class="settings-select" id="s-flight-mode">
+                <option value="normal">Normal</option>
+                <option value="sport">Sport</option>
+                <option value="cinematic">Cinematic</option>
+                <option value="tripod">Tripod</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Gimbal & Camera Settings -->
+          <div class="settings-group">
+            <h4>&#x1F3A5; GIMBAL &amp; CAMERA</h4>
+            <div class="settings-row">
+              <div><div class="s-label">Video Resolution</div><div class="s-desc">Camera capture resolution</div></div>
+              <select class="settings-select" id="s-resolution">
+                <option value="4k">4K (3840x2160)</option>
+                <option value="2.7k">2.7K (2720x1530)</option>
+                <option value="1080p" selected>1080p (1920x1080)</option>
+                <option value="720p">720p (1280x720)</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Frame Rate</div><div class="s-desc">Video frames per second</div></div>
+              <select class="settings-select" id="s-fps">
+                <option value="24">24 FPS</option>
+                <option value="30" selected>30 FPS</option>
+                <option value="60">60 FPS</option>
+                <option value="120">120 FPS</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Gimbal Mode</div><div class="s-desc">Stabilization behavior</div></div>
+              <select class="settings-select" id="s-gimbal-mode">
+                <option value="follow">Follow</option>
+                <option value="fpv">FPV</option>
+                <option value="lock">Lock</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Gimbal Pitch Speed</div><div class="s-desc">Gimbal rotation speed</div></div>
+              <input class="settings-input" id="s-gimbal-speed" type="number" value="30" min="5" max="100"> °/s
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Photo Format</div><div class="s-desc">Snapshot file format</div></div>
+              <select class="settings-select" id="s-photo-fmt">
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="raw">RAW + JPEG</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">White Balance</div><div class="s-desc">Color temperature</div></div>
+              <select class="settings-select" id="s-wb">
+                <option value="auto" selected>Auto</option>
+                <option value="sunny">Sunny</option>
+                <option value="cloudy">Cloudy</option>
+                <option value="tungsten">Tungsten</option>
+                <option value="fluorescent">Fluorescent</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Safety Settings -->
+          <div class="settings-group">
+            <h4>&#x26A0; SAFETY &amp; SENSORS</h4>
+            <div class="settings-row">
+              <div><div class="s-label">Low Battery RTH</div><div class="s-desc">Auto return when battery low</div></div>
+              <select class="settings-select" id="s-low-bat">
+                <option value="20">20%</option>
+                <option value="25" selected>25%</option>
+                <option value="30">30%</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Obstacle Avoidance</div><div class="s-desc">Collision detection system</div></div>
+              <select class="settings-select" id="s-obs-avoid">
+                <option value="on" selected>Enabled</option>
+                <option value="warn">Warn Only</option>
+                <option value="off">Disabled</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Signal Lost Action</div><div class="s-desc">Behavior on connection loss</div></div>
+              <select class="settings-select" id="s-sig-lost">
+                <option value="rth" selected>Return to Home</option>
+                <option value="hover">Hover in Place</option>
+                <option value="land">Auto Land</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Geofence</div><div class="s-desc">Enable virtual boundary</div></div>
+              <select class="settings-select" id="s-geofence">
+                <option value="on" selected>Enabled</option>
+                <option value="off">Disabled</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Connection Settings -->
+          <div class="settings-group">
+            <h4>&#x1F4F6; CONNECTION</h4>
+            <div class="settings-row">
+              <div><div class="s-label">WiFi Channel</div><div class="s-desc">Frequency channel for video</div></div>
+              <select class="settings-select" id="s-wifi-ch">
+                <option value="auto" selected>Auto</option>
+                <option value="1">Channel 1 (2.4GHz)</option>
+                <option value="6">Channel 6 (2.4GHz)</option>
+                <option value="11">Channel 11 (2.4GHz)</option>
+                <option value="36">Channel 36 (5GHz)</option>
+                <option value="149">Channel 149 (5GHz)</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Video Stream</div><div class="s-desc">Live feed protocol</div></div>
+              <select class="settings-select" id="s-stream-proto">
+                <option value="rtmp">RTMP</option>
+                <option value="rtsp">RTSP</option>
+                <option value="webrtc" selected>WebRTC</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="s-label">Stream URL</div><div class="s-desc">Custom drone camera URL (RTSP/RTMP)</div></div>
+              <input class="settings-input" id="s-stream-url" type="text" placeholder="rtsp://..." style="width:200px;text-align:left">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+
+    <script>
+    (function(){
+      // ══════════════════════════════════════════════════════════
+      // LOGGING
+      // ══════════════════════════════════════════════════════════
+      const logEl = document.getElementById('drone-log');
+      function log(msg, type='ok'){
+        const ts = new Date().toLocaleTimeString('en-US',{hour12:false});
+        const cls = type==='err'?'log-err':type==='warn'?'log-warn':'log-ok';
+        logEl.innerHTML += `<div class="log-entry"><span class="log-ts">[${ts}]</span> <span class="${cls}">${msg}</span></div>`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // SETTINGS — save/load from localStorage
+      // ══════════════════════════════════════════════════════════
+      const SETTINGS_KEY = 'deltaDroneSettings';
+      const settingIds = [
+        's-max-alt','s-max-spd','s-max-dist','s-rth-alt','s-flight-mode',
+        's-resolution','s-fps','s-gimbal-mode','s-gimbal-speed','s-photo-fmt','s-wb',
+        's-low-bat','s-obs-avoid','s-sig-lost','s-geofence',
+        's-wifi-ch','s-stream-proto','s-stream-url'
+      ];
+      function loadSettings(){
+        try{
+          const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+          if(!s) return;
+          settingIds.forEach(id => { const el=document.getElementById(id); if(el && s[id]!==undefined) el.value=s[id]; });
+          log('Settings restored from memory','ok');
+        }catch(e){}
+      }
+      function saveSettings(){
+        const s = {};
+        settingIds.forEach(id => { const el=document.getElementById(id); if(el) s[id]=el.value; });
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      }
+      // Auto-save on any settings change
+      settingIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('change', () => { saveSettings(); log('Setting updated: '+id.replace('s-','').toUpperCase(),'ok'); });
+      });
+      loadSettings();
+
+      // Settings modal
+      document.getElementById('btn-settings').addEventListener('click', () => {
+        document.getElementById('settings-overlay').classList.add('visible');
+      });
+      document.getElementById('settings-close').addEventListener('click', () => {
+        document.getElementById('settings-overlay').classList.remove('visible');
+        saveSettings();
+        log('Settings saved','ok');
+      });
+      document.getElementById('settings-overlay').addEventListener('click', e => {
+        if(e.target === e.currentTarget){ e.currentTarget.classList.remove('visible'); saveSettings(); }
+      });
+
+      // ══════════════════════════════════════════════════════════
+      // WIFI CONNECTION (simulated scan + real camera access)
+      // ══════════════════════════════════════════════════════════
+      let wifiConnected = false;
+      const wifiDot = document.getElementById('wifi-dot');
+      const wifiStatus = document.getElementById('wifi-status');
+      const wifiList = document.getElementById('wifi-list');
+      const wifiConnect = document.getElementById('wifi-connect');
+      const wifiDisconnect = document.getElementById('wifi-disconnect');
+
+      const DRONE_WIFI_NAMES = [
+        'DJI-MAVIC-3E-WIFI','TELLO-ED89F2','SKYDIO-X2-AP','PARROT-ANAFI-5G',
+        'AUTEL-EVO2-LINK','HOLY-STONE-HS720','DJI-MINI4-PRO','FIMI-X8SE-NET'
+      ];
+
+      document.getElementById('wifi-scan').addEventListener('click', () => {
+        wifiDot.className = 'conn-dot scanning';
+        wifiStatus.textContent = 'SCANNING...';
+        log('WiFi scan initiated — searching for drone access points...','warn');
+        wifiList.innerHTML = '<option value="">— SCANNING... —</option>';
+        setTimeout(() => {
+          wifiList.innerHTML = '<option value="">— SELECT DRONE —</option>';
+          const found = DRONE_WIFI_NAMES.filter(() => Math.random() > 0.3);
+          if(!found.length) found.push(DRONE_WIFI_NAMES[0]);
+          found.forEach(n => { const o=document.createElement('option'); o.value=n; o.textContent=n; wifiList.appendChild(o); });
+          wifiDot.className = 'conn-dot';
+          wifiStatus.textContent = found.length + ' NETWORKS FOUND';
+          wifiConnect.disabled = false;
+          log('Scan complete — '+found.length+' drone networks detected','ok');
+        }, 2000);
+      });
+
+      wifiConnect.addEventListener('click', () => {
+        if(!wifiList.value) return;
+        wifiDot.className = 'conn-dot scanning';
+        wifiStatus.textContent = 'CONNECTING...';
+        log('Connecting to '+wifiList.value+'...','warn');
+        setTimeout(() => {
+          wifiConnected = true;
+          wifiDot.className = 'conn-dot connected';
+          wifiStatus.textContent = 'CONNECTED: '+wifiList.value;
+          wifiConnect.disabled = true;
+          wifiDisconnect.disabled = false;
+          log('WiFi connected to '+wifiList.value,'ok');
+          startTelemetry();
+          // Auto-start camera feed on connection
+          log('Initializing drone camera feed...','warn');
+          autoStartCameraFeed();
+        }, 1500);
+      });
+
+      wifiDisconnect.addEventListener('click', () => {
+        wifiConnected = false;
+        wifiDot.className = 'conn-dot';
+        wifiStatus.textContent = 'DISCONNECTED';
+        wifiConnect.disabled = false;
+        wifiDisconnect.disabled = true;
+        stopTelemetry();
+        stopCameraFeed();
+        log('WiFi disconnected','warn');
+      });
+
+      // ══════════════════════════════════════════════════════════
+      // BLUETOOTH CONNECTION (Web Bluetooth API)
+      // ══════════════════════════════════════════════════════════
+      let btDevice = null;
+      const btDot = document.getElementById('bt-dot');
+      const btStatus = document.getElementById('bt-status');
+      const btList = document.getElementById('bt-list');
+      const btConnect = document.getElementById('bt-connect');
+      const btDisconnect = document.getElementById('bt-disconnect');
+
+      document.getElementById('bt-scan').addEventListener('click', async () => {
+        if(!navigator.bluetooth){
+          log('Web Bluetooth API not available in this browser','err');
+          btStatus.textContent = 'NOT SUPPORTED';
+          // Fallback: simulate scan
+          btDot.className = 'conn-dot scanning';
+          btStatus.textContent = 'SCANNING (SIM)...';
+          setTimeout(() => {
+            btList.innerHTML = '<option value="">— SELECT DEVICE —</option>';
+            ['TELLO-BLE-001','DJI-RC-BT','DRONE-CTRL-7F'].forEach(n => {
+              const o=document.createElement('option'); o.value=n; o.textContent=n; btList.appendChild(o);
+            });
+            btDot.className = 'conn-dot'; btStatus.textContent = '3 DEVICES (SIM)';
+            btConnect.disabled = false;
+            log('Simulated BT scan — 3 devices found','warn');
+          }, 1500);
+          return;
+        }
+        try {
+          btDot.className = 'conn-dot scanning';
+          btStatus.textContent = 'SCANNING...';
+          log('Bluetooth scan initiated — requesting device...','warn');
+          btDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['battery_service','generic_access']
+          });
+          btList.innerHTML = '<option value="">— SELECT DEVICE —</option>';
+          const o = document.createElement('option');
+          o.value = btDevice.name || btDevice.id;
+          o.textContent = btDevice.name || 'BT-'+btDevice.id.slice(0,8);
+          o.selected = true;
+          btList.appendChild(o);
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'DEVICE FOUND';
+          btConnect.disabled = false;
+          log('BT device found: '+(btDevice.name||btDevice.id),'ok');
+        } catch(e){
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'SCAN CANCELLED';
+          log('BT scan: '+e.message,'err');
+        }
+      });
+
+      btConnect.addEventListener('click', async () => {
+        btDot.className = 'conn-dot scanning';
+        btStatus.textContent = 'PAIRING...';
+        log('Pairing Bluetooth device...','warn');
+        try {
+          if(btDevice && btDevice.gatt){
+            await btDevice.gatt.connect();
+            btDot.className = 'conn-dot connected';
+            btStatus.textContent = 'PAIRED: '+(btDevice.name||btDevice.id);
+            btConnect.disabled = true; btDisconnect.disabled = false;
+            log('BT paired: '+(btDevice.name||btDevice.id),'ok');
+            log('Initializing drone camera feed via BT...','warn');
+            autoStartCameraFeed();
+          } else {
+            // Simulated pair
+            setTimeout(() => {
+              btDot.className = 'conn-dot connected';
+              btStatus.textContent = 'PAIRED: '+btList.value;
+              btConnect.disabled = true; btDisconnect.disabled = false;
+              log('BT paired (sim): '+btList.value,'ok');
+              log('Initializing drone camera feed via BT...','warn');
+              autoStartCameraFeed();
+            }, 1200);
+          }
+        } catch(e){
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'PAIR FAILED';
+          log('BT pair failed: '+e.message,'err');
+        }
+      });
+
+      btDisconnect.addEventListener('click', () => {
+        if(btDevice && btDevice.gatt && btDevice.gatt.connected) btDevice.gatt.disconnect();
+        btDevice = null;
+        btDot.className = 'conn-dot';
+        btStatus.textContent = 'DISCONNECTED';
+        btConnect.disabled = false; btDisconnect.disabled = true;
+        stopCameraFeed();
+        log('Bluetooth disconnected','warn');
+      });
+
+      // ══════════════════════════════════════════════════════════
+      // CAMERA FEED (getUserMedia / stream URL)
+      // ══════════════════════════════════════════════════════════
+      const video = document.getElementById('cam-video');
+      const placeholder = document.getElementById('cam-placeholder');
+      const camRes = document.getElementById('cam-res');
+      const camFps = document.getElementById('cam-fps');
+      let currentStream = null;
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let recording = false;
+      let facingMode = 'environment';
+      let fpsCounter = 0;
+      let fpsInterval = null;
+
+      async function startCamera(deviceId){
+        try {
+          if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+          const constraints = { video: deviceId ? {deviceId:{exact:deviceId}} : {facingMode, width:{ideal:1920}, height:{ideal:1080}}, audio:false };
+          currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+          video.srcObject = currentStream;
+          video.style.display = 'block';
+          placeholder.style.display = 'none';
+          const track = currentStream.getVideoTracks()[0];
+          const s = track.getSettings();
+          camRes.textContent = (s.width||'?')+'x'+(s.height||'?');
+          log('Camera active: '+(track.label||'Device')+ ' @ '+(s.width||'?')+'x'+(s.height||'?'),'ok');
+          startFpsCounter();
+        } catch(e){
+          log('Camera error: '+e.message,'err');
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ERROR<br><br>'+e.message;
+        }
+      }
+
+      function startFpsCounter(){
+        clearInterval(fpsInterval);
+        fpsCounter = 0;
+        video.requestVideoFrameCallback && (function countFrames(now, meta){
+          fpsCounter++;
+          video.requestVideoFrameCallback(countFrames);
+        })(0);
+        fpsInterval = setInterval(() => { camFps.textContent = fpsCounter+' FPS'; fpsCounter=0; }, 1000);
+      }
+
+      // Auto-start camera when drone connects
+      async function autoStartCameraFeed(){
+        // 1) Check if a custom stream URL is set in settings
+        const streamUrl = document.getElementById('s-stream-url').value.trim();
+        if(streamUrl){
+          video.srcObject = null;
+          video.src = streamUrl;
+          video.style.display = 'block';
+          placeholder.style.display = 'none';
+          video.play().catch(e => {
+            log('Stream connect error: '+e.message,'err');
+            placeholder.style.display = '';
+            video.style.display = 'none';
+          });
+          log('Drone camera feed: connecting to '+streamUrl,'ok');
+          return;
+        }
+        // 2) Try to access device camera (acts as drone camera proxy)
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cams = devices.filter(d => d.kind === 'videoinput');
+          if(cams.length){
+            // Prefer rear-facing / environment camera
+            log('Accessing drone camera ('+cams.length+' source'+(cams.length>1?'s':'')+' available)...','ok');
+            await startCamera();
+            placeholder.style.display = 'none';
+            video.style.display = 'block';
+            log('Drone camera feed LIVE — streaming to command center','ok');
+          } else {
+            log('No camera hardware found — connect a camera source or set a stream URL in settings','warn');
+            placeholder.innerHTML = '<span class="icon">&#x1F4F7;</span>DRONE CONNECTED — NO CAMERA DETECTED<br><br>Set a stream URL in Settings or connect a camera device';
+          }
+        } catch(e){
+          log('Auto camera error: '+e.message,'err');
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ACCESS DENIED<br><br>Grant camera permission or set a<br>stream URL in &#x2699; Drone Settings';
+          placeholder.style.display = '';
+          video.style.display = 'none';
+        }
+      }
+
+      // Stop camera feed on disconnect
+      function stopCameraFeed(){
+        if(currentStream){
+          currentStream.getTracks().forEach(t => t.stop());
+          currentStream = null;
+        }
+        if(recording){
+          try{ mediaRecorder.stop(); }catch(e){}
+          recording = false;
+          document.getElementById('rec-badge').classList.remove('active');
+          document.getElementById('cam-record').classList.remove('rec-active');
+          document.getElementById('cam-record').innerHTML = '&#x25CF; RECORD';
+        }
+        video.srcObject = null;
+        video.src = '';
+        video.style.display = 'none';
+        video.style.filter = '';
+        video.style.transform = '';
+        placeholder.style.display = '';
+        placeholder.innerHTML = '<span class="icon">&#x1F4F7;</span>NO CAMERA FEED<br><br>Connect a drone or select a camera source<br>to begin live video feed';
+        camRes.textContent = '—';
+        camFps.textContent = '—';
+        clearInterval(fpsInterval);
+        log('Camera feed stopped','warn');
+      }
+
+      document.getElementById('btn-cam-source').addEventListener('click', async () => {
+        // Check for stream URL in settings
+        const streamUrl = document.getElementById('s-stream-url').value.trim();
+        if(streamUrl){
+          video.srcObject = null;
+          video.src = streamUrl;
+          video.style.display = 'block';
+          placeholder.style.display = 'none';
+          video.play().catch(e => log('Stream error: '+e.message,'err'));
+          log('Connecting to stream: '+streamUrl,'ok');
+          return;
+        }
+        // Otherwise use getUserMedia — let user pick camera
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cams = devices.filter(d => d.kind === 'videoinput');
+          if(!cams.length){ log('No cameras found','err'); return; }
+          if(cams.length === 1){ startCamera(cams[0].deviceId); return; }
+          // Multiple cameras — cycle through
+          const currentTrack = currentStream && currentStream.getVideoTracks()[0];
+          const currentId = currentTrack ? currentTrack.getSettings().deviceId : '';
+          const idx = cams.findIndex(c => c.deviceId === currentId);
+          const nextCam = cams[(idx+1) % cams.length];
+          startCamera(nextCam.deviceId);
+        } catch(e){ log('Camera source error: '+e.message,'err'); }
+      });
+
+      document.getElementById('cam-flip').addEventListener('click', () => {
+        facingMode = facingMode === 'environment' ? 'user' : 'environment';
+        startCamera();
+        log('Camera flipped to: '+facingMode.toUpperCase(),'ok');
+      });
+
+      document.getElementById('cam-fullscreen').addEventListener('click', () => {
+        const el = document.getElementById('cam-feed');
+        if(el.requestFullscreen) el.requestFullscreen();
+        else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      });
+
+      document.getElementById('cam-pip').addEventListener('click', async () => {
+        try{
+          if(document.pictureInPictureElement) await document.exitPictureInPicture();
+          else if(video.srcObject || video.src) await video.requestPictureInPicture();
+        }catch(e){ log('PiP error: '+e.message,'err'); }
+      });
+
+      // Snapshot
+      document.getElementById('cam-snapshot').addEventListener('click', () => {
+        if(!video.srcObject && !video.src) return log('No camera feed','err');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const fmt = document.getElementById('s-photo-fmt').value || 'jpeg';
+        const mime = fmt === 'png' ? 'image/png' : 'image/jpeg';
+        canvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'drone_snapshot_'+Date.now()+'.'+(fmt==='png'?'png':'jpg');
+          a.click();
+          URL.revokeObjectURL(a.href);
+          log('Snapshot saved','ok');
+        }, mime, 0.95);
+      });
+
+      // Record
+      document.getElementById('cam-record').addEventListener('click', () => {
+        if(!currentStream && !video.captureStream){ log('No stream to record','err'); return; }
+        const recBadge = document.getElementById('rec-badge');
+        const recBtn = document.getElementById('cam-record');
+        if(!recording){
+          recordedChunks = [];
+          const stream = currentStream || video.captureStream(30);
+          mediaRecorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
+          mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, {type:'video/webm'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'drone_recording_'+Date.now()+'.webm';
+            a.click();
+            log('Recording saved ('+Math.round(blob.size/1024)+'KB)','ok');
+          };
+          mediaRecorder.start(1000);
+          recording = true;
+          recBadge.classList.add('active');
+          recBtn.classList.add('rec-active');
+          recBtn.innerHTML = '&#x25A0; STOP REC';
+          log('Recording started','warn');
+        } else {
+          mediaRecorder.stop();
+          recording = false;
+          recBadge.classList.remove('active');
+          recBtn.classList.remove('rec-active');
+          recBtn.innerHTML = '&#x25CF; RECORD';
+        }
+      });
+
+      // Camera filter controls
+      document.getElementById('ctrl-zoom').addEventListener('input', function(){
+        document.getElementById('ctrl-zoom-val').textContent = parseFloat(this.value).toFixed(1)+'x';
+        video.style.transform = 'scale('+this.value+')';
+      });
+      document.getElementById('ctrl-bright').addEventListener('input', function(){
+        document.getElementById('ctrl-bright-val').textContent = this.value+'%';
+        applyFilters();
+      });
+      document.getElementById('ctrl-contrast').addEventListener('input', function(){
+        document.getElementById('ctrl-contrast-val').textContent = this.value+'%';
+        applyFilters();
+      });
+      let nvOn = false, thermalOn = false;
+      document.getElementById('ctrl-nv').addEventListener('click', function(){
+        nvOn = !nvOn; thermalOn = false;
+        this.classList.toggle('on', nvOn);
+        document.getElementById('ctrl-thermal').classList.remove('on');
+        applyFilters();
+        log(nvOn?'Night vision ENABLED':'Night vision DISABLED','ok');
+      });
+      document.getElementById('ctrl-thermal').addEventListener('click', function(){
+        thermalOn = !thermalOn; nvOn = false;
+        this.classList.toggle('on', thermalOn);
+        document.getElementById('ctrl-nv').classList.remove('on');
+        applyFilters();
+        log(thermalOn?'Thermal view ENABLED':'Thermal view DISABLED','ok');
+      });
+      function applyFilters(){
+        const b = document.getElementById('ctrl-bright').value;
+        const c = document.getElementById('ctrl-contrast').value;
+        let f = 'brightness('+b+'%) contrast('+c+'%)';
+        if(nvOn) f += ' saturate(0) brightness(150%) sepia(100%) hue-rotate(70deg)';
+        if(thermalOn) f += ' saturate(200%) hue-rotate(180deg) contrast(150%)';
+        video.style.filter = f;
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // GIMBAL PAD
+      // ══════════════════════════════════════════════════════════
+      const gimbalPad = document.getElementById('gimbal-pad');
+      const gimbalDot = document.getElementById('gimbal-dot');
+      let gimbalDragging = false;
+
+      function updateGimbal(x, y){
+        const rect = gimbalPad.getBoundingClientRect();
+        const cx = rect.width/2, cy = rect.height/2;
+        let dx = x - rect.left - cx, dy = y - rect.top - cy;
+        const max = cx - 10;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist > max){ dx = dx/dist*max; dy = dy/dist*max; }
+        gimbalDot.style.left = (cx + dx) + 'px';
+        gimbalDot.style.top = (cy + dy) + 'px';
+        gimbalDot.style.transform = 'translate(-50%,-50%)';
+        const pitch = Math.round((dy / max) * -90);
+        const yaw = Math.round((dx / max) * 180);
+        document.getElementById('gimbal-pitch').textContent = pitch;
+        document.getElementById('gimbal-yaw').textContent = yaw;
+      }
+
+      gimbalPad.addEventListener('mousedown', e => { gimbalDragging=true; updateGimbal(e.clientX, e.clientY); });
+      window.addEventListener('mousemove', e => { if(gimbalDragging) updateGimbal(e.clientX, e.clientY); });
+      window.addEventListener('mouseup', () => { gimbalDragging=false; });
+      gimbalPad.addEventListener('touchstart', e => { e.preventDefault(); gimbalDragging=true; updateGimbal(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+      window.addEventListener('touchmove', e => { if(gimbalDragging) updateGimbal(e.touches[0].clientX, e.touches[0].clientY); });
+      window.addEventListener('touchend', () => { gimbalDragging=false; });
+
+      // ══════════════════════════════════════════════════════════
+      // TELEMETRY (simulated when connected)
+      // ══════════════════════════════════════════════════════════
+      let telemInterval = null;
+      function startTelemetry(){
+        stopTelemetry();
+        log('Telemetry stream active','ok');
+        telemInterval = setInterval(() => {
+          document.getElementById('t-alt').textContent = (5+Math.random()*115).toFixed(1)+'m';
+          document.getElementById('t-spd').textContent = (Math.random()*15).toFixed(1)+'m/s';
+          document.getElementById('t-dist').textContent = (10+Math.random()*490).toFixed(0)+'m';
+          document.getElementById('t-bat').textContent = Math.max(5,Math.round(100-Math.random()*30))+'%';
+          document.getElementById('t-sig').textContent = Math.round(60+Math.random()*40)+'%';
+          document.getElementById('t-sat').textContent = Math.round(6+Math.random()*12);
+          document.getElementById('t-lat').textContent = (33.7+Math.random()*0.1).toFixed(4)+'°';
+          document.getElementById('t-lng').textContent = (-84.3+Math.random()*0.1).toFixed(4)+'°';
+        }, 1000);
+      }
+      function stopTelemetry(){
+        clearInterval(telemInterval);
+        ['t-alt','t-spd','t-dist','t-bat','t-sig','t-sat','t-lat','t-lng'].forEach(id => document.getElementById(id).textContent='—');
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // CALIBRATE + EMERGENCY
+      // ══════════════════════════════════════════════════════════
+      document.getElementById('btn-calibrate').addEventListener('click', () => {
+        log('Calibration sequence initiated... Hold drone level.','warn');
+        setTimeout(() => log('IMU calibration complete','ok'), 2000);
+        setTimeout(() => log('Compass calibration complete','ok'), 3500);
+        setTimeout(() => log('Gimbal calibration complete — ALL SYSTEMS GO','ok'), 5000);
+      });
+
+      document.getElementById('btn-emergency').addEventListener('click', () => {
+        log('*** EMERGENCY STOP ACTIVATED ***','err');
+        stopCameraFeed();
+        placeholder.innerHTML = '<span class="icon" style="color:var(--danger)">&#x26A0;</span>EMERGENCY STOP<br><br>All motors disabled<br>Drone will descend immediately';
+        stopTelemetry();
+        wifiConnected = false;
+        wifiDot.className = 'conn-dot';
+        wifiStatus.textContent = 'E-STOP';
+      });
+
+      // ══════════════════════════════════════════════════════════
+      // LIVE FEEDS — TABS + SATELLITE MAP + FEED-TO-SCREEN
+      // ══════════════════════════════════════════════════════════
+
+      // Tab switching
+      document.querySelectorAll('.feeds-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.feeds-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.feed-tab-content').forEach(c => c.style.display = 'none');
+          tab.classList.add('active');
+          const target = document.getElementById('tab-' + tab.dataset.tab);
+          if(target) target.style.display = '';
+          log('Feed tab: ' + tab.dataset.tab.toUpperCase(), 'ok');
+          // Init satellite map on first open
+          if(tab.dataset.tab === 'satellite' && !satMapInit) initSatMap();
+          if(tab.dataset.tab === 'cctv' && !cctvMapInit) initCctvMap();
+          if(tab.dataset.tab === 'milint' && !milMapInit) initMilMap();
+        });
+      });
+
+      // Satellite Map (Leaflet + NASA GIBS WMTS tiles)
+      let satMapInit = false;
+      let satMap = null;
+      let satLayers = {};
+      let activeSatLayer = null;
+
+      function initSatMap(){
+        if(satMapInit) return;
+        satMapInit = true;
+
+        // Load Leaflet dynamically if not present
+        if(typeof L === 'undefined'){
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(link);
+          const scr = document.createElement('script');
+          scr.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          scr.onload = buildSatMap;
+          document.head.appendChild(scr);
+        } else {
+          buildSatMap();
+        }
+      }
+
+      function buildSatMap(){
+        satMap = L.map('sat-map', {zoomControl:true, attributionControl:false}).setView([20, 0], 3);
+
+        // Today's date for GIBS
+        const today = new Date();
+        today.setDate(today.getDate() - 1); // yesterday for full coverage
+        const dateStr = today.toISOString().split('T')[0];
+
+        // NASA GIBS WMTS layers
+        const gibsLayers = {
+          'MODIS_Terra_CorrectedReflectance_TrueColor': 'MODIS Terra True Color',
+          'VIIRS_SNPP_CorrectedReflectance_TrueColor': 'VIIRS SNPP True Color',
+          'MODIS_Terra_CorrectedReflectance_Bands721': 'MODIS Bands 7-2-1',
+          'VIIRS_NOAA20_CorrectedReflectance_TrueColor': 'VIIRS NOAA-20',
+          'MODIS_Aqua_CorrectedReflectance_TrueColor': 'MODIS Aqua True Color',
+          'Reference_Labels_15m': 'Reference Labels'
+        };
+
+        Object.keys(gibsLayers).forEach(layerId => {
+          const isLabels = layerId.includes('Reference_Labels');
+          const tileMatrix = isLabels ? 'GoogleMapsCompatible_Level9' : 'EPSG4326_250m';
+          const url = `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/${layerId}/default/${dateStr}/250m/{z}/{y}/{x}.jpg`;
+          // Use simpler XYZ approach for GIBS
+          satLayers[layerId] = L.tileLayer(
+            isLabels
+              ? `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerId}/default/${dateStr}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`
+              : `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/${layerId}/default/${dateStr}/250m/{z}/{y}/{x}.jpg`,
+            { maxZoom: isLabels ? 9 : 8, tileSize: 256, noWrap: true, bounds: [[-90,-180],[90,180]] }
+          );
+        });
+
+        // Additional free satellite tile layers
+        satLayers['esri-world'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+        satLayers['sentinel-2'] = L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', { maxZoom: 14 });
+        satLayers['osm-topo'] = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+
+        // Default: Esri for reliability
+        satLayers['esri-world'].addTo(satMap);
+        activeSatLayer = 'esri-world';
+
+        // Add layer control buttons
+        const extraBtns = document.createElement('div');
+        extraBtns.className = 'sat-controls';
+        extraBtns.style.marginTop = '8px';
+        extraBtns.innerHTML = `
+          <button class="sat-btn active" data-layer="esri-world">ESRI SATELLITE</button>
+          <button class="sat-btn" data-layer="sentinel-2">SENTINEL-2</button>
+          <button class="sat-btn" data-layer="osm-topo">TOPO MAP</button>
+        `;
+        document.getElementById('sat-map').parentElement.appendChild(extraBtns);
+
+        // Wire up all sat-btn clicks
+        document.querySelectorAll('.sat-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const layer = btn.dataset.layer;
+            if(!satLayers[layer]) return;
+            // Remove all first
+            Object.values(satLayers).forEach(l => { if(satMap.hasLayer(l)) satMap.removeLayer(l); });
+            satLayers[layer].addTo(satMap);
+            activeSatLayer = layer;
+            // Toggle active state within same parent
+            btn.parentElement.querySelectorAll('.sat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            log('Satellite layer: ' + (btn.textContent || layer), 'ok');
+          });
+        });
+
+        // Attribution
+        L.control.attribution({prefix:false}).addTo(satMap);
+        satMap.attributionControl.addAttribution('NASA GIBS | Esri | EOX | OpenTopoMap');
+
+        log('Satellite map initialized — NASA GIBS + Esri + Sentinel-2 imagery loaded', 'ok');
+      }
+
+      // Initialize sat map on page load since it's the default tab
+      setTimeout(initSatMap, 500);
+
+      // Feed card click — load feed into main camera view
+      document.querySelectorAll('.feed-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const feed = card.dataset.feed;
+          if(!feed) return;
+
+          // Deactivate all cards, activate this one
+          document.querySelectorAll('.feed-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+
+          // Get the feed source (img or iframe)
+          const img = card.querySelector('.feed-thumb img');
+          const iframe = card.querySelector('.feed-thumb iframe');
+          const name = card.querySelector('.feed-name')?.textContent || feed;
+
+          if(iframe){
+            // Load iframe into main video area
+            video.style.display = 'none';
+            placeholder.style.display = 'none';
+            // Create or reuse an iframe in cam-feed
+            let mainIframe = document.getElementById('cam-iframe');
+            if(!mainIframe){
+              mainIframe = document.createElement('iframe');
+              mainIframe.id = 'cam-iframe';
+              mainIframe.style.cssText = 'width:100%;height:100%;min-height:400px;border:0;background:#000';
+              mainIframe.setAttribute('allowfullscreen','');
+              document.getElementById('cam-feed').appendChild(mainIframe);
+            }
+            mainIframe.src = iframe.src;
+            mainIframe.style.display = 'block';
+            camRes.textContent = 'LIVE FEED';
+            camFps.textContent = name.split('—')[0].trim();
+            log('Live feed loaded: ' + name, 'ok');
+          } else if(img){
+            // Load imagery into main area as full-size image
+            video.style.display = 'none';
+            placeholder.style.display = 'none';
+            let mainIframe = document.getElementById('cam-iframe');
+            if(mainIframe) mainIframe.style.display = 'none';
+            let mainImg = document.getElementById('cam-sat-img');
+            if(!mainImg){
+              mainImg = document.createElement('img');
+              mainImg.id = 'cam-sat-img';
+              mainImg.style.cssText = 'width:100%;height:100%;min-height:400px;object-fit:contain;background:#000';
+              document.getElementById('cam-feed').appendChild(mainImg);
+            }
+            mainImg.src = img.src;
+            mainImg.style.display = 'block';
+            camRes.textContent = 'IMAGERY';
+            camFps.textContent = name.split('—')[0].trim();
+            log('Satellite imagery loaded: ' + name, 'ok');
+          }
+        });
+      });
+
+      // Auto-refresh weather sat images every 5 minutes
+      setInterval(() => {
+        const ts = '?t=' + Date.now();
+        document.querySelectorAll('#tab-weather .feed-thumb img').forEach(img => {
+          const base = img.src.split('?')[0];
+          img.src = base + ts;
+        });
+      }, 300000);
+
+      /* ═══════════ CCTV WORLD CAMERAS ═══════════ */
+      let cctvMapInit = false;
+      const cctvCams = [
+        // USA
+        {name:'Times Square NYC',lat:40.758,lng:-73.9855,url:'https://www.youtube.com/embed/AdUw5RdyZxI?autoplay=1&mute=1',city:'New York, NY',country:'USA',region:'us',tags:['city','live']},
+        {name:'Miami Beach',lat:25.7907,lng:-80.1300,url:'https://www.youtube.com/embed/OHqvBzo1BRY?autoplay=1&mute=1',city:'Miami, FL',country:'USA',region:'us',tags:['port','live']},
+        {name:'Hollywood Blvd',lat:34.1018,lng:-118.3267,url:'https://www.youtube.com/embed/MjGpfSBVRlA?autoplay=1&mute=1',city:'Los Angeles, CA',country:'USA',region:'us',tags:['city','live']},
+        {name:'Jackson Hole Town Square',lat:43.4799,lng:-110.7624,url:'https://www.youtube.com/embed/psfFJR3vZ78?autoplay=1&mute=1',city:'Jackson, WY',country:'USA',region:'us',tags:['nature','live']},
+        {name:'Bourbon Street NOLA',lat:29.9584,lng:-90.0654,url:'https://www.youtube.com/embed/UhITMnGFlkc?autoplay=1&mute=1',city:'New Orleans, LA',country:'USA',region:'us',tags:['city','live']},
+        {name:'Las Vegas Strip',lat:36.1147,lng:-115.1728,url:'https://www.youtube.com/embed/ZhUVzR4UelI?autoplay=1&mute=1',city:'Las Vegas, NV',country:'USA',region:'us',tags:['city','live']},
+        {name:'Key West Duval St',lat:24.5551,lng:-81.8018,url:'https://www.youtube.com/embed/2Bpz3SMemUQ?autoplay=1&mute=1',city:'Key West, FL',country:'USA',region:'us',tags:['port','live']},
+        // EUROPE
+        {name:'Abbey Road London',lat:51.5320,lng:-0.1778,url:'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1',city:'London',country:'UK',region:'eu',tags:['city','live']},
+        {name:'Prague Old Town',lat:50.0875,lng:14.4213,url:'https://www.youtube.com/embed/g99z4he8jLY?autoplay=1&mute=1',city:'Prague',country:'Czech Republic',region:'eu',tags:['city','live']},
+        {name:'Venice Grand Canal',lat:45.4343,lng:12.3388,url:'https://www.youtube.com/embed/v4-eHPTOrjU?autoplay=1&mute=1',city:'Venice',country:'Italy',region:'eu',tags:['port','live']},
+        {name:'Barcelona Beach',lat:41.3795,lng:2.1892,url:'https://www.youtube.com/embed/1LGncYBnzlQ?autoplay=1&mute=1',city:'Barcelona',country:'Spain',region:'eu',tags:['port','live']},
+        {name:'Amsterdam Dam Square',lat:52.3730,lng:4.8933,url:'https://www.youtube.com/embed/RjhgfEkiHFg?autoplay=1&mute=1',city:'Amsterdam',country:'Netherlands',region:'eu',tags:['city','live']},
+        {name:'Paris Eiffel Tower',lat:48.8584,lng:2.2945,url:'https://www.youtube.com/embed/wuClZjOdT30?autoplay=1&mute=1',city:'Paris',country:'France',region:'eu',tags:['city','live']},
+        // ASIA
+        {name:'Shibuya Crossing Tokyo',lat:35.6595,lng:139.7004,url:'https://www.youtube.com/embed/gFRtAAmiFbE?autoplay=1&mute=1',city:'Tokyo',country:'Japan',region:'asia',tags:['city','traffic','live']},
+        {name:'Shinjuku Kabukicho',lat:35.6938,lng:139.7034,url:'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1',city:'Tokyo',country:'Japan',region:'asia',tags:['city','live']},
+        {name:'Seoul Gangnam',lat:37.4979,lng:127.0276,url:'https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=1&mute=1',city:'Seoul',country:'South Korea',region:'asia',tags:['city','traffic','live']},
+        {name:'Pattaya Beach Road',lat:12.9278,lng:100.8770,url:'https://www.youtube.com/embed/4VXgcfk2YZ8?autoplay=1&mute=1',city:'Pattaya',country:'Thailand',region:'asia',tags:['port','live']},
+        {name:'Singapore Marina Bay',lat:1.2814,lng:103.8636,url:'https://www.youtube.com/embed/e4YDfKkp4Bs?autoplay=1&mute=1',city:'Singapore',country:'Singapore',region:'asia',tags:['city','live']},
+        // NATURE / WILDLIFE
+        {name:'African Waterhole',lat:-24.015,lng:31.497,url:'https://www.youtube.com/embed/ydYDqZQpim8?autoplay=1&mute=1',city:'Kruger NP',country:'South Africa',region:'nature',tags:['nature','live']},
+        {name:'Yellowstone Old Faithful',lat:44.4605,lng:-110.8281,url:'https://www.youtube.com/embed/L9L1CxZmhRo?autoplay=1&mute=1',city:'Yellowstone NP',country:'USA',region:'nature',tags:['nature','live']},
+        {name:'Decorah Eagles Nest',lat:43.3036,lng:-91.7887,url:'https://www.youtube.com/embed/WY9E5txBJKk?autoplay=1&mute=1',city:'Decorah, IA',country:'USA',region:'nature',tags:['nature','live']},
+        {name:'Explore Oceans',lat:36.6183,lng:-121.9019,url:'https://www.youtube.com/embed/uih0QOAKFB8?autoplay=1&mute=1',city:'Monterey, CA',country:'USA',region:'nature',tags:['nature','live']},
+        // TRAFFIC
+        {name:'I-95 Florida Cam',lat:26.1224,lng:-80.1373,url:'https://www.youtube.com/embed/YzXocZ1SdKA?autoplay=1&mute=1',city:'Ft Lauderdale, FL',country:'USA',region:'traffic',tags:['traffic','live']},
+        {name:'Tokyo Highway',lat:35.6812,lng:139.7671,url:'https://www.youtube.com/embed/DjdUEyjx8GM?autoplay=1&mute=1',city:'Tokyo',country:'Japan',region:'traffic',tags:['traffic','live']},
+      ];
+
+      function initCctvMap(){
+        if(cctvMapInit) return;
+        cctvMapInit = true;
+        log('Initializing CCTV world camera map...');
+
+        function build(){
+          const map = L.map('cctv-map').setView([25, 10], 2);
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+            attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19
+          }).addTo(map);
+
+          const camIcon = L.divIcon({
+            className:'',
+            html:'<div style="background:rgba(204,68,68,.85);width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px rgba(204,68,68,.6)"></div>',
+            iconSize:[14,14],iconAnchor:[7,7]
+          });
+
+          const markers = [];
+          cctvCams.forEach((c, i) => {
+            const m = L.marker([c.lat, c.lng], {icon: camIcon}).addTo(map);
+            m.camIdx = i;
+            m.camRegion = c.region;
+            m.camTags = c.tags;
+            const popup = `<div style="font-family:JetBrains Mono,monospace;font-size:11px;min-width:180px">
+              <div style="color:#cc4444;font-weight:700;margin-bottom:3px">\u25CF LIVE &mdash; ${c.name}</div>
+              <div style="color:#aaa;font-size:10px;margin-bottom:2px">${c.city}, ${c.country}</div>
+              <div style="color:#888;font-size:9px;margin-bottom:6px">LAT ${c.lat.toFixed(4)} / LNG ${c.lng.toFixed(4)}</div>
+              <div style="display:flex;gap:3px;margin-bottom:6px">${c.tags.map(t=>'<span style="font-size:9px;padding:1px 5px;background:rgba(139,157,106,.15);color:#8B9D6A;border:1px solid rgba(139,157,106,.3);border-radius:3px">'+t.toUpperCase()+'</span>').join('')}</div>
+              <button onclick="window._cctvView(${i})" style="width:100%;padding:5px;background:rgba(139,157,106,.2);color:#8B9D6A;border:1px solid #8B9D6A;border-radius:4px;cursor:pointer;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;letter-spacing:1px">&#x25B6; VIEW FEED</button>
+            </div>`;
+            m.bindPopup(popup, {className:'dark-popup'});
+            markers.push(m);
+          });
+
+          // Build camera grid cards
+          renderCctvGrid('all');
+
+          // Filter buttons
+          document.querySelectorAll('.cctv-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('.cctv-filter').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              const reg = btn.dataset.region;
+              markers.forEach(m => {
+                const show = reg === 'all' || m.camRegion === reg || m.camTags.includes(reg);
+                if(show) { if(!map.hasLayer(m)) m.addTo(map); }
+                else { map.removeLayer(m); }
+              });
+              renderCctvGrid(reg);
+            });
+          });
+
+          // Close viewer
+          document.getElementById('cctv-viewer-close').addEventListener('click', closeCctvViewer);
+
+          document.getElementById('cctv-count').textContent = cctvCams.length + ' CAMERAS WORLDWIDE';
+          log('CCTV map loaded — ' + cctvCams.length + ' cameras plotted');
+          setTimeout(() => map.invalidateSize(), 200);
+        }
+
+        if(typeof L === 'undefined'){
+          const lc = document.createElement('link');
+          lc.rel='stylesheet'; lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(lc);
+          const ls = document.createElement('script');
+          ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          ls.onload = build;
+          document.head.appendChild(ls);
+        } else { build(); }
+      }
+
+      function renderCctvGrid(region){
+        const grid = document.getElementById('cctv-cam-grid');
+        grid.innerHTML = '';
+        cctvCams.forEach((c, i) => {
+          if(region !== 'all' && c.region !== region && !c.tags.includes(region)) return;
+          const card = document.createElement('div');
+          card.className = 'cctv-cam';
+          card.innerHTML = `<div class="cc-region">${c.country} &bull; ${c.region.toUpperCase()}</div>
+            <div class="cc-name">${c.name}</div>
+            <div class="cc-loc">${c.city} &mdash; ${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}</div>
+            <div class="cc-tags">${c.tags.map(t=>'<span class="cc-tag'+(t==='live'?' live':'')+'">'+t.toUpperCase()+'</span>').join('')}</div>`;
+          card.addEventListener('click', () => window._cctvView(i));
+          grid.appendChild(card);
+        });
+      }
+
+      window._cctvView = function(idx){
+        const c = cctvCams[idx];
+        if(!c) return;
+        const viewer = document.getElementById('cctv-viewer');
+        const frame = document.getElementById('cctv-viewer-frame');
+        const nameEl = document.getElementById('cctv-viewer-name');
+        nameEl.textContent = '\u25CF LIVE \u2014 ' + c.name + ' \u2014 ' + c.city + ', ' + c.country;
+        frame.src = c.url;
+        viewer.style.display = 'block';
+        viewer.scrollIntoView({behavior:'smooth', block:'center'});
+        log('CCTV feed opened: ' + c.name + ' [' + c.city + ']');
+      };
+
+      function closeCctvViewer(){
+        const viewer = document.getElementById('cctv-viewer');
+        const frame = document.getElementById('cctv-viewer-frame');
+        frame.src = '';
+        viewer.style.display = 'none';
+        log('CCTV viewer closed');
+      }
+
+      /* ═══════════ MILITARY OSINT ═══════════ */
+      let milMapInit = false;
+      const milBases = [
+        {name:'Pentagon',lat:38.8719,lng:-77.0563,type:'HQ',country:'USA',desc:'US Dept of Defense HQ'},
+        {name:'Ramstein AFB',lat:49.4369,lng:7.6003,type:'AFB',country:'Germany',desc:'USAFE-AFAFRICA HQ'},
+        {name:'Camp Humphreys',lat:36.9627,lng:127.0312,type:'Army',country:'South Korea',desc:'US Forces Korea HQ'},
+        {name:'Diego Garcia',lat:-7.3195,lng:72.4229,type:'Naval',country:'BIOT',desc:'US Naval Support Facility'},
+        {name:'Yokosuka Naval Base',lat:35.2834,lng:139.6546,type:'Naval',country:'Japan',desc:'US 7th Fleet HQ'},
+        {name:'RAF Lakenheath',lat:52.4093,lng:0.5609,type:'AFB',country:'UK',desc:'USAF 48th Fighter Wing'},
+        {name:'Incirlik AB',lat:37.0021,lng:35.4259,type:'AFB',country:'Turkey',desc:'NATO Strategic Air Base'},
+        {name:'Guantanamo Bay',lat:19.9023,lng:-75.0971,type:'Naval',country:'Cuba',desc:'US Naval Station'},
+        {name:'Pearl Harbor',lat:21.3450,lng:-157.9718,type:'Naval',country:'USA',desc:'US Pacific Fleet HQ'},
+        {name:'Bagram Airfield',lat:34.9461,lng:69.2650,type:'AFB',country:'Afghanistan',desc:'Former US Forward Operating Base'},
+        {name:'Djibouti Base',lat:11.5469,lng:43.1494,type:'Naval',country:'Djibouti',desc:'Camp Lemonnier - CJTF-HOA'},
+        {name:'Thule Air Base',lat:76.5312,lng:-68.7031,type:'AFB',country:'Greenland',desc:'US Space Force - BMEWS'},
+        {name:'Pine Gap',lat:-23.7991,lng:133.7370,type:'SIGINT',country:'Australia',desc:'Joint US-AU SIGINT Facility'},
+        {name:'Menwith Hill',lat:54.0057,lng:-1.6896,type:'SIGINT',country:'UK',desc:'NSA/GCHQ SIGINT Station'},
+        {name:'Misawa AB',lat:40.7032,lng:141.3686,type:'SIGINT',country:'Japan',desc:'USAF 35th Fighter Wing + SIGINT'},
+        {name:'Fort Meade',lat:39.1087,lng:-76.7714,type:'SIGINT',country:'USA',desc:'NSA Headquarters'},
+        {name:'Kadena AB',lat:26.3516,lng:127.7680,type:'AFB',country:'Japan',desc:'USAF 18th Wing - Pacific'},
+        {name:'Rota Naval Station',lat:36.6357,lng:-6.3497,type:'Naval',country:'Spain',desc:'NAVSTA Rota - EUCOM'},
+        {name:'Bahrain NSA',lat:26.2361,lng:50.6517,type:'Naval',country:'Bahrain',desc:'US 5th Fleet HQ'},
+        {name:'Guam Andersen AFB',lat:13.5840,lng:144.9248,type:'AFB',country:'Guam',desc:'USAF 36th Wing - Pacific Bomber'},
+      ];
+
+      const milFeeds = [
+        {name:'ADS-B Exchange — Military',type:'AIRCRAFT',desc:'Real-time military aircraft transponder tracking worldwide',url:'https://globe.adsbexchange.com/?mil=1&filtera=1',tags:['ADS-B','REAL-TIME','MIL-ONLY']},
+        {name:'MarineTraffic — Warships',type:'NAVAL',desc:'Live naval vessel positions — warships, carriers, submarines (surfaced)',url:'https://www.marinetraffic.com/en/ais/home/centerx:-30/centery:20/zoom:3',tags:['AIS','REAL-TIME','NAVAL']},
+        {name:'FlightRadar24 — Military',type:'AIRCRAFT',desc:'Military & government aircraft filter with flight paths',url:'https://www.flightradar24.com/',tags:['ADS-B','FLIGHT-PATH','GOV']},
+        {name:'Sentinel Hub — SAR Imagery',type:'SATELLITE',desc:'Synthetic Aperture Radar imagery — sees through clouds/night',url:'https://apps.sentinel-hub.com/eo-browser/',tags:['SAR','SENTINEL','RECON']},
+        {name:'NASA Worldview — FIRMS',type:'SATELLITE',desc:'Fires & thermal anomalies — detects explosions & heavy equipment',url:'https://worldview.earthdata.nasa.gov/?l=VIIRS_SNPP_Thermal_Anomalies_375m_All',tags:['THERMAL','NASA','ANOMALY']},
+        {name:'Liveuamap — Global Conflicts',type:'CONFLICT',desc:'Real-time conflict map — military operations & incidents worldwide',url:'https://liveuamap.com/',tags:['OSINT','CONFLICT','REAL-TIME']},
+        {name:'NATO NCIA — AWACS',type:'AIRCRAFT',desc:'NATO Air Command AWACS tracking & air policing zones',url:'https://www.nato.int/cps/en/natohq/topics_48904.htm',tags:['NATO','AWACS','C2']},
+        {name:'VesselFinder — Military',type:'NAVAL',desc:'Global vessel tracking with military ship identification',url:'https://www.vesselfinder.com/',tags:['AIS','REAL-TIME','GLOBAL']},
+      ];
+
+      function initMilMap(){
+        if(milMapInit) return;
+        milMapInit = true;
+        log('[MIL-OSINT] Initializing secure military tracking channel...');
+
+        function buildMil(){
+          const map = L.map('mil-map',{zoomControl:true}).setView([25, 10], 2);
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+            attribution:'OSINT MAP',maxZoom:19
+          }).addTo(map);
+
+          // Type -> icon colors
+          const typeColors = {HQ:'#ff4444',AFB:'#ff8800',Army:'#44cc44',Naval:'#4488ff',SIGINT:'#cc44ff'};
+
+          milBases.forEach(b => {
+            const col = typeColors[b.type] || '#8B9D6A';
+            const icon = L.divIcon({
+              className:'',
+              html:`<div style="position:relative"><div style="background:${col};width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 10px ${col}80"></div><div style="position:absolute;top:-2px;left:-2px;width:16px;height:16px;border-radius:50%;border:1px solid ${col}60;animation:secPulse 2s infinite"></div></div>`,
+              iconSize:[12,12],iconAnchor:[6,6]
+            });
+            const m = L.marker([b.lat, b.lng],{icon}).addTo(map);
+            m.bindPopup(`<div style="font-family:JetBrains Mono,monospace;font-size:11px;min-width:200px">
+              <div style="color:${col};font-weight:700;margin-bottom:3px">&#x1F3AF; ${b.name}</div>
+              <div style="color:#aaa;font-size:10px;margin-bottom:2px">${b.type} — ${b.country}</div>
+              <div style="color:#888;font-size:9px;margin-bottom:4px">${b.desc}</div>
+              <div style="color:#666;font-size:9px">LAT ${b.lat.toFixed(4)} / LNG ${b.lng.toFixed(4)}</div>
+            </div>`,{className:'dark-popup'});
+          });
+
+          // Render feed cards
+          renderMilFeeds('all');
+
+          // Source tab switching
+          document.querySelectorAll('.mil-src').forEach(btn => {
+            btn.addEventListener('click', () => {
+              document.querySelectorAll('.mil-src').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              const src = btn.dataset.msrc;
+              if(src === 'map'){
+                document.getElementById('mil-map').style.display = '';
+                document.getElementById('mil-viewer').style.display = 'none';
+                renderMilFeeds('all');
+                setTimeout(() => map.invalidateSize(), 100);
+              } else if(src === 'aircraft'){
+                loadMilViewer('https://globe.adsbexchange.com/?mil=1&filtera=1','ADS-B Military Aircraft');
+                renderMilFeeds('AIRCRAFT');
+              } else if(src === 'naval'){
+                loadMilViewer('https://www.marinetraffic.com/en/ais/home/centerx:-30/centery:20/zoom:3','Naval Vessel Tracker');
+                renderMilFeeds('NAVAL');
+              } else if(src === 'bases'){
+                document.getElementById('mil-map').style.display = '';
+                document.getElementById('mil-viewer').style.display = 'none';
+                renderMilFeeds('all');
+                map.setView([25,10],2);
+                setTimeout(() => map.invalidateSize(), 100);
+              } else if(src === 'satellite'){
+                loadMilViewer('https://worldview.earthdata.nasa.gov/?l=VIIRS_SNPP_Thermal_Anomalies_375m_All','NASA FIRMS Thermal Anomalies');
+                renderMilFeeds('SATELLITE');
+              }
+            });
+          });
+
+          log('[MIL-OSINT] Secure channel active — ' + milBases.length + ' installations mapped');
+          log('[MIL-OSINT] ADS-B + AIS + SAR feeds online');
+          setTimeout(() => map.invalidateSize(), 200);
+        }
+
+        if(typeof L === 'undefined'){
+          const lc = document.createElement('link');
+          lc.rel='stylesheet'; lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(lc);
+          const ls = document.createElement('script');
+          ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          ls.onload = buildMil;
+          document.head.appendChild(ls);
+        } else { buildMil(); }
+      }
+
+      function loadMilViewer(url, label){
+        document.getElementById('mil-map').style.display = 'none';
+        const viewer = document.getElementById('mil-viewer');
+        document.getElementById('mil-viewer-frame').src = url;
+        viewer.style.display = '';
+        log('[MIL-OSINT] Feed loaded: ' + label);
+      }
+
+      function renderMilFeeds(filter){
+        const grid = document.getElementById('mil-feed-grid');
+        grid.innerHTML = '';
+        milFeeds.forEach(f => {
+          if(filter !== 'all' && f.type !== filter) return;
+          const card = document.createElement('div');
+          card.className = 'mil-feed';
+          card.innerHTML = `<div class="mf-type">${f.type}</div>
+            <div class="mf-name">${f.name}</div>
+            <div class="mf-desc">${f.desc}</div>
+            <div class="mf-tags">${f.tags.map(t=>'<span class="mf-tag">'+t+'</span>').join('')}</div>`;
+          card.addEventListener('click', () => {
+            loadMilViewer(f.url, f.name);
+            document.querySelectorAll('.mil-src').forEach(b => b.classList.remove('active'));
+          });
+          grid.appendChild(card);
+        });
+      }
+
+    })();
+    </script>
+
+    <!-- RADIO FOOTER SCRIPT -->
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      // Protect radio from being paused by iframe focus or page interactions
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      // Re-resume on visibility change (tab switch back)
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — AI Recon</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — AI RECON</h1>
+        <p class="tag">TACTICAL AI CODING ASSISTANT &bull; POWERED BY FREE MODELS</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html">Ops Center</a>
+        <a href="cyber.html">Cyber Intel</a>
+        <a href="ai.html" class="active">AI Recon</a>
+        <a href="map.html">Tac Map</a>
+        <a href="bible.html">Scripture</a>
+        <a href="drone.html">Drone</a>
+      </nav>
+    </header>
+
+    <main class="ai-container">
+      <div class="ai-sidebar">
+        <h3>Model</h3>
+        <select id="modelSelect"></select>
+        <p id="modelDesc" class="model-desc"></p>
+
+        <h3>Settings</h3>
+        <label class="ai-label">Temperature
+          <input type="range" id="temperature" min="0.1" max="1.5" step="0.1" value="0.7" />
+          <span id="tempVal">0.7</span>
+        </label>
+        <label class="ai-label">Max tokens
+          <input type="number" id="maxTokens" value="512" min="64" max="2048" step="64" />
+        </label>
+
+        <h3>Quick Prompts</h3>
+        <div class="quick-prompts">
+          <button class="qp" data-prompt="Write a Python function that checks if a string is a palindrome">Palindrome check</button>
+          <button class="qp" data-prompt="Explain how a binary search algorithm works step by step">Binary search</button>
+          <button class="qp" data-prompt="Write a Flask REST API with CRUD operations for a todo list">Flask CRUD API</button>
+          <button class="qp" data-prompt="Explain SQL injection and how to prevent it in Python">SQL injection</button>
+          <button class="qp" data-prompt="Write a Python script to scan open ports on localhost">Port scanner</button>
+          <button class="qp" data-prompt="Create a Python class for a linked list with insert, delete, and display methods">Linked list</button>
+        </div>
+      </div>
+
+      <div class="ai-chat">
+        <div id="chatLog" class="chat-log">
+          <div class="chat-msg system">
+            <span class="chat-role">Delta AI</span>
+            <p>Standing by. Request intel on coding, security, or engineering. Powered by free AI models.</p>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" placeholder="Ask the AI agent… (e.g., 'Write a Python web scraper')" rows="2"></textarea>
+          <button id="sendBtn">Send</button>
+        </div>
+        <div class="chat-status">
+          <span id="chatStatus"></span>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const chatLog = document.getElementById('chatLog');
+      const chatInput = document.getElementById('chatInput');
+      const statusEl = document.getElementById('chatStatus');
+      const modelSelect = document.getElementById('modelSelect');
+      const modelDesc = document.getElementById('modelDesc');
+      const tempSlider = document.getElementById('temperature');
+      const tempVal = document.getElementById('tempVal');
+      const maxTokensEl = document.getElementById('maxTokens');
+
+      tempSlider.addEventListener('input', () => tempVal.textContent = tempSlider.value);
+
+      function esc(str) {
+        const d = document.createElement('div');
+        d.textContent = str || '';
+        return d.innerHTML;
+      }
+
+      function addMessage(role, text) {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${role}`;
+        // Format code blocks
+        let html = esc(text);
+        html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre class="code-block"><code>$2</code></pre>');
+        html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+        html = html.replace(/\n/g, '<br>');
+        div.innerHTML = `<span class="chat-role">${role === 'user' ? 'Operator' : 'Delta AI'}</span><div class="chat-text">${html}</div>`;
+        chatLog.appendChild(div);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+
+      // Load models
+      async function loadModels() {
+        try {
+          const res = await fetch('/api/ai/models');
+          const data = await res.json();
+          if (data.ok) {
+            data.models.forEach(m => {
+              const opt = document.createElement('option');
+              opt.value = m.id;
+              opt.textContent = m.name;
+              opt.dataset.desc = m.desc;
+              opt.dataset.provider = m.provider;
+              modelSelect.appendChild(opt);
+            });
+            updateModelDesc();
+          }
+        } catch (e) { console.warn(e); }
+      }
+
+      function updateModelDesc() {
+        const opt = modelSelect.options[modelSelect.selectedIndex];
+        modelDesc.textContent = opt ? opt.dataset.desc : '';
+      }
+      modelSelect.addEventListener('change', updateModelDesc);
+
+      function getSelectedProvider() {
+        const opt = modelSelect.options[modelSelect.selectedIndex];
+        return opt ? opt.dataset.provider : 'pollinations';
+      }
+
+      async function sendMessage() {
+        const prompt = chatInput.value.trim();
+        if (!prompt) return;
+
+        addMessage('user', prompt);
+        chatInput.value = '';
+        statusEl.textContent = 'Thinking…';
+
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+
+        try {
+          const res = await fetch('/api/ai', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              prompt,
+              model: modelSelect.value,
+              provider: getSelectedProvider(),
+              temperature: parseFloat(tempSlider.value),
+              max_tokens: parseInt(maxTokensEl.value),
+            })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            addMessage('assistant', data.text);
+            statusEl.textContent = `Model: ${data.model} (${data.provider})`;
+          } else if (data.loading) {
+            addMessage('system', data.error + ' Retrying…');
+            statusEl.textContent = 'Model loading…';
+            setTimeout(() => {
+              chatInput.value = prompt;
+              sendMessage();
+            }, 15000);
+            return;
+          } else {
+            addMessage('system', 'Error: ' + data.error);
+            statusEl.textContent = '';
+          }
+        } catch (err) {
+          addMessage('system', 'Network error: ' + err.message);
+          statusEl.textContent = '';
+        } finally {
+          sendBtn.disabled = false;
+        }
+      }
+
+      document.getElementById('sendBtn').addEventListener('click', sendMessage);
+      chatInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+      });
+
+      // Quick prompts
+      document.querySelectorAll('.qp').forEach(btn => {
+        btn.addEventListener('click', () => {
+          chatInput.value = btn.dataset.prompt;
+          sendMessage();
+        });
+      });
+
+      loadModels();
+    </script>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>
