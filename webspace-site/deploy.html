@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Future Code Delta | Deploy Plan</title>
+    <meta
+      name="description"
+      content="The professional deployment plan for presenting batcode-playground on current IONOS products and upgrading later."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+  </head>
+  <body data-page="deploy">
+    <div class="site-bg" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">FD</span>
+        <span class="brand-copy">
+          <strong>Future Code Delta</strong>
+          <small>BatCode Playground webspace edition</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="workbench.html">Workbench</a>
+        <a class="active" href="deploy.html">Deploy Plan</a>
+      </nav>
+    </header>
+
+    <main class="page-shell">
+      <section class="hero hero-compact panel reveal">
+        <div class="hero-copy">
+          <p class="eyebrow">IONOS deployment strategy</p>
+          <h1>A free-now website, with a clear upgrade route later.</h1>
+          <p class="lede">
+            This edition is designed for the products already in your IONOS account: shared webspace for
+            the public site now, and a future Python-capable server if you want the full backend online.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Current assets</p>
+          <h2>What is already available in your account</h2>
+        </div>
+        <div class="card-grid" id="product-grid"></div>
+      </section>
+
+      <section class="section-block two-column reveal">
+        <article class="panel checklist-panel">
+          <div class="section-head">
+            <p class="eyebrow">Go live now</p>
+            <h2>Free/current product path</h2>
+          </div>
+          <ol class="checklist" id="free-path"></ol>
+        </article>
+
+        <article class="panel checklist-panel accent-panel">
+          <div class="section-head">
+            <p class="eyebrow">Restore dynamic runtime later</p>
+            <h2>Server-capable upgrade path</h2>
+          </div>
+          <ol class="checklist" id="upgrade-path"></ol>
+        </article>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Reality check</p>
+          <h2>What this site does versus what the full app does</h2>
+        </div>
+        <div class="compare-grid">
+          <article class="panel compare-card">
+            <h3>Published webspace edition</h3>
+            <ul class="plain-list">
+              <li>Professional browser-facing presentation</li>
+              <li>Folder inventory, module map, and route surface</li>
+              <li>Deployable on current IONOS webspace</li>
+              <li>Domain-ready for futurecodedelta.org</li>
+            </ul>
+          </article>
+          <article class="panel compare-card">
+            <h3>Full backend edition</h3>
+            <ul class="plain-list" id="deployment-notes"></ul>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>The website is ready for shared hosting. The full app remains ready for server-grade hosting.</p>
+      <p class="footer-meta">Domain target: futurecodedelta.org.</p>
+    </footer>
+
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>

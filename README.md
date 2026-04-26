@@ -69,6 +69,10 @@ IONOS Deploy Now
 - See `IONOS_DEPLOY.md` for deploying the whole `batcode-playground` folder to an existing IONOS domain or website.
 - Legacy proxy assets have been removed so the repo now ships with a single deployment path.
 
+IONOS Webspace Edition
+- `webspace-site/` is a static, professional browser-facing edition of the project for current IONOS shared hosting products.
+- See `IONOS_WEBSPACE.md` for uploading that folder to webspace and connecting `futurecodedelta.org`.
+
 LLM usage
 - To enable LLM-assisted instruction expansion, set `OPENAI_API_KEY` and then check the `LLM` box in the Agent UI.
 

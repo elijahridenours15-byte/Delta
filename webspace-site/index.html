@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Future Code Delta | Browser Edition</title>
+    <meta
+      name="description"
+      content="A professional browser-facing edition of the batcode-playground folder, shaped for IONOS webspace and built to show what lives in the project."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+  </head>
+  <body data-page="home">
+    <div class="site-bg" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">FD</span>
+        <span class="brand-copy">
+          <strong>Future Code Delta</strong>
+          <small>BatCode Playground webspace edition</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a class="active" href="index.html">Overview</a>
+        <a href="workbench.html">Workbench</a>
+        <a href="deploy.html">Deploy Plan</a>
+      </nav>
+    </header>
+
+    <main class="page-shell">
+      <section class="hero panel reveal">
+        <div class="hero-copy">
+          <p class="eyebrow">IONOS-ready browser experience</p>
+          <h1>Fit the folder into a full website without breaking the build story.</h1>
+          <p class="lede">
+            This site turns the current <span class="mono">batcode-playground</span> folder into a
+            professional, browser-accessible presentation layer that works on your existing IONOS
+            webspace and shows what is built inside the project.
+          </p>
+          <div class="actions">
+            <a class="button button-primary" href="workbench.html">Open the Workbench</a>
+            <a class="button button-secondary" href="deploy.html">See the IONOS plan</a>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="stat-card">
+            <span id="stat-pages">0</span>
+            <small>frontend modules mapped</small>
+          </div>
+          <div class="stat-card">
+            <span id="stat-routes">0</span>
+            <small>Flask routes inventoried</small>
+          </div>
+          <div class="stat-card">
+            <span id="stat-files">0</span>
+            <small>source files surfaced</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="story-grid reveal stagger">
+        <article class="panel story-card">
+          <h2>Public-facing now</h2>
+          <p>
+            A clean, browser-ready website that explains the product, the architecture, the modules,
+            and the route surface already living in the folder.
+          </p>
+        </article>
+        <article class="panel story-card">
+          <h2>Built from the real project</h2>
+          <p>
+            The site inventory is driven by the current project structure, route map, and templates so
+            it reflects what is actually inside the repository.
+          </p>
+        </article>
+        <article class="panel story-card">
+          <h2>Upgrade path preserved</h2>
+          <p>
+            The full Flask runtime remains intact in the repo, ready for a later move to Python-capable
+            hosting when you want live execution, agent workflows, and backend APIs online.
+          </p>
+        </article>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Module map</p>
+          <h2>What the folder already contains</h2>
+        </div>
+        <div class="card-grid" id="page-grid"></div>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Technology line</p>
+          <h2>Core stack running through the build</h2>
+        </div>
+        <div class="chip-row" id="stack-chips"></div>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Capability preview</p>
+          <h2>Route surface at a glance</h2>
+        </div>
+        <div class="route-preview" id="route-preview"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Future Code Delta is the professional browser edition of the
+        <span class="mono">batcode-playground</span> folder for shared IONOS hosting.
+      </p>
+      <p class="footer-meta">Built from the repository inventory and prepared for futurecodedelta.org.</p>
+    </footer>
+
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>

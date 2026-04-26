@@ -1,0 +1,411 @@
+{
+  "project": {
+    "name": "Future Code Delta",
+    "codeName": "BatCode Playground",
+    "summary": "A browser-facing edition of the batcode-playground repository, designed to present the project professionally on current IONOS webspace while preserving the full backend build in source control."
+  },
+  "stack": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "Flask",
+    "Python",
+    "Java",
+    "Docker",
+    "IONOS Webspace"
+  ],
+  "pages": [
+    {
+      "name": "Ops Center",
+      "route": "/",
+      "template": "templates/index.html",
+      "mode": "backend-assisted",
+      "summary": "Primary operations center with code execution, multi-mode editors, project downloads, and agent controls."
+    },
+    {
+      "name": "Cyber Intel",
+      "route": "/cyber",
+      "template": "templates/cyber.html",
+      "mode": "backend-assisted",
+      "summary": "Cyber security interface that surfaces CVE lookups, encryption tools, resource checks, and headers analysis."
+    },
+    {
+      "name": "AI Recon",
+      "route": "/ai",
+      "template": "templates/ai.html",
+      "mode": "backend-assisted",
+      "summary": "AI workspace for prompt execution, model selection, and multi-provider response orchestration."
+    },
+    {
+      "name": "Tactical Map",
+      "route": "/map",
+      "template": "templates/map.html",
+      "mode": "browser-forward",
+      "summary": "Map-oriented interface for spatial viewing, overlays, and field-style navigation in the browser."
+    },
+    {
+      "name": "Scripture Desk",
+      "route": "/bible",
+      "template": "templates/bible.html",
+      "mode": "backend-assisted",
+      "summary": "Scripture lookup and study surface with backend-powered verse retrieval and query handling."
+    },
+    {
+      "name": "Drone Watch",
+      "route": "/drone",
+      "template": "templates/drone.html",
+      "mode": "browser-forward",
+      "summary": "Large-format drone and surveillance interface with browser-rendered visuals and monitoring panels."
+    },
+    {
+      "name": "Radio Monitor",
+      "route": "/radio",
+      "template": "templates/radio.html",
+      "mode": "browser-forward",
+      "summary": "Audio-focused station and recording interface for radio-style playback and browser listening flows."
+    },
+    {
+      "name": "Truth Console",
+      "route": "/truth",
+      "template": "templates/truth.html",
+      "mode": "backend-assisted",
+      "summary": "Narrative control surface that mixes browser presentation with API-powered scripture retrieval."
+    }
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "page",
+      "summary": "Serve the primary operations center."
+    },
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "kind": "system",
+      "summary": "Expose a simple health check for monitoring and deployment validation."
+    },
+    {
+      "method": "POST",
+      "path": "/run",
+      "kind": "api",
+      "summary": "Execute Python, Java, HTML, CSS, or composite web snippets."
+    },
+    {
+      "method": "POST",
+      "path": "/agent",
+      "kind": "api",
+      "summary": "Accept build instructions and generate or execute project output through the local agent."
+    },
+    {
+      "method": "GET",
+      "path": "/projects",
+      "kind": "api",
+      "summary": "List generated projects created by the local agent workflow."
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/delete",
+      "kind": "api",
+      "summary": "Delete one or more generated project directories."
+    },
+    {
+      "method": "GET",
+      "path": "/download/<project_name>",
+      "kind": "api",
+      "summary": "Download a generated project as a zip archive."
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/download",
+      "kind": "api",
+      "summary": "Bundle multiple generated projects into one zip download."
+    },
+    {
+      "method": "GET",
+      "path": "/cyber",
+      "kind": "page",
+      "summary": "Serve the cyber operations interface."
+    },
+    {
+      "method": "GET",
+      "path": "/api/cves",
+      "kind": "api",
+      "summary": "Fetch recent CVE information."
+    },
+    {
+      "method": "GET",
+      "path": "/api/cves/search",
+      "kind": "api",
+      "summary": "Search CVE data by keyword."
+    },
+    {
+      "method": "GET",
+      "path": "/ai",
+      "kind": "page",
+      "summary": "Serve the AI interface."
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai",
+      "kind": "api",
+      "summary": "Process AI requests through configured providers."
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/models",
+      "kind": "api",
+      "summary": "Return the AI model inventory for the UI."
+    },
+    {
+      "method": "POST",
+      "path": "/api/share",
+      "kind": "api",
+      "summary": "Create a share token for a saved snippet or workspace state."
+    },
+    {
+      "method": "GET",
+      "path": "/api/share/<share_id>",
+      "kind": "api",
+      "summary": "Return share data by identifier."
+    },
+    {
+      "method": "GET",
+      "path": "/share/<share_id>",
+      "kind": "page",
+      "summary": "Render a shared workspace back through the main interface."
+    },
+    {
+      "method": "POST",
+      "path": "/api/cyber/encrypt",
+      "kind": "api",
+      "summary": "Encrypt text via the cyber tools surface."
+    },
+    {
+      "method": "GET",
+      "path": "/api/cyber/headers",
+      "kind": "api",
+      "summary": "Inspect security headers for a provided URL."
+    },
+    {
+      "method": "GET",
+      "path": "/api/cyber/resources",
+      "kind": "api",
+      "summary": "Return curated cyber resources to the UI."
+    },
+    {
+      "method": "GET",
+      "path": "/map",
+      "kind": "page",
+      "summary": "Serve the tactical map page."
+    },
+    {
+      "method": "GET",
+      "path": "/bible",
+      "kind": "page",
+      "summary": "Serve the scripture page."
+    },
+    {
+      "method": "GET",
+      "path": "/api/bible",
+      "kind": "api",
+      "summary": "Retrieve scripture content for the bible and truth pages."
+    },
+    {
+      "method": "GET",
+      "path": "/drone",
+      "kind": "page",
+      "summary": "Serve the drone operations page."
+    },
+    {
+      "method": "GET",
+      "path": "/radio",
+      "kind": "page",
+      "summary": "Serve the radio monitor page."
+    },
+    {
+      "method": "GET",
+      "path": "/truth",
+      "kind": "page",
+      "summary": "Serve the truth console page."
+    }
+  ],
+  "files": [
+    {
+      "path": "run.py",
+      "group": "backend",
+      "summary": "Flask entrypoint with the page routes, API endpoints, and share surface."
+    },
+    {
+      "path": "requirements.txt",
+      "group": "infra",
+      "summary": "Python dependency list for Flask, requests, pytest, and related tooling."
+    },
+    {
+      "path": "Dockerfile",
+      "group": "infra",
+      "summary": "Container definition for running the full app with Gunicorn and a headless JDK."
+    },
+    {
+      "path": "README.md",
+      "group": "docs",
+      "summary": "Top-level project overview, quick start steps, and product framing."
+    },
+    {
+      "path": "IONOS_DEPLOY.md",
+      "group": "docs",
+      "summary": "IONOS-specific deployment notes covering the whole project folder."
+    },
+    {
+      "path": "agent/__init__.py",
+      "group": "agent",
+      "summary": "Agent package marker for the internal project generator."
+    },
+    {
+      "path": "agent/agent.py",
+      "group": "agent",
+      "summary": "Rule-based generation logic for agent-created project scaffolds."
+    },
+    {
+      "path": "agent/executor.py",
+      "group": "agent",
+      "summary": "Execution helper with safety limits for generated code."
+    },
+    {
+      "path": "agent/llm.py",
+      "group": "agent",
+      "summary": "LLM integration bridge for expanding build instructions."
+    },
+    {
+      "path": "java/Example.java",
+      "group": "support",
+      "summary": "Simple Java example used by the playground surface."
+    },
+    {
+      "path": "static/style.css",
+      "group": "frontend",
+      "summary": "Primary stylesheet for the original bat-themed Flask UI."
+    },
+    {
+      "path": "templates/index.html",
+      "group": "templates",
+      "summary": "Main operations center template with editor panes, output, and agent controls."
+    },
+    {
+      "path": "templates/ai.html",
+      "group": "templates",
+      "summary": "AI interface template for prompts, models, and result flows."
+    },
+    {
+      "path": "templates/bible.html",
+      "group": "templates",
+      "summary": "Scripture interface template with search, bookmarks, and reading tools."
+    },
+    {
+      "path": "templates/cyber.html",
+      "group": "templates",
+      "summary": "Cyber page template for CVEs, encryption, and security inspection."
+    },
+    {
+      "path": "templates/drone.html",
+      "group": "templates",
+      "summary": "Drone operations template with browser-rendered control surfaces."
+    },
+    {
+      "path": "templates/map.html",
+      "group": "templates",
+      "summary": "Tactical map template for spatial interface views."
+    },
+    {
+      "path": "templates/radio.html",
+      "group": "templates",
+      "summary": "Radio interface template for playback, recordings, and stations."
+    },
+    {
+      "path": "templates/truth.html",
+      "group": "templates",
+      "summary": "Truth console template with scripture-powered presentation flows."
+    },
+    {
+      "path": "tests/test_agent.py",
+      "group": "tests",
+      "summary": "Targeted tests for the local agent behavior."
+    },
+    {
+      "path": "tests/test_app.py",
+      "group": "tests",
+      "summary": "Health route validation for the Flask application."
+    }
+  ],
+  "tree": [
+    "batcode-playground/",
+    "  agent/",
+    "    __init__.py",
+    "    agent.py",
+    "    executor.py",
+    "    llm.py",
+    "  java/",
+    "    Example.java",
+    "  static/",
+    "    style.css",
+    "  templates/",
+    "    ai.html",
+    "    bible.html",
+    "    cyber.html",
+    "    drone.html",
+    "    index.html",
+    "    map.html",
+    "    radio.html",
+    "    truth.html",
+    "  tests/",
+    "    test_agent.py",
+    "    test_app.py",
+    "  webspace-site/",
+    "    index.html",
+    "    workbench.html",
+    "    deploy.html",
+    "    assets/",
+    "      project-manifest.json",
+    "      site.css",
+    "      site.js",
+    "  Dockerfile",
+    "  IONOS_DEPLOY.md",
+    "  README.md",
+    "  requirements.txt",
+    "  run.py"
+  ],
+  "deployment": {
+    "domain": "futurecodedelta.org",
+    "currentProducts": [
+      {
+        "name": "IONOS Web Hosting Plus",
+        "role": "Current shared webspace that can publish the webspace-site edition without buying additional hosting."
+      },
+      {
+        "name": "IONOS Deploy Now Starter",
+        "role": "GitHub-connected deployment product that is not suited to the full Flask runtime, but remains useful for static workflows."
+      },
+      {
+        "name": "futurecodedelta.org",
+        "role": "Primary domain, currently unused and ready to connect to webspace or an external target."
+      }
+    ],
+    "freePath": [
+      "Upload the contents of webspace-site/ to your IONOS webspace through FTP or the hosting file tools.",
+      "Use the Domains and SSL panel to connect futurecodedelta.org to the webspace directory where these files live.",
+      "Activate SSL for futurecodedelta.org once the folder is connected.",
+      "Use this site as the professional browser-facing presentation of the build folder on your current IONOS products."
+    ],
+    "upgradePath": [
+      "Move the full Flask project to a Python-capable server or container host when you want the live backend online.",
+      "Deploy the existing Dockerfile-based app or run the Flask service behind Gunicorn on that host.",
+      "Point futurecodedelta.org to the server with DNS or the domain connection tools in IONOS.",
+      "Restore live code execution, agent workflows, downloads, and all backend APIs under the public domain."
+    ],
+    "notes": [
+      "The current repository exposes 26 Flask routes and several POST APIs, which is larger than a simple shared-hosting static upload.",
+      "This webspace edition is intentionally static and professional: it shows the build, the modules, and the system surface in the browser.",
+      "The full local runtime remains preserved in source control and can be moved later without changing the public-facing brand."
+    ]
+  }
+}
