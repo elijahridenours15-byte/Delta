@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Manuals — Future Code Delta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="">
+        <!-- small logo retained from index -->
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>MANUALS</h1>
+        <p class="tag">Placeholders for user-provided manuals and authorized blueprints</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <section class="editor">
+        <div class="output">
+          <h2>Manuals Index</h2>
+          <p class="no-results">This index lists brands that have uploaded manuals or public-domain images. For legal reasons, the site does not host copyrighted manuals unless uploaded by an authorized owner.</p>
+
+          <div style="margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--panel)">
+            <strong>Upload guidance</strong>
+            <ul style="margin:8px 0 0;color:var(--text2)">
+              <li>Upload PDF manuals you own or have permission to share.</li>
+              <li>For public-domain resources, use the Wikimedia importer to seed HD images.</li>
+              <li>Each upload should include Brand, Model, Year, License/Source, and optional blueprint images (HD).</li>
+            </ul>
+          </div>
+
+          <h3 style="margin-top:16px;color:var(--accent)">Brands</h3>
+          {% if brands %}
+            <ul style="margin:8px 0 0;color:var(--text2)">
+              {% for b in brands %}
+                <li><a href="/manuals/{{ b }}">{{ b }}</a></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="no-results">No manuals indexed yet. Use the <a href="/admin/manuals">admin upload</a> UI to add items.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <aside class="output">
+        <h2>Notes</h2>
+        <p class="backend-status-text">If you want, I can add an admin upload route and an ingestion script to fetch public-domain vehicle images from Wikimedia Commons. I cannot fetch or embed proprietary manuals or blueprints without explicit permission.</p>
+      </aside>
+    </main>
+  </body>
+  </html>

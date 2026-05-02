@@ -1,0 +1,22 @@
+{% set path = request.path or '/' %}
+{% set ops_active = path == '/' or path.startswith('/share/') %}
+{% set dropdown_active = path in ['/cyber', '/drone', '/survival', '/mechanics', '/mechanics/browser', '/mechanics/blueprints'] %}
+<nav class="top-nav">
+  <a href="/" class="{% if ops_active %}active{% endif %}">Ops Center</a>
+  <a href="/ai" class="{% if path == '/ai' %}active{% endif %}">AI Recon</a>
+  <a href="/map" class="{% if path == '/map' %}active{% endif %}">Tac Map</a>
+  <a href="/bible" class="{% if path == '/bible' %}active{% endif %}">Scripture</a>
+  <details class="nav-dropdown{% if dropdown_active %} active{% endif %}">
+    <summary class="nav-dropdown-trigger">Stealth</summary>
+    <div class="nav-dropdown-menu">
+      <a href="/cyber" class="{% if path == '/cyber' %}active{% endif %}">Cyber Intel</a>
+      <a href="/drone" class="{% if path == '/drone' %}active{% endif %}">Drone</a>
+      <a href="/survival" class="{% if path == '/survival' %}active{% endif %}">Survival</a>
+        <a href="/mechanics" class="{% if path == '/mechanics' %}active{% endif %}">Mechanics</a>
+        <a href="/mechanics/blueprints" class="{% if path == '/mechanics/blueprints' %}active{% endif %}">Blueprints</a>
+        <a href="/mechanics/browser" class="{% if path.startswith('/mechanics/browser') %}active{% endif %}">All Vehicles</a>
+      <a href="/download/offline-site" class="nav-download">Download</a>
+    </div>
+  </details>
+</nav>
+{% include '_radio_footer.html' %}

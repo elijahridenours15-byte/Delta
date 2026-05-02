@@ -1,0 +1,6 @@
+brand,model,year,query,limit,download
+# Example: brand-only search
+ExampleBrand,,,ExampleBrand,6,0
+# Fields: brand,model,year,query,limit,download
+# - Leave model/year blank if not applicable
+# - Set download to 1 to attempt PD/CC0 downloads when running with --download

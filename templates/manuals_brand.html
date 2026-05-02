@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Manuals — {{ brand }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <div class="title">
+        <h1>MANUALS — {{ brand }}</h1>
+        <p class="tag">Models and years indexed for {{ brand }}</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <section class="editor">
+        <div class="output">
+          <h2>Models</h2>
+          {% if models %}
+            <ul>
+              {% for m in models %}
+                <li>
+                  <strong>{{ m }}</strong>
+                  {% set years = models_years.get(m, []) %}
+                  {% if years %}
+                    &mdash; Years:
+                    {% for y in years %}
+                      <a href="/manuals/{{ brand }}/{{ m }}/{{ y }}">{{ y }}</a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <em>no years indexed</em>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="no-results">No models indexed for this brand.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <aside class="output">
+        <h2>Admin</h2>
+        <p><a href="/admin/manuals">Upload / Import</a></p>
+        <p><a href="/manuals">Back to index</a></p>
+      </aside>
+    </main>
+  </body>
+  </html>

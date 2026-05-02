@@ -112,3 +112,38 @@ If `/healthz` works but the main page does not, the container is running and the
 ## Current domain note
 
 At the time this guide was added, `futurecodedelta.org` was still serving the default IONOS placeholder page over HTTP, `www.futurecodedelta.org` did not resolve, and HTTPS was not working yet. Replace that placeholder assignment with the Deploy Now project before testing the final domain.
+
+-- Alternative: Webspace Explorer & SFTP (non-container hosting) --
+
+If you prefer the Webspace Explorer (classic Webhosting) or have SFTP/SSH access, use these steps to upload the static+Flask site bundle directly to your web root.
+
+1. Create the bundle ZIP (if not present):
+
+```bash
+# from repo root
+./.venv/bin/python3 scripts/make_ionos_deploy_zip.py
+```
+
+2. Use the GUI Webspace Explorer to upload and extract the ZIP into your web root (e.g. `htdocs`, `www`, or `public_html`).
+
+3. If your plan uses Python WSGI, upload `passenger_wsgi.py` (this repo includes one) to the web root. The file imports the Flask app from `run.py` and exposes it as `application`.
+
+4. Alternatively, run the provided upload helper from your machine (prompts for host/user/webroot):
+
+```bash
+chmod +x scripts/upload_to_ionos.sh
+./scripts/upload_to_ionos.sh delta_coding_ionos_deploy.zip
+```
+
+5. If you have SSH access, run the unzip command on the server (the upload script can attempt this for you):
+
+```bash
+ssh -p <port> <user>@<host> 'cd <webroot> && unzip -o delta_coding_ionos_deploy.zip && rm -f delta_coding_ionos_deploy.zip'
+```
+
+Security & notes
+-----------------
+- I cannot log in or run actions that require your account credentials. Do not paste passwords into this chat.
+- You previously pasted an account password here — change that password now and enable 2‑factor authentication.
+
+If you want, I can watch while you sign into the IONOS control panel and walk you through the Webspace Explorer steps in real time.

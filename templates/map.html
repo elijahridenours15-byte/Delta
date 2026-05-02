@@ -1,52 +1,5 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Delta Coding — Tactical Map</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <style>
-      .map-wrap{display:flex;flex-direction:column;height:calc(100vh - 190px);padding:20px 28px;max-width:1400px;margin:0 auto;width:100%}
-      #map{flex:1;border-radius:8px;border:1px solid var(--border);z-index:1;min-height:300px}
-
-      /* Coordinate / info bar */
-      .map-hud{display:flex;gap:16px;align-items:center;padding:12px 18px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap}
-      .hud-item{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--text2)}
-      .hud-label{color:var(--accent);font-weight:700;margin-right:6px;text-transform:uppercase}
-      .hud-val{color:var(--sand)}
-      .hud-sep{color:var(--border2)}
-
-      /* Layer panel */
-      .map-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-      .map-btn{
-        background:var(--panel);color:var(--accent);
-        border:1px solid var(--border);padding:6px 14px;
-        border-radius:4px;cursor:pointer;font-size:11px;
-        font-family:'JetBrains Mono',monospace;
-        letter-spacing:1px;text-transform:uppercase;
-        transition:all .15s;
-      }
-      .map-btn:hover{border-color:var(--accent2);box-shadow:0 0 8px var(--accent-glow)}
-      .map-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent)}
-
-      /* Override Leaflet controls to match theme */
-      .leaflet-control-zoom a{
-        background:var(--panel)!important;color:var(--accent)!important;
-        border-color:var(--border)!important;font-weight:700!important;
-        width:32px!important;height:32px!important;line-height:32px!important;
-        font-size:16px!important;
-      }
-      .leaflet-control-zoom a:hover{background:var(--panel2)!important;color:var(--accent-bright)!important}
-      .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:4px!important;overflow:hidden}
-      .leaflet-control-scale-line{
-        background:rgba(26,31,22,.85)!important;color:var(--accent)!important;
-        border-color:var(--accent2)!important;font-family:'JetBrains Mono',monospace!important;
-        font-size:10px!important;letter-spacing:.5px!important;padding:2px 6px!important
-      }
-      .leaflet-control-attribution{
         background:rgba(14,17,11,.8)!important;color:var(--muted)!important;
         font-size:9px!important;font-family:'JetBrains Mono',monospace!important
       }
@@ -91,24 +44,55 @@
       }
 
       /* Goto panel */
-      .goto-panel{display:none;gap:6px;align-items:center}
+      .goto-panel{display:none;flex-direction:column;gap:6px;align-items:stretch;min-width:min(100%,420px);padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(14,17,11,.92)}
       .goto-panel.show{display:flex}
+      .goto-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
       .goto-input{
         width:110px;padding:5px 8px;border-radius:4px;
         border:1px solid var(--border);background:var(--bg2);
         color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;
       }
+      .goto-input.wide,.goto-select{flex:1 1 180px;width:auto}
+      .goto-select{
+        padding:5px 8px;border-radius:4px;border:1px solid var(--border);
+        background:var(--bg2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;
+      }
+      .goto-status{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.5px;color:var(--text2);min-height:15px}
+      .goto-status.error{color:#F0A0A0}
+      .goto-status.ok{color:var(--accent)}
 
       /* Second toolbar row */
       .map-hud-row2{display:flex;gap:6px;align-items:center;padding:8px 18px;background:var(--panel);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;margin-top:-8px;margin-bottom:12px;flex-wrap:wrap}
       .map-btn.war{border-color:#8B2020;color:#C44}
       .map-btn.war:hover{box-shadow:0 0 8px rgba(204,68,68,.3)}
       .map-btn.war.active{background:#8B2020;color:#FFA0A0;border-color:#C44}
+      .map-btn.recon{border-color:#6F7F4B;color:#C8D5A3}
+      .map-btn.recon:hover{box-shadow:0 0 8px rgba(139,157,106,.35)}
+      .map-btn.recon.active{background:#4C5A34;color:#F3F8DF;border-color:#C8D5A3}
       .map-btn.xray{border-color:#4A6FA5;color:#6B9FD4}
       .map-btn.xray:hover{box-shadow:0 0 8px rgba(74,111,165,.3)}
       .map-btn.xray.active{background:#2A4A7A;color:#A0C8F0;border-color:#6B9FD4}
       .map-btn.print-btn{border-color:var(--gold);color:var(--gold)}
       .map-btn.print-btn:hover{box-shadow:0 0 8px rgba(196,162,101,.3)}
+      .map-btn.settings{border-color:#5A6D82;color:#B6C6D8}
+      .map-btn.settings:hover{box-shadow:0 0 8px rgba(90,109,130,.3)}
+      .map-btn.settings.active{background:#405263;color:#E6EEF6;border-color:#9EB5C8}
+
+      #map.recon-mode .leaflet-pane.leaflet-tile-pane{
+        filter:saturate(0.82) contrast(1.12) brightness(0.92) hue-rotate(-8deg);
+      }
+      #map.hd-detail-mode .leaflet-pane.leaflet-tile-pane{
+        filter:contrast(1.08) saturate(1.06) brightness(1.02);
+      }
+      #map.hd-detail-mode .leaflet-tile{
+        image-rendering:-webkit-optimize-contrast;
+        image-rendering:crisp-edges;
+      }
+      #map.xray-mode .leaflet-pane.leaflet-tile-pane{
+        filter:grayscale(1) contrast(1.68) brightness(1.05) saturate(0.12);
+      }
+      .crosshair.scan{opacity:.82}
+      .crosshair.scan line,.crosshair.scan circle{stroke:#C8D5A3;opacity:.92}
 
       /* Conflict popup */
       .conflict-popup{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.5}
@@ -117,18 +101,94 @@
       .conflict-popup .conf-parties{color:#666;font-size:10px}
 
       /* Legend panel */
-      .war-legend{position:absolute;bottom:50px;left:10px;z-index:1000;background:rgba(26,31,22,.92);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);display:none;backdrop-filter:blur(6px);max-width:200px}
+      .war-legend{position:absolute;bottom:50px;left:10px;z-index:1000;background:rgba(26,31,22,.92);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);display:none;backdrop-filter:blur(6px);max-width:200px;pointer-events:none}
       .war-legend.show{display:block}
       .war-legend h4{margin:0 0 6px;color:var(--accent);font-size:11px;letter-spacing:1px}
       .legend-item{display:flex;align-items:center;gap:6px;margin:3px 0}
       .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
+      .xray-legend{position:absolute;top:92px;left:12px;z-index:1000;background:rgba(12,18,24,.9);border:1px solid rgba(107,159,212,.45);border-radius:6px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#D6E8FF;display:none;backdrop-filter:blur(6px);max-width:260px;box-shadow:0 0 16px rgba(56,96,150,.18);pointer-events:none}
+      .xray-legend.show{display:block}
+      .xray-legend h4{margin:0 0 6px;color:#A0C8F0;font-size:11px;letter-spacing:1px}
+      .xray-legend .legend-item{color:#C7D9EE;align-items:flex-start}
+      .xray-legend .legend-dot{background:#6B9FD4;border-radius:3px;height:8px}
+      .xray-status{margin-top:8px;color:#A0C8F0;line-height:1.5}
+
+      .map-settings{position:absolute;top:12px;right:54px;z-index:1200;width:min(340px,calc(100% - 24px));background:rgba(14,17,11,.95);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:none;backdrop-filter:blur(8px);box-shadow:0 12px 28px rgba(0,0,0,.3)}
+      .map-settings.show{display:block}
+      .settings-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+      .settings-title h4{margin:0;color:var(--accent);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px}
+      .settings-title p{margin:4px 0 0;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .settings-group{display:grid;gap:8px;margin-top:10px}
+      .settings-label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text2);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.6px;text-transform:uppercase}
+      .settings-label input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+      .settings-select,.settings-input{width:100%;padding:7px 9px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font:400 11px 'JetBrains Mono',monospace}
+      .settings-actions{display:flex;gap:6px;flex-wrap:wrap}
+      .settings-note{color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+
+      .planning-panel{position:absolute;top:12px;left:12px;z-index:1190;width:min(390px,calc(100% - 24px));display:none;flex-direction:column;gap:10px;background:rgba(14,17,11,.96);border:1px solid rgba(164,184,122,.28);border-radius:8px;padding:12px 14px;backdrop-filter:blur(8px);box-shadow:0 14px 28px rgba(0,0,0,.32)}
+      .planning-panel.show{display:flex}
+      .planning-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+      .planning-title h4{margin:0;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px}
+      .planning-title p{margin:4px 0 0;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .planning-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .planning-grid.single{grid-template-columns:1fr}
+      .planning-field{display:grid;gap:5px}
+      .planning-field span{color:var(--text2);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.6px;text-transform:uppercase}
+      .planning-actions{display:flex;flex-wrap:wrap;gap:6px}
+      .planning-actions .map-btn{flex:1 1 120px}
+      .planning-summary{min-height:68px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(20,25,18,.82);color:var(--text);font:400 10px/1.6 'JetBrains Mono',monospace}
+      .planning-summary strong{color:var(--accent-bright)}
+      .planning-inline-note{color:var(--sand);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .planning-waypoint-list{display:grid;gap:6px;max-height:164px;overflow:auto;padding-right:2px}
+      .planning-waypoint-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;padding:8px 10px;border:1px solid rgba(139,157,106,.2);border-radius:6px;background:rgba(20,25,18,.82)}
+      .planning-waypoint-copy{display:grid;gap:3px;min-width:0}
+      .planning-waypoint-copy strong{color:var(--accent-bright);font:700 10px/1.4 'JetBrains Mono',monospace}
+      .planning-waypoint-copy span{color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace}
+      .planning-waypoint-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+      .planning-waypoint-actions .map-btn{flex:0 0 auto;padding:4px 8px;font-size:9px}
+      .planning-waypoint-actions .map-btn:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+      .planning-waypoint-empty{padding:10px;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace;text-align:center}
+      .planning-library-status{color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .planning-print-sheet{display:none;background:#fff;color:#111;padding:28px 32px 36px;font:400 13px/1.6 'JetBrains Mono',monospace}
+      .planning-print-sheet h1{margin:0 0 6px;color:#15200f;font:700 24px/1.2 'JetBrains Mono',monospace;letter-spacing:1px}
+      .planning-print-sheet p{margin:0}
+      .planning-print-kicker{margin-bottom:18px;color:#42523b;font-size:11px;letter-spacing:1.2px;text-transform:uppercase}
+      .planning-print-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+      .planning-print-section{border:1px solid #b7c5a2;border-radius:8px;padding:14px 16px;break-inside:avoid}
+      .planning-print-section h2{margin:0 0 10px;color:#22311d;font:700 12px/1.4 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .planning-print-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+      .planning-print-list li{padding-bottom:8px;border-bottom:1px solid rgba(34,49,29,.12)}
+      .planning-print-list li:last-child{padding-bottom:0;border-bottom:none}
+      .planning-print-meta{display:grid;gap:4px}
+      .planning-print-meta strong{color:#22311d}
+
+      .street-panel{position:absolute;right:12px;bottom:78px;z-index:1180;width:min(420px,calc(100% - 24px));max-height:min(42vh,340px);display:none;flex-direction:column;background:rgba(14,17,11,.94);border:1px solid rgba(139,157,106,.35);border-radius:8px;overflow:hidden;backdrop-filter:blur(8px);box-shadow:0 14px 28px rgba(0,0,0,.28)}
+      .street-panel.show{display:flex}
+      .street-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+      .street-head h4{margin:0;color:var(--accent);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px}
+      .street-head p{margin:4px 0 0;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .street-status{padding:8px 14px 0;color:var(--sand);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .street-list{display:grid;gap:10px;padding:12px 14px 14px;overflow:auto}
+      .street-card{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;padding:8px;border:1px solid rgba(139,157,106,.2);border-radius:6px;background:rgba(20,25,18,.78)}
+      .street-thumb{width:100%;height:88px;object-fit:cover;border-radius:4px;border:1px solid rgba(139,157,106,.25);background:rgba(10,13,8,.9)}
+      .street-copy{display:grid;gap:6px;min-width:0}
+      .street-copy strong{color:var(--text);font:700 11px/1.4 'JetBrains Mono',monospace}
+      .street-meta{color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .street-link{color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;text-decoration:none;letter-spacing:.6px}
+      .street-empty{padding:14px;color:var(--muted);font:400 10px/1.6 'JetBrains Mono',monospace}
+
       /* Print overlay */
       @media print{
-        .hero,.map-hud,.map-hud-row2,.radio-footer,.crosshair,.fs-btn,.measure-info,.war-legend,.leaflet-control-zoom,.leaflet-control-layers{display:none!important}
+        .hero,.map-hud,.map-hud-row2,.radio-footer,.crosshair,.fs-btn,.measure-info,.war-legend,.xray-legend,.map-settings,.planning-panel,.street-panel,.leaflet-control-zoom,.leaflet-control-layers{display:none!important}
         .map-wrap{padding:0!important;height:100vh!important}
         #map{border:none!important;border-radius:0!important}
         body{padding-bottom:0!important;background:#fff!important}
+        body.planning-manifest-mode .map-wrap,
+        body.planning-manifest-mode .radio-footer,
+        body.planning-manifest-mode .hero{display:none!important}
+        body.planning-manifest-mode .planning-print-sheet{display:block!important}
+        body.planning-manifest-mode{padding:0!important;background:#fff!important}
       }
 
       /* Responsive */
@@ -136,14 +196,34 @@
         .map-wrap{padding:14px 16px}
         .map-hud{padding:10px 14px;gap:10px}
         .map-hud-row2{padding:6px 14px}
+        .map-toolbar{width:100%}
       }
       @media(max-width:600px){
-        .map-wrap{padding:10px;height:calc(100vh - 210px)}
-        .map-hud{flex-direction:column;gap:4px;padding:8px 10px}
-        .map-hud-row2{flex-direction:column;gap:4px;padding:6px 10px}
-        .map-toolbar{justify-content:center}
-        .map-btn{font-size:9px;padding:5px 8px}
-        .goto-input{width:80px;font-size:10px}
+        .map-wrap{padding:10px;height:calc(100dvh - 230px);min-height:620px}
+        #map{min-height:360px}
+        .map-hud{flex-direction:column;gap:8px;padding:8px 10px}
+        .map-hud-row2{flex-direction:column;gap:6px;padding:6px 10px}
+        .map-toolbar{width:100%;justify-content:stretch}
+        .map-toolbar .map-btn,.map-hud-row2 .map-btn{width:100%;min-height:40px;display:flex;align-items:center;justify-content:center}
+        .map-btn{font-size:10px;padding:8px 10px}
+        .goto-panel{width:100%;min-width:0}
+        .goto-row{width:100%;flex-direction:column}
+        .goto-input,.goto-select{width:100%;font-size:10px}
+        .map-settings{right:10px;left:10px;width:auto;max-height:62vh;overflow:auto}
+        .planning-panel{right:10px;left:10px;top:10px;width:auto;max-height:62vh;overflow:auto}
+        .planning-grid{grid-template-columns:1fr}
+        .planning-actions{flex-direction:column}
+        .planning-actions .map-btn{width:100%}
+        .planning-waypoint-item{grid-template-columns:1fr}
+        .planning-waypoint-actions{justify-content:flex-start}
+        .street-panel{right:10px;left:10px;bottom:96px;width:auto;max-height:38vh;overflow:auto}
+        .street-card{grid-template-columns:1fr}
+        .street-thumb{height:140px}
+      }
+      @media(max-width:420px){
+        .map-wrap{padding:8px;height:calc(100dvh - 220px);min-height:560px}
+        .hud-item{font-size:10px}
+        .map-btn{font-size:10px;padding:8px 10px}
       }
     </style>
   </head>
@@ -160,16 +240,9 @@
       </a>
       <div class="title">
         <h1>DELTA — TACTICAL MAP</h1>
-        <p class="tag">TOPOGRAPHIC RECON &bull; SATELLITE IMAGERY &bull; GRID NAVIGATION &bull; HIGH-RES ZOOM</p>
+        <p class="tag">SATELLITE RECON &bull; STRUCTURE SCAN &bull; GRID NAVIGATION &bull; HOME-LEVEL ZOOM</p>
       </div>
-      <nav class="top-nav">
-        <a href="/">Ops Center</a>
-        <a href="/cyber">Cyber Intel</a>
-        <a href="/ai">AI Recon</a>
-        <a href="/map" class="active">Tac Map</a>
-        <a href="/bible">Scripture</a>
-        <a href="/drone">Drone</a>
-      </nav>
+      {% include '_top_nav.html' %}
     </header>
 
     <div class="map-wrap">
@@ -192,23 +265,205 @@
           <button class="map-btn" id="btn-locate" title="Your location">&#x1F4E1; LOCATE</button>
           <button class="map-btn" id="btn-goto" title="Go to coordinates">&#x1F3AF; GOTO</button>
           <div class="goto-panel" id="goto-panel">
-            <input class="goto-input" id="goto-lat" placeholder="Lat" type="number" step="any">
-            <input class="goto-input" id="goto-lng" placeholder="Lng" type="number" step="any">
-            <button class="map-btn" id="goto-go">GO</button>
+            <div class="goto-row">
+              <input class="goto-input" id="goto-lat" placeholder="Lat" type="number" step="any">
+              <input class="goto-input" id="goto-lng" placeholder="Lng" type="number" step="any">
+              <button class="map-btn" id="goto-go">GO</button>
+            </div>
+            <div class="goto-row">
+              <input class="goto-input wide" id="goto-query" placeholder="Address or landmark" type="text">
+              <button class="map-btn" id="goto-search">SEARCH</button>
+            </div>
+            <div class="goto-row">
+              <select class="goto-select" id="bookmark-select">
+                <option value="">SAVED TARGETS</option>
+              </select>
+              <button class="map-btn" id="bookmark-save">SAVE</button>
+            </div>
+            <div class="goto-row">
+              <button class="map-btn" id="goto-plan-start">TARGET START</button>
+              <button class="map-btn" id="goto-plan-end">TARGET END</button>
+              <button class="map-btn" id="goto-plan-waypoint">ADD WPT</button>
+            </div>
+            <div class="goto-status" id="goto-status"></div>
           </div>
         </div>
       </div>
 
       <!-- Map Container -->
       <div class="map-hud-row2">
-        <button class="map-btn xray" id="btn-xray" title="X-Ray building view">&#x1F3D7; X-RAY</button>
+        <button class="map-btn recon" id="btn-recon" title="Satellite recon preset">&#x1F6F0; RECON</button>
+        <button class="map-btn xray" id="btn-xray" title="High-contrast structure scan">&#x1F3D7; X-RAY</button>
         <button class="map-btn war" id="btn-conflicts" title="Live conflict zones">&#x1F4A5; CONFLICTS</button>
+        <button class="map-btn settings" id="btn-planning" title="Logistics and route planning">&#x1F9ED; PLANNING</button>
+        <button class="map-btn settings" id="btn-settings" title="Map settings">&#x2699; SETTINGS</button>
         <button class="map-btn print-btn" id="btn-print" title="Print map">&#x1F5A8; PRINT</button>
         <button class="map-btn print-btn" id="btn-download" title="Download map as image">&#x2B07; DOWNLOAD</button>
       </div>
 
       <div style="position:relative;flex:1;display:flex;flex-direction:column">
         <div id="map"></div>
+        <div class="map-settings" id="map-settings">
+          <div class="settings-title">
+            <div>
+              <h4>MAP SETTINGS</h4>
+              <p>Street imagery stays independent of recon, X-ray, and conflict overlays.</p>
+            </div>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">
+              <span>Street Images</span>
+              <input type="checkbox" id="street-images-toggle">
+            </label>
+            <label class="settings-label">
+              <span>HD Detail Assist</span>
+              <input type="checkbox" id="hd-detail-toggle" checked>
+            </label>
+            <label class="settings-label">
+              <span>Auto Sync To Map</span>
+              <input type="checkbox" id="street-images-autosync" checked>
+            </label>
+            <label class="settings-label" for="street-radius">
+              <span>Search Radius</span>
+            </label>
+            <select class="settings-select" id="street-radius">
+              <option value="500">500 m</option>
+              <option value="1000" selected>1 km</option>
+              <option value="2500">2.5 km</option>
+              <option value="5000">5 km</option>
+            </select>
+            <div class="settings-actions">
+              <button class="map-btn" id="street-refresh">REFRESH IMAGES</button>
+              <button class="map-btn" id="street-center">CENTER SNAPSHOT</button>
+            </div>
+            <div class="settings-actions">
+              <button class="map-btn" id="offline-pack-save">SAVE OFFLINE PACK</button>
+              <button class="map-btn" id="offline-pack-load">LOAD OFFLINE PACK</button>
+            </div>
+            <div class="settings-note" id="offline-pack-status">No offline map pack saved yet.</div>
+            <div class="settings-note" id="settings-summary">Modes idle. Street imagery off.</div>
+          </div>
+        </div>
+        <div class="planning-panel" id="planning-panel">
+          <div class="planning-title">
+            <div>
+              <h4>ROUTE PLANNING</h4>
+              <p>Public airfields, helipads, roads, waterways, and custom off-road sketches for civilian and emergency logistics planning.</p>
+            </div>
+          </div>
+          <div class="planning-grid">
+            <label class="planning-field">
+              <span>Planning Mode</span>
+              <select class="settings-select" id="planning-mode">
+                <option value="live" selected>Live Plan</option>
+                <option value="sandbox">Sandbox Example</option>
+              </select>
+            </label>
+            <label class="planning-field">
+              <span>Travel Mode</span>
+              <select class="settings-select" id="planning-travel-mode">
+                <option value="walking" selected>Walking</option>
+                <option value="biking">Biking</option>
+                <option value="driving">Driving</option>
+                <option value="heli">Helicopter</option>
+                <option value="airplane">Airplane</option>
+                <option value="boat">Boat</option>
+              </select>
+            </label>
+          </div>
+          <div class="planning-actions">
+            <button class="map-btn" id="planning-set-start">SET START</button>
+            <button class="map-btn" id="planning-set-end">SET END</button>
+            <button class="map-btn" id="planning-draw-offroad">DRAW OFF-ROAD</button>
+            <button class="map-btn" id="planning-sandbox-example">LOAD SANDBOX</button>
+            <button class="map-btn" id="planning-clear">CLEAR PLAN</button>
+          </div>
+          <div class="planning-actions">
+            <button class="map-btn" id="planning-add-current-waypoint">ADD CURRENT TARGET</button>
+            <button class="map-btn" id="planning-remove-last-waypoint">REMOVE LAST WPT</button>
+            <button class="map-btn" id="planning-clear-waypoints">CLEAR WPTS</button>
+          </div>
+          <div class="planning-grid">
+            <label class="planning-field">
+              <span>Weather Model</span>
+              <select class="settings-select" id="planning-weather-mode">
+                <option value="live" selected>Live Weather Assist</option>
+                <option value="clear">Clear</option>
+                <option value="wind">Wind / Headwind</option>
+                <option value="rain">Rain / Soft Ground</option>
+                <option value="storm">Severe / Rough Water</option>
+              </select>
+            </label>
+            <label class="planning-field">
+              <span>Waypoint Type</span>
+              <select class="settings-select" id="planning-waypoint-type">
+                <option value="waypoint" selected>Waypoint</option>
+                <option value="field-lz">Field LZ</option>
+                <option value="airstrip">Landing Strip</option>
+                <option value="safe-stop">Safe Stop</option>
+              </select>
+            </label>
+          </div>
+          <div class="planning-grid">
+            <label class="planning-field">
+              <span>Craft Power</span>
+              <input class="settings-input" id="planning-horsepower" type="number" min="0" step="10" value="220">
+            </label>
+            <label class="planning-field">
+              <span>Cruise Knots</span>
+              <input class="settings-input" id="planning-knots" type="number" min="0" step="1" value="0">
+            </label>
+            <label class="planning-field">
+              <span>Payload Weight</span>
+              <input class="settings-input" id="planning-weight" type="number" min="0" step="10" value="0">
+            </label>
+            <label class="planning-field">
+              <span>Road Speed Override</span>
+              <input class="settings-input" id="planning-kph" type="number" min="0" step="1" value="0">
+            </label>
+          </div>
+          <div class="planning-grid single">
+            <label class="settings-label">
+              <span>Show Airports, Helipads, and Strips</span>
+              <input type="checkbox" id="planning-air-overlay" checked>
+            </label>
+            <label class="settings-label">
+              <span>Live Directions On Roads</span>
+              <input type="checkbox" id="planning-road-directions" checked>
+            </label>
+          </div>
+          <div class="planning-grid single">
+            <div class="planning-field">
+              <span>Waypoint List</span>
+              <div class="planning-waypoint-list" id="planning-waypoint-list">
+                <div class="planning-waypoint-empty">No typed waypoints in this route.</div>
+              </div>
+            </div>
+          </div>
+          <div class="planning-grid single">
+            <div class="planning-field">
+              <span>Saved Routes</span>
+              <input class="settings-input" id="planning-route-name" type="text" maxlength="80" placeholder="Route slot name">
+              <select class="settings-select" id="planning-saved-routes">
+                <option value="">SAVED ROUTE SLOTS</option>
+              </select>
+            </div>
+          </div>
+          <div class="planning-actions">
+            <button class="map-btn" id="planning-save-route">SAVE SLOT</button>
+            <button class="map-btn" id="planning-load-route">LOAD SLOT</button>
+            <button class="map-btn" id="planning-delete-route">DELETE SLOT</button>
+            <button class="map-btn" id="planning-print-manifest">PRINT MANIFEST</button>
+          </div>
+          <div class="planning-library-status" id="planning-library-status">No named route slots stored in this browser.</div>
+          <div class="planning-actions">
+            <button class="map-btn" id="planning-export-route">EXPORT ROUTE</button>
+            <button class="map-btn" id="planning-import-route">IMPORT ROUTE</button>
+            <input id="planning-import-file" type="file" accept="application/json,.json" style="display:none">
+          </div>
+          <div class="planning-inline-note" id="planning-weather-status">Weather assist idle. Select start and end points to estimate ETA.</div>
+          <div class="planning-summary" id="planning-summary"><strong>Awaiting plan.</strong><br>Set a start and end point, or load the sandbox route to preview the logistics estimator.</div>
+        </div>
         <!-- Center crosshair -->
         <div class="crosshair" id="crosshair">
           <svg viewBox="0 0 40 40">
@@ -228,39 +483,70 @@
           <div class="legend-item"><div class="legend-dot" style="background:#8B4513"></div> Insurgency / Terror</div>
           <div class="legend-item"><div class="legend-dot" style="background:#6B6020"></div> Tensions / Disputed</div>
         </div>
+        <div class="xray-legend" id="xray-legend">
+          <h4>STRUCTURE INTEL</h4>
+          <div class="legend-item"><div class="legend-dot"></div> Public building footprints and tags</div>
+          <div class="legend-item"><div class="legend-dot"></div> Levels and height when mapped</div>
+          <div class="legend-item"><div class="legend-dot"></div> Zoom 15+ scan, 18+ HD assist</div>
+          <div class="xray-status" id="xray-status">Stand by.</div>
+        </div>
+        <div class="street-panel" id="street-panel">
+          <div class="street-head">
+            <div>
+              <h4>STREET IMAGES</h4>
+              <p>Nearby public geotagged imagery around the current map center.</p>
+            </div>
+          </div>
+          <div class="street-status" id="street-status">Enable street images in Settings.</div>
+          <div class="street-list" id="street-list">
+            <div class="street-empty">No imagery loaded yet.</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <article class="planning-print-sheet" id="planning-print-sheet" aria-hidden="true"></article>
 
     <script>
     (function(){
       // ── Tile Layers ────────────────────────────────────────
       const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
+        maxZoom: 22,
+        maxNativeZoom: 17,
+        detectRetina: true,
         attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
       });
 
       const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
+        maxZoom: 22,
+        maxNativeZoom: 19,
+        detectRetina: true,
         attribution: '&copy; Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
       });
 
       const osmStd = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        maxZoom: 22,
+        maxNativeZoom: 19,
+        detectRetina: true,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       });
 
       const darkTactical = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
+        maxZoom: 22,
+        maxNativeZoom: 20,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
       });
 
       const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
+        maxZoom: 22,
+        maxNativeZoom: 19,
+        detectRetina: true,
         attribution: 'Tiles &copy; Esri'
       });
 
       const usgsImageryTopo = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 16,
+        maxZoom: 22,
+        maxNativeZoom: 16,
         attribution: 'Tiles &copy; USGS'
       });
 
@@ -270,9 +556,22 @@
         zoom: 6,
         layers: [topoMap],
         zoomControl: true,
-        maxZoom: 20,
-        minZoom: 2
+        maxZoom: 22,
+        minZoom: 2,
+        zoomSnap: 0.25,
+        zoomDelta: 0.5,
+        wheelPxPerZoomLevel: 80
       });
+
+      map.createPane('reconOverlayPane');
+      map.getPane('reconOverlayPane').style.zIndex = 420;
+      map.getPane('reconOverlayPane').style.pointerEvents = 'none';
+      map.createPane('xrayVectorPane');
+      map.getPane('xrayVectorPane').style.zIndex = 440;
+      map.createPane('airfieldPane');
+      map.getPane('airfieldPane').style.zIndex = 442;
+      map.createPane('planningRoutePane');
+      map.getPane('planningRoutePane').style.zIndex = 446;
 
       // ── Layer Control ──────────────────────────────────────
       const baseMaps = {
@@ -284,26 +583,55 @@
         "&#x1F1FA;&#x1F1F8; USGS Imagery + Topo": usgsImageryTopo
       };
 
+      const baseLayerList = [topoMap, satellite, esriTopo, osmStd, darkTactical, usgsImageryTopo];
+      let activeBaseLayer = topoMap;
+
+      function setBaseLayer(nextLayer) {
+        baseLayerList.forEach(layer => {
+          if (layer !== nextLayer && map.hasLayer(layer)) {
+            map.removeLayer(layer);
+          }
+        });
+        if (!map.hasLayer(nextLayer)) {
+          nextLayer.addTo(map);
+        }
+        activeBaseLayer = nextLayer;
+      }
+
+      map.on('baselayerchange', event => {
+        activeBaseLayer = event.layer;
+      });
+
       // ── X-Ray / Building Overlay Layers ────────────────────
       const buildingFootprints = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20, opacity: 0.8,
+        maxZoom: 22, maxNativeZoom: 20, opacity: 0.8,
         attribution: '&copy; CARTO'
       });
 
       const osmBuildingOverlay = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
-        maxZoom: 18, opacity: 0.6,
+        maxZoom: 22, maxNativeZoom: 18, opacity: 0.6,
         attribution: '&copy; OpenSeaMap'
       });
 
-      // Stamen Toner — shows building structures as black outlines
-      const tonerLite = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20, opacity: 0.0,
-        attribution: '&copy; Stadia Maps &copy; Stamen Design &copy; OpenMapTiles &copy; OpenStreetMap'
+      const reconBoundaries = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places_Alternate/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 22,
+        maxNativeZoom: 19,
+        opacity: 0.94,
+        pane: 'reconOverlayPane',
+        attribution: 'Labels &copy; Esri'
+      });
+
+      const reconTransport = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 22,
+        maxNativeZoom: 19,
+        opacity: 0.72,
+        pane: 'reconOverlayPane',
+        attribution: 'Roads &copy; Esri'
       });
 
       // Waymarked Trails — useful overlay for terrain
       const trailsOverlay = L.tileLayer('https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png', {
-        maxZoom: 18, opacity: 0.5,
+        maxZoom: 22, maxNativeZoom: 18, opacity: 0.5,
         attribution: '&copy; Waymarked Trails'
       });
 
@@ -333,14 +661,13 @@
       }
 
       function zoomToAlt(z) {
-        // Rough zoom-to-altitude mapping
-        const alts = {
-          2:'12,000 km',3:'6,000 km',4:'3,000 km',5:'1,500 km',6:'750 km',
-          7:'400 km',8:'190 km',9:'100 km',10:'50 km',11:'25 km',12:'12 km',
-          13:'6 km',14:'3 km',15:'1.5 km',16:'750 m',17:'380 m',18:'190 m',
-          19:'95 m',20:'45 m'
-        };
-        return alts[z] || '—';
+        const meters = 12000000 / Math.pow(2, z - 2);
+        if (meters >= 1000) {
+          const kilometers = meters / 1000;
+          const rounded = kilometers >= 100 ? Math.round(kilometers) : Number(kilometers.toFixed(1));
+          return `${rounded.toLocaleString()} km`;
+        }
+        return `${Math.round(meters)} m`;
       }
 
       function updateHUD(latlng) {
@@ -361,6 +688,9 @@
       // ── Marker System ──────────────────────────────────────
       const markers = [];
       let markerMode = false;
+      let selectedTarget = null;
+      const BOOKMARKS_KEY = 'deltaMapBookmarks';
+      let targetBookmarks = [];
 
       const reconIcon = L.divIcon({
         className: '',
@@ -374,6 +704,27 @@
         popupAnchor: [0, -36]
       });
 
+      function addReconMarker(latlng, title, lines = [], openPopup = false) {
+        const marker = L.marker(latlng, {icon: reconIcon, draggable: true}).addTo(map);
+        const details = lines.filter(Boolean).map(line => `${line}<br>`).join('');
+        marker.bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#222">
+          <b>${title}</b><br>
+          ${details}LAT: ${latlng.lat.toFixed(6)}<br>
+          LNG: ${latlng.lng.toFixed(6)}<br>
+          GRID: ${toMGRS(latlng.lat, latlng.lng)}
+        </div>`);
+        markers.push(marker);
+        marker.on('dragend', function(){
+          const moved = marker.getLatLng();
+          if (selectedTarget && selectedTarget.marker === marker) {
+            selectedTarget.lat = moved.lat;
+            selectedTarget.lng = moved.lng;
+          }
+        });
+        if (openPopup) marker.openPopup();
+        return marker;
+      }
+
       document.getElementById('btn-marker').addEventListener('click', function(){
         markerMode = !markerMode;
         this.classList.toggle('active', markerMode);
@@ -383,14 +734,48 @@
 
       map.on('click', function(e){
         if (!markerMode) return;
-        const m = L.marker(e.latlng, {icon: reconIcon, draggable: true}).addTo(map);
-        m.bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#222">
-          <b>RECON POINT #${markers.length + 1}</b><br>
-          LAT: ${e.latlng.lat.toFixed(6)}<br>
-          LNG: ${e.latlng.lng.toFixed(6)}<br>
-          GRID: ${toMGRS(e.latlng.lat, e.latlng.lng)}
-        </div>`);
-        markers.push(m);
+        const marker = addReconMarker(e.latlng, `RECON POINT #${markers.length + 1}`, ['MANUAL TARGET']);
+        selectedTarget = {name: `Recon Point ${markers.length}`, lat: e.latlng.lat, lng: e.latlng.lng, marker};
+      });
+
+      map.on('click', function(e){
+        if (!planningInteractionMode) return;
+
+        if (planningInteractionMode === 'start') {
+          planningState.offroadPoints = [];
+          setPlanningPoint('start', e.latlng, {label: 'PLAN START'});
+          planningSummary.innerHTML = '<strong>Start point locked.</strong><br>Select an end point to compute ETA or switch to off-road sketch mode.';
+          resetPlanningInteraction();
+          recalculatePlanningRoute(true);
+          return;
+        }
+
+        if (planningInteractionMode === 'end') {
+          planningState.offroadPoints = [];
+          setPlanningPoint('end', e.latlng, {label: 'PLAN END'});
+          planningSummary.innerHTML = '<strong>End point locked.</strong><br>ETA is updating with the current travel mode and weather model.';
+          resetPlanningInteraction();
+          recalculatePlanningRoute(true);
+          return;
+        }
+
+        if (planningInteractionMode === 'offroad') {
+          const clickedPoint = L.latLng(e.latlng.lat, e.latlng.lng);
+          if (!planningState.start) {
+            setPlanningPoint('start', clickedPoint, {label: 'OFF-ROAD START'});
+            planningState.offroadPoints = [clickedPoint];
+            planningSummary.innerHTML = '<strong>Off-road sketch started.</strong><br>Keep clicking to trace terrain legs. Press DRAW OFF-ROAD again when finished.';
+            return;
+          }
+
+          if (!planningState.offroadPoints.length) {
+            planningState.offroadPoints = [L.latLng(planningState.start.lat, planningState.start.lng)];
+          }
+          planningState.offroadPoints.push(clickedPoint);
+          setPlanningPoint('end', clickedPoint, {label: 'OFF-ROAD END'});
+          planningSummary.innerHTML = `<strong>Off-road sketch updated.</strong><br>${planningState.offroadPoints.length} points traced by hand.`;
+          recalculatePlanningRoute(true);
+        }
       });
 
       document.getElementById('btn-clear').addEventListener('click', function(){
@@ -400,6 +785,7 @@
         if (measureLine) { map.removeLayer(measureLine); measureLine = null; }
         measurePoints.length = 0;
         measureInfo.style.display = 'none';
+        clearPlanningState({preserveAir: true});
       });
 
       // ── Geolocation ────────────────────────────────────────
@@ -419,16 +805,168 @@
 
       // ── Go To Coordinates ──────────────────────────────────
       const gotoPanel = document.getElementById('goto-panel');
+      const gotoLatInput = document.getElementById('goto-lat');
+      const gotoLngInput = document.getElementById('goto-lng');
+      const gotoQueryInput = document.getElementById('goto-query');
+      const gotoSearchBtn = document.getElementById('goto-search');
+      const bookmarkSelect = document.getElementById('bookmark-select');
+      const bookmarkSaveBtn = document.getElementById('bookmark-save');
+      const gotoPlanStartBtn = document.getElementById('goto-plan-start');
+      const gotoPlanEndBtn = document.getElementById('goto-plan-end');
+      const gotoPlanWaypointBtn = document.getElementById('goto-plan-waypoint');
+      const gotoStatus = document.getElementById('goto-status');
+
+      function setGotoStatus(message, tone = 'ok') {
+        gotoStatus.textContent = message;
+        gotoStatus.classList.remove('ok', 'error');
+        if (message) gotoStatus.classList.add(tone);
+      }
+
+      function syncCoordinateInputs(lat, lng) {
+        gotoLatInput.value = lat.toFixed(6);
+        gotoLngInput.value = lng.toFixed(6);
+      }
+
+      function loadBookmarks() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '[]');
+          targetBookmarks = Array.isArray(saved) ? saved.filter(item => typeof item?.name === 'string' && Number.isFinite(item?.lat) && Number.isFinite(item?.lng)) : [];
+        } catch (_) {
+          targetBookmarks = [];
+        }
+      }
+
+      function persistBookmarks() {
+        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(targetBookmarks));
+      }
+
+      function renderBookmarks() {
+        bookmarkSelect.innerHTML = '<option value="">SAVED TARGETS</option>';
+        targetBookmarks.forEach((bookmark, index) => {
+          const option = document.createElement('option');
+          option.value = String(index);
+          option.textContent = bookmark.name;
+          bookmarkSelect.appendChild(option);
+        });
+      }
+
+      function focusTarget(lat, lng, zoom, label, lines = []) {
+        const latlng = L.latLng(lat, lng);
+        map.setView(latlng, zoom);
+        syncCoordinateInputs(latlng.lat, latlng.lng);
+        const marker = addReconMarker(latlng, label, lines, true);
+        selectedTarget = {name: label, lat: latlng.lat, lng: latlng.lng, marker};
+      }
+
+      async function searchTarget() {
+        const query = gotoQueryInput.value.trim();
+        if (!query) {
+          setGotoStatus('Enter an address or landmark to search.', 'error');
+          return;
+        }
+
+        gotoSearchBtn.disabled = true;
+        setGotoStatus('Searching target...', 'ok');
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`);
+          const results = await response.json();
+          if (!response.ok || !Array.isArray(results) || !results.length) {
+            throw new Error('No matching target found.');
+          }
+
+          const result = results[0];
+          const lat = parseFloat(result.lat);
+          const lng = parseFloat(result.lon);
+          const label = (result.display_name || query).split(',').slice(0, 3).join(', ').trim();
+          focusTarget(lat, lng, Math.max(map.getZoom(), 16), label, ['SEARCH TARGET', `TYPE: ${(result.type || 'location').toUpperCase()}`]);
+          setGotoStatus(`Locked: ${label}`, 'ok');
+        } catch (error) {
+          setGotoStatus(error.message || 'Search failed.', 'error');
+        } finally {
+          gotoSearchBtn.disabled = false;
+        }
+      }
+
       document.getElementById('btn-goto').addEventListener('click', function(){
         gotoPanel.classList.toggle('show');
+        if (gotoPanel.classList.contains('show') && !gotoStatus.textContent) {
+          setGotoStatus('Search a target or save the current point.', 'ok');
+        }
       });
       document.getElementById('goto-go').addEventListener('click', function(){
-        const lat = parseFloat(document.getElementById('goto-lat').value);
-        const lng = parseFloat(document.getElementById('goto-lng').value);
-        if (isNaN(lat) || isNaN(lng)) return;
-        map.setView([lat, lng], 14);
-        gotoPanel.classList.remove('show');
+        const lat = parseFloat(gotoLatInput.value);
+        const lng = parseFloat(gotoLngInput.value);
+        if (isNaN(lat) || isNaN(lng)) {
+          setGotoStatus('Enter valid coordinates first.', 'error');
+          return;
+        }
+        const label = gotoQueryInput.value.trim() || `TARGET ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        focusTarget(lat, lng, 14, label, ['COORDINATE LOCK']);
+        setGotoStatus('Coordinates locked. Save if you want this target later.', 'ok');
       });
+      gotoSearchBtn.addEventListener('click', searchTarget);
+      gotoQueryInput.addEventListener('keydown', function(event){
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          searchTarget();
+        }
+      });
+      bookmarkSaveBtn.addEventListener('click', function(){
+        const center = selectedTarget || map.getCenter();
+        const name = (gotoQueryInput.value.trim() || selectedTarget?.name || `TARGET ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`).slice(0, 96);
+        const nextBookmark = {
+          name,
+          lat: Number(center.lat),
+          lng: Number(center.lng)
+        };
+        const existingIndex = targetBookmarks.findIndex(bookmark => bookmark.name === nextBookmark.name);
+        if (existingIndex >= 0) targetBookmarks[existingIndex] = nextBookmark;
+        else targetBookmarks.unshift(nextBookmark);
+        targetBookmarks = targetBookmarks.slice(0, 12);
+        persistBookmarks();
+        renderBookmarks();
+        bookmarkSelect.value = '0';
+        setGotoStatus(`Saved target: ${name}`, 'ok');
+      });
+      bookmarkSelect.addEventListener('change', function(){
+        const index = Number(this.value);
+        if (!Number.isInteger(index) || index < 0 || !targetBookmarks[index]) return;
+        const bookmark = targetBookmarks[index];
+        gotoQueryInput.value = bookmark.name;
+        focusTarget(bookmark.lat, bookmark.lng, Math.max(map.getZoom(), 16), bookmark.name, ['SAVED TARGET']);
+        setGotoStatus(`Loaded saved target: ${bookmark.name}`, 'ok');
+      });
+      gotoPlanStartBtn.addEventListener('click', function(){
+        const target = currentGotoPlanningTarget('PLAN START');
+        setPlanningPoint('start', L.latLng(target.lat, target.lng), {
+          label: target.label || 'PLAN START',
+          type: planningWaypointType.value,
+        });
+        planningState.offroadPoints = [];
+        planningSummary.innerHTML = `<strong>Planner start synced.</strong><br>${target.label || 'Current target'} moved into the route start point.`;
+        recalculatePlanningRoute(true);
+      });
+      gotoPlanEndBtn.addEventListener('click', function(){
+        const target = currentGotoPlanningTarget('PLAN END');
+        setPlanningPoint('end', L.latLng(target.lat, target.lng), {
+          label: target.label || 'PLAN END',
+          type: planningWaypointType.value,
+        });
+        planningState.offroadPoints = [];
+        planningSummary.innerHTML = `<strong>Planner end synced.</strong><br>${target.label || 'Current target'} moved into the route end point.`;
+        recalculatePlanningRoute(true);
+      });
+      gotoPlanWaypointBtn.addEventListener('click', function(){
+        const target = currentGotoPlanningTarget('WAYPOINT');
+        addPlanningWaypoint({
+          lat: target.lat,
+          lng: target.lng,
+          label: target.label,
+          type: planningWaypointType.value,
+        });
+      });
+      loadBookmarks();
+      renderBookmarks();
 
       // ── Measurement Tool ───────────────────────────────────
       let measuring = false;
@@ -485,33 +1023,1828 @@
       // ══════════════════════════════════════════════════════
       // X-RAY BUILDING VIEW
       // ══════════════════════════════════════════════════════
+      const mapEl = document.getElementById('map');
+      const crosshairEl = document.getElementById('crosshair');
+      const btnRecon = document.getElementById('btn-recon');
+      const btnXray = document.getElementById('btn-xray');
+      const btnSettings = document.getElementById('btn-settings');
+      const settingsPanel = document.getElementById('map-settings');
+      const offlinePackSaveBtn = document.getElementById('offline-pack-save');
+      const offlinePackLoadBtn = document.getElementById('offline-pack-load');
+      const offlinePackStatus = document.getElementById('offline-pack-status');
+      const settingsSummary = document.getElementById('settings-summary');
+      const streetToggle = document.getElementById('street-images-toggle');
+      const hdDetailToggle = document.getElementById('hd-detail-toggle');
+      const streetAutoSync = document.getElementById('street-images-autosync');
+      const streetRadius = document.getElementById('street-radius');
+      const streetRefresh = document.getElementById('street-refresh');
+      const streetCenter = document.getElementById('street-center');
+      const streetPanel = document.getElementById('street-panel');
+      const streetStatus = document.getElementById('street-status');
+      const streetList = document.getElementById('street-list');
+      const xrayLegend = document.getElementById('xray-legend');
+      const xrayStatus = document.getElementById('xray-status');
+      const btnPlanning = document.getElementById('btn-planning');
+      const planningPanel = document.getElementById('planning-panel');
+      const planningModeSelect = document.getElementById('planning-mode');
+      const planningTravelMode = document.getElementById('planning-travel-mode');
+      const planningSetStartBtn = document.getElementById('planning-set-start');
+      const planningSetEndBtn = document.getElementById('planning-set-end');
+      const planningDrawOffroadBtn = document.getElementById('planning-draw-offroad');
+      const planningSandboxBtn = document.getElementById('planning-sandbox-example');
+      const planningClearBtn = document.getElementById('planning-clear');
+      const planningAddCurrentWaypointBtn = document.getElementById('planning-add-current-waypoint');
+      const planningRemoveLastWaypointBtn = document.getElementById('planning-remove-last-waypoint');
+      const planningClearWaypointsBtn = document.getElementById('planning-clear-waypoints');
+      const planningWeatherMode = document.getElementById('planning-weather-mode');
+      const planningWaypointType = document.getElementById('planning-waypoint-type');
+      const planningHorsepower = document.getElementById('planning-horsepower');
+      const planningKnots = document.getElementById('planning-knots');
+      const planningWeight = document.getElementById('planning-weight');
+      const planningKph = document.getElementById('planning-kph');
+      const planningAirOverlay = document.getElementById('planning-air-overlay');
+      const planningRoadDirections = document.getElementById('planning-road-directions');
+      const planningWeatherStatus = document.getElementById('planning-weather-status');
+      const planningSummary = document.getElementById('planning-summary');
+      const planningWaypointList = document.getElementById('planning-waypoint-list');
+      const planningRouteName = document.getElementById('planning-route-name');
+      const planningSavedRoutesSelect = document.getElementById('planning-saved-routes');
+      const planningSaveRouteBtn = document.getElementById('planning-save-route');
+      const planningLoadRouteBtn = document.getElementById('planning-load-route');
+      const planningDeleteRouteBtn = document.getElementById('planning-delete-route');
+      const planningPrintManifestBtn = document.getElementById('planning-print-manifest');
+      const planningLibraryStatus = document.getElementById('planning-library-status');
+      const planningExportRouteBtn = document.getElementById('planning-export-route');
+      const planningImportRouteBtn = document.getElementById('planning-import-route');
+      const planningImportFile = document.getElementById('planning-import-file');
+      const planningPrintSheet = document.getElementById('planning-print-sheet');
+      const reconLayers = [reconBoundaries, reconTransport];
+      let reconActive = false;
       let xrayActive = false;
-      let xrayLayer = null;
+      let xrayFetchController = null;
+      let lastXrayRequestKey = '';
+      let streetImagesActive = false;
+      let streetFetchController = null;
+      let lastStreetRequestKey = '';
+      let lastStreetImages = [];
+      const HD_DETAIL_MIN_ZOOM = 18;
+      const OFFLINE_PACK_KEY = 'deltaMapOfflinePackV1';
+      const namedBaseLayers = {
+        topographic: topoMap,
+        satellite,
+        esriTopo,
+        street: osmStd,
+        dark: darkTactical,
+        usgs: usgsImageryTopo,
+      };
+      const planningLayers = {
+        points: L.layerGroup().addTo(map),
+        route: L.layerGroup().addTo(map),
+        air: L.layerGroup(),
+      };
+      const planningStatusState = {
+        weather: 'Weather assist idle.',
+        air: 'Air overlay ready.',
+      };
+      const planningState = {
+        start: null,
+        end: null,
+        waypoints: [],
+        offroadPoints: [],
+        routeGeoJson: null,
+        routeSource: '',
+        routeDistanceKm: 0,
+        routeHours: 0,
+        routeSpeedKph: 0,
+        routeDirections: [],
+      };
+      let planningInteractionMode = '';
+      let planningAirAssets = [];
+      let planningWeatherSnapshot = null;
+      let planningAirFetchController = null;
+      let planningWeatherFetchController = null;
+      let planningRouteFetchController = null;
+      let lastPlanningAirKey = '';
+      let lastPlanningWeatherKey = '';
+      let planningRouteRevision = 0;
+      const PLANNING_ROUTE_EXPORT_VERSION = 1;
+      const PLANNING_SAVED_ROUTES_KEY = 'deltaPlanningSavedRoutesV1';
+      const MAX_PLANNING_SAVED_ROUTES = 12;
+      let planningSavedRoutes = [];
 
-      // High-contrast building-outline layer using Stadia Stamen Toner
-      const xrayToner = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20, opacity: 0.65,
-        attribution: '&copy; Stadia Maps &copy; Stamen Design'
-      });
+      function hdDetailModeActive() {
+        return hdDetailToggle.checked && map.getZoom() >= HD_DETAIL_MIN_ZOOM;
+      }
 
-      // OpenMapTiles 3D building overlay (Versatiles - free)
-      const xrayLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20, opacity: 0.7
-      });
+      function getActiveBaseLayerKey() {
+        return Object.entries(namedBaseLayers).find(([, layer]) => layer === activeBaseLayer)?.[0] || 'topographic';
+      }
 
-      document.getElementById('btn-xray').addEventListener('click', function(){
-        xrayActive = !xrayActive;
-        this.classList.toggle('active', xrayActive);
-        if (xrayActive) {
-          xrayToner.addTo(map);
-          xrayLabels.addTo(map);
-          // Zoom in for building detail if too far out
-          if (map.getZoom() < 14) {
-            map.setZoom(16);
-          }
+      function setOfflinePackStatus(message) {
+        offlinePackStatus.textContent = message;
+      }
+
+      async function postServiceWorkerMessage(message) {
+        if (!('serviceWorker' in navigator)) {
+          throw new Error('Service worker not available on this browser.');
+        }
+        const registration = await navigator.serviceWorker.ready;
+        const target = registration.active || navigator.serviceWorker.controller;
+        if (!target) {
+          throw new Error('Service worker not ready yet. Refresh and try again.');
+        }
+
+        return await new Promise((resolve, reject) => {
+          const channel = new MessageChannel();
+          const timeout = setTimeout(() => reject(new Error('Offline cache request timed out.')), 12000);
+          channel.port1.onmessage = event => {
+            clearTimeout(timeout);
+            resolve(event.data || {ok: true});
+          };
+          target.postMessage(message, [channel.port2]);
+        });
+      }
+
+      function collectVisibleTileUrls() {
+        return Array.from(new Set(
+          [...document.querySelectorAll('#map img.leaflet-tile')]
+            .map(image => image.getAttribute('src'))
+            .filter(src => typeof src === 'string' && /^https?:/i.test(src))
+        ));
+      }
+
+      function offlinePackExists() {
+        return Boolean(localStorage.getItem(OFFLINE_PACK_KEY));
+      }
+
+      function setStreetStatus(message) {
+        streetStatus.textContent = message;
+      }
+
+      function setSettingsSummary() {
+        const modes = [];
+        if (reconActive) modes.push('Recon');
+        if (xrayActive) modes.push('X-Ray');
+        else if (hdDetailModeActive()) modes.push('HD Detail');
+        if (conflictsActive) modes.push('Conflicts');
+        if (planningState.routeGeoJson?.coordinates?.length) modes.push('Planning');
+        if (streetImagesActive) modes.push('Street Images');
+        settingsSummary.textContent = modes.length
+          ? `Active: ${modes.join(' | ')}`
+          : 'Modes idle. Street imagery off.';
+        if (!offlinePackExists() && offlinePackStatus.textContent === '') {
+          setOfflinePackStatus('No offline map pack saved yet.');
+        }
+      }
+
+      function renderPlanningStatus() {
+        planningWeatherStatus.textContent = [planningStatusState.weather, planningStatusState.air].filter(Boolean).join(' | ');
+      }
+
+      function setPlanningWeatherMessage(message) {
+        planningStatusState.weather = message;
+        renderPlanningStatus();
+      }
+
+      function setPlanningAirMessage(message) {
+        planningStatusState.air = message;
+        renderPlanningStatus();
+      }
+
+      function currentGotoPlanningTarget(fallbackLabel = 'PLANNING TARGET') {
+        if (selectedTarget && Number.isFinite(selectedTarget.lat) && Number.isFinite(selectedTarget.lng)) {
+          return {
+            lat: Number(selectedTarget.lat),
+            lng: Number(selectedTarget.lng),
+            label: selectedTarget.name || gotoQueryInput.value.trim() || fallbackLabel,
+          };
+        }
+
+        const lat = Number.parseFloat(gotoLatInput.value);
+        const lng = Number.parseFloat(gotoLngInput.value);
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          return {
+            lat,
+            lng,
+            label: gotoQueryInput.value.trim() || fallbackLabel,
+          };
+        }
+
+        const center = map.getCenter();
+        return {
+          lat: center.lat,
+          lng: center.lng,
+          label: gotoQueryInput.value.trim() || fallbackLabel,
+        };
+      }
+
+      function escapePlanningHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[character]);
+      }
+
+      function planningFileStem(name) {
+        const stem = String(name || 'delta_route')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '')
+          .slice(0, 48);
+        return stem || 'delta_route';
+      }
+
+      function serializePlanningPoint(point) {
+        if (!point || !Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return null;
+        return {
+          lat: Number(point.lat),
+          lng: Number(point.lng),
+          label: point.label || '',
+          type: point.type || 'waypoint',
+        };
+      }
+
+      function getPlanningRouteStops() {
+        return [planningState.start, ...planningState.waypoints, planningState.end]
+          .filter(Boolean)
+          .map(point => ({...point, latlng: L.latLng(point.lat, point.lng)}));
+      }
+
+      function getPlanningRouteLatLngs() {
+        return getPlanningRouteStops().map(stop => stop.latlng);
+      }
+
+      function renderPlanningWaypoints() {
+        if (!planningState.waypoints.length) {
+          planningWaypointList.innerHTML = '<div class="planning-waypoint-empty">No typed waypoints in this route.</div>';
+          return;
+        }
+
+        planningWaypointList.innerHTML = planningState.waypoints.map((waypoint, index) => `
+          <article class="planning-waypoint-item" data-waypoint-index="${index}">
+            <div class="planning-waypoint-copy">
+              <strong>#${index + 1} ${waypoint.label || `WAYPOINT ${index + 1}`}</strong>
+              <span>${prettyPlanningLabel(waypoint.type).toUpperCase()} | LAT ${Number(waypoint.lat).toFixed(4)} | LNG ${Number(waypoint.lng).toFixed(4)}</span>
+            </div>
+            <div class="planning-waypoint-actions">
+              <button class="map-btn" data-waypoint-up="${index}" ${index === 0 ? 'disabled' : ''}>UP</button>
+              <button class="map-btn" data-waypoint-down="${index}" ${index === planningState.waypoints.length - 1 ? 'disabled' : ''}>DOWN</button>
+              <button class="map-btn" data-waypoint-focus="${index}">FOCUS</button>
+              <button class="map-btn" data-waypoint-remove="${index}">DROP</button>
+            </div>
+          </article>
+        `).join('');
+      }
+
+      function setPlanningLibraryStatus(message) {
+        planningLibraryStatus.textContent = message;
+      }
+
+      function defaultPlanningRouteName() {
+        const lastWaypoint = planningState.waypoints[planningState.waypoints.length - 1] || null;
+        const startLabel = String(planningState.start?.label || 'Start').split('|')[0].trim();
+        const endLabel = String(planningState.end?.label || lastWaypoint?.label || 'Route').split('|')[0].trim();
+        return `${startLabel} to ${endLabel}`.slice(0, 80);
+      }
+
+      function planningHasRouteData() {
+        return Boolean(
+          planningState.start ||
+          planningState.end ||
+          planningState.waypoints.length ||
+          planningState.offroadPoints.length ||
+          planningState.routeGeoJson?.coordinates?.length
+        );
+      }
+
+      function persistPlanningSavedRoutes() {
+        localStorage.setItem(PLANNING_SAVED_ROUTES_KEY, JSON.stringify(planningSavedRoutes));
+      }
+
+      function renderPlanningSavedRoutes(selectedId = '', statusMessage = '') {
+        planningSavedRoutesSelect.innerHTML = '<option value="">SAVED ROUTE SLOTS</option>';
+        planningSavedRoutes.forEach(route => {
+          const option = document.createElement('option');
+          option.value = route.id;
+          option.textContent = route.name;
+          planningSavedRoutesSelect.appendChild(option);
+        });
+        if (selectedId && planningSavedRoutes.some(route => route.id === selectedId)) {
+          planningSavedRoutesSelect.value = selectedId;
         } else {
-          map.removeLayer(xrayToner);
-          map.removeLayer(xrayLabels);
+          planningSavedRoutesSelect.value = '';
+        }
+
+        if (statusMessage) {
+          setPlanningLibraryStatus(statusMessage);
+          return;
+        }
+
+        if (!planningSavedRoutes.length) {
+          setPlanningLibraryStatus('No named route slots stored in this browser.');
+          return;
+        }
+
+        setPlanningLibraryStatus(`${planningSavedRoutes.length} named route slot${planningSavedRoutes.length === 1 ? '' : 's'} available in this browser.`);
+      }
+
+      function loadPlanningSavedRoutes() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(PLANNING_SAVED_ROUTES_KEY) || '[]');
+          planningSavedRoutes = Array.isArray(saved)
+            ? saved.filter(route => typeof route?.id === 'string' && typeof route?.name === 'string' && route?.payload && typeof route.payload === 'object').slice(0, MAX_PLANNING_SAVED_ROUTES)
+            : [];
+        } catch (_) {
+          planningSavedRoutes = [];
+        }
+        renderPlanningSavedRoutes();
+      }
+
+      function findPlanningSavedRoute(id) {
+        return planningSavedRoutes.find(route => route.id === id) || null;
+      }
+
+      function prettyPlanningLabel(value) {
+        return String(value || 'waypoint').replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+      }
+
+      function formatPlanningDistance(distanceKm) {
+        if (!Number.isFinite(distanceKm)) return 'unknown';
+        if (distanceKm < 1) return `${Math.round(distanceKm * 1000)} m`;
+        return `${distanceKm.toFixed(distanceKm >= 100 ? 0 : 1)} km`;
+      }
+
+      function formatPlanningDuration(hours) {
+        if (!Number.isFinite(hours) || hours < 0) return 'unknown';
+        const totalMinutes = Math.max(1, Math.round(hours * 60));
+        const days = Math.floor(totalMinutes / 1440);
+        const remainingAfterDays = totalMinutes % 1440;
+        const wholeHours = Math.floor(remainingAfterDays / 60);
+        const minutes = remainingAfterDays % 60;
+        const parts = [];
+        if (days) parts.push(`${days}d`);
+        if (wholeHours) parts.push(`${wholeHours}h`);
+        if (minutes || !parts.length) parts.push(`${minutes}m`);
+        return parts.join(' ');
+      }
+
+      function planningDistanceKm(points) {
+        let total = 0;
+        for (let index = 1; index < points.length; index += 1) {
+          total += points[index - 1].distanceTo(points[index]);
+        }
+        return total / 1000;
+      }
+
+      function planningLatLngsFromGeoJson(geoJson) {
+        if (!geoJson || geoJson.type !== 'LineString' || !Array.isArray(geoJson.coordinates)) return [];
+        return geoJson.coordinates.map(([lng, lat]) => L.latLng(lat, lng));
+      }
+
+      function planningGeoJsonFromLatLngs(latlngs) {
+        return {
+          type: 'LineString',
+          coordinates: latlngs.map(latlng => [latlng.lng, latlng.lat]),
+        };
+      }
+
+      function currentPlanningMidpoint() {
+        const activeLine = planningState.offroadPoints.length > 1
+          ? planningState.offroadPoints
+          : [planningState.start, planningState.end].filter(Boolean).map(point => L.latLng(point.lat, point.lng));
+        if (!activeLine.length) return map.getCenter();
+        const lat = activeLine.reduce((sum, point) => sum + point.lat, 0) / activeLine.length;
+        const lng = activeLine.reduce((sum, point) => sum + point.lng, 0) / activeLine.length;
+        return L.latLng(lat, lng);
+      }
+
+      function parsePlanningNumber(input, fallback = 0) {
+        const parsed = Number.parseFloat(input?.value ?? input);
+        return Number.isFinite(parsed) ? parsed : fallback;
+      }
+
+      function buildPlanningMarkerIcon(kind) {
+        const config = {
+          start: {label: 'S', color: '#5A8F5A'},
+          end: {label: 'E', color: '#C4A265'},
+        }[kind] || {label: 'P', color: '#6B9FD4'};
+
+        return L.divIcon({
+          className: '',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -14],
+          html: `<div style='width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.55);background:${config.color};box-shadow:0 0 12px ${config.color};display:flex;align-items:center;justify-content:center;color:#081008;font:700 12px JetBrains Mono, monospace;'>${config.label}</div>`
+        });
+      }
+
+      function resetPlanningInteraction() {
+        planningInteractionMode = '';
+        planningSetStartBtn.classList.remove('active');
+        planningSetEndBtn.classList.remove('active');
+        planningDrawOffroadBtn.classList.remove('active');
+        if (!markerMode && !measuring) {
+          map.getContainer().style.cursor = '';
+        }
+      }
+
+      function setPlanningInteraction(mode) {
+        const nextMode = planningInteractionMode === mode ? '' : mode;
+        planningInteractionMode = nextMode;
+        planningSetStartBtn.classList.toggle('active', nextMode === 'start');
+        planningSetEndBtn.classList.toggle('active', nextMode === 'end');
+        planningDrawOffroadBtn.classList.toggle('active', nextMode === 'offroad');
+        if (nextMode) {
+          settingsPanel.classList.remove('show');
+          btnSettings.classList.remove('active');
+          if (markerMode) {
+            markerMode = false;
+            document.getElementById('btn-marker').classList.remove('active');
+          }
+          if (measuring) toggleMeasure();
+          map.getContainer().style.cursor = 'crosshair';
+          if (nextMode === 'offroad') {
+            planningSummary.innerHTML = '<strong>Off-road sketch armed.</strong><br>Click the map to trace a manual route. The first click becomes the start point if one is not already set.';
+          }
+        } else if (!markerMode && !measuring) {
+          map.getContainer().style.cursor = '';
+        }
+      }
+
+      function clearPlanningRouteGraphics() {
+        planningLayers.route.clearLayers();
+        planningState.routeGeoJson = null;
+        planningState.routeSource = '';
+        planningState.routeDistanceKm = 0;
+        planningState.routeHours = 0;
+        planningState.routeSpeedKph = 0;
+        planningState.routeDirections = [];
+      }
+
+      function clearPlanningState(options = {}) {
+        const preserveAir = options.preserveAir !== false;
+        if (planningRouteFetchController) planningRouteFetchController.abort();
+        planningLayers.points.clearLayers();
+        clearPlanningRouteGraphics();
+        planningState.start = null;
+        planningState.end = null;
+        planningState.waypoints = [];
+        planningState.offroadPoints = [];
+        if (!preserveAir) {
+          planningLayers.air.clearLayers();
+          planningAirAssets = [];
+          lastPlanningAirKey = '';
+          setPlanningAirMessage('Air overlay cleared.');
+        }
+        resetPlanningInteraction();
+        renderPlanningWaypoints();
+        planningSummary.innerHTML = '<strong>Awaiting plan.</strong><br>Set a start and end point, or load the sandbox route to preview the logistics estimator.';
+        setSettingsSummary();
+      }
+
+      function setPlanningPoint(kind, latlng, options = {}) {
+        const pointType = options.type || planningWaypointType.value || 'waypoint';
+        const pointLabel = options.label || `${kind.toUpperCase()} | ${prettyPlanningLabel(pointType)}`;
+        const current = planningState[kind];
+        if (current?.marker) {
+          planningLayers.points.removeLayer(current.marker);
+        }
+        const marker = L.marker(latlng, {icon: buildPlanningMarkerIcon(kind), draggable: true});
+        marker.bindPopup(`<div style='font-family:JetBrains Mono, monospace;font-size:11px;color:#222'><b>${pointLabel}</b><br>TYPE: ${prettyPlanningLabel(pointType).toUpperCase()}<br>LAT: ${latlng.lat.toFixed(6)}<br>LNG: ${latlng.lng.toFixed(6)}<br>GRID: ${toMGRS(latlng.lat, latlng.lng)}</div>`);
+        marker.on('dragend', () => {
+          const moved = marker.getLatLng();
+          planningState[kind] = {...planningState[kind], lat: moved.lat, lng: moved.lng, marker};
+          if (planningState.offroadPoints.length) {
+            if (kind === 'start') planningState.offroadPoints[0] = moved;
+            if (kind === 'end' && planningState.offroadPoints.length > 1) planningState.offroadPoints[planningState.offroadPoints.length - 1] = moved;
+          }
+          recalculatePlanningRoute(true);
+        });
+        planningLayers.points.addLayer(marker);
+        planningState[kind] = {
+          lat: latlng.lat,
+          lng: latlng.lng,
+          label: pointLabel,
+          type: pointType,
+          marker,
+        };
+        if (options.useLiveMode !== false && planningModeSelect.value === 'sandbox') {
+          planningModeSelect.value = 'live';
+        }
+        setSettingsSummary();
+      }
+
+      function addPlanningWaypoint(point, options = {}) {
+        const nextWaypoint = {
+          lat: Number(point.lat),
+          lng: Number(point.lng),
+          label: options.label || point.label || `WAYPOINT ${planningState.waypoints.length + 1}`,
+          type: options.type || point.type || planningWaypointType.value || 'waypoint',
+        };
+        planningState.waypoints.push(nextWaypoint);
+        planningState.offroadPoints = [];
+        renderPlanningWaypoints();
+        if (planningModeSelect.value === 'sandbox') planningModeSelect.value = 'live';
+        planningSummary.innerHTML = `<strong>Waypoint added.</strong><br>${nextWaypoint.label} inserted into the active route chain.`;
+        setSettingsSummary();
+        recalculatePlanningRoute(true);
+      }
+
+      function movePlanningWaypoint(index, offset) {
+        const nextIndex = index + offset;
+        if (!Number.isInteger(index) || !Number.isInteger(nextIndex) || index < 0 || nextIndex < 0 || index >= planningState.waypoints.length || nextIndex >= planningState.waypoints.length) {
+          return;
+        }
+
+        const [waypoint] = planningState.waypoints.splice(index, 1);
+        planningState.waypoints.splice(nextIndex, 0, waypoint);
+        renderPlanningWaypoints();
+        planningSummary.innerHTML = `<strong>Waypoint reordered.</strong><br>${waypoint.label || 'Waypoint'} moved to slot #${nextIndex + 1}.`;
+        recalculatePlanningRoute(true);
+      }
+
+      function removePlanningWaypoint(index) {
+        if (!Number.isInteger(index) || index < 0 || !planningState.waypoints[index]) return;
+        const [removed] = planningState.waypoints.splice(index, 1);
+        renderPlanningWaypoints();
+        planningSummary.innerHTML = `<strong>Waypoint removed.</strong><br>${removed.label || 'Waypoint'} was removed from the route chain.`;
+        recalculatePlanningRoute(true);
+      }
+
+      function buildPlanningExportData() {
+        const routeName = (planningRouteName.value.trim() || defaultPlanningRouteName()).slice(0, 80);
+        return {
+          version: PLANNING_ROUTE_EXPORT_VERSION,
+          exportedAt: new Date().toISOString(),
+          routeName,
+          mode: planningModeSelect.value,
+          travelMode: planningTravelMode.value,
+          weatherMode: planningWeatherMode.value,
+          waypointType: planningWaypointType.value,
+          horsepower: planningHorsepower.value,
+          knots: planningKnots.value,
+          weight: planningWeight.value,
+          kph: planningKph.value,
+          airOverlay: planningAirOverlay.checked,
+          roadDirections: planningRoadDirections.checked,
+          start: serializePlanningPoint(planningState.start),
+          waypoints: planningState.waypoints.map(serializePlanningPoint).filter(Boolean),
+          end: serializePlanningPoint(planningState.end),
+          offroadPoints: planningState.offroadPoints.map(point => ({lat: point.lat, lng: point.lng})),
+          routeGeoJson: planningState.routeGeoJson,
+          routeSource: planningState.routeSource,
+          routeDistanceKm: planningState.routeDistanceKm,
+          routeHours: planningState.routeHours,
+          routeSpeedKph: planningState.routeSpeedKph,
+          routeDirections: planningState.routeDirections.slice(),
+          summaryHtml: planningSummary.innerHTML,
+          weatherSnapshot: planningWeatherSnapshot,
+          airAssets: planningAirAssets.slice(0, 180),
+        };
+      }
+
+      function applyImportedPlanningData(data, options = {}) {
+        clearPlanningState({preserveAir: false});
+        planningRouteName.value = data.routeName || options.routeName || '';
+        planningModeSelect.value = data.mode || 'live';
+        planningTravelMode.value = data.travelMode || 'walking';
+        planningWeatherMode.value = data.weatherMode || 'live';
+        planningWaypointType.value = data.waypointType || 'waypoint';
+        planningHorsepower.value = data.horsepower || '220';
+        planningKnots.value = data.knots || '0';
+        planningWeight.value = data.weight || '0';
+        planningKph.value = data.kph || '0';
+        planningAirOverlay.checked = data.airOverlay !== false;
+        planningRoadDirections.checked = data.roadDirections !== false;
+        planningWeatherSnapshot = data.weatherSnapshot || planningWeatherSnapshot;
+        planningAirAssets = Array.isArray(data.airAssets) ? data.airAssets : [];
+
+        if (data.start) {
+          setPlanningPoint('start', L.latLng(data.start.lat, data.start.lng), {
+            label: data.start.label || 'PLAN START',
+            type: data.start.type || 'waypoint',
+            useLiveMode: false,
+          });
+        }
+        planningState.waypoints = Array.isArray(data.waypoints)
+          ? data.waypoints.filter(Boolean).map(waypoint => ({
+              lat: Number(waypoint.lat),
+              lng: Number(waypoint.lng),
+              label: waypoint.label || 'WAYPOINT',
+              type: waypoint.type || 'waypoint',
+            })).filter(waypoint => Number.isFinite(waypoint.lat) && Number.isFinite(waypoint.lng))
+          : [];
+        renderPlanningWaypoints();
+        if (data.end) {
+          setPlanningPoint('end', L.latLng(data.end.lat, data.end.lng), {
+            label: data.end.label || 'PLAN END',
+            type: data.end.type || 'waypoint',
+            useLiveMode: false,
+          });
+        }
+        planningState.offroadPoints = Array.isArray(data.offroadPoints)
+          ? data.offroadPoints.map(point => L.latLng(point.lat, point.lng))
+          : [];
+
+        if (planningAirOverlay.checked && planningAirAssets.length) {
+          renderPlanningAirAssets(planningAirAssets);
+          if (!map.hasLayer(planningLayers.air)) planningLayers.air.addTo(map);
+          setPlanningAirMessage(`${planningAirAssets.length} cached air assets restored.`);
+        }
+        if (planningWeatherSnapshot?.label) {
+          setPlanningWeatherMessage(`Restored weather snapshot ${planningWeatherSnapshot.label} | factor ${(planningWeatherSnapshot.factor || 1).toFixed(2)}x`);
+        }
+        if (data.routeGeoJson?.coordinates?.length) {
+          planningState.routeGeoJson = data.routeGeoJson;
+          planningState.routeSource = data.routeSource || 'restored route';
+          planningState.routeDistanceKm = Number(data.routeDistanceKm) || 0;
+          planningState.routeHours = Number(data.routeHours) || 0;
+          planningState.routeSpeedKph = Number(data.routeSpeedKph) || 0;
+          planningState.routeDirections = Array.isArray(data.routeDirections) ? data.routeDirections.filter(Boolean).slice(0, 12) : [];
+          renderPlanningRoute(planningLatLngsFromGeoJson(data.routeGeoJson), {
+            color: data.routeSource === 'road directions' ? '#C4A265' : data.routeSource === 'off-road sketch' ? '#8B9D6A' : '#6B9FD4',
+            weight: 3,
+            opacity: 0.9,
+            dashArray: data.routeSource === 'off-road sketch' ? null : '8,6',
+          });
+        }
+        if (data.summaryHtml) {
+          planningSummary.innerHTML = data.summaryHtml;
+        }
+
+        if (options.fit !== false) {
+          const fitPoints = getPlanningRouteLatLngs();
+          if (fitPoints.length >= 2) {
+            map.fitBounds(L.latLngBounds(fitPoints), {padding: [48, 48], maxZoom: 13});
+          } else if (fitPoints.length === 1) {
+            map.setView(fitPoints[0], Math.max(map.getZoom(), 13));
+          }
+        }
+        setSettingsSummary();
+      }
+
+      function renderPlanningRoute(latlngs, style = {}) {
+        planningLayers.route.clearLayers();
+        if (!latlngs.length) return;
+        L.polyline(latlngs, {
+          pane: 'planningRoutePane',
+          color: style.color || '#C4A265',
+          weight: style.weight || 3,
+          opacity: style.opacity || 0.9,
+          dashArray: style.dashArray || null,
+        }).addTo(planningLayers.route);
+      }
+
+      function planningEffectiveSpeedKph(mode, weatherFactor) {
+        const horsepower = parsePlanningNumber(planningHorsepower, 0);
+        const knots = parsePlanningNumber(planningKnots, 0);
+        const payloadWeight = Math.max(0, parsePlanningNumber(planningWeight, 0));
+        const speedOverride = Math.max(0, parsePlanningNumber(planningKph, 0));
+        const groundDefaults = {walking: 5, biking: 18, driving: 72};
+        const craftDefaults = {
+          heli: {baseKph: 220, baselineHp: 350, payload: 900, floor: 60},
+          airplane: {baseKph: 340, baselineHp: 700, payload: 1800, floor: 90},
+          boat: {baseKph: 46, baselineHp: 250, payload: 1200, floor: 8},
+        };
+
+        if (Object.prototype.hasOwnProperty.call(groundDefaults, mode)) {
+          const base = speedOverride > 0 ? speedOverride : groundDefaults[mode];
+          const weightFactor = mode === 'walking'
+            ? Math.max(0.65, 1 - payloadWeight / 250)
+            : mode === 'biking'
+              ? Math.max(0.6, 1 - payloadWeight / 400)
+              : Math.max(0.8, 1 - payloadWeight / 3500);
+          return Math.max(2, base * weatherFactor * weightFactor);
+        }
+
+        const craft = craftDefaults[mode] || craftDefaults.boat;
+        const baseFromKnots = knots > 0 ? knots * 1.852 : craft.baseKph;
+        const base = speedOverride > 0 ? speedOverride : baseFromKnots;
+        const hpFactor = horsepower > 0 ? Math.sqrt(horsepower / craft.baselineHp) : 1;
+        const weightFactor = Math.max(mode === 'boat' ? 0.45 : 0.55, 1 - payloadWeight / (craft.payload * 5));
+        return Math.max(craft.floor, base * hpFactor * weightFactor * weatherFactor);
+      }
+
+      function describePlanningWeatherCode(code) {
+        const labels = {
+          0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
+          45: 'Fog', 48: 'Icy fog', 51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
+          61: 'Rain', 63: 'Heavy rain', 65: 'Intense rain', 71: 'Snow', 73: 'Heavy snow',
+          80: 'Rain showers', 81: 'Heavy showers', 82: 'Violent showers', 95: 'Thunderstorm'
+        };
+        return labels[code] || 'Mixed conditions';
+      }
+
+      async function refreshPlanningWeather(force = false) {
+        const selectedMode = planningWeatherMode.value;
+        const presetFactors = {clear: 1, wind: 0.88, rain: 0.78, storm: 0.64};
+        if (selectedMode !== 'live') {
+          planningWeatherSnapshot = {
+            source: selectedMode,
+            factor: presetFactors[selectedMode] || 1,
+            label: prettyPlanningLabel(selectedMode),
+          };
+          setPlanningWeatherMessage(`Weather model ${prettyPlanningLabel(selectedMode)} | factor ${planningWeatherSnapshot.factor.toFixed(2)}x`);
+          return planningWeatherSnapshot;
+        }
+
+        const midpoint = currentPlanningMidpoint();
+        const requestKey = `${midpoint.lat.toFixed(2)}|${midpoint.lng.toFixed(2)}`;
+        if (!force && planningWeatherSnapshot && requestKey === lastPlanningWeatherKey) {
+          return planningWeatherSnapshot;
+        }
+
+        if (!navigator.onLine) {
+          if (planningWeatherSnapshot) {
+            setPlanningWeatherMessage(`Offline weather reuse | ${planningWeatherSnapshot.label} | factor ${planningWeatherSnapshot.factor.toFixed(2)}x`);
+            return planningWeatherSnapshot;
+          }
+          planningWeatherSnapshot = {source: 'offline', factor: 1, label: 'Offline default'};
+          setPlanningWeatherMessage('Offline weather default | factor 1.00x');
+          return planningWeatherSnapshot;
+        }
+
+        if (planningWeatherFetchController) planningWeatherFetchController.abort();
+        planningWeatherFetchController = new AbortController();
+        lastPlanningWeatherKey = requestKey;
+        try {
+          const url = new URL('https://api.open-meteo.com/v1/forecast');
+          url.searchParams.set('latitude', midpoint.lat.toFixed(4));
+          url.searchParams.set('longitude', midpoint.lng.toFixed(4));
+          url.searchParams.set('current', 'weather_code,wind_speed_10m,precipitation');
+          url.searchParams.set('forecast_days', '1');
+          const response = await fetch(url.toString(), {signal: planningWeatherFetchController.signal});
+          const data = await response.json();
+          if (!response.ok || !data.current) throw new Error('Weather feed unavailable.');
+          const wind = Number(data.current.wind_speed_10m || 0);
+          const precipitation = Number(data.current.precipitation || 0);
+          const code = Number(data.current.weather_code ?? -1);
+          let factor = 1;
+          if (wind > 55) factor -= 0.22;
+          else if (wind > 30) factor -= 0.14;
+          else if (wind > 18) factor -= 0.08;
+          if (precipitation > 2) factor -= 0.18;
+          else if (precipitation > 0.5) factor -= 0.1;
+          if ([95, 96, 99].includes(code)) factor -= 0.18;
+          else if ([63, 65, 80, 81, 82].includes(code)) factor -= 0.12;
+          else if ([51, 53, 55, 61].includes(code)) factor -= 0.08;
+          else if ([71, 73, 75].includes(code)) factor -= 0.14;
+          planningWeatherSnapshot = {
+            source: 'live',
+            factor: Math.max(0.55, factor),
+            label: describePlanningWeatherCode(code),
+            wind,
+            precipitation,
+          };
+          setPlanningWeatherMessage(`Live weather ${planningWeatherSnapshot.label} | wind ${wind.toFixed(0)} km/h | factor ${planningWeatherSnapshot.factor.toFixed(2)}x`);
+          return planningWeatherSnapshot;
+        } catch (error) {
+          if (error.name === 'AbortError') throw error;
+          planningWeatherSnapshot = {source: 'fallback', factor: 1, label: 'Weather fallback'};
+          setPlanningWeatherMessage('Weather feed unavailable | factor 1.00x');
+          return planningWeatherSnapshot;
+        }
+      }
+
+      function buildPlanningAirIcon(type) {
+        const mapByType = {
+          aerodrome: {label: 'A', color: '#C4A265'},
+          airstrip: {label: 'L', color: '#A4B87A'},
+          helipad: {label: 'H', color: '#6B9FD4'},
+        };
+        const config = mapByType[type] || mapByType.aerodrome;
+        return L.divIcon({
+          className: '',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+          popupAnchor: [0, -12],
+          html: `<div style='width:24px;height:24px;border-radius:4px;border:1px solid rgba(255,255,255,0.55);background:${config.color};box-shadow:0 0 10px ${config.color};display:flex;align-items:center;justify-content:center;color:#081008;font:700 11px JetBrains Mono, monospace;'>${config.label}</div>`
+        });
+      }
+
+      function renderPlanningAirAssets(items) {
+        planningLayers.air.clearLayers();
+        planningAirAssets = items.slice();
+        items.forEach(asset => {
+          const marker = L.marker([asset.lat, asset.lng], {
+            icon: buildPlanningAirIcon(asset.type),
+            pane: 'airfieldPane',
+          });
+          marker.bindPopup(`<div style='font-family:JetBrains Mono, monospace;font-size:11px;color:#222'><b>${asset.name}</b><br>TYPE: ${prettyPlanningLabel(asset.type).toUpperCase()}<br>${asset.code ? `CODE: ${asset.code}<br>` : ''}${asset.surface ? `SURFACE: ${String(asset.surface).toUpperCase()}<br>` : ''}LAT: ${asset.lat.toFixed(5)}<br>LNG: ${asset.lng.toFixed(5)}</div>`);
+          planningLayers.air.addLayer(marker);
+        });
+      }
+
+      async function refreshPlanningAirOverlay(force = false) {
+        if (!planningAirOverlay.checked) {
+          if (map.hasLayer(planningLayers.air)) map.removeLayer(planningLayers.air);
+          setPlanningAirMessage('Air overlay hidden.');
+          return;
+        }
+        if (!map.hasLayer(planningLayers.air)) planningLayers.air.addTo(map);
+        if (map.getZoom() < 8) {
+          planningLayers.air.clearLayers();
+          setPlanningAirMessage('Zoom to 8+ to load public helipads and airfields.');
+          return;
+        }
+        if (!navigator.onLine) {
+          if (planningAirAssets.length) {
+            renderPlanningAirAssets(planningAirAssets);
+            setPlanningAirMessage(`${planningAirAssets.length} cached air assets ready offline.`);
+          } else {
+            setPlanningAirMessage('Offline: no cached air assets in this plan pack.');
+          }
+          return;
+        }
+
+        const bounds = map.getBounds();
+        const requestKey = [
+          bounds.getSouth().toFixed(3),
+          bounds.getWest().toFixed(3),
+          bounds.getNorth().toFixed(3),
+          bounds.getEast().toFixed(3),
+          map.getZoom()
+        ].join('|');
+        if (!force && requestKey === lastPlanningAirKey) return;
+        lastPlanningAirKey = requestKey;
+        if (planningAirFetchController) planningAirFetchController.abort();
+        planningAirFetchController = new AbortController();
+
+        const bbox = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
+        const query = `[out:json][timeout:20];(node["aeroway"="helipad"](${bbox});way["aeroway"~"aerodrome|airstrip|helipad"](${bbox});relation["aeroway"="aerodrome"](${bbox}););out center;`;
+        try {
+          const response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain;charset=UTF-8'},
+            body: query,
+            signal: planningAirFetchController.signal,
+          });
+          const data = await response.json();
+          if (!response.ok || !Array.isArray(data.elements)) throw new Error('Airfield feed unavailable.');
+          const assets = data.elements.map(element => {
+            const lat = Number(element.lat ?? element.center?.lat);
+            const lng = Number(element.lon ?? element.center?.lon);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+            const type = String(element.tags?.aeroway || 'aerodrome');
+            return {
+              lat,
+              lng,
+              type,
+              name: element.tags?.name || element.tags?.icao || element.tags?.iata || prettyPlanningLabel(type),
+              code: element.tags?.icao || element.tags?.iata || '',
+              surface: element.tags?.surface || '',
+            };
+          }).filter(Boolean).slice(0, 180);
+          renderPlanningAirAssets(assets);
+          setPlanningAirMessage(`${assets.length} public air assets in view.`);
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          planningLayers.air.clearLayers();
+          setPlanningAirMessage('Public airfield lookup failed.');
+        }
+      }
+
+      function buildPlanningSummary(result, weather) {
+        const speedKnots = result.speedKph / 1.852;
+        const header = planningModeSelect.value === 'sandbox' ? 'SANDBOX PLAN' : 'LIVE PLAN';
+        const routeNotes = result.directions.length
+          ? result.directions.join(' -> ')
+          : 'Manual line estimate between selected points.';
+        return `<strong>${header} | ${planningTravelMode.value.toUpperCase()}</strong><br>Source: ${String(result.source).toUpperCase()} | Distance: ${formatPlanningDistance(result.distanceKm)} | ETA: ${formatPlanningDuration(result.hours)}<br>Speed: ${result.speedKph.toFixed(1)} km/h | ${speedKnots.toFixed(1)} kn<br>Weather: ${weather.label} | Factor: ${weather.factor.toFixed(2)}x<br>Notes: ${routeNotes}`;
+      }
+
+      function buildPlanningManifestHtml() {
+        const routeName = planningRouteName.value.trim() || defaultPlanningRouteName();
+        const points = [];
+        if (planningState.start) points.push({role: 'Start', ...planningState.start});
+        planningState.waypoints.forEach((waypoint, index) => {
+          points.push({role: `Waypoint ${index + 1}`, ...waypoint});
+        });
+        if (planningState.end) points.push({role: 'End', ...planningState.end});
+
+        const directions = planningState.routeDirections.length
+          ? planningState.routeDirections.slice(0, 12)
+          : [planningState.routeSource || 'Awaiting computed route details.'];
+        const weatherLabel = planningWeatherSnapshot?.label || prettyPlanningLabel(planningWeatherMode.value);
+        const weatherFactor = Number.isFinite(planningWeatherSnapshot?.factor) ? planningWeatherSnapshot.factor.toFixed(2) : '1.00';
+        const summaryRows = [
+          ['Planning Mode', prettyPlanningLabel(planningModeSelect.value)],
+          ['Travel Mode', prettyPlanningLabel(planningTravelMode.value)],
+          ['Route Source', planningState.routeSource || 'Pending'],
+          ['Distance', planningState.routeDistanceKm > 0 ? formatPlanningDistance(planningState.routeDistanceKm) : 'Pending'],
+          ['ETA', planningState.routeHours > 0 ? formatPlanningDuration(planningState.routeHours) : 'Pending'],
+          ['Speed', planningState.routeSpeedKph > 0 ? `${planningState.routeSpeedKph.toFixed(1)} km/h` : 'Pending'],
+          ['Weather', `${weatherLabel} (${weatherFactor}x)`],
+          ['Road Directions', planningRoadDirections.checked ? 'Enabled' : 'Direct estimate'],
+          ['Craft Power', `${parsePlanningNumber(planningHorsepower, 0).toFixed(0)} hp`],
+          ['Cruise Knots', `${parsePlanningNumber(planningKnots, 0).toFixed(0)} kn`],
+          ['Payload', `${parsePlanningNumber(planningWeight, 0).toFixed(0)} lb`],
+          ['Road Override', parsePlanningNumber(planningKph, 0) > 0 ? `${parsePlanningNumber(planningKph, 0).toFixed(0)} km/h` : 'Auto'],
+        ];
+        const center = map.getCenter();
+
+        return `
+          <div class="planning-print-kicker">Delta Tactical Map Route Manifest</div>
+          <h1>${escapePlanningHtml(routeName)}</h1>
+          <p>Generated ${escapePlanningHtml(new Date().toLocaleString())} | Center ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)} | Zoom ${map.getZoom()}</p>
+          <div class="planning-print-grid">
+            <section class="planning-print-section">
+              <h2>Summary</h2>
+              <div class="planning-print-meta">
+                ${summaryRows.map(([label, value]) => `<div><strong>${escapePlanningHtml(label)}:</strong> ${escapePlanningHtml(value)}</div>`).join('')}
+              </div>
+            </section>
+            <section class="planning-print-section">
+              <h2>Points</h2>
+              <ol class="planning-print-list">
+                ${points.length
+                  ? points.map(point => `<li><strong>${escapePlanningHtml(point.role)}:</strong> ${escapePlanningHtml(point.label || point.role)}<br>${escapePlanningHtml(prettyPlanningLabel(point.type))} | LAT ${Number(point.lat).toFixed(4)} | LNG ${Number(point.lng).toFixed(4)}</li>`).join('')
+                  : '<li>No route points captured yet.</li>'}
+              </ol>
+            </section>
+          </div>
+          <section class="planning-print-section">
+            <h2>Directions</h2>
+            <ol class="planning-print-list">
+              ${directions.map(step => `<li>${escapePlanningHtml(step)}</li>`).join('')}
+            </ol>
+          </section>
+        `;
+      }
+
+      function printPlanningManifest() {
+        if (!planningHasRouteData()) {
+          planningSummary.innerHTML = '<strong>Nothing to print yet.</strong><br>Build, import, or load a route before printing the route manifest.';
+          return;
+        }
+        planningPrintSheet.innerHTML = buildPlanningManifestHtml();
+        document.body.classList.add('planning-manifest-mode');
+        window.print();
+      }
+
+      async function computeRoadRouteEstimate(mode, weather) {
+        if (!planningState.start || !planningState.end) throw new Error('Road directions need both a start and end point.');
+        if (planningRouteFetchController) planningRouteFetchController.abort();
+        planningRouteFetchController = new AbortController();
+        const profile = {walking: 'walking', biking: 'cycling', driving: 'driving'}[mode] || 'walking';
+        const routeStops = getPlanningRouteStops();
+        const coordinates = routeStops.map(stop => `${stop.lng},${stop.lat}`).join(';');
+        const url = `https://router.project-osrm.org/route/v1/${profile}/${coordinates}?overview=full&geometries=geojson&steps=true`;
+        const response = await fetch(url, {signal: planningRouteFetchController.signal});
+        const data = await response.json();
+        if (!response.ok || data.code !== 'Ok' || !data.routes?.length) {
+          throw new Error('Road routing unavailable for this point pair.');
+        }
+        const route = data.routes[0];
+        const latlngs = route.geometry.coordinates.map(([lng, lat]) => L.latLng(lat, lng));
+        const distanceKm = route.distance / 1000;
+        const overrideKph = Math.max(0, parsePlanningNumber(planningKph, 0));
+        const hours = overrideKph > 0
+          ? distanceKm / Math.max(overrideKph * weather.factor, 1)
+          : (route.duration / 3600) / weather.factor;
+        const speedKph = distanceKm / Math.max(hours, 1 / 60);
+        const directions = (route.legs || []).flatMap(leg => leg.steps || [])
+          .map(step => step.name || `${step.maneuver?.type || 'continue'} ${step.maneuver?.modifier || ''}`.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+        return {
+          latlngs,
+          distanceKm,
+          hours,
+          speedKph,
+          directions,
+          source: 'road directions',
+          style: {color: '#C4A265', weight: 3.1, opacity: 0.92},
+        };
+      }
+
+      function computeDirectRouteEstimate(mode, weather) {
+        const useOffroadSketch = planningState.offroadPoints.length > 1;
+        const latlngs = useOffroadSketch
+          ? planningState.offroadPoints.slice()
+          : getPlanningRouteLatLngs();
+        const distanceKm = planningDistanceKm(latlngs);
+        const speedKph = planningEffectiveSpeedKph(mode, weather.factor);
+        const hours = distanceKm / Math.max(speedKph, 1);
+        const source = useOffroadSketch
+          ? 'off-road sketch'
+          : mode === 'boat'
+            ? 'water bearing estimate'
+            : ['heli', 'airplane'].includes(mode)
+              ? 'air corridor estimate'
+              : 'direct estimate';
+        const colors = {walking: '#8B9D6A', biking: '#A4B87A', driving: '#C4A265', heli: '#6B9FD4', airplane: '#89B9E8', boat: '#5AA0C8'};
+        const directions = useOffroadSketch
+          ? [`${latlngs.length} hand-drawn points traced across terrain.`]
+          : planningState.waypoints.length
+            ? [`Direct path chained through ${planningState.waypoints.length} typed waypoints.`]
+            : ['Direct path between selected points.'];
+        return {
+          latlngs,
+          distanceKm,
+          hours,
+          speedKph,
+          directions,
+          source,
+          style: {
+            color: colors[mode] || '#C4A265',
+            weight: 3,
+            opacity: 0.9,
+            dashArray: useOffroadSketch ? null : '8,6',
+          },
+        };
+      }
+
+      async function recalculatePlanningRoute(forceWeather = false) {
+        const revision = ++planningRouteRevision;
+        clearPlanningRouteGraphics();
+        const hasManualSketch = planningState.offroadPoints.length > 1;
+        if (!hasManualSketch && (!planningState.start || !planningState.end)) {
+          planningSummary.innerHTML = '<strong>Awaiting plan.</strong><br>Set a start and end point, or load the sandbox route to preview the logistics estimator.';
+          setSettingsSummary();
+          return;
+        }
+
+        try {
+          const weather = await refreshPlanningWeather(forceWeather);
+          if (revision !== planningRouteRevision) return;
+          const travelMode = planningTravelMode.value;
+          const canUseRoadDirections = ['walking', 'biking', 'driving'].includes(travelMode) && planningRoadDirections.checked && !hasManualSketch;
+          const result = canUseRoadDirections
+            ? await computeRoadRouteEstimate(travelMode, weather)
+            : computeDirectRouteEstimate(travelMode, weather);
+          if (revision !== planningRouteRevision) return;
+          renderPlanningRoute(result.latlngs, result.style);
+          planningState.routeGeoJson = planningGeoJsonFromLatLngs(result.latlngs);
+          planningState.routeSource = result.source;
+          planningState.routeDistanceKm = result.distanceKm;
+          planningState.routeHours = result.hours;
+          planningState.routeSpeedKph = result.speedKph;
+          planningState.routeDirections = result.directions.slice();
+          planningSummary.innerHTML = buildPlanningSummary(result, weather);
+          setSettingsSummary();
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          planningSummary.innerHTML = `<strong>Route estimate unavailable.</strong><br>${error.message || 'Unable to compute a planning route.'}`;
+        }
+      }
+
+      function loadPlanningSandbox() {
+        const center = map.getCenter();
+        const start = L.latLng(center.lat - 0.03, center.lng - 0.045);
+        const end = L.latLng(center.lat + 0.026, center.lng + 0.04);
+        planningRouteName.value = 'Sandbox Route';
+        planningModeSelect.value = 'sandbox';
+        planningTravelMode.value = 'driving';
+        planningWeatherMode.value = 'clear';
+        planningRoadDirections.checked = true;
+        planningWaypointType.value = 'waypoint';
+        planningState.offroadPoints = [];
+        setPlanningPoint('start', start, {label: 'SANDBOX START', type: 'waypoint', useLiveMode: false});
+        setPlanningPoint('end', end, {label: 'SANDBOX SAFE STOP', type: 'safe-stop', useLiveMode: false});
+        map.fitBounds(L.latLngBounds([start, end]), {padding: [48, 48], maxZoom: 13});
+        planningSummary.innerHTML = '<strong>Sandbox loaded.</strong><br>Previewing a sample route. Change travel mode, weather, or craft settings to simulate alternate ETAs.';
+        recalculatePlanningRoute(true);
+      }
+
+      renderPlanningStatus();
+
+      function clearStreetImages() {
+        lastStreetRequestKey = '';
+        lastStreetImages = [];
+        streetList.innerHTML = '<div class="street-empty">No imagery loaded yet.</div>';
+      }
+
+      function renderStreetImages(items, center) {
+        lastStreetImages = items.slice();
+        if (!items.length) {
+          streetList.innerHTML = '<div class="street-empty">No nearby public street-style imagery found for this map center. Try another location or larger radius.</div>';
+          return;
+        }
+        streetList.innerHTML = items.map(item => {
+          const distance = item.lat != null && item.lng != null
+            ? `${Math.round(center.distanceTo([item.lat, item.lng]))} m away`
+            : 'Nearby image';
+          return `<article class="street-card">
+            <img class="street-thumb" src="${item.thumb}" alt="${item.title.replace(/"/g, '&quot;')}">
+            <div class="street-copy">
+              <strong>${item.title}</strong>
+              <div class="street-meta">${distance}<br>${item.source}</div>
+              <a class="street-link" href="${item.link}" target="_blank" rel="noreferrer">OPEN SOURCE IMAGE</a>
+            </div>
+          </article>`;
+        }).join('');
+      }
+
+      async function refreshStreetImages(force = false) {
+        if (!streetImagesActive) {
+          streetPanel.classList.remove('show');
+          clearStreetImages();
+          setStreetStatus('Enable street images in Settings.');
+          return;
+        }
+
+        if (!navigator.onLine && lastStreetImages.length) {
+          streetPanel.classList.add('show');
+          renderStreetImages(lastStreetImages, map.getCenter());
+          setStreetStatus(`Offline street imagery restored from saved pack (${lastStreetImages.length} items).`);
+          return;
+        }
+
+        streetPanel.classList.add('show');
+        const center = map.getCenter();
+        const radiusValue = streetRadius.value;
+        const requestKey = [center.lat.toFixed(3), center.lng.toFixed(3), radiusValue].join('|');
+        if (!force && requestKey === lastStreetRequestKey) {
+          return;
+        }
+
+        if (streetFetchController) {
+          streetFetchController.abort();
+        }
+        streetFetchController = new AbortController();
+        lastStreetRequestKey = requestKey;
+        setStreetStatus('Scanning nearby public imagery...');
+
+        const url = new URL('https://commons.wikimedia.org/w/api.php');
+        url.searchParams.set('action', 'query');
+        url.searchParams.set('generator', 'geosearch');
+        url.searchParams.set('ggscoord', `${center.lat}|${center.lng}`);
+        url.searchParams.set('ggsradius', radiusValue);
+        url.searchParams.set('ggslimit', '6');
+        url.searchParams.set('ggsnamespace', '6');
+        url.searchParams.set('prop', 'coordinates|imageinfo');
+        url.searchParams.set('colimit', '1');
+        url.searchParams.set('iiprop', 'url');
+        url.searchParams.set('iiurlwidth', '480');
+        url.searchParams.set('origin', '*');
+        url.searchParams.set('format', 'json');
+
+        try {
+          const response = await fetch(url.toString(), {signal: streetFetchController.signal});
+          const data = await response.json();
+          const pages = Object.values(data.query?.pages || {});
+          const images = pages
+            .map(page => ({
+              title: String(page.title || 'Untitled').replace(/^File:/, ''),
+              thumb: page.imageinfo?.[0]?.thumburl || page.imageinfo?.[0]?.url || '',
+              link: page.imageinfo?.[0]?.descriptionurl || '#',
+              lat: page.coordinates?.[0]?.lat ?? null,
+              lng: page.coordinates?.[0]?.lon ?? null,
+              source: 'Wikimedia Commons'
+            }))
+            .filter(item => item.thumb && item.link !== '#');
+
+          renderStreetImages(images, center);
+          setStreetStatus(images.length
+            ? `${images.length} public images loaded around ${center.lat.toFixed(3)}, ${center.lng.toFixed(3)}.`
+            : 'No nearby public imagery found.');
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          clearStreetImages();
+          setStreetStatus('Street imagery lookup failed. Retry or change the map center.');
+        }
+      }
+
+      const xrayStructures = L.geoJSON([], {
+        pane: 'xrayVectorPane',
+        style: () => xrayActive
+          ? {
+              color: '#A0C8F0',
+              weight: 1.4,
+              opacity: 0.95,
+              fillColor: '#6B9FD4',
+              fillOpacity: 0.14
+            }
+          : {
+              color: '#C8D5A3',
+              weight: 1.1,
+              opacity: 0.82,
+              fillColor: '#8B9D6A',
+              fillOpacity: 0.08
+            },
+        onEachFeature: (feature, layer) => {
+          const tags = feature.properties || {};
+          const title = tags.name || tags['addr:housename'] || tags.building || 'STRUCTURE';
+          const detailRows = [
+            tags.building ? `TYPE: ${String(tags.building).toUpperCase()}` : '',
+            tags['building:levels'] ? `LEVELS: ${tags['building:levels']}` : '',
+            tags.height ? `HEIGHT: ${tags.height}` : '',
+            tags.amenity ? `AMENITY: ${String(tags.amenity).toUpperCase()}` : '',
+            tags.office ? `OFFICE: ${String(tags.office).toUpperCase()}` : '',
+            tags.shop ? `SHOP: ${String(tags.shop).toUpperCase()}` : '',
+            [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ') ? `ADDR: ${[tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ')}` : ''
+          ].filter(Boolean).slice(0, 5);
+          layer.bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#222">
+            <b>${title}</b><br>
+            ${detailRows.join('<br>')}
+          </div>`);
+        }
+      });
+
+      function setXrayStatus(message) {
+        xrayStatus.textContent = message;
+      }
+
+      function clearXrayStructures() {
+        xrayStructures.clearLayers();
+        lastXrayRequestKey = '';
+      }
+
+      function overpassFeatureCollection(elements) {
+        const features = [];
+        elements.forEach(element => {
+          if (!Array.isArray(element.geometry) || element.geometry.length < 3) return;
+          const ring = element.geometry.map(point => [point.lon, point.lat]);
+          const first = ring[0];
+          const last = ring[ring.length - 1];
+          if (!first || !last) return;
+          if (first[0] !== last[0] || first[1] !== last[1]) {
+            ring.push([first[0], first[1]]);
+          }
+          features.push({
+            type: 'Feature',
+            properties: element.tags || {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [ring]
+            }
+          });
+        });
+        return {type: 'FeatureCollection', features};
+      }
+
+      async function refreshXrayStructures(force = false) {
+        const structureIntelActive = xrayActive || hdDetailModeActive();
+        if (!structureIntelActive) {
+          clearXrayStructures();
+          xrayLegend.classList.remove('show');
+          return;
+        }
+
+        if (!navigator.onLine && xrayStructures.getLayers().length) {
+          xrayLegend.classList.add('show');
+          if (!map.hasLayer(xrayStructures)) xrayStructures.addTo(map);
+          setXrayStatus('Offline structure intel restored from saved pack.');
+          return;
+        }
+
+        xrayLegend.classList.add('show');
+        xrayStructures.setStyle(xrayStructures.options.style());
+        if (map.getZoom() < (xrayActive ? 15 : HD_DETAIL_MIN_ZOOM)) {
+          clearXrayStructures();
+          setXrayStatus(xrayActive ? 'Zoom to 15+ for building scan.' : 'Zoom to 18+ for HD detail assist.');
+          return;
+        }
+
+        const bounds = map.getBounds();
+        const requestKey = [
+          map.getZoom(),
+          bounds.getSouth().toFixed(4),
+          bounds.getWest().toFixed(4),
+          bounds.getNorth().toFixed(4),
+          bounds.getEast().toFixed(4)
+        ].join('|');
+        if (!force && requestKey === lastXrayRequestKey) {
+          return;
+        }
+
+        if (xrayFetchController) {
+          xrayFetchController.abort();
+        }
+        xrayFetchController = new AbortController();
+        lastXrayRequestKey = requestKey;
+        setXrayStatus(xrayActive ? 'Scanning public structure footprints...' : 'HD detail assist active. Scanning crisp close-range structures...');
+
+        const bbox = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
+        const query = `[out:json][timeout:20];(way["building"](${bbox});relation["building"](${bbox}););out tags geom;`;
+
+        try {
+          const response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain;charset=UTF-8'},
+            body: query,
+            signal: xrayFetchController.signal
+          });
+          const data = await response.json();
+          if (!response.ok || !Array.isArray(data.elements)) {
+            throw new Error('Structure feed unavailable.');
+          }
+
+          const collection = overpassFeatureCollection(data.elements.slice(0, 350));
+          clearXrayStructures();
+          xrayStructures.addData(collection);
+          if (!map.hasLayer(xrayStructures)) {
+            xrayStructures.addTo(map);
+          }
+
+          const withLevels = collection.features.filter(feature => feature.properties['building:levels']).length;
+          const withHeight = collection.features.filter(feature => feature.properties.height).length;
+          setXrayStatus(`${collection.features.length} structures detected | ${withLevels} level tags | ${withHeight} height tags`);
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            return;
+          }
+          clearXrayStructures();
+          setXrayStatus('Structure scan failed. Pan or retry at zoom 16+.');
+        }
+      }
+
+      function setOverlayLayerState(layer, active) {
+        if (active) {
+          if (!map.hasLayer(layer)) {
+            layer.addTo(map);
+          }
+          return;
+        }
+        if (map.hasLayer(layer)) {
+          map.removeLayer(layer);
+        }
+      }
+
+      function ensureReconView(minZoom) {
+        if (activeBaseLayer !== satellite) {
+          setBaseLayer(satellite);
+        }
+        if (map.getZoom() < minZoom) {
+          map.setZoom(minZoom);
+        }
+      }
+
+      function syncOpticsMode() {
+        const hdActive = hdDetailModeActive();
+        const showReconLayers = reconActive || xrayActive || hdActive;
+        reconLayers.forEach(layer => setOverlayLayerState(layer, showReconLayers));
+        mapEl.classList.toggle('recon-mode', reconActive && !xrayActive);
+        mapEl.classList.toggle('hd-detail-mode', hdActive && !xrayActive);
+        mapEl.classList.toggle('xray-mode', xrayActive);
+        crosshairEl.classList.toggle('scan', showReconLayers);
+        if (!xrayActive && !hdActive) {
+          if (xrayFetchController) xrayFetchController.abort();
+          clearXrayStructures();
+          map.removeLayer(xrayStructures);
+          xrayLegend.classList.remove('show');
+          setXrayStatus('Stand by.');
+        } else if (!xrayActive && hdActive) {
+          xrayLegend.classList.add('show');
+          setXrayStatus('HD detail assist active. Close zoom remains sharp.');
+        }
+        setSettingsSummary();
+      }
+
+      btnSettings.addEventListener('click', function(){
+        const nextState = !settingsPanel.classList.contains('show');
+        settingsPanel.classList.toggle('show', nextState);
+        this.classList.toggle('active', nextState);
+        if (nextState) {
+          planningPanel.classList.remove('show');
+          btnPlanning.classList.remove('active');
+          resetPlanningInteraction();
+        }
+      });
+
+      btnPlanning.addEventListener('click', function(){
+        const nextState = !planningPanel.classList.contains('show');
+        planningPanel.classList.toggle('show', nextState);
+        this.classList.toggle('active', nextState);
+        if (nextState) {
+          settingsPanel.classList.remove('show');
+          btnSettings.classList.remove('active');
+          refreshPlanningWeather(true);
+          refreshPlanningAirOverlay(true);
+        } else {
+          resetPlanningInteraction();
+        }
+      });
+
+      planningSetStartBtn.addEventListener('click', function(){
+        setPlanningInteraction('start');
+      });
+
+      planningSetEndBtn.addEventListener('click', function(){
+        setPlanningInteraction('end');
+      });
+
+      planningDrawOffroadBtn.addEventListener('click', function(){
+        if (planningInteractionMode === 'offroad') {
+          resetPlanningInteraction();
+          if (planningState.offroadPoints.length > 1) {
+            planningSummary.innerHTML = '<strong>Off-road sketch held.</strong><br>ETA remains based on the traced path until you clear or redraw it.';
+          }
+          return;
+        }
+        planningState.offroadPoints = planningState.start ? [L.latLng(planningState.start.lat, planningState.start.lng)] : [];
+        setPlanningInteraction('offroad');
+      });
+
+      planningSandboxBtn.addEventListener('click', function(){
+        loadPlanningSandbox();
+      });
+
+      planningClearBtn.addEventListener('click', function(){
+        clearPlanningState({preserveAir: true});
+      });
+
+      planningAddCurrentWaypointBtn.addEventListener('click', function(){
+        const target = currentGotoPlanningTarget(`WAYPOINT ${planningState.waypoints.length + 1}`);
+        addPlanningWaypoint({
+          lat: target.lat,
+          lng: target.lng,
+          label: target.label,
+          type: planningWaypointType.value,
+        });
+      });
+
+      planningRemoveLastWaypointBtn.addEventListener('click', function(){
+        if (!planningState.waypoints.length) {
+          planningSummary.innerHTML = '<strong>No waypoint removed.</strong><br>The typed waypoint list is already empty.';
+          return;
+        }
+        removePlanningWaypoint(planningState.waypoints.length - 1);
+      });
+
+      planningClearWaypointsBtn.addEventListener('click', function(){
+        planningState.waypoints = [];
+        renderPlanningWaypoints();
+        planningSummary.innerHTML = '<strong>Waypoints cleared.</strong><br>The route now runs directly between the current start and end points.';
+        recalculatePlanningRoute(true);
+      });
+
+      planningModeSelect.addEventListener('change', function(){
+        if (this.value === 'sandbox' && !planningState.start && !planningState.end) {
+          loadPlanningSandbox();
+          return;
+        }
+        recalculatePlanningRoute(true);
+      });
+
+      planningTravelMode.addEventListener('change', function(){
+        recalculatePlanningRoute(true);
+      });
+
+      planningWeatherMode.addEventListener('change', function(){
+        refreshPlanningWeather(true).then(() => recalculatePlanningRoute(true)).catch(() => {});
+      });
+
+      planningAirOverlay.addEventListener('change', function(){
+        refreshPlanningAirOverlay(true);
+      });
+
+      planningRoadDirections.addEventListener('change', function(){
+        recalculatePlanningRoute(true);
+      });
+
+      planningWaypointList.addEventListener('click', function(event){
+        const moveUpIndex = event.target.getAttribute('data-waypoint-up');
+        if (moveUpIndex != null) {
+          movePlanningWaypoint(Number(moveUpIndex), -1);
+          return;
+        }
+
+        const moveDownIndex = event.target.getAttribute('data-waypoint-down');
+        if (moveDownIndex != null) {
+          movePlanningWaypoint(Number(moveDownIndex), 1);
+          return;
+        }
+
+        const focusIndex = event.target.getAttribute('data-waypoint-focus');
+        if (focusIndex != null) {
+          const waypoint = planningState.waypoints[Number(focusIndex)];
+          if (!waypoint) return;
+          const latlng = L.latLng(waypoint.lat, waypoint.lng);
+          map.setView(latlng, Math.max(map.getZoom(), 15));
+          gotoQueryInput.value = waypoint.label || `WAYPOINT ${Number(focusIndex) + 1}`;
+          syncCoordinateInputs(latlng.lat, latlng.lng);
+          return;
+        }
+
+        const removeIndex = event.target.getAttribute('data-waypoint-remove');
+        if (removeIndex != null) {
+          removePlanningWaypoint(Number(removeIndex));
+        }
+      });
+
+      planningSavedRoutesSelect.addEventListener('change', function(){
+        const savedRoute = findPlanningSavedRoute(this.value);
+        if (!savedRoute) return;
+        planningRouteName.value = savedRoute.name;
+        setPlanningLibraryStatus(`Selected route slot: ${savedRoute.name}`);
+      });
+
+      planningSaveRouteBtn.addEventListener('click', function(){
+        if (!planningHasRouteData()) {
+          planningSummary.innerHTML = '<strong>Nothing to save yet.</strong><br>Build, import, or load a route before storing a named slot.';
+          return;
+        }
+
+        const name = (planningRouteName.value.trim() || defaultPlanningRouteName()).slice(0, 80);
+        const payload = buildPlanningExportData();
+        const selectedId = planningSavedRoutesSelect.value;
+        const existingIndex = planningSavedRoutes.findIndex(route => route.id === selectedId || route.name.toLowerCase() === name.toLowerCase());
+        const routeId = existingIndex >= 0 ? planningSavedRoutes[existingIndex].id : `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const entry = {id: routeId, name, savedAt: new Date().toISOString(), payload};
+
+        if (existingIndex >= 0) planningSavedRoutes.splice(existingIndex, 1);
+        planningSavedRoutes.unshift(entry);
+        planningSavedRoutes = planningSavedRoutes.slice(0, MAX_PLANNING_SAVED_ROUTES);
+        planningRouteName.value = name;
+        persistPlanningSavedRoutes();
+        renderPlanningSavedRoutes(routeId, `Saved route slot: ${name}`);
+        planningSummary.innerHTML = `<strong>Route slot saved.</strong><br>${name} is now stored in this browser for quick reloads.`;
+      });
+
+      planningLoadRouteBtn.addEventListener('click', function(){
+        const savedRoute = findPlanningSavedRoute(planningSavedRoutesSelect.value);
+        if (!savedRoute) {
+          planningSummary.innerHTML = '<strong>No route slot selected.</strong><br>Select a saved route slot to restore it into the live planner.';
+          return;
+        }
+
+        applyImportedPlanningData({...savedRoute.payload, routeName: savedRoute.name});
+        renderPlanningSavedRoutes(savedRoute.id, `Loaded route slot: ${savedRoute.name}`);
+        planningSummary.innerHTML = `<strong>Route slot loaded.</strong><br>${savedRoute.name} has been restored into the live planner.`;
+        if (planningState.start && (planningState.end || planningState.offroadPoints.length > 1)) {
+          recalculatePlanningRoute(true);
+        }
+      });
+
+      planningDeleteRouteBtn.addEventListener('click', function(){
+        const selectedId = planningSavedRoutesSelect.value;
+        const existingIndex = planningSavedRoutes.findIndex(route => route.id === selectedId);
+        if (existingIndex < 0) {
+          planningSummary.innerHTML = '<strong>No route slot deleted.</strong><br>Select a saved route slot before removing it from this browser.';
+          return;
+        }
+
+        const [removed] = planningSavedRoutes.splice(existingIndex, 1);
+        persistPlanningSavedRoutes();
+        renderPlanningSavedRoutes('', `Deleted route slot: ${removed.name}`);
+        if (planningRouteName.value.trim() === removed.name) planningRouteName.value = '';
+        planningSummary.innerHTML = `<strong>Route slot deleted.</strong><br>${removed.name} was removed from this browser library.`;
+      });
+
+      planningPrintManifestBtn.addEventListener('click', function(){
+        printPlanningManifest();
+      });
+
+      planningExportRouteBtn.addEventListener('click', function(){
+        const payload = buildPlanningExportData();
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${planningFileStem(payload.routeName)}_${new Date().toISOString().slice(0,10)}.json`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        planningSummary.innerHTML = '<strong>Route exported.</strong><br>The current planning package was downloaded as a standalone JSON file.';
+      });
+
+      planningImportRouteBtn.addEventListener('click', function(){
+        planningImportFile.click();
+      });
+
+      planningImportFile.addEventListener('change', function(){
+        const file = this.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(){
+          try {
+            const imported = JSON.parse(String(reader.result || '{}'));
+            applyImportedPlanningData(imported);
+            planningSummary.innerHTML = '<strong>Route imported.</strong><br>The standalone route package was loaded into Tac Map.';
+            if (planningState.start && (planningState.end || planningState.offroadPoints.length > 1 || planningState.waypoints.length)) {
+              recalculatePlanningRoute(true);
+            }
+          } catch (error) {
+            planningSummary.innerHTML = `<strong>Import failed.</strong><br>${error.message || 'The selected file is not a valid route package.'}`;
+          } finally {
+            planningImportFile.value = '';
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      [planningHorsepower, planningKnots, planningWeight, planningKph].forEach(input => {
+        input.addEventListener('input', function(){
+          recalculatePlanningRoute(true);
+        });
+      });
+
+      renderPlanningWaypoints();
+      loadPlanningSavedRoutes();
+
+      streetToggle.addEventListener('change', function(){
+        streetImagesActive = this.checked;
+        if (!streetImagesActive && streetFetchController) {
+          streetFetchController.abort();
+        }
+        setSettingsSummary();
+        refreshStreetImages(true);
+      });
+
+      hdDetailToggle.addEventListener('change', function(){
+        syncOpticsMode();
+        if (hdDetailModeActive()) {
+          refreshXrayStructures(true);
+        }
+      });
+
+      streetRadius.addEventListener('change', function(){
+        if (streetImagesActive) refreshStreetImages(true);
+      });
+
+      streetRefresh.addEventListener('click', function(){
+        if (!streetImagesActive) {
+          streetImagesActive = true;
+          streetToggle.checked = true;
+        }
+        setSettingsSummary();
+        refreshStreetImages(true);
+      });
+
+      streetCenter.addEventListener('click', function(){
+        const center = map.getCenter();
+        gotoQueryInput.value = `MAP CENTER ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`;
+        setGotoStatus('Map center locked for imagery search and saving.', 'ok');
+        syncCoordinateInputs(center.lat, center.lng);
+        if (streetImagesActive) refreshStreetImages(true);
+      });
+
+      async function saveOfflinePack() {
+        const center = map.getCenter();
+        const tileUrls = collectVisibleTileUrls();
+        const pack = {
+          savedAt: new Date().toISOString(),
+          center: {lat: center.lat, lng: center.lng},
+          zoom: map.getZoom(),
+          baseLayer: getActiveBaseLayerKey(),
+          gotoQuery: gotoQueryInput.value.trim(),
+          reconActive,
+          xrayActive,
+          hdDetail: hdDetailToggle.checked,
+          conflictsActive,
+          streetImagesActive,
+          streetRadius: streetRadius.value,
+          bookmarks: targetBookmarks.slice(0, 12),
+          streetItems: lastStreetImages.slice(0, 6),
+          structures: xrayStructures.toGeoJSON(),
+          planning: buildPlanningExportData(),
+          tileUrls,
+        };
+
+        localStorage.setItem(OFFLINE_PACK_KEY, JSON.stringify(pack));
+        try {
+          const result = await postServiceWorkerMessage({
+            type: 'CACHE_URLS',
+            urls: [...tileUrls, ...pack.streetItems.map(item => item.thumb).filter(Boolean)],
+          });
+          setOfflinePackStatus(`Offline pack saved: ${tileUrls.length} map tiles cached, ${result.cached || 0} assets stored.`);
+        } catch (error) {
+          setOfflinePackStatus(`Offline pack saved locally, but cache sync failed: ${error.message}`);
+        }
+      }
+
+      async function loadOfflinePack(auto = false) {
+        const raw = localStorage.getItem(OFFLINE_PACK_KEY);
+        if (!raw) {
+          setOfflinePackStatus('No offline pack found yet. Save one while online first.');
+          return;
+        }
+
+        try {
+          const pack = JSON.parse(raw);
+          const center = L.latLng(pack.center?.lat ?? map.getCenter().lat, pack.center?.lng ?? map.getCenter().lng);
+          gotoQueryInput.value = pack.gotoQuery || '';
+          syncCoordinateInputs(center.lat, center.lng);
+
+          targetBookmarks = Array.isArray(pack.bookmarks) ? pack.bookmarks : targetBookmarks;
+          renderBookmarks();
+
+          setBaseLayer(namedBaseLayers[pack.baseLayer] || topoMap);
+          reconActive = Boolean(pack.reconActive);
+          xrayActive = Boolean(pack.xrayActive);
+          streetImagesActive = Boolean(pack.streetImagesActive);
+          hdDetailToggle.checked = pack.hdDetail !== false;
+          streetToggle.checked = streetImagesActive;
+          if (pack.streetRadius) streetRadius.value = String(pack.streetRadius);
+
+          btnRecon.classList.toggle('active', reconActive);
+          btnXray.classList.toggle('active', xrayActive);
+
+          conflictsActive = Boolean(pack.conflictsActive);
+          document.getElementById('btn-conflicts').classList.toggle('active', conflictsActive);
+          warLegend.classList.toggle('show', conflictsActive);
+          if (conflictsActive) {
+            loadConflicts();
+            conflictZones.addTo(map);
+            conflictLayer.addTo(map);
+          } else {
+            map.removeLayer(conflictZones);
+            map.removeLayer(conflictLayer);
+          }
+
+          clearXrayStructures();
+          if (pack.structures?.features?.length) {
+            xrayStructures.addData(pack.structures);
+          }
+
+          if (Array.isArray(pack.streetItems) && pack.streetItems.length) {
+            renderStreetImages(pack.streetItems, center);
+            streetPanel.classList.add('show');
+            setStreetStatus(`${pack.streetItems.length} cached street images restored.`);
+          } else {
+            streetPanel.classList.remove('show');
+            clearStreetImages();
+            setStreetStatus('No cached street imagery stored in this pack.');
+          }
+
+          clearPlanningState({preserveAir: false});
+          if (pack.planning) {
+            applyImportedPlanningData(pack.planning, {fit: false});
+          }
+
+          map.setView(center, Number(pack.zoom) || 16);
+          syncOpticsMode();
+          if (xrayActive || hdDetailModeActive()) {
+            refreshXrayStructures(true);
+          }
+          if (streetImagesActive) {
+            refreshStreetImages(true);
+          }
+          if (pack.planning) {
+            refreshPlanningAirOverlay(true);
+            if (planningState.start && (planningState.end || planningState.offroadPoints.length > 1)) {
+              if (navigator.onLine) {
+                recalculatePlanningRoute(true);
+              }
+            }
+          }
+
+          const stamp = pack.savedAt ? new Date(pack.savedAt).toLocaleString() : 'unknown time';
+          setOfflinePackStatus(`${auto ? 'Offline pack restored' : 'Offline pack loaded'} from ${stamp}.`);
+        } catch (error) {
+          setOfflinePackStatus(`Saved pack could not be loaded: ${error.message}`);
+        }
+      }
+
+      offlinePackSaveBtn.addEventListener('click', saveOfflinePack);
+      offlinePackLoadBtn.addEventListener('click', () => loadOfflinePack(false));
+      window.addEventListener('offline', () => {
+        loadOfflinePack(true);
+      });
+      window.addEventListener('online', () => {
+        setOfflinePackStatus('Back online. Live sources restored.');
+        refreshPlanningWeather(true).catch(() => {});
+        refreshPlanningAirOverlay(true);
+        if (planningState.start && (planningState.end || planningState.offroadPoints.length > 1)) {
+          recalculatePlanningRoute(true);
+        }
+      });
+      if (offlinePackExists()) {
+        setOfflinePackStatus('Offline map pack available for this browser.');
+      }
+
+      btnRecon.addEventListener('click', function(){
+        reconActive = !reconActive;
+        if (xrayActive) {
+          xrayActive = false;
+          btnXray.classList.remove('active');
+        }
+        if (reconActive) {
+          ensureReconView(15);
+        }
+        this.classList.toggle('active', reconActive);
+        syncOpticsMode();
+      });
+
+      btnXray.addEventListener('click', function(){
+        xrayActive = !xrayActive;
+        if (xrayActive) {
+          reconActive = true;
+          btnRecon.classList.add('active');
+          ensureReconView(16);
+        }
+        this.classList.toggle('active', xrayActive);
+        syncOpticsMode();
+        if (xrayActive) {
+          refreshXrayStructures(true);
+        }
+      });
+
+      map.on('moveend', function(){
+        syncOpticsMode();
+        if (xrayActive) {
+          refreshXrayStructures();
+        } else if (hdDetailModeActive()) {
+          refreshXrayStructures();
+        }
+        if (streetImagesActive && streetAutoSync.checked) {
+          refreshStreetImages();
+        }
+        if (planningAirOverlay.checked) {
+          refreshPlanningAirOverlay();
         }
       });
 
@@ -606,11 +2939,16 @@
           map.removeLayer(conflictLayer);
           map.removeLayer(conflictZones);
         }
+        setSettingsSummary();
       });
 
       // ══════════════════════════════════════════════════════
       // PRINT & DOWNLOAD MAP
       // ══════════════════════════════════════════════════════
+      window.addEventListener('afterprint', function(){
+        document.body.classList.remove('planning-manifest-mode');
+      });
+
       document.getElementById('btn-print').addEventListener('click', function(){
         window.print();
       });
@@ -673,6 +3011,7 @@
           case 'l': document.getElementById('btn-locate').click(); break;
           case 'g': document.getElementById('btn-goto').click(); break;
           case 'f': document.getElementById('btn-fs').click(); break;
+          case 'r': document.getElementById('btn-recon').click(); break;
           case 'x': document.getElementById('btn-xray').click(); break;
           case 'w': document.getElementById('btn-conflicts').click(); break;
           case 'd': document.getElementById('btn-download').click(); break;
@@ -687,51 +3026,5 @@
     })();
     </script>
 
-    <!-- DELTA RADIO FOOTER -->
-    <div class="radio-footer" id="radio-footer">
-      <div class="rf-left">
-        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
-        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
-        <select class="rf-select" id="rf-station">
-          <option value="">— SELECT FREQ —</option>
-          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
-          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
-          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
-          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
-          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
-          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
-          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
-          <option value="https://stream.infowars.com/live">Infowars Live</option>
-          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
-        </select>
-      </div>
-      <div class="rf-center">
-        <div class="rf-viz" id="rf-viz"></div>
-        <span class="rf-now" id="rf-now">NO SIGNAL</span>
-      </div>
-      <div class="rf-right">
-        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
-        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
-        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
-      </div>
-      <audio id="rf-audio" preload="none"></audio>
-    </div>
-    <script>
-    (function(){
-      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
-      let vizI=null,bars=[],userPaused=false;
-      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
-      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
-      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
-      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
-      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
-      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
-      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
-      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
-      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
-      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
-    })();
-    </script>
   </body>
 </html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Mechanics Blueprints</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <style>
+      .blueprints-wrap{max-width:1180px;margin:18px auto;padding:18px}
+      .blueprints-header{text-align:center;margin-bottom:18px}
+      .blueprints-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+      .blueprint-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+      .blueprint-card img{max-width:100%;height:160px;object-fit:cover;border-radius:6px}
+      .blueprint-meta{margin-top:8px;font-size:.9rem;color:var(--text)}
+      @media(max-width:900px){.blueprints-grid{grid-template-columns:repeat(2,1fr)}}
+      @media(max-width:560px){.blueprints-grid{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="blueprints-wrap">
+        <div class="blueprints-header">
+          <h2>MECHANICS BLUEPRINTS</h2>
+          <p class="tag">Collection of available blueprint images and reference diagrams from uploaded manuals.</p>
+        </div>
+
+        {% if not blueprints %}
+          <div class="mechanics-card">No blueprints available yet. Upload manuals or run the demo data loader.</div>
+        {% else %}
+          <div class="blueprints-grid">
+            {% for b in blueprints %}
+              <a class="blueprint-card" href="/mechanics/{{ b.brand }}/{{ b.model }}/{{ b.year }}">
+                <img src="{{ b.thumb }}" alt="{{ b.title }} blueprint" loading="lazy">
+                <div class="blueprint-meta">{{ b.title }}<br><small>{{ b.brand }} • {{ b.model }} • {{ b.year }}</small></div>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </main>
+  </body>
+</html>

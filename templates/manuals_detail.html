@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Manuals — {{ brand }} {{ model }} {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <div class="title">
+        <h1>MANUALS — {{ brand }} / {{ model }} / {{ year }}</h1>
+        <p class="tag">Indexed manuals and images</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <section class="editor">
+        <div class="output">
+          <h2>Entries</h2>
+          {% if items %}
+            {% for it in items %}
+              <div style="padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)">
+                <h3 style="margin:0 0 8px;color:var(--accent)">{{ it.title }}</h3>
+                <div style="color:var(--text2)">{{ it.description }}</div>
+                {% if it.license %}<div style="margin-top:6px;color:var(--muted)">License: {{ it.license }}</div>{% endif %}
+                {% if it.pdf_path %}
+                  <div style="margin-top:8px"><a href="{{ it.pdf_path }}">Download PDF</a></div>
+                {% endif %}
+                {% if it.image_paths %}
+                  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+                    {% for img in it.image_paths %}
+                      <a href="{{ img }}"><img src="{{ img }}" alt="image" style="max-width:220px;max-height:160px;border:1px solid var(--border);border-radius:4px"/></a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="no-results">No entries found for this brand/model/year.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <aside class="output">
+        <h2>Actions</h2>
+        <p><a href="/admin/manuals">Upload / Import</a></p>
+        <p><a href="/manuals/{{ brand }}">Back to {{ brand }}</a></p>
+      </aside>
+    </main>
+  </body>
+  </html>

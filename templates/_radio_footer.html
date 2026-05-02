@@ -1,0 +1,189 @@
+<div class="radio-footer" id="radio-footer">
+  <div class="rf-left">
+    <button class="rf-btn" id="rf-play" title="Play/Pause" aria-label="Play or pause station">&#x25B6;</button>
+    <button class="rf-btn" id="rf-stop" title="Stop" aria-label="Stop station">&#x25A0;</button>
+    <select class="rf-select" id="rf-station" aria-label="Select radio station">
+      <option value="">-- SELECT FREQ --</option>
+      <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+      <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+      <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+      <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+      <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+      <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+      <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+      <option value="https://stream.infowars.com/live">Infowars Live</option>
+      <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+    </select>
+  </div>
+  <div class="rf-center">
+    <div class="rf-viz" id="rf-viz" aria-hidden="true"></div>
+    <span class="rf-now" id="rf-now">NO SIGNAL</span>
+  </div>
+  <div class="rf-footer">
+    <span class="rf-brand">FUTURE CODE DELTA</span>
+    <nav class="rf-links" aria-label="Footer links">
+      <a href="/manuals">Manuals</a>
+      <a href="/radio">Radio Lab</a>
+      <a href="/download/offline-site">Download</a>
+      <a href="/privacy">Privacy</a>
+    </nav>
+    <span class="rf-note">Authorized uploads only.</span>
+    <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+  </div>
+  <div class="rf-right">
+    <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60" aria-label="Volume">
+    <a href="/radio" class="rf-settings" title="SIGINT Radio Lab" aria-label="Open SIGINT Radio Lab">&#x2699;</a>
+  </div>
+  <audio id="rf-audio" preload="none"></audio>
+</div>
+<script>
+(function(){
+  if (window.__deltaRadioFooterInitialized) return;
+  window.__deltaRadioFooterInitialized = true;
+
+  const root = document.getElementById('radio-footer');
+  if (!root) return;
+
+  const au = root.querySelector('#rf-audio');
+  const sel = root.querySelector('#rf-station');
+  const now = root.querySelector('#rf-now');
+  const viz = root.querySelector('#rf-viz');
+  const vol = root.querySelector('#rf-vol');
+  const playBtn = root.querySelector('#rf-play');
+  const stopBtn = root.querySelector('#rf-stop');
+
+  if (!au || !sel || !now || !viz || !vol || !playBtn || !stopBtn) return;
+
+  let vizInterval = null;
+  const bars = [];
+  let userPaused = false;
+
+  for (let index = 0; index < 12; index += 1) {
+    const bar = document.createElement('div');
+    bar.className = 'rf-bar';
+    viz.appendChild(bar);
+    bars.push(bar);
+  }
+
+  au.volume = Number(vol.value) / 100;
+
+  function saveState() {
+    localStorage.setItem('deltaRadio', JSON.stringify({
+      src: au.src || '',
+      vol: vol.value,
+      playing: !au.paused && !userPaused,
+      station: sel.value,
+      name: now.textContent,
+    }));
+  }
+
+  function startVisualizer() {
+    clearInterval(vizInterval);
+    vizInterval = setInterval(() => {
+      bars.forEach((bar) => {
+        bar.style.height = (2 + Math.random() * 14) + 'px';
+      });
+    }, 120);
+  }
+
+  function stopVisualizer() {
+    clearInterval(vizInterval);
+    bars.forEach((bar) => {
+      bar.style.height = '2px';
+    });
+  }
+
+  stopVisualizer();
+
+  au.addEventListener('pause', () => {
+    if (!userPaused && au.src) {
+      setTimeout(() => {
+        if (!userPaused && au.src) {
+          au.play().catch(() => {});
+        }
+      }, 100);
+    }
+  });
+
+  sel.addEventListener('change', () => {
+    if (!sel.value) {
+      userPaused = true;
+      au.pause();
+      au.src = '';
+      now.textContent = 'NO SIGNAL';
+      stopVisualizer();
+      saveState();
+      return;
+    }
+    userPaused = false;
+    au.src = sel.value;
+    au.play().catch(() => {});
+    now.textContent = sel.options[sel.selectedIndex].text;
+    startVisualizer();
+    saveState();
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (!au.src) return;
+    if (au.paused) {
+      userPaused = false;
+      au.play().catch(() => {});
+      startVisualizer();
+    } else {
+      userPaused = true;
+      au.pause();
+      stopVisualizer();
+    }
+    saveState();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    userPaused = true;
+    au.pause();
+    au.src = '';
+    sel.value = '';
+    now.textContent = 'NO SIGNAL';
+    stopVisualizer();
+    saveState();
+  });
+
+  vol.addEventListener('input', () => {
+    au.volume = Number(vol.value) / 100;
+    saveState();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && au.src && !userPaused) {
+      au.play().catch(() => {});
+      startVisualizer();
+    }
+  });
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('deltaRadio'));
+    if (saved && saved.src && saved.playing) {
+      sel.value = saved.station || '';
+      vol.value = saved.vol || 60;
+      au.volume = (saved.vol || 60) / 100;
+      au.src = saved.src;
+      userPaused = false;
+      au.play().then(() => {
+        now.textContent = saved.name || sel.options[sel.selectedIndex]?.text || 'RECEIVING';
+        startVisualizer();
+      }).catch(() => {
+        now.textContent = saved.name || 'SIGNAL READY (tap play)';
+        sel.value = saved.station || '';
+      });
+    } else if (saved) {
+      sel.value = saved.station || '';
+      vol.value = saved.vol || 60;
+      au.volume = (saved.vol || 60) / 100;
+      if (saved.station) {
+        au.src = saved.src;
+        now.textContent = saved.name || 'PAUSED';
+        userPaused = true;
+      }
+    }
+  } catch (error) {}
+})();
+</script>

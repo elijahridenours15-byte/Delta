@@ -1,0 +1,21 @@
+brand,model,year,query,limit,download
+Toyota,Corolla,1996,"Toyota Corolla 1996",3,0
+Toyota,Camry,2010,"Toyota Camry 2010",3,0
+Honda,Civic,1998,"Honda Civic 1998",3,0
+Honda,Accord,2005,"Honda Accord 2005",3,0
+Ford,Mustang,1965,"Ford Mustang 1965",3,0
+Ford,F-150,2015,"Ford F-150 2015",3,0
+Chevrolet,Impala,1967,"Chevrolet Impala 1967",3,0
+Chevrolet,Silverado,2018,"Chevrolet Silverado 2018",3,0
+BMW,3 Series,2012,"BMW 3 Series 2012",3,0
+Mercedes-Benz,C-Class,2015,"Mercedes C-Class 2015",3,0
+Volkswagen,Beetle,1967,"Volkswagen Beetle 1967",3,0
+Nissan,Altima,2010,"Nissan Altima 2010",3,0
+Subaru,Impreza,2002,"Subaru Impreza 2002",3,0
+Mazda,MX-5,1995,"Mazda MX-5 1995",3,0
+Audi,A4,2010,"Audi A4 2010",3,0
+Hyundai,Elantra,2015,"Hyundai Elantra 2015",3,0
+Kia,Rio,2016,"Kia Rio 2016",3,0
+Volvo,240,1989,"Volvo 240 1989",3,0
+Porsche,911,1990,"Porsche 911 1990",3,0
+Lexus,IS,2011,"Lexus IS 2011",3,0

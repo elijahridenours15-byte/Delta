@@ -1,9 +1,12 @@
-#!/usr/bin/env python3
+
+
+import os
+# --- Flask app and manual_store initialization (must be first) ---
 from flask import Flask, render_template, request, jsonify
 import tempfile
 import shutil
-import os
 import subprocess
+import json
 import uuid
 import hashlib
 import base64
@@ -13,8 +16,223 @@ from agent import generate_with_llm
 from flask import send_file
 import io
 import zipfile
+from werkzeug.utils import secure_filename
+from manual_store import ManualStore
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+# Initialize manual store (SQLite + storage dirs)
+manual_store = ManualStore(APP_ROOT)
+
+# ── Journal (Scripture Tab) ─────────────────────────────────────────
+journal_db_path = os.path.join(APP_ROOT, 'generated', 'journal.db')
+os.makedirs(os.path.dirname(journal_db_path), exist_ok=True)
+
+def _init_journal_db():
+    import sqlite3
+    conn = sqlite3.connect(journal_db_path)
+    cur = conn.cursor()
+    cur.execute('''CREATE TABLE IF NOT EXISTS journal (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        entry TEXT NOT NULL,
+        created TEXT NOT NULL
+    )''')
+    conn.commit()
+    conn.close()
+_init_journal_db()
+
+@app.route('/api/journal', methods=['GET'])
+def api_journal():
+    import sqlite3
+    conn = sqlite3.connect(journal_db_path)
+    cur = conn.cursor()
+    cur.execute('SELECT entry, created FROM journal ORDER BY created DESC')
+    rows = [{'entry': r[0], 'created': r[1]} for r in cur.fetchall()]
+    conn.close()
+    return jsonify({'ok': True, 'entries': rows})
+
+@app.route('/api/journal/add', methods=['POST'])
+def api_journal_add():
+    admin_token = os.environ.get('ADMIN_TOKEN')
+    provided = request.form.get('admin_token') or request.headers.get('X-Admin-Token')
+    if admin_token and provided != admin_token:
+        return jsonify({'ok': False, 'error': 'admin token required'}), 403
+    entry = (request.form.get('entry') or '').strip()
+    if not entry:
+        return jsonify({'ok': False, 'error': 'Entry required'}), 400
+    import sqlite3
+    from datetime import datetime
+    conn = sqlite3.connect(journal_db_path)
+    cur = conn.cursor()
+    cur.execute('INSERT INTO journal (entry, created) VALUES (?, ?)', (entry, datetime.utcnow().isoformat()+'Z'))
+    conn.commit()
+    conn.close()
+    return jsonify({'ok': True})
+# --- Flask app and manual_store initialization (must be first) ---
+from flask import Flask, render_template, request, jsonify
+import tempfile
+import shutil
+import os
+import subprocess
+import json
+import uuid
+import hashlib
+import base64
+import requests as http_requests
+from agent.agent import run_instruction
+from agent import generate_with_llm
+from flask import send_file
+import io
+import zipfile
+from werkzeug.utils import secure_filename
+from manual_store import ManualStore
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+# Initialize manual store (SQLite + storage dirs)
+manual_store = ManualStore(APP_ROOT)
+
+# Debug route: dump all brands/models/years
+@app.route('/mechanics/debug')
+def mechanics_debug():
+    brands = manual_store.list_brands()
+    models_by_brand = {b: manual_store.list_models(b) for b in brands}
+    years_by_brand_model = {}
+    for b in brands:
+        for m in models_by_brand[b]:
+            years_by_brand_model[(b, m)] = manual_store.list_years(b, m)
+    return {
+        'brands': brands,
+        'models_by_brand': models_by_brand,
+        'years_by_brand_model': years_by_brand_model
+    }
+# Mechanics browser: all makes/models/years with links
+@app.route('/mechanics/browser')
+def mechanics_browser():
+    brands = manual_store.list_brands()
+    models_by_brand = {b: manual_store.list_models(b) for b in brands}
+    years_by_brand_model = {}
+    for b in brands:
+        for m in models_by_brand[b]:
+            years_by_brand_model[(b, m)] = manual_store.list_years(b, m)
+    return render_template(
+        'mechanics_browser.html',
+        brands=brands,
+        models_by_brand=models_by_brand,
+        years_by_brand_model=years_by_brand_model
+    )
+
+
+@app.route('/mechanics/blueprints')
+def mechanics_blueprints():
+    # List available blueprint images from manuals and show first image as thumbnail
+    items = manual_store.search_manuals()
+    blueprints = []
+    for it in items:
+        imgs = it.get('image_paths', [])
+        if not imgs:
+            continue
+        blueprints.append({
+            'brand': it.get('brand'),
+            'model': it.get('model'),
+            'year': it.get('year'),
+            'title': it.get('title') or f"{it.get('brand')} {it.get('model')} {it.get('year')}",
+            'thumb': imgs[0],
+            'id': it.get('id')
+        })
+    return render_template('mechanics_blueprints.html', blueprints=blueprints)
+
+# Mechanics detail: professional blueprint/parts view
+@app.route('/mechanics/<brand>/<model>/<year>')
+def mechanics_blueprint(brand, model, year):
+    items = manual_store.search_manuals(brand=brand, model=model, year=year)
+    # For demo: show first image as blueprint, rest as gallery
+    blueprint_img = None
+    gallery_imgs = []
+    if items:
+        for it in items:
+            imgs = it.get('image_paths', [])
+            if imgs:
+                blueprint_img = imgs[0]
+                gallery_imgs = imgs[1:]
+                break
+    return render_template(
+        'mechanics_blueprint.html',
+        brand=brand, model=model, year=year,
+        blueprint_img=blueprint_img, gallery_imgs=gallery_imgs, items=items
+    )
+#!/usr/bin/env python3
+from flask import Flask, render_template, request, jsonify
+import tempfile
+import shutil
+import os
+import subprocess
+import json
+import uuid
+import hashlib
+import base64
+import requests as http_requests
+from agent.agent import run_instruction
+from agent import generate_with_llm
+from flask import send_file
+import io
+import zipfile
+from werkzeug.utils import secure_filename
+from manual_store import ManualStore
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+# Initialize manual store (SQLite + storage dirs)
+manual_store = ManualStore(APP_ROOT)
+OFFLINE_BUNDLE_ROOT = 'delta-coding-offline'
+OFFLINE_BUNDLE_ITEMS = (
+    'run.py',
+    'requirements.txt',
+    'Dockerfile',
+    'README.md',
+    'LICENSE',
+    'agent',
+    'static',
+    'templates',
+    'java',
+)
+OPTIONAL_OFFLINE_BUNDLE_ITEMS = ('vendor',)
+OFFLINE_BUNDLE_SKIP = {'.DS_Store', '__pycache__', '.pytest_cache'}
+PWA_HEAD_INJECTION = """
+    <meta name=\"theme-color\" content=\"#1a1f16\" />
+    <link rel=\"manifest\" href=\"/site.webmanifest\" />
+    <script defer src=\"/static/pwa-register.js\"></script>
+""".strip()
+
+CSP_POLICY = "; ".join((
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://unpkg.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    "img-src 'self' data: blob: https:",
+    "media-src 'self' blob: data: https:",
+    "connect-src 'self' https:",
+    "frame-src 'self' https:",
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    "upgrade-insecure-requests",
+    "block-all-mixed-content",
+))
+
+SECURITY_HEADERS = {
+    'Content-Security-Policy': CSP_POLICY,
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'accelerometer=(), autoplay=(self), browsing-topics=(), camera=(self), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Resource-Policy': 'same-site',
+}
 
 # In-memory store for shared code snippets (use DB in production)
 _shared_snippets = {}
@@ -26,6 +244,119 @@ def _which(candidates):
             return p
     return candidates[0]
 
+
+def _generated_root():
+    configured_root = os.environ.get('DELTA_GENERATED_DIR')
+    base_dir = configured_root or os.path.join(APP_ROOT, 'generated')
+    os.makedirs(base_dir, exist_ok=True)
+    return base_dir
+
+
+def _write_bundle_path(zf, source_path, arcname_root):
+        if os.path.isfile(source_path):
+                zf.write(source_path, arcname_root)
+                return
+
+        for root, dirs, files in os.walk(source_path):
+                dirs[:] = [name for name in sorted(dirs) if name not in OFFLINE_BUNDLE_SKIP]
+                for file_name in sorted(files):
+                        if file_name in OFFLINE_BUNDLE_SKIP:
+                                continue
+                        abs_path = os.path.join(root, file_name)
+                        rel_path = os.path.relpath(abs_path, source_path)
+                        zf.write(abs_path, os.path.join(arcname_root, rel_path))
+
+
+def _offline_bundle_readme(has_vendor):
+        vendor_note = (
+                'Vendored Python packages are included in this bundle, so the site can start without downloading dependencies.\n'
+                'The launcher scripts automatically place the bundled vendor tree on PYTHONPATH.\n'
+                if has_vendor else
+                'Vendored Python packages were not present when this bundle was created.\n'
+                'If you truly need first-run offline support, create the bundle from a deployment that contains a vendor directory.\n'
+        )
+        return (
+                'DELTA CODING OFFLINE BUNDLE\n'
+                '==========================\n\n'
+                'This archive contains the runnable Delta Coding website so it can be launched locally.\n\n'
+                f'{vendor_note}\n'
+                'Quick start (macOS / Linux):\n'
+                '1. Extract the zip.\n'
+                '2. Open a terminal in the extracted folder.\n'
+                '3. If needed, make the launcher executable: chmod +x start_delta.command\n'
+                '4. Run ./start_delta.command\n\n'
+                'Quick start (Windows):\n'
+                '1. Extract the zip.\n'
+                '2. Double-click start_delta.bat or run it from Command Prompt.\n\n'
+                'Manual start:\n'
+                '1. Open a terminal in the extracted folder.\n'
+                '2. If vendor/ exists, run with PYTHONPATH=vendor python run.py\n'
+                '3. Otherwise install requirements first, then run python run.py\n\n'
+                'Offline behavior notes:\n'
+                '- The local site shell, templates, editors, and bundled pages run locally.\n'
+                '- Internet-backed features such as remote AI calls, live CVE lookups, public map tiles, geocoding, street imagery, and external intelligence feeds still depend on network availability unless you replace them with local data sources.\n'
+                '- The map and recon UI will still open offline, but external map and imagery providers may show limited or cached data only.\n'
+        )
+
+
+def _offline_bundle_launcher_sh():
+        return """#!/bin/sh
+set -e
+cd "$(dirname "$0")"
+
+PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python)}"
+if [ -z "$PYTHON_BIN" ]; then
+    echo "Python 3 is required to launch Delta Coding offline."
+    exit 1
+fi
+
+if [ -d "vendor" ]; then
+    export PYTHONPATH="$PWD/vendor${PYTHONPATH:+:$PYTHONPATH}"
+else
+    echo "No bundled vendor tree found. Installing requirements requires internet access."
+    "$PYTHON_BIN" -m pip install -r requirements.txt
+fi
+
+OPEN_BROWSER=1 "$PYTHON_BIN" run.py
+"""
+
+
+def _offline_bundle_launcher_bat():
+        return """@echo off
+setlocal
+cd /d "%~dp0"
+
+set "PYTHON_BIN=python"
+where py >nul 2>nul && set "PYTHON_BIN=py -3"
+
+if exist vendor (
+    set "PYTHONPATH=%CD%\vendor;%PYTHONPATH%"
+) else (
+    echo No bundled vendor tree found. Installing requirements requires internet access.
+    %PYTHON_BIN% -m pip install -r requirements.txt
+)
+
+set OPEN_BROWSER=1
+%PYTHON_BIN% run.py
+endlocal
+"""
+
+
+@app.after_request
+def apply_security_headers(response):
+    for header_name, header_value in SECURITY_HEADERS.items():
+        response.headers[header_name] = header_value
+    if request.is_secure or request.headers.get('X-Forwarded-Proto', '').lower() == 'https':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000'
+
+    if response.mimetype == 'text/html' and response.status_code == 200 and not response.direct_passthrough:
+        html = response.get_data(as_text=True)
+        if '/site.webmanifest' not in html and '</head>' in html:
+            html = html.replace('</head>', f'    {PWA_HEAD_INJECTION}\n  </head>', 1)
+            response.set_data(html)
+            response.content_length = len(response.get_data())
+    return response
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -34,6 +365,21 @@ def index():
 @app.route('/healthz')
 def healthz():
     return jsonify({'ok': True, 'service': 'delta-coding'})
+
+
+@app.route('/sw.js')
+def service_worker():
+    response = send_file(os.path.join(APP_ROOT, 'static', 'sw.js'), mimetype='application/javascript')
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
+
+@app.route('/site.webmanifest')
+def site_manifest():
+    response = send_file(os.path.join(APP_ROOT, 'static', 'site.webmanifest'), mimetype='application/manifest+json')
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
 
 @app.route('/run', methods=['POST'])
 def run_code():
@@ -134,7 +480,7 @@ def agent_route():
             if llm_resp.get('ok') and llm_resp.get('text'):
                 final_instruction = llm_resp['text']
 
-        base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+        base_dir = _generated_root()
         resp = run_instruction(final_instruction, project_name=project_name, execute=execute, base_dir=base_dir)
         # include llm meta if present
         if use_llm:
@@ -146,7 +492,7 @@ def agent_route():
 
 @app.route('/projects', methods=['GET'])
 def list_projects():
-    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    base_dir = _generated_root()
     if not os.path.isdir(base_dir):
         return jsonify({'projects': []})
     projects = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
@@ -160,7 +506,7 @@ def delete_projects():
     names = data.get('projects', [])
     if not names:
         return jsonify({'ok': False, 'error': 'No projects specified'}), 400
-    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    base_dir = _generated_root()
     deleted = []
     errors = []
     for name in names:
@@ -177,7 +523,7 @@ def delete_projects():
 
 @app.route('/download/<project_name>', methods=['GET'])
 def download_project(project_name):
-    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    base_dir = _generated_root()
     project_dir = os.path.join(base_dir, project_name)
     if not os.path.isdir(project_dir):
         return jsonify({'error': 'project not found'}), 404
@@ -200,7 +546,7 @@ def download_multiple():
     names = data.get('projects', [])
     if not names:
         return jsonify({'ok': False, 'error': 'No projects specified'}), 400
-    base_dir = os.path.join(os.path.dirname(__file__), 'generated')
+    base_dir = _generated_root()
     mem = io.BytesIO()
     with zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED) as zf:
         for name in names:
@@ -216,6 +562,28 @@ def download_multiple():
     return send_file(mem, mimetype='application/zip', as_attachment=True, download_name='delta_projects.zip')
 
 
+@app.route('/download/offline-site', methods=['GET'])
+def download_offline_site():
+    """Download the runnable site as an offline bundle zip."""
+    bundle_items = list(OFFLINE_BUNDLE_ITEMS)
+    optional_items = [name for name in OPTIONAL_OFFLINE_BUNDLE_ITEMS if os.path.exists(os.path.join(APP_ROOT, name))]
+    has_vendor = 'vendor' in optional_items
+
+    mem = io.BytesIO()
+    with zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for relative_path in (*bundle_items, *optional_items):
+            abs_path = os.path.join(APP_ROOT, relative_path)
+            if os.path.exists(abs_path):
+                _write_bundle_path(zf, abs_path, os.path.join(OFFLINE_BUNDLE_ROOT, relative_path))
+
+        zf.writestr(f'{OFFLINE_BUNDLE_ROOT}/README_OFFLINE.txt', _offline_bundle_readme(has_vendor))
+        zf.writestr(f'{OFFLINE_BUNDLE_ROOT}/start_delta.command', _offline_bundle_launcher_sh())
+        zf.writestr(f'{OFFLINE_BUNDLE_ROOT}/start_delta.bat', _offline_bundle_launcher_bat())
+
+    mem.seek(0)
+    return send_file(mem, mimetype='application/zip', as_attachment=True, download_name='delta_coding_offline_bundle.zip')
+
+
 # ── Cyber Security page ──────────────────────────────────────────────
 
 NVD_API = 'https://services.nvd.nist.gov/rest/json/cves/2.0'
@@ -223,6 +591,22 @@ NVD_API = 'https://services.nvd.nist.gov/rest/json/cves/2.0'
 # ── AI providers (all free) ──────────────────────────────────────────
 POLLINATIONS_URL = 'https://text.pollinations.ai/openai'
 HF_ROUTER_URL = 'https://router.huggingface.co/v1/chat/completions'
+FREE_AI_MODELS = [
+    {'id': 'openai', 'name': 'GPT-OSS 20B', 'desc': 'Key-free reasoning model served through Delta backend', 'provider': 'pollinations'},
+    {'id': 'openai-fast', 'name': 'GPT-OSS 20B Fast', 'desc': 'Key-free faster mode for quicker responses', 'provider': 'pollinations'},
+]
+OPTIONAL_HF_MODELS = [
+    {'id': 'mistralai/Mistral-7B-Instruct-v0.3', 'name': 'Mistral 7B (HF)', 'desc': 'Available when HF_API_TOKEN is configured', 'provider': 'huggingface'},
+    {'id': 'HuggingFaceH4/zephyr-7b-beta', 'name': 'Zephyr 7B (HF)', 'desc': 'Available when HF_API_TOKEN is configured', 'provider': 'huggingface'},
+    {'id': 'microsoft/Phi-3-mini-4k-instruct', 'name': 'Phi-3 Mini (HF)', 'desc': 'Available when HF_API_TOKEN is configured', 'provider': 'huggingface'},
+]
+
+
+def _available_ai_models():
+    models = list(FREE_AI_MODELS)
+    if os.environ.get('HF_API_TOKEN'):
+        models.extend(OPTIONAL_HF_MODELS)
+    return models
 
 
 @app.route('/cyber')
@@ -341,19 +725,26 @@ def api_ai():
     return _call_pollinations(model, messages, max_tokens, temperature)
 
 
+def _pollinations_chat(model, messages, max_tokens, temperature):
+    resp = http_requests.post(POLLINATIONS_URL, json={
+        'model': model,
+        'messages': messages,
+        'max_tokens': max_tokens,
+        'temperature': temperature,
+    }, timeout=45)
+    resp.raise_for_status()
+    result = resp.json()
+    text = result.get('choices', [{}])[0].get('message', {}).get('content', '')
+    used_model = result.get('model', model)
+    return {'text': text, 'model': used_model}
+
+
 def _call_pollinations(model, messages, max_tokens, temperature):
     """Call Pollinations.ai — completely free, no API key needed."""
     try:
-        resp = http_requests.post(POLLINATIONS_URL, json={
-            'model': model,
-            'messages': messages,
-            'max_tokens': max_tokens,
-            'temperature': temperature,
-        }, timeout=45)
-        resp.raise_for_status()
-        result = resp.json()
-        text = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-        used_model = result.get('model', model)
+        result = _pollinations_chat(model, messages, max_tokens, temperature)
+        text = result['text']
+        used_model = result['model']
         return jsonify({'ok': True, 'text': text, 'model': used_model, 'provider': 'pollinations'})
     except Exception as exc:
         return jsonify({'ok': False, 'error': str(exc)}), 502
@@ -390,14 +781,30 @@ def _call_hf(model, messages, max_tokens, temperature):
 @app.route('/api/ai/models')
 def api_ai_models():
     """Return available free models grouped by provider."""
-    models = [
-        {'id': 'openai', 'name': 'GPT-OSS 20B', 'desc': 'Free reasoning model, no API key needed', 'provider': 'pollinations'},
-        {'id': 'openai-fast', 'name': 'GPT-OSS 20B Fast', 'desc': 'Same model, optimized for speed', 'provider': 'pollinations'},
-        {'id': 'mistralai/Mistral-7B-Instruct-v0.3', 'name': 'Mistral 7B (HF)', 'desc': 'Requires free HF token', 'provider': 'huggingface'},
-        {'id': 'HuggingFaceH4/zephyr-7b-beta', 'name': 'Zephyr 7B (HF)', 'desc': 'Requires free HF token', 'provider': 'huggingface'},
-        {'id': 'microsoft/Phi-3-mini-4k-instruct', 'name': 'Phi-3 Mini (HF)', 'desc': 'Requires free HF token', 'provider': 'huggingface'},
+    return jsonify({'ok': True, 'models': _available_ai_models()})
+
+
+@app.route('/api/truth/summary', methods=['POST'])
+def api_truth_summary():
+    """Generate a Truth-page summary through the site backend using a key-free model."""
+    data = request.get_json(force=True)
+    query = (data.get('query') or '').strip()
+    if not query:
+        return jsonify({'ok': False, 'error': 'query is required'}), 400
+
+    messages = [
+        {
+            'role': 'system',
+            'content': 'You are a biblical scholar and historian. Answer with 3-4 factual, reverent paragraphs grounded in scripture references and public historical evidence.',
+        },
+        {'role': 'user', 'content': query},
     ]
-    return jsonify({'ok': True, 'models': models})
+
+    try:
+        result = _pollinations_chat('openai-fast', messages, 500, 0.4)
+        return jsonify({'ok': True, 'text': result['text'], 'model': result['model'], 'provider': 'pollinations'})
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 502
 
 
 # ── Code Sharing ──────────────────────────────────────────────────────
@@ -408,11 +815,21 @@ def share_code():
     data = request.get_json(force=True)
     code = data.get('code', '')
     language = data.get('language', 'python')
-    if not code.strip():
+    css = data.get('css', '')
+    js = data.get('js', '')
+    if not any(part.strip() for part in (code, css, js) if isinstance(part, str)):
         return jsonify({'ok': False, 'error': 'No code to share'}), 400
-    share_id = hashlib.sha256(code.encode()).hexdigest()[:10]
-    _shared_snippets[share_id] = {'code': code, 'language': language}
-    return jsonify({'ok': True, 'id': share_id})
+
+    snippet = {'code': code, 'language': language}
+    if language == 'web' or css:
+        snippet['css'] = css
+    if language == 'web' or js:
+        snippet['js'] = js
+
+    share_seed = json.dumps(snippet, sort_keys=True)
+    share_id = hashlib.sha256(share_seed.encode()).hexdigest()[:10]
+    _shared_snippets[share_id] = snippet
+    return jsonify({'ok': True, 'id': share_id, 'share_url': f'/share/{share_id}'})
 
 
 @app.route('/api/share/<share_id>')
@@ -541,11 +958,103 @@ def map_page():
     return render_template('map.html')
 
 
+@app.route('/survival')
+def survival_page():
+    return render_template('survival.html')
+
+
+@app.route('/mechanics')
+def mechanics_page():
+    items = manual_store.search_manuals()
+    brands = manual_store.list_brands()
+    models_by_brand = {brand: manual_store.list_models(brand) for brand in brands}
+
+    indexed_vehicles = 0
+    featured_brands = []
+    for brand in brands:
+        models = models_by_brand.get(brand, [])
+        years_count = 0
+        for model in models:
+            years_count += len(manual_store.list_years(brand, model))
+        indexed_vehicles += years_count
+        featured_brands.append({
+            'brand': brand,
+            'models': len(models),
+            'years': years_count,
+        })
+
+    featured_brands.sort(key=lambda entry: (-entry['years'], -entry['models'], entry['brand']))
+
+    blueprint_entries = []
+    recent_entries = []
+    for item in items:
+        brand = item.get('brand') or 'Unknown'
+        model = item.get('model') or 'Platform'
+        year = item.get('year') or 'Field'
+        href = f'/mechanics/{brand}/{model}/{year}'
+        images = item.get('image_paths') or []
+
+        if images:
+            blueprint_entries.append({
+                'title': item.get('title') or f'{brand} {model} {year}',
+                'brand': brand,
+                'model': model,
+                'year': year,
+                'thumb': images[0],
+                'href': href,
+            })
+
+        recent_entries.append({
+            'title': item.get('title') or f'{brand} {model} {year}',
+            'brand': brand,
+            'model': model,
+            'year': year,
+            'description': item.get('description') or 'Indexed service entry.',
+            'image_count': len(images),
+            'has_pdf': bool(item.get('pdf_path')),
+            'href': href,
+        })
+
+    mechanics_stats = {
+        'brands': len(brands),
+        'models': sum(len(models) for models in models_by_brand.values()),
+        'vehicles': indexed_vehicles,
+        'entries': len(items),
+        'blueprints': len(blueprint_entries),
+    }
+
+    return render_template(
+        'mechanics.html',
+        mechanics_stats=mechanics_stats,
+        featured_brands=featured_brands[:6],
+        recent_entries=recent_entries[:6],
+        featured_blueprints=blueprint_entries[:4],
+    )
+
+
+# Mechanics browser: all makes/models/years with links
+@app.route('/mechanics/browser')
+def mechanics_browser():
+    brands = manual_store.list_brands()
+    models_by_brand = {b: manual_store.list_models(b) for b in brands}
+    years_by_brand_model = {}
+    for b in brands:
+        for m in models_by_brand[b]:
+            years_by_brand_model[(b, m)] = manual_store.list_years(b, m)
+    return render_template(
+        'mechanics_browser.html',
+        brands=brands,
+        models_by_brand=models_by_brand,
+        years_by_brand_model=years_by_brand_model
+    )
+
+
 # ── Scripture Intel ──────────────────────────────────────────────────
 
 @app.route('/bible')
 def bible_page():
-    return render_template('bible.html')
+    admin_token = os.environ.get('ADMIN_TOKEN')
+    return render_template('bible.html', admin_token_set=bool(admin_token), admin_token=admin_token or '')
 
 
 @app.route('/api/bible')
@@ -575,6 +1084,167 @@ def drone_page():
 @app.route('/radio')
 def radio_page():
     return render_template('radio.html')
+
+
+@app.route('/manuals')
+def manuals_page():
+    """Manuals index - placeholders only. Actual manuals must be uploaded by authorized users."""
+    brands = manual_store.list_brands()
+    return render_template('manuals.html', brands=brands)
+
+
+@app.route('/admin/manuals')
+def admin_manuals():
+    brands = manual_store.list_brands()
+    return render_template('admin_manuals.html', brands=brands, admin_token_set=bool(os.environ.get('ADMIN_TOKEN')))
+
+
+@app.route('/api/manuals/upload', methods=['POST'])
+def api_manuals_upload():
+    admin_token = os.environ.get('ADMIN_TOKEN')
+    provided = request.headers.get('X-Admin-Token') or request.form.get('admin_token')
+    if admin_token and provided != admin_token:
+        return jsonify({'ok': False, 'error': 'admin token required'}), 403
+
+    brand = (request.form.get('brand') or '').strip()
+    model = (request.form.get('model') or '').strip()
+    year = (request.form.get('year') or '').strip()
+    title = (request.form.get('title') or '').strip() or f"{brand} {model} {year}"
+    description = (request.form.get('description') or '').strip()
+    license = (request.form.get('license') or '').strip()
+    source_url = (request.form.get('source_url') or '').strip()
+
+    if not brand:
+        return jsonify({'ok': False, 'error': 'brand required'}), 400
+
+    pdf = request.files.get('pdf')
+    images = request.files.getlist('images')
+
+    mid = uuid.uuid4().hex
+    upload_dir = os.path.join(APP_ROOT, 'static', 'manuals', 'uploads', mid)
+    image_dir = os.path.join(APP_ROOT, 'static', 'manuals', 'images', mid)
+    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(image_dir, exist_ok=True)
+
+    pdf_rel = None
+    if pdf and pdf.filename:
+        fname = secure_filename(pdf.filename)
+        save_path = os.path.join(upload_dir, fname)
+        pdf.save(save_path)
+        pdf_rel = f'/static/manuals/uploads/{mid}/{fname}'
+
+    image_rels = []
+    for img in images:
+        if img and img.filename:
+            iname = secure_filename(img.filename)
+            save_path = os.path.join(image_dir, iname)
+            img.save(save_path)
+            image_rels.append(f'/static/manuals/images/{mid}/{iname}')
+
+    new_id = manual_store.add_manual(brand=brand, model=model, year=year, title=title,
+                                     description=description, license=license,
+                                     source_url=source_url, pdf_path=pdf_rel,
+                                     image_paths=image_rels, mid=mid)
+    return jsonify({'ok': True, 'id': new_id, 'pdf': pdf_rel, 'images': image_rels})
+
+
+@app.route('/api/manuals/search')
+def api_manuals_search():
+    brand = request.args.get('brand')
+    model = request.args.get('model')
+    year = request.args.get('year')
+    q = request.args.get('q')
+    results = manual_store.search_manuals(brand=brand, model=model, year=year, q=q)
+    return jsonify({'ok': True, 'manuals': results})
+
+
+@app.route('/manuals/<brand>')
+def manuals_brand(brand):
+    models = manual_store.list_models(brand)
+    models_years = {m: manual_store.list_years(brand, m) for m in models}
+    return render_template('manuals_brand.html', brand=brand, models=models, models_years=models_years)
+
+
+@app.route('/manuals/<brand>/<model>/<year>')
+def manuals_detail(brand, model, year):
+    items = manual_store.search_manuals(brand=brand, model=model, year=year)
+    return render_template('manuals_detail.html', brand=brand, model=model, year=year, items=items)
+
+
+@app.route('/api/manuals/import_wikimedia', methods=['POST'])
+def api_manuals_import_wikimedia():
+    admin_token = os.environ.get('ADMIN_TOKEN')
+    provided = request.headers.get('X-Admin-Token') or (request.json or {}).get('admin_token')
+    if admin_token and provided != admin_token:
+        return jsonify({'ok': False, 'error': 'admin token required'}), 403
+
+    data = request.get_json(force=True)
+    brand = (data.get('brand') or '').strip()
+    model = (data.get('model') or '').strip()
+    year = (data.get('year') or '').strip()
+    query = (data.get('query') or f"{brand} {model}").strip()
+    limit = min(int(data.get('limit', 6)), 20)
+    download = bool(data.get('download', False))
+
+    if not query:
+        return jsonify({'ok': False, 'error': 'query required'}), 400
+
+    params = {
+        'action': 'query',
+        'format': 'json',
+        'generator': 'search',
+        'gsrsearch': query,
+        'gsrlimit': limit,
+        'prop': 'imageinfo',
+        'iiprop': 'url|extmetadata',
+    }
+    try:
+        resp = http_requests.get('https://commons.wikimedia.org/w/api.php', params=params, timeout=15)
+        resp.raise_for_status()
+        body = resp.json()
+        pages = body.get('query', {}).get('pages', {})
+        candidates = []
+        for pid, p in pages.items():
+            title = p.get('title')
+            ii = p.get('imageinfo', [])
+            if not ii:
+                continue
+            info = ii[0]
+            url = info.get('url')
+            ext = info.get('extmetadata', {}) or {}
+            license_short = (ext.get('LicenseShortName') or '').strip()
+            usage = (ext.get('UsageTerms') or '').strip()
+            # Collect candidate info
+            candidates.append({'title': title, 'url': url, 'license': license_short, 'usage': usage, 'page': f'https://commons.wikimedia.org/wiki/{title.replace(" ", "_")}'})
+
+        # If requested, download only public-domain / CC0 images and create a manual entry
+        downloaded = []
+        if download and brand:
+            mid = uuid.uuid4().hex
+            image_dir = os.path.join(APP_ROOT, 'static', 'manuals', 'images', mid)
+            os.makedirs(image_dir, exist_ok=True)
+            for c in candidates:
+                lic = (c.get('license') or '').lower()
+                if 'public domain' in lic or 'cc0' in lic or lic == 'pd':
+                    try:
+                        r = http_requests.get(c['url'], timeout=20, stream=True)
+                        r.raise_for_status()
+                        fname = os.path.basename(c['url'].split('?')[0])
+                        save_path = os.path.join(image_dir, secure_filename(fname))
+                        with open(save_path, 'wb') as fh:
+                            for chunk in r.iter_content(8192):
+                                fh.write(chunk)
+                        downloaded.append(f'/static/manuals/images/{mid}/{os.path.basename(save_path)}')
+                    except Exception:
+                        continue
+            # Create a stub manual entry to hold these images
+            title = f"{brand} {model} {year} (Wikimedia images)"
+            mid_saved = manual_store.add_manual(brand=brand, model=model, year=year, title=title, description='Imported from Wikimedia Commons', license='various', source_url=None, pdf_path=None, image_paths=downloaded, mid=mid)
+            return jsonify({'ok': True, 'imported': len(downloaded), 'images': downloaded, 'id': mid_saved})
+
+        return jsonify({'ok': True, 'candidates': candidates})
+    except Exception as exc:
+        return jsonify({'ok': False, 'error': str(exc)}), 502
 
 
 # ── The Truth (hidden page — cross in logo) ──────────────────────────

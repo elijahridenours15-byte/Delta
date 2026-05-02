@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Drone Command</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
     <style>
       .container{display:block;height:auto}
       .drone-wrap{max-width:1200px;margin:0 auto;padding:16px}
@@ -17,11 +17,17 @@
         .ctrl-section{flex:1;min-width:200px}
       }
       @media(max-width:600px){
-        .drone-wrap{padding:10px}
-        .conn-panel{padding:10px;gap:8px}
+        .drone-wrap{padding:10px 12px 18px}
+        .drone-header h2{font-size:1.12rem;letter-spacing:1.4px}
+        .drone-header p{font-size:.74rem;line-height:1.5}
+        .conn-panel{padding:10px;gap:8px;flex-direction:column;align-items:stretch}
         .conn-card{min-width:100%}
+        .conn-btns{flex-direction:column}
+        .conn-btn{min-height:42px;display:flex;align-items:center;justify-content:center}
         .cam-feed{min-height:260px}
         .cam-panel{min-height:260px}
+        .cam-bottom{flex-wrap:wrap}
+        .cam-btn{min-height:36px}
         .feeds-tabs{gap:3px}
         .feeds-tab{font-size:.6rem;padding:5px 8px}
         .feeds-grid{grid-template-columns:1fr}
@@ -32,21 +38,28 @@
         .cctv-cam-grid{grid-template-columns:1fr}
         .mil-feed-grid{grid-template-columns:1fr}
         .telem-grid{grid-template-columns:1fr 1fr}
+        .ctrl-row{flex-wrap:wrap;gap:8px}
+        .ctrl-slider{width:100%;flex-basis:100%}
         .gimbal-pad{width:90px;height:90px}
         .drone-log{max-height:100px;font-size:.62rem}
         .settings-modal{width:96%;max-height:90vh}
+        .feeds-tabs,.mil-source-tabs,.cctv-filters,.sat-controls{display:flex;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-gutter:stable}
         .mil-source-tabs{gap:3px}
-        .mil-src{font-size:.58rem;padding:4px 8px}
+        .mil-src{font-size:.58rem;padding:4px 8px;flex:0 0 auto;white-space:nowrap;min-height:36px;display:flex;align-items:center;justify-content:center}
         .cctv-filters{gap:3px}
-        .cctv-filter{font-size:.6rem;padding:4px 8px}
+        .cctv-filter{font-size:.6rem;padding:4px 8px;flex:0 0 auto;white-space:nowrap;min-height:36px;display:flex;align-items:center;justify-content:center}
         .sat-controls{gap:3px}
-        .sat-btn{font-size:.6rem;padding:4px 8px}
+        .sat-btn{font-size:.6rem;padding:4px 8px;flex:0 0 auto;white-space:nowrap;min-height:36px;display:flex;align-items:center;justify-content:center}
       }
       @media(max-width:400px){
-        .drone-wrap{padding:6px}
+        .drone-wrap{padding:8px}
+        .drone-header h2{font-size:1rem;letter-spacing:1.1px}
         .conn-card{padding:10px}
+        .cam-feed{min-height:220px}
+        .cam-panel{min-height:220px}
         .feeds-tab{font-size:.55rem;padding:4px 6px}
         .ctrl-section{padding:8px}
+        .telem-grid{grid-template-columns:1fr}
       }
       .drone-header h2{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.4rem;letter-spacing:2px;margin:0 0 4px}
       .drone-header p{color:var(--muted);font-size:.82rem;margin:0}
@@ -233,14 +246,7 @@
         <h1>DELTA CODING</h1>
         <p class="tag">DRONE COMMAND — Connect &bull; Control &bull; Survey</p>
       </div>
-      <nav class="top-nav">
-        <a href="/">Ops Center</a>
-        <a href="/cyber">Cyber Intel</a>
-        <a href="/ai">AI Recon</a>
-        <a href="/map">Tac Map</a>
-        <a href="/bible">Scripture</a>
-        <a href="/drone" class="active">Drone</a>
-      </nav>
+      {% include '_top_nav.html' %}
     </header>
 
     <main class="container">
@@ -811,36 +817,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- DELTA RADIO FOOTER -->
-    <div class="radio-footer" id="radio-footer">
-      <div class="rf-left">
-        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
-        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
-        <select class="rf-select" id="rf-station">
-          <option value="">— SELECT FREQ —</option>
-          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
-          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
-          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
-          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
-          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
-          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
-          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
-          <option value="https://stream.infowars.com/live">Infowars Live</option>
-          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
-        </select>
-      </div>
-      <div class="rf-center">
-        <div class="rf-viz" id="rf-viz"></div>
-        <span class="rf-now" id="rf-now">NO SIGNAL</span>
-      </div>
-      <div class="rf-right">
-        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
-        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
-        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
-      </div>
-      <audio id="rf-audio" preload="none"></audio>
     </div>
 
     <script>
@@ -1845,25 +1821,5 @@
     })();
     </script>
 
-    <!-- RADIO FOOTER SCRIPT -->
-    <script>
-    (function(){
-      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
-      let vizI=null,bars=[],userPaused=false;
-      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
-      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
-      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
-      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
-      // Protect radio from being paused by iframe focus or page interactions
-      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
-      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
-      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
-      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
-      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
-      // Re-resume on visibility change (tab switch back)
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
-      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
-    })();
-    </script>
   </body>
 </html>

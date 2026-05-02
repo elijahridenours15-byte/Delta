@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — SIGINT Radio Lab</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
     <style>
       .radio-page{padding:18px 24px;max-width:1300px;margin:0 auto}
       .radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -133,6 +133,33 @@
         border:1px solid var(--border);border-radius:4px;padding:8px;
         font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;box-sizing:border-box;
       }
+      @media(max-width:600px){
+        .radio-page{padding:14px 12px 22px}
+        .radio-player-card,.morse-card,.lang-card{padding:16px}
+        .station-grid{grid-template-columns:1fr}
+        .station-btn{min-height:46px}
+        .now-playing{flex-direction:column;align-items:flex-start}
+        .np-viz{width:100%;justify-content:flex-start}
+        .player-controls{flex-wrap:wrap}
+        .ctrl-btn{width:44px;height:44px}
+        .vol-slider{flex-basis:100%;width:100%}
+        .vol-label{min-width:0}
+        .record-panel{flex-wrap:wrap;align-items:stretch}
+        .rec-btn{flex:1 1 100%;min-height:42px}
+        .recording-item{flex-wrap:wrap;align-items:flex-start}
+        .morse-mode,.morse-actions{flex-direction:column}
+        .morse-mode-btn,.morse-btn{width:100%;min-height:42px}
+        .lang-row{flex-direction:column;align-items:stretch}
+        .lang-select{width:100%;min-width:0}
+        .morse-ref-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      }
+      @media(max-width:400px){
+        .radio-page{padding:12px 10px 20px}
+        .radio-player-card,.morse-card,.lang-card{padding:12px}
+        .now-playing{padding:12px}
+        .np-station{font-size:13px}
+        .morse-textarea,.lang-textarea{height:88px}
+      }
     </style>
   </head>
   <body>
@@ -150,14 +177,7 @@
         <h1>DELTA — SIGINT RADIO LAB</h1>
         <p class="tag">SIGNALS INTELLIGENCE &bull; MORSE CRYPTO &bull; LANGUAGE INTERCEPT &bull; AUDIO RECON</p>
       </div>
-      <nav class="top-nav">
-        <a href="/">Ops Center</a>
-        <a href="/cyber">Cyber Intel</a>
-        <a href="/ai">AI Recon</a>
-        <a href="/map">Tac Map</a>
-        <a href="/bible">Scripture</a>
-        <a href="/drone">Drone</a>
-      </nav>
+      {% include '_top_nav.html' %}
     </header>
 
     <div class="radio-page">

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Field Mechanics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <style>
+      .container{display:block;height:auto}
+      .mechanics-wrap{max-width:1180px;margin:0 auto;padding:20px}
+      .mechanics-header{text-align:center;margin-bottom:24px}
+      .mechanics-header h2{margin:0 0 6px;color:var(--accent-bright);font:700 1.5rem/1.2 'JetBrains Mono',monospace;letter-spacing:2px}
+      .mechanics-header p{margin:0 auto;max-width:720px;color:var(--muted);font-size:.85rem;line-height:1.7}
+      .mech-action-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-bottom:18px}
+      .mech-action-row a{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;background:var(--accent);color:var(--bg);font-weight:700;border-radius:8px;text-decoration:none;font-family:'JetBrains Mono',monospace;letter-spacing:1.1px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+      .mech-action-row a.alt{background:var(--panel2);color:var(--accent-bright);border:1px solid var(--border2)}
+      .mech-stat-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 18px}
+      .mech-stat-card{padding:14px;border:1px solid var(--border2);border-radius:10px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:0 10px 22px rgba(0,0,0,.14)}
+      .mech-stat-card strong{display:block;color:var(--accent-bright);font:800 1.3rem/1 'Inter',sans-serif;margin-bottom:8px}
+      .mech-stat-card span{display:block;color:var(--muted);font:700 .7rem/1.45 'JetBrains Mono',monospace;letter-spacing:1.1px;text-transform:uppercase}
+      .ops-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+      .ops-card{display:grid;gap:10px;padding:14px;border:1px solid var(--border2);border-radius:10px;background:linear-gradient(180deg,var(--panel),rgba(17,22,14,.92));text-decoration:none;color:inherit;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+      .ops-card:hover{transform:translateY(-1px);border-color:var(--accent2);box-shadow:0 16px 28px rgba(0,0,0,.16)}
+      .ops-card strong{display:block;color:var(--accent-bright);font:700 .84rem/1.3 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ops-card span{display:block;color:var(--text2);font-size:.82rem;line-height:1.6}
+      .mechanics-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+      .mechanics-card,.mechanics-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+      .mechanics-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--gold);font:700 .72rem/1 'JetBrains Mono',monospace;letter-spacing:1.4px;text-transform:uppercase}
+      .mechanics-intro{display:grid;gap:12px}
+      .mechanics-intro h3,.mechanics-panel h3,.library-block h4,.checklist-block h4,.mech-section-heading h3{margin:0;color:var(--accent);font:700 .84rem/1.3 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .mechanics-intro p,.mechanics-panel p,.library-item p,.checklist-block li{margin:0;color:var(--text);font-size:.92rem;line-height:1.7}
+      .systems-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .system-chip{padding:12px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2)}
+      .system-chip strong{display:block;margin-bottom:4px;color:var(--accent-bright);font:700 .8rem/1.3 'JetBrains Mono',monospace;letter-spacing:.7px}
+      .system-chip span{color:var(--text2);font-size:.78rem;line-height:1.55}
+      .mech-content-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:16px}
+      .mech-subsection{display:grid;gap:16px}
+      .mech-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+      .mech-section-heading a{color:var(--accent-bright);font:700 .74rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .brand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .brand-card{padding:12px;border:1px solid var(--border2);border-radius:10px;background:var(--panel2)}
+      .brand-card strong{display:block;color:var(--accent-bright);font:700 .86rem/1.35 'JetBrains Mono',monospace;letter-spacing:.7px;margin-bottom:6px}
+      .brand-card span{display:block;color:var(--text2);font-size:.8rem;line-height:1.5}
+      .recent-grid{display:grid;gap:10px}
+      .recent-card{display:grid;gap:8px;padding:12px;border:1px solid var(--border2);border-radius:10px;background:var(--panel2)}
+      .recent-card strong{display:block;color:var(--accent-bright);font:700 .84rem/1.35 'JetBrains Mono',monospace;letter-spacing:.7px}
+      .recent-meta{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font:700 .68rem/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .recent-card p{margin:0;color:var(--text2);font-size:.82rem;line-height:1.6}
+      .recent-card a{color:var(--sand);font:700 .72rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .blueprint-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .blueprint-card{display:grid;gap:10px;padding:10px;border:1px solid var(--border2);border-radius:10px;background:var(--panel2);text-decoration:none;color:inherit}
+      .blueprint-card img{width:100%;height:148px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:#10140d}
+      .blueprint-card strong{display:block;color:var(--accent-bright);font:700 .8rem/1.35 'JetBrains Mono',monospace;letter-spacing:.7px}
+      .blueprint-card span{display:block;color:var(--muted);font-size:.74rem;line-height:1.5}
+      .library-stack{display:grid;gap:12px}
+      .library-block{display:grid;gap:10px}
+      .library-list{display:grid;gap:10px}
+      .library-item{padding:12px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2)}
+      .library-item strong{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;color:var(--accent-bright);font:700 .78rem/1.35 'JetBrains Mono',monospace;letter-spacing:.7px}
+      .library-item span{color:var(--gold);font-size:.68rem;text-transform:uppercase;letter-spacing:1px}
+      .empty-state{padding:14px;border:1px dashed var(--border2);border-radius:10px;background:rgba(15,20,12,.6);color:var(--muted);font-size:.82rem;line-height:1.7}
+      .checklist-wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+      .checklist-block{padding:14px;border:1px solid var(--border2);border-radius:8px;background:var(--panel2)}
+      .checklist-block ul{margin:10px 0 0;padding-left:18px;display:grid;gap:8px}
+      @media(max-width:1040px){
+        .mech-stat-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+        .ops-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .mech-content-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:860px){
+        .mechanics-grid,.checklist-wrap,.brand-grid,.blueprint-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:600px){
+        .mechanics-wrap{padding:12px 10px 22px}
+        .mechanics-header h2{font-size:1.15rem;letter-spacing:1.3px}
+        .mechanics-header p{font-size:.8rem}
+        .mech-action-row,.mech-stat-strip,.ops-grid{grid-template-columns:1fr}
+        .mechanics-card,.mechanics-panel{padding:14px}
+        .systems-grid{grid-template-columns:1fr}
+        .library-item strong{flex-direction:column;align-items:flex-start}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — FIELD MECHANICS</h1>
+        <p class="tag">SERVICE BAY &bull; RECOVERY KIT &bull; SYSTEM DIAGNOSTICS &bull; PARTS REFERENCE</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="mechanics-wrap">
+        <div class="mech-action-row">
+          <a href="/mechanics/browser">Browse All Vehicles</a>
+          <a href="/mechanics/blueprints" class="alt">Blueprint Gallery</a>
+          <a href="/manuals" class="alt">Manuals Library</a>
+        </div>
+
+        <div class="mechanics-header">
+          <h2>FIELD MECHANICS INDEX</h2>
+          <p>Operational vehicle upkeep reference for inspection flow, recovery planning, core system checks, and civilian maintenance loadouts. The landing page now surfaces the mechanics work already indexed in this repo instead of acting like a static shell.</p>
+        </div>
+
+        <section class="mech-stat-strip" aria-label="Mechanics statistics">
+          <div class="mech-stat-card"><strong>{{ mechanics_stats.brands }}</strong><span>Brands Indexed</span></div>
+          <div class="mech-stat-card"><strong>{{ mechanics_stats.models }}</strong><span>Models Indexed</span></div>
+          <div class="mech-stat-card"><strong>{{ mechanics_stats.vehicles }}</strong><span>Vehicle Year Tracks</span></div>
+          <div class="mech-stat-card"><strong>{{ mechanics_stats.entries }}</strong><span>Service Entries</span></div>
+          <div class="mech-stat-card"><strong>{{ mechanics_stats.blueprints }}</strong><span>Blueprint/Image Sets</span></div>
+        </section>
+
+        <section class="mechanics-card" style="margin-bottom:16px;">
+          <div class="mechanics-kicker">Mechanics Operations Board</div>
+          <div class="ops-grid">
+            <a class="ops-card" href="/mechanics/browser">
+              <strong>Vehicle Browser</strong>
+              <span>Browse every indexed make, model, and year from the mechanics library.</span>
+            </a>
+            <a class="ops-card" href="/mechanics/blueprints">
+              <strong>Blueprint Feed</strong>
+              <span>Open the current blueprint and image stream for uploaded mechanics work.</span>
+            </a>
+            <a class="ops-card" href="/manuals">
+              <strong>Manuals Library</strong>
+              <span>Review manuals, reference images, and vehicle-specific document tracks.</span>
+            </a>
+            <a class="ops-card" href="/admin/manuals">
+              <strong>Upload &amp; Import</strong>
+              <span>Add manuals, blueprint images, or seed new platforms into the mechanics system.</span>
+            </a>
+          </div>
+        </section>
+
+        <div class="mechanics-grid">
+          <section class="mechanics-card mechanics-intro">
+            <div class="mechanics-kicker">Service Bay</div>
+            <h3>Core Systems Pass</h3>
+            <p>Run the same order every time: power, cooling, fuel-air, braking, steering, driveline, then tires and recovery gear. The goal is repeatable field checks before parts swapping.</p>
+            <div class="systems-grid">
+              <div class="system-chip"><strong>Electrical</strong><span>Battery health, terminal condition, grounds, charging output, fuse isolation, and starter draw symptoms.</span></div>
+              <div class="system-chip"><strong>Cooling</strong><span>Coolant level, hose integrity, fan behavior, leak points, temperature spikes, and pressure loss pattern.</span></div>
+              <div class="system-chip"><strong>Fuel + Air</strong><span>Filter service interval, injector cleanliness, intake obstruction, vacuum leaks, and pump/no-start separation.</span></div>
+              <div class="system-chip"><strong>Brake + Steering</strong><span>Fluid condition, pad wear, line seepage, rotor heat signature, steering play, and rack response.</span></div>
+            </div>
+          </section>
+
+          <aside class="mechanics-panel">
+            <div class="mechanics-kicker">Recovery Kit</div>
+            <h3>Quick Loadout</h3>
+            <p>Keep one compact kit staged for roadside work so diagnostics are faster than the failure spiral.</p>
+            <div class="checklist-wrap" style="grid-template-columns:1fr; margin-top:12px;">
+              <div class="checklist-block">
+                <ul>
+                  <li>Multimeter, tire gauge, jump pack, inspection light</li>
+                  <li>Socket roll, pliers set, trim tool, breaker bar</li>
+                  <li>Coolant-safe funnel, nitrile gloves, shop towels</li>
+                  <li>Recovery strap, shackles, inflator, patch kit</li>
+                </ul>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="mech-content-grid" aria-label="Mechanics workbench sections">
+          <div class="mech-subsection">
+            <section class="mechanics-card">
+              <div class="mech-section-heading">
+                <h3>Indexed Fleet Snapshot</h3>
+                <a href="/mechanics/browser">Open Browser</a>
+              </div>
+              {% if featured_brands %}
+                <div class="brand-grid">
+                  {% for entry in featured_brands %}
+                    <div class="brand-card">
+                      <strong>{{ entry.brand }}</strong>
+                      <span>{{ entry.models }} model{% if entry.models != 1 %}s{% endif %}</span>
+                      <span>{{ entry.years }} indexed year track{% if entry.years != 1 %}s{% endif %}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">No vehicle records are indexed yet. Use Upload &amp; Import to start loading your mechanics work into the live library.</div>
+              {% endif %}
+            </section>
+
+            <section class="mechanics-card">
+              <div class="mech-section-heading">
+                <h3>Recent Workbench Entries</h3>
+                <a href="/manuals">Open Manuals</a>
+              </div>
+              {% if recent_entries %}
+                <div class="recent-grid">
+                  {% for entry in recent_entries %}
+                    <article class="recent-card">
+                      <strong>{{ entry.title }}</strong>
+                      <div class="recent-meta">
+                        <span>{{ entry.brand }}</span>
+                        <span>{{ entry.model }}</span>
+                        <span>{{ entry.year }}</span>
+                        <span>{{ entry.image_count }} image{% if entry.image_count != 1 %}s{% endif %}</span>
+                        <span>{% if entry.has_pdf %}PDF ready{% else %}image set only{% endif %}</span>
+                      </div>
+                      <p>{{ entry.description }}</p>
+                      <a href="{{ entry.href }}">Open Blueprint View</a>
+                    </article>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">The mechanics page is wired for your manual store, but no entries are indexed yet. Once uploads land, the newest work will surface here automatically.</div>
+              {% endif %}
+            </section>
+          </div>
+
+          <div class="mech-subsection">
+            <section class="mechanics-card">
+              <div class="mech-section-heading">
+                <h3>Blueprint Feed</h3>
+                <a href="/mechanics/blueprints">Open Gallery</a>
+              </div>
+              {% if featured_blueprints %}
+                <div class="blueprint-grid">
+                  {% for blueprint in featured_blueprints %}
+                    <a class="blueprint-card" href="{{ blueprint.href }}">
+                      <img src="{{ blueprint.thumb }}" alt="{{ blueprint.title }} blueprint preview" loading="lazy">
+                      <strong>{{ blueprint.title }}</strong>
+                      <span>{{ blueprint.brand }} &bull; {{ blueprint.model }} &bull; {{ blueprint.year }}</span>
+                    </a>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">No blueprint previews are indexed yet. As soon as image-backed mechanics entries are added, they will appear here.</div>
+              {% endif %}
+            </section>
+
+            <section class="mechanics-card">
+              <div class="mechanics-kicker">Work Surface</div>
+              <div class="library-list">
+                <div class="library-item">
+                  <strong>Indexed Vehicles <span>Live Data</span></strong>
+                  <p>The landing page now reflects your current mechanics library instead of only static reference copy.</p>
+                </div>
+                <div class="library-item">
+                  <strong>Blueprint Access <span>Direct Route</span></strong>
+                  <p>Every recent entry links straight into the blueprint detail view for that brand, model, and year.</p>
+                </div>
+                <div class="library-item">
+                  <strong>Manual Ingestion <span>Admin Surface</span></strong>
+                  <p>Manual uploads and import tools are now linked directly from the mechanics hub.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="mechanics-card" style="margin-top:16px;">
+          <div class="mechanics-kicker">Reference Library</div>
+          <div class="library-stack">
+            <div class="library-block">
+              <h4>Platform Tracks</h4>
+              <div class="library-list">
+                <div class="library-item">
+                  <strong>Passenger Vehicles <span>Daily Driver</span></strong>
+                  <p>Inspection cadence, common wear items, battery and belt service windows, and emergency roadside priorities.</p>
+                </div>
+                <div class="library-item">
+                  <strong>Light Trucks + Utility <span>Work Platform</span></strong>
+                  <p>Payload impact, suspension checks, cooling load, towing prep, and recovery staging for mixed-use rigs.</p>
+                </div>
+                <div class="library-item">
+                  <strong>Small Engines + Power Gear <span>Support Tools</span></strong>
+                  <p>Fuel storage discipline, carburetion basics, plug checks, air filter maintenance, and seasonal startup flow.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="checklist-wrap">
+          <section class="checklist-block">
+            <h4>Pre-Trip Check</h4>
+            <ul>
+              <li>Battery voltage and terminal tightness</li>
+              <li>Fluid scan: oil, coolant, brake, washer</li>
+              <li>Tire pressure, tread, and spare readiness</li>
+              <li>Lights, wipers, charging accessories, jack</li>
+            </ul>
+          </section>
+          <section class="checklist-block">
+            <h4>Post-Fault Workflow</h4>
+            <ul>
+              <li>Capture symptoms before disconnecting anything</li>
+              <li>Separate electrical failure from fuel-air failure</li>
+              <li>Confirm heat, leak, smell, and vibration sources</li>
+              <li>Only replace parts after a narrowed diagnosis</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

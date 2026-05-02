@@ -1,0 +1,18 @@
+{
+  "name": "Delta Coding",
+  "short_name": "Delta",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e110b",
+  "theme_color": "#1a1f16",
+  "description": "Delta Coding tactical development platform with offline shell and tactical map support.",
+  "icons": [
+    {
+      "src": "/static/delta-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

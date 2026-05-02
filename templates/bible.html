@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Scripture Intel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
     <style>
       .container{display:block;height:auto}
       .bible-wrap{max-width:960px;margin:0 auto;padding:20px}
@@ -87,27 +87,30 @@
 
       /* ── RESPONSIVE ── */
       @media(max-width:600px){
-        .bible-wrap{padding:10px}
+        .bible-wrap{padding:12px 10px 20px}
+        .bible-header h2{font-size:1.15rem;letter-spacing:1.4px}
+        .bible-header p{font-size:.78rem;line-height:1.6}
         .bible-controls{padding:10px;gap:6px;flex-direction:column;align-items:stretch}
         .bible-controls select{min-width:100%;width:100%}
         .bible-controls button{width:100%}
-        .bible-nav{gap:4px}
-        .bible-nav button{font-size:.7rem;padding:5px 10px}
+        .bible-nav{gap:6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+        .bible-nav button{font-size:.7rem;padding:8px 10px;min-height:38px;width:100%}
         .bsc-row{flex-direction:column !important;align-items:stretch !important}
         .bsc-row input{flex:none !important;width:100% !important;min-width:0 !important}
-        .bsc-row button{width:100%}
-        .bsc-row select{width:100%}
+        .bsc-row button,.bsc-row select{width:100%;min-width:0}
         .bsc-lbl{display:none}
         .bible-text{padding:14px 12px;font-size:.88rem;line-height:1.7}
-        .bible-audio-bar{padding:8px;gap:5px}
-        .bible-audio-bar button{font-size:.68rem;padding:5px 10px}
-        .bible-audio-bar select{font-size:.68rem}
-        .bible-audio-bar input[type=range]{width:60px}
+        .ws-page-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+        .ws-page-btns button{width:100%;min-height:40px}
+        .bible-audio-bar{padding:8px;gap:6px;justify-content:stretch}
+        .bible-audio-bar button,.bible-audio-bar select{font-size:.68rem;padding:8px 10px;width:100%;min-height:40px}
+        .bible-audio-bar input[type=range]{width:100%}
         .bible-bookmarks button{font-size:.64rem;padding:3px 7px}
       }
       @media(max-width:400px){
-        .bible-wrap{padding:6px}
-        .bible-text{padding:10px 8px;font-size:.82rem}
+        .bible-wrap{padding:8px 8px 18px}
+        .bible-nav,.ws-page-btns{grid-template-columns:1fr}
+        .bible-text{padding:10px 8px;font-size:.84rem;line-height:1.65}
         .bible-audio-bar{flex-direction:column}
       }
     </style>
@@ -127,14 +130,7 @@
         <h1>DELTA CODING</h1>
         <p class="tag">SCRIPTURE INTEL — Read &bull; Study &bull; Listen</p>
       </div>
-      <nav class="top-nav">
-        <a href="/">Ops Center</a>
-        <a href="/cyber">Cyber Intel</a>
-        <a href="/ai">AI Recon</a>
-        <a href="/map">Tac Map</a>
-        <a href="/bible" class="active">Scripture</a>
-        <a href="/drone">Drone</a>
-      </nav>
+      {% include '_top_nav.html' %}
     </header>
 
     <main class="container">
@@ -227,38 +223,81 @@
         <div class="bible-text" id="bible-text">
           <div class="loading">Select a book and chapter, then press LOAD...</div>
         </div>
-      </div>
-    </main>
 
-    <!-- DELTA RADIO FOOTER -->
-    <div class="radio-footer" id="radio-footer">
-      <div class="rf-left">
-        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
-        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
-        <select class="rf-select" id="rf-station">
-          <option value="">— SELECT FREQ —</option>
-          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
-          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
-          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
-          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
-          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
-          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
-          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
-          <option value="https://stream.infowars.com/live">Infowars Live</option>
-          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
-        </select>
+        <!-- Journal Section -->
+        <div class="bible-journal" style="margin-top:40px;padding:24px 28px;background:var(--panel2);border:1px solid var(--border);border-radius:8px">
+          <h3 style="font-family:'JetBrains Mono',monospace;color:var(--accent-bright);margin-bottom:12px">Journal</h3>
+          <div id="journal-entries">
+            <!-- Journal entries will be loaded here -->
+          </div>
+          {% if admin_token_set %}
+          <form id="journal-form" method="post" action="/api/journal/add" style="margin-top:18px">
+            <textarea name="entry" id="journal-entry" rows="4" style="width:100%;font-family:'Inter',sans-serif;font-size:1rem;padding:10px;border-radius:6px;border:1px solid var(--border2)" placeholder="Write a new journal entry..."></textarea>
+            <input type="hidden" name="admin_token" value="{{ admin_token }}">
+            <button type="submit" style="margin-top:8px;background:var(--accent2);color:#fff;font-weight:700;padding:8px 18px;border-radius:6px;border:none;cursor:pointer">Add Entry</button>
+          </form>
+          {% endif %}
+        </div>
+        </div>
       </div>
-      <div class="rf-center">
-        <div class="rf-viz" id="rf-viz"></div>
-        <span class="rf-now" id="rf-now">NO SIGNAL</span>
-      </div>
-      <div class="rf-right">
-        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
-        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
-        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
-      </div>
-      <audio id="rf-audio" preload="none"></audio>
-    </div>
+
+    <script>
+    // Journal: Load entries
+    async function loadJournalEntries() {
+      const div = document.getElementById('journal-entries');
+      div.innerHTML = '<div class="loading">Loading journal entries...</div>';
+      try {
+        const resp = await fetch('/api/journal');
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error || 'Failed to load');
+        if (!data.entries.length) {
+          div.innerHTML = '<div style="color:var(--muted);font-size:.95rem">No journal entries yet.</div>';
+          return;
+        }
+        div.innerHTML = data.entries.map(e =>
+          `<div style="margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border2)">
+            <div style="font-size:.98rem;white-space:pre-line">${escapeHtml(e.entry)}</div>
+            <div style="color:var(--muted);font-size:.78rem;margin-top:4px">${new Date(e.created).toLocaleString()}</div>
+          </div>`
+        ).join('');
+      } catch (err) {
+        div.innerHTML = '<div class="error">Failed to load journal: ' + err.message + '</div>';
+      }
+    }
+    function escapeHtml(t){
+      const d = document.createElement('div');
+      d.textContent = t;
+      return d.innerHTML;
+    }
+    loadJournalEntries();
+
+    // Journal: Handle admin entry submission
+    const journalForm = document.getElementById('journal-form');
+    if (journalForm) {
+      journalForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const entry = document.getElementById('journal-entry').value.trim();
+        if (!entry) return;
+        const formData = new FormData(journalForm);
+        const btn = journalForm.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+          const resp = await fetch('/api/journal/add', { method: 'POST', body: formData });
+          const data = await resp.json();
+          if (!data.ok) throw new Error(data.error || 'Failed to save');
+          document.getElementById('journal-entry').value = '';
+          loadJournalEntries();
+        } catch (err) {
+          alert('Failed to save: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Add Entry';
+        }
+      });
+    }
+    </script>
+    </main>
 
     <script>
     (function(){
@@ -711,24 +750,5 @@
     })();
     </script>
 
-    <!-- RADIO FOOTER SCRIPT -->
-    <script>
-    (function(){
-      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
-      let vizI=null,bars=[],userPaused=false;
-      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
-      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
-      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
-      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
-      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
-      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
-      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
-      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
-      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
-      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
-      // Restore state on load
-      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
-    })();
-    </script>
   </body>
 </html>
