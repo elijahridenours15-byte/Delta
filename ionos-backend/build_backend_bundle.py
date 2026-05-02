@@ -13,9 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 IONOS_DIR = ROOT / 'ionos-backend'
 BUILD_DIR = IONOS_DIR / 'build'
-RUNTIME_DEPS = ['Flask>=2.0', 'requests>=2.28']
+RUNTIME_DEPS = ['Flask>=2.0', 'requests>=2.28', 'Pillow>=9.0']
 BUNDLE_PATHS = [
     ROOT / 'run.py',
+    ROOT / 'manual_store.py',
     ROOT / 'agent',
     ROOT / 'static',
     ROOT / 'templates',

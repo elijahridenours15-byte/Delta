@@ -18,6 +18,7 @@ class ManualStore:
         os.makedirs(self.upload_dir, exist_ok=True)
         os.makedirs(self.image_dir, exist_ok=True)
         self._init_db()
+        self.ensure_seed_data()
 
     def _connect(self):
         conn = sqlite3.connect(self.db_path)
@@ -44,6 +45,66 @@ class ManualStore:
         ''')
         conn.commit()
         conn.close()
+
+    def ensure_seed_data(self):
+        """Seed repo-backed mechanics entries into an empty database."""
+        conn = self._connect()
+        cur = conn.cursor()
+        cur.execute('SELECT COUNT(*) FROM manuals')
+        if cur.fetchone()[0]:
+            conn.close()
+            return
+        conn.close()
+
+        seed_manuals = [
+            {
+                'brand': 'Toyota',
+                'model': 'Corolla',
+                'year': '1996',
+                'title': 'Toyota Corolla 1996 Blueprint',
+                'description': 'Blueprint and parts for Toyota Corolla 1996.',
+                'license': 'Repo asset',
+                'image_paths': ['/static/manuals/images/demo1/blueprint.png'],
+                'mid': 'demo1',
+            },
+            {
+                'brand': 'Ford',
+                'model': 'F-150',
+                'year': '2015',
+                'title': 'Ford F-150 2015 Blueprint',
+                'description': 'Blueprint and parts for Ford F-150 2015.',
+                'license': 'Repo asset',
+                'image_paths': ['/static/manuals/images/demo2/blueprint.png'],
+                'mid': 'demo2',
+            },
+            {
+                'brand': 'Honda',
+                'model': 'Civic',
+                'year': '2010',
+                'title': 'Honda Civic 2010 Blueprint',
+                'description': 'Blueprint and parts for Honda Civic 2010.',
+                'license': 'Repo asset',
+                'image_paths': ['/static/manuals/images/demo3/blueprint.png'],
+                'mid': 'demo3',
+            },
+        ]
+
+        for item in seed_manuals:
+            image_paths = item['image_paths']
+            if not all(os.path.exists(os.path.join(self.app_root, path.lstrip('/'))) for path in image_paths):
+                continue
+            self.add_manual(
+                brand=item['brand'],
+                model=item['model'],
+                year=item['year'],
+                title=item['title'],
+                description=item['description'],
+                license=item['license'],
+                source_url=None,
+                pdf_path=None,
+                image_paths=image_paths,
+                mid=item['mid'],
+            )
 
     def add_manual(self, brand, model, year, title, description, license, source_url, pdf_path, image_paths, mid=None):
         if mid is None:
