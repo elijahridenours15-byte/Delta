@@ -60,9 +60,11 @@ def add_path_to_bundle(bundle: zipfile.ZipFile, source: Path) -> None:
 
 
 def write_bootstrap_script(token: str) -> None:
-    template = (IONOS_DIR / 'bootstrap.cgi.template').read_text(encoding='utf-8')
-    script = template.replace('__BOOTSTRAP_TOKEN__', token)
-    (BUILD_DIR / 'bootstrap.cgi').write_text(script, encoding='utf-8')
+    wrapper = (IONOS_DIR / 'bootstrap.cgi.template').read_text(encoding='utf-8')
+    payload_template = (IONOS_DIR / 'bootstrap.cgi.py.template').read_text(encoding='utf-8')
+    payload = payload_template.replace('__BOOTSTRAP_TOKEN__', token)
+    (BUILD_DIR / 'bootstrap.cgi').write_text(wrapper, encoding='utf-8')
+    (BUILD_DIR / 'bootstrap.cgi.py').write_text(payload, encoding='utf-8')
 
 
 def write_bundle() -> None:
@@ -96,6 +98,7 @@ def main() -> None:
     print('IONOS backend build complete:')
     print(f'- {BUILD_DIR / ".htaccess"}')
     print(f'- {BUILD_DIR / "bootstrap.cgi"}')
+    print(f'- {BUILD_DIR / "bootstrap.cgi.py"}')
     print(f'- {BUILD_DIR / "bundle.zip"}')
     print(f'- token: {token}')
 

@@ -1,0 +1,20 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+	PYTHONUNBUFFERED=1 \
+	PORT=8080
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+
+RUN python -m pip install --upgrade pip \
+	&& pip install --no-cache-dir -r requirements.txt
+
+COPY drone_bridge.py /app/drone_bridge.py
+COPY drone_bridge_http.py /app/drone_bridge_http.py
+COPY drone_bridge_service.py /app/drone_bridge_service.py
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "gunicorn -w ${GUNICORN_WORKERS:-1} -b 0.0.0.0:${PORT:-8080} drone_bridge_service:app"]

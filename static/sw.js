@@ -1,6 +1,7 @@
-const SHELL_CACHE = 'delta-shell-v5';
-const RUNTIME_CACHE = 'delta-runtime-v5';
-const MAP_PACK_CACHE = 'delta-map-pack-v5';
+const SHELL_CACHE = 'delta-shell-v14';
+const RUNTIME_CACHE = 'delta-runtime-v14';
+const MAP_PACK_CACHE = 'delta-map-pack-v14';
+const OFFLINE_FALLBACK_URL = '/static/offline.html';
 
 const SAME_ORIGIN_SHELL = [
   '/',
@@ -8,14 +9,31 @@ const SAME_ORIGIN_SHELL = [
   '/cyber',
   '/map',
   '/survival',
+  '/weapons',
+  '/weapons/armory',
+  '/mechanics',
+  '/mechanics/gallery',
+  '/mechanics/blueprints',
+  '/mechanics/browser',
   '/bible',
   '/drone',
   '/radio',
   '/truth',
+  '/manuals',
+  '/live',
   '/site.webmanifest',
   '/static/style.css',
   '/static/pwa-register.js',
   '/static/delta-icon.svg',
+  '/static/vendor/leaflet/leaflet.css',
+  '/static/vendor/leaflet/leaflet.js',
+  '/static/vendor/leaflet/images/marker-icon.png',
+  '/static/vendor/leaflet/images/marker-icon-2x.png',
+  '/static/vendor/leaflet/images/marker-shadow.png',
+  '/static/vendor/leaflet/images/layers.png',
+  '/static/vendor/leaflet/images/layers-2x.png',
+  '/static/vendor/html2canvas.min.js',
+  OFFLINE_FALLBACK_URL,
   '/sw.js',
 ];
 
@@ -109,6 +127,16 @@ async function networkFirst(request, cacheName, fallbackUrl = '/') {
   }
 }
 
+function offlineJson(payload) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store, max-age=0',
+    },
+  });
+}
+
 self.addEventListener('fetch', event => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -116,13 +144,24 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
 
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirst(request, SHELL_CACHE, '/'));
+    event.respondWith(networkFirst(request, SHELL_CACHE, OFFLINE_FALLBACK_URL));
     return;
   }
 
   if (url.origin === self.location.origin) {
+    if (url.pathname === '/api/online') {
+      event.respondWith((async () => {
+        try {
+          return await fetch(request);
+        } catch (_) {
+          return offlineJson({ ok: true, count: 0, locations: [], offline: true });
+        }
+      })());
+      return;
+    }
+
     if (url.pathname.startsWith('/static/') || url.pathname === '/sw.js' || url.pathname === '/site.webmanifest') {
-      event.respondWith(cacheFirst(request, SHELL_CACHE, true));
+      event.respondWith(cacheFirst(request, SHELL_CACHE, false));
       return;
     }
   }

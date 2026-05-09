@@ -33,5 +33,5 @@ RedirectMatch 302 ^/(deploy|workbench)\.html$ /
 RedirectMatch gone ^/assets(?:/.*)?$
 RedirectMatch gone ^/bundle\.zip$
 RedirectMatch gone ^/probe-upload\.txt$
-RedirectMatch gone ^/(?:(?:test|pycheck|importcheck|apply-live-fix|rm-probe|bootstrap)\.cgi(?:/.*)?|(?:pycheck|importcheck)\.cgi\.py)$
+RedirectMatch gone ^/(?:(?:bootstrap|diag|test|pycheck|importcheck|apply-live-fix|rm-probe)\.cgi(?:/.*)?|(?:bootstrap|pycheck|importcheck)\.cgi\.py)$
 FallbackResource /index.cgi

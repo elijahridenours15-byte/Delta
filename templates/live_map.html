@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Live Ops Map</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <style>.leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-tile::selection{background:0 0}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important;width:auto;padding:0}.leaflet-container img.leaflet-tile{mix-blend-mode:plus-lighter}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}svg.leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline-offset:1px}.leaflet-container a{color:#0078a8}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;font-size:12px;font-size:.75rem;line-height:1.5}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:focus,.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(images/layers.png);width:36px;height:36px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block;font-size:13px;font-size:1.08333em}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.8);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333;line-height:1.4}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:focus,.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-attribution-flag{display:inline!important;vertical-align:baseline!important;width:1em;height:.6669em}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;white-space:nowrap;-moz-box-sizing:border-box;box-sizing:border-box;background:rgba(255,255,255,.8);text-shadow:1px 1px #fff}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;min-height:1px}.leaflet-popup-content p{margin:17px 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:0 0}.leaflet-container a.leaflet-popup-close-button:focus,.leaflet-container a.leaflet-popup-close-button:hover{color:#585858}.leaflet-popup-scrolled{overflow:auto}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:""}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}</style>
+    <style>
+      .live-map-wrap{display:flex;flex-direction:column;height:calc(100vh - 56px);min-height:400px}
+      #live-map{flex:1;background:#0b0e09}
+      .lm-panel{
+        display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+        padding:8px 16px;background:var(--panel2);border-bottom:1px solid var(--border);
+        font-family:'JetBrains Mono',monospace;
+      }
+      .lm-title{font:800 .7rem/1 'JetBrains Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--accent-bright)}
+      .lm-tag{font:500 .58rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+      .lm-count-badge{
+        display:inline-flex;align-items:center;gap:5px;
+        padding:4px 10px;border-radius:999px;
+        background:rgba(164,184,122,.07);border:1px solid rgba(164,184,122,.18);
+      }
+      .lm-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-bright);box-shadow:0 0 6px var(--accent-glow);animation:pulse-dot 2.4s ease-in-out infinite;flex-shrink:0}
+      .lm-n{font:800 .7rem/1 'JetBrains Mono',monospace;color:var(--accent-bright)}
+      .lm-online-lbl{font:600 .52rem/1 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+      .lm-refresh{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:4px;cursor:pointer;font:700 .6rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+      .lm-refresh:hover{color:var(--accent-bright);border-color:var(--accent2)}
+      .lm-spacer{flex:1}
+      .lm-classif{font:700 .5rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:rgba(164,184,122,.22);user-select:none}
+      /* Leaflet popup matching site palette */
+      .leaflet-popup-content-wrapper{background:var(--panel);border:1px solid var(--border2);border-radius:8px;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+      .leaflet-popup-tip-container{display:none}
+      .leaflet-popup-content{margin:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7}
+      .lm-popup-city{font-weight:800;color:var(--accent-bright);letter-spacing:.5px;font-size:12px}
+      .lm-popup-country{color:var(--text2)}
+      .lm-popup-n{color:var(--muted);font-size:10px;letter-spacing:.8px;text-transform:uppercase}
+      .leaflet-control-zoom{border-color:var(--border) !important}
+      .leaflet-control-zoom a{background:var(--panel) !important;color:var(--accent-bright) !important;border-color:var(--border) !important}
+      .leaflet-control-zoom a:hover{background:var(--panel2) !important;color:var(--accent-bright) !important}
+      /* empty state */
+      .lm-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:400}
+      .lm-empty-icon{font-size:2.2rem;opacity:.18}
+      .lm-empty-txt{font:700 .7rem/1.6 'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);opacity:.5;text-align:center}
+    </style>
+  </head>
+  <body>
+    <header class="hero" style="padding:8px 18px">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none;width:38px;height:38px">
+        <svg width="38" height="38" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1 style="font-size:16px;letter-spacing:3px">LIVE OPS MAP</h1>
+        <p class="tag">REAL-TIME VISITOR GRID &bull; ACTIVE 5-MIN WINDOW</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main style="position:relative;flex:1;display:flex;flex-direction:column">
+      <div class="lm-panel">
+        <span class="lm-title">SIGINT GRID</span>
+        <span class="lm-tag">LIVE OPERATORS</span>
+        <span class="lm-count-badge">
+          <span class="lm-dot"></span>
+          <span class="lm-n" id="lm-count">—</span>
+          <span class="lm-online-lbl">ONLINE</span>
+        </span>
+        <span class="lm-spacer"></span>
+        <button class="lm-refresh" id="lm-refresh">REFRESH</button>
+        <span class="lm-classif">&#9670; CLASSIFIED // FOUO</span>
+      </div>
+      <div class="live-map-wrap">
+        <div id="live-map"></div>
+      </div>
+    </main>
+
+    {% include '_radio_footer.html' %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin=""></script>
+    <script>
+    (function () {
+      // Dark tile layer — CartoDB Dark Matter (free, no key)
+      const map = L.map('live-map', {
+        center: [20, 10], zoom: 2,
+        minZoom: 1, maxZoom: 10,
+        zoomControl: true,
+        attributionControl: true,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" style="color:#6b6b5e">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" style="color:#6b6b5e">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+
+      // custom marker — olive glowing dot
+      function makeIcon(n) {
+        const sz = n === 1 ? 10 : n < 5 ? 13 : n < 20 ? 16 : 20;
+        return L.divIcon({
+          className: '',
+          html: `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:#A4B87A;box-shadow:0 0 ${sz}px #A4B87A88,0 0 ${sz*2}px #A4B87A44;border:1.5px solid #C8D5A3;opacity:.92"></div>`,
+          iconSize: [sz, sz],
+          iconAnchor: [sz/2, sz/2],
+        });
+      }
+
+      let markers = [];
+      const countEl = document.getElementById('lm-count');
+
+      function clearMarkers() {
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+      }
+
+      function updateMap() {
+        fetch('/api/online')
+          .then(r => r.json())
+          .then(data => {
+            countEl.textContent = data.count;
+            clearMarkers();
+            (data.locations || []).forEach(loc => {
+              if (loc.lat == null || loc.lon == null) return;
+              const m = L.marker([loc.lat, loc.lon], {icon: makeIcon(loc.n)})
+                .bindPopup(`<div class="lm-popup-city">${loc.flag} ${loc.city || 'Unknown City'}</div><div class="lm-popup-country">${loc.country || ''}</div><div class="lm-popup-n">${loc.n} operator${loc.n !== 1 ? 's' : ''} active</div>`)
+                .addTo(map);
+              markers.push(m);
+            });
+          })
+          .catch(() => {});
+      }
+
+      updateMap();
+      setInterval(updateMap, 30000);
+      document.getElementById('lm-refresh').addEventListener('click', updateMap);
+
+      // ping this session too
+      let token = localStorage.getItem('dco_tok');
+      if (!token) {
+        token = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+        localStorage.setItem('dco_tok', token);
+      }
+      fetch('/api/ping', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})}).catch(()=>{});
+    })();
+    </script>
+  </body>
+</html>

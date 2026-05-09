@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Survival Loadout</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Survival gear checklists, bug-out bag guides, off-grid tactics, and field loadout planning resources. Free survival intelligence at FutureCodeDelta.org.">
+    <meta name="keywords" content="survival gear, bug-out bag, BOB, prepper, off-grid, survival checklist, field loadout, emergency preparedness, survival tactics">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Survival Loadout">
+    <meta property="og:description" content="Survival gear checklists, bug-out bag guides, and off-grid field loadout planning resources.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/survival">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Survival Loadout">
+    <meta name="twitter:description" content="Survival gear lists, bug-out bag guides, and off-grid loadout planning at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/survival">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
       .container{display:block;height:auto}
       .survival-wrap{max-width:1280px;margin:0 auto;padding:22px 24px 28px}
@@ -43,6 +56,10 @@
       .item-card{padding:14px;border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(11,14,9,.68);display:grid;gap:10px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
       .item-card:hover{transform:translateY(-1px);border-color:rgba(164,184,122,.28);box-shadow:0 14px 28px rgba(0,0,0,.14)}
       .item-card.loaded{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      /* Armor item card — militant plate styling */
+      .item-card[data-cat="armor"]{border-left:3px solid rgba(196,162,101,.45);background:rgba(18,14,8,.78)}
+      .item-card[data-cat="armor"]:hover{border-color:rgba(196,162,101,.6);border-left-color:rgba(196,162,101,.7)}
+      .item-card[data-cat="armor"].loaded{border-color:rgba(196,162,101,.65);border-left-color:var(--gold);box-shadow:0 0 0 1px rgba(196,162,101,.15),0 16px 32px rgba(0,0,0,.2)}
       .item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
       .item-name{margin:0;color:var(--text);font:700 15px/1.4 'Inter',sans-serif}
       .item-meta{margin:4px 0 0;color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
@@ -218,7 +235,8 @@
           power: 'Power',
           navigation: 'Navigation',
           comms: 'Comms',
-          tools: 'Tools'
+          tools: 'Tools',
+          armor: 'Body Armor'
         };
 
         const BAGS = [
@@ -268,7 +286,35 @@
           {id: 'multitool', name: 'Compact Multitool', category: 'tools', weight: 0.6, slots: 1, tier: 'support', reason: 'Handles broken zippers, loose screws, food packaging, and small repairs.'},
           {id: 'repair-tape', name: 'Repair Tape Wrap', category: 'tools', weight: 0.4, slots: 1, tier: 'support', reason: 'Patches tarps, labels cables, reinforces handles, and keeps leaking containers serviceable.'},
           {id: 'zip-cord-bundle', name: 'Zip Tie + Cord Bundle', category: 'tools', weight: 0.5, slots: 1, tier: 'support', reason: 'Fastens loose panels, bundles kit, and helps turn improvised shelter into something stable.'},
-          {id: 'gloves-mask', name: 'Work Gloves + Dust Mask', category: 'tools', weight: 0.8, slots: 1, tier: 'critical', reason: 'Protects hands and breathing during debris cleanup, smoke, or glass-heavy exits.'}
+          {id: 'gloves-mask', name: 'Work Gloves + Dust Mask', category: 'tools', weight: 0.8, slots: 1, tier: 'critical', reason: 'Protects hands and breathing during debris cleanup, smoke, or glass-heavy exits.'},
+
+          // ── BODY ARMOR ──────────────────────────────────────────────────────────
+          // Plate Carriers — worn weight, not packed inside bag
+          {id: 'jpc-2', name: 'Crye Precision JPC 2.0', category: 'armor', weight: 1.9, slots: 2, tier: 'critical', reason: 'Minimalist plate carrier for SAPI/ESAPI front and rear plate integration. Industry baseline for lightweight civilian protection setups. MOLLE-compatible.'},
+          {id: 'tactec', name: '5.11 TacTec Plate Carrier', category: 'armor', weight: 2.0, slots: 2, tier: 'critical', reason: 'Civilian-grade plate carrier accepting Level III/IV hard plates. Hydration bladder compatible, full MOLLE cummerbund, drag handle included.'},
+          {id: 'banshee', name: 'Shellback Banshee Elite 2.0', category: 'armor', weight: 1.8, slots: 2, tier: 'critical', reason: 'Lightweight budget-accessible carrier for 10×12 SAPI plates. Integrated cummerbund, D-ring, and low-profile design for concealment under jackets.'},
+          {id: 'iotv-gen4', name: 'IOTV Gen IV (US Army surplus)', category: 'armor', weight: 4.1, slots: 3, tier: 'critical', reason: 'Full Improved Outer Tactical Vest. Accepts front, rear, side, groin, and collar soft/hard armor inserts. Complete wrap-around protection when fully configured.'},
+          {id: 'ciras', name: 'CIRAS Maritime Vest', category: 'armor', weight: 2.8, slots: 3, tier: 'support', reason: 'Full-coverage carrier with integrated cummerbund for side plate use. Preferred SOCOM baseline platform. Accepts drag handle and MOLLE pouches on all surfaces.'},
+          {id: 'spiritus-micro', name: 'Spiritus Systems Micro Fight', category: 'armor', weight: 1.4, slots: 1, tier: 'support', reason: 'Ultralight skeletal carrier for single front plate. Minimum footprint for fast movement, vehicle use, or concealment. No rear plate capability.'},
+
+          // Ballistic Plates
+          {id: 'lvl4-ceramic', name: 'Level IV Ceramic Plates (pair)', category: 'armor', weight: 14.2, slots: 2, tier: 'critical', reason: 'NIJ Level IV rated. Stops .30-06 AP M2 and below including 7.62×51mm M993. Single-curve 10×12 SAPI cut. Requires compatible carrier. Multi-hit rated per NIJ 0101.06.'},
+          {id: 'lvl3plus-steel', name: 'Level III+ AR500 Steel Plates (pair)', category: 'armor', weight: 16.0, slots: 2, tier: 'support', reason: 'Multi-hit capable steel construction. Defeats 5.56 M855A1, 7.62×39mm, and M80 ball. Heavier than ceramic. Spall liner coating required. Budget-accessible entry.'},
+          {id: 'lvl3-pe', name: 'Level III PE/UHMWPE Plates (pair)', category: 'armor', weight: 5.8, slots: 2, tier: 'support', reason: 'Lightweight polyethylene plates rated NIJ Level III. Buoyant in water. Defeats standard rifle rounds at velocity. Preferred for extended foot movement and water operations.'},
+          {id: 'side-plates', name: 'Side Plate Set (6×6, Level III+)', category: 'armor', weight: 3.8, slots: 1, tier: 'support', reason: 'Lateral torso protection for IOTV, CIRAS, and cummerbund carriers. Required for full 360-degree fragment and rifle coverage. Left/right pair.'},
+
+          // Helmets
+          {id: 'ach-helmet', name: 'ACH / ECH Ballistic Helmet (surplus)', category: 'armor', weight: 3.3, slots: 2, tier: 'critical', reason: 'Advanced Combat Helmet. NIJ IIIA ballistic protection standard. Stops handgun rounds and fragmentation. Accepts rails, NVG mount, and helmet covers. Most common US military surplus helmet.'},
+          {id: 'mich-2000', name: 'MICH 2000 Helmet', category: 'armor', weight: 3.0, slots: 2, tier: 'critical', reason: 'Modular Integrated Communications Helmet. Full ballistic shell with side rails for lighting, cameras, and accessories. SOCOM baseline. Offers clear ear coverage for hearing protection integration.'},
+          {id: 'opscore-fast', name: 'Ops-Core FAST Carbon Helmet', category: 'armor', weight: 2.4, slots: 2, tier: 'support', reason: 'High-cut carbon fiber helmet. Lower weight than MICH for improved mobility and hearing. NVG mount, Shroud rail system, ARC side rails. Premium civilian and SOF market platform.'},
+
+          // Protective Add-Ons
+          {id: 'collar-throat', name: 'Throat & Collar Protector', category: 'armor', weight: 0.8, slots: 1, tier: 'support', reason: 'Soft armor neck and throat panel. Mounts to IOTV and full-coverage carriers. Protects against fragmentation, shrapnel, and pistol-caliber threats to the neck and lower face.'},
+          {id: 'groin-flap', name: 'Groin & Lower Abdominal Protector', category: 'armor', weight: 1.2, slots: 1, tier: 'support', reason: 'Ballistic-rated groin flap for IOTV and CIRAS carriers. Soft armor construction. Provides femoral artery and lower abdominal protection from fragmentation and direct pistol threats.'},
+          {id: 'shoulder-guards', name: 'Shoulder Armor Pads', category: 'armor', weight: 1.0, slots: 1, tier: 'support', reason: 'Soft-shell shoulder drape protection panels. Clips to IOTV and CIRAS shoulder runs. Protects brachial artery and shoulder girdle from indirect fragmentation and shrapnel.'},
+          {id: 'ballistic-eyewear', name: 'Ballistic Eyewear (APEL-rated)', category: 'armor', weight: 0.2, slots: 1, tier: 'support', reason: 'ANSI Z87.1 and MIL-PRF-32432 rated lenses. Protects against fragmentation, blast overpressure debris, and UV. APEL list approval required for issued equipment in US service.'},
+          {id: 'carrier-ifak', name: 'Rip-Away IFAK Pouch (carrier-mount)', category: 'armor', weight: 1.2, slots: 1, tier: 'critical', reason: 'Rip-away IFAK mounts to carrier cummerbund or rear panel. Contains tourniquet, chest seal, hemostatic gauze, and airway. Immediate trauma access without removing the bag.'},
+          {id: 'admin-chest-pouch', name: 'Admin Chest Pouch (MOLLE)', category: 'armor', weight: 0.4, slots: 1, tier: 'support', reason: 'Chest-mount admin panel for IDs, grid maps, pens, and SOPs. MOLLE-compatible for JPC, TacTec, CIRAS, and IOTV chest panel. Quick-access flat-lay organization.'}
         ];
 
         const PRESETS = {
@@ -341,6 +387,20 @@
             items: ['water-bladder', 'collapsible-pouch', 'filter-straw', 'purification-drops', 'electrolyte-tabs', 'med-pouch', 'otc-med-sleeve', 'hygiene-kit', 'tarp-bivy', 'rain-shell', 'ration-bars', 'meal-pouch', 'power-bank', 'battery-caddy', 'headlamp', 'charger-kit', 'paper-map', 'doc-wallet', 'hand-crank-radio', 'frs-handset', 'whistle-light', 'repair-tape'],
             targets: {water: 3, medical: 2, shelter: 2, food: 2, power: 3, navigation: 2, comms: 3, tools: 2},
             note: 'Broader vehicle-first preset for multi-person movement, duplicate comms, and longer shelter transitions.'
+          },
+          lightarmor: {
+            label: 'Light Armor',
+            bag: 'vehicle',
+            items: ['jpc-2', 'lvl3-pe', 'mich-2000', 'ballistic-eyewear', 'carrier-ifak', 'water-bladder', 'med-pouch', 'power-bank', 'headlamp', 'doc-wallet', 'gloves-mask'],
+            targets: {water: 1, medical: 2, power: 1, navigation: 1, tools: 1, armor: 3},
+            note: 'Lightweight protection rig — JPC 2.0 carrier with PE plates and MICH helmet. Minimizes worn weight while maintaining ballistic coverage for vehicle movement or active threat environments.'
+          },
+          fullarmor: {
+            label: 'Full Armor Rig',
+            bag: 'vehicle',
+            items: ['iotv-gen4', 'lvl4-ceramic', 'side-plates', 'ach-helmet', 'collar-throat', 'groin-flap', 'ballistic-eyewear', 'carrier-ifak', 'admin-chest-pouch', 'water-bladder', 'filter-straw', 'med-pouch', 'power-bank', 'headlamp', 'doc-wallet', 'hand-crank-radio', 'gloves-mask'],
+            targets: {water: 1, medical: 2, power: 1, navigation: 1, comms: 1, tools: 1, armor: 6},
+            note: 'Maximum protection loadout — IOTV Gen IV with Level IV ceramic plates, side plates, collar, groin, and ACH. Vehicle-first; not a walking load. Represents full US Army base protection standard.'
           }
         };
 
@@ -495,7 +555,7 @@
           itemGrid.innerHTML = visibleItems.map(item => {
             const loaded = state.selectedIds.includes(item.id);
             return `
-              <article class="item-card ${loaded ? 'loaded' : ''}">
+              <article class="item-card ${loaded ? 'loaded' : ''}" data-cat="${item.category}">
                 <div class="item-top">
                   <div>
                     <h4 class="item-name">${item.name}</h4>
@@ -688,5 +748,6 @@
         renderAll();
       })();
     </script>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

@@ -3,8 +3,11 @@ import sqlite3
 import json
 import uuid
 from datetime import datetime
-from PIL import Image
-import io
+
+try:
+    from PIL import Image
+except Exception:
+    Image = None
 
 
 class ManualStore:
@@ -47,64 +50,42 @@ class ManualStore:
         conn.close()
 
     def ensure_seed_data(self):
-        """Seed repo-backed mechanics entries into an empty database."""
-        conn = self._connect()
-        cur = conn.cursor()
-        cur.execute('SELECT COUNT(*) FROM manuals')
-        if cur.fetchone()[0]:
-            conn.close()
-            return
-        conn.close()
-
-        seed_manuals = [
-            {
-                'brand': 'Toyota',
-                'model': 'Corolla',
-                'year': '1996',
-                'title': 'Toyota Corolla 1996 Blueprint',
-                'description': 'Blueprint and parts for Toyota Corolla 1996.',
-                'license': 'Repo asset',
-                'image_paths': ['/static/manuals/images/demo1/blueprint.png'],
-                'mid': 'demo1',
-            },
-            {
-                'brand': 'Ford',
-                'model': 'F-150',
-                'year': '2015',
-                'title': 'Ford F-150 2015 Blueprint',
-                'description': 'Blueprint and parts for Ford F-150 2015.',
-                'license': 'Repo asset',
-                'image_paths': ['/static/manuals/images/demo2/blueprint.png'],
-                'mid': 'demo2',
-            },
-            {
-                'brand': 'Honda',
-                'model': 'Civic',
-                'year': '2010',
-                'title': 'Honda Civic 2010 Blueprint',
-                'description': 'Blueprint and parts for Honda Civic 2010.',
-                'license': 'Repo asset',
-                'image_paths': ['/static/manuals/images/demo3/blueprint.png'],
-                'mid': 'demo3',
-            },
-        ]
-
-        for item in seed_manuals:
-            image_paths = item['image_paths']
-            if not all(os.path.exists(os.path.join(self.app_root, path.lstrip('/'))) for path in image_paths):
-                continue
-            self.add_manual(
-                brand=item['brand'],
-                model=item['model'],
-                year=item['year'],
-                title=item['title'],
-                description=item['description'],
-                license=item['license'],
-                source_url=None,
-                pdf_path=None,
-                image_paths=image_paths,
-                mid=item['mid'],
+        """Seed military vehicle entries, replacing any legacy civilian demo data."""
+        try:
+            conn = self._connect()
+            cur = conn.cursor()
+            # Remove legacy civilian demo entries
+            cur.execute(
+                "DELETE FROM manuals WHERE id IN ('demo1','demo2','demo3') "
+                "OR brand IN ('Toyota','Ford','Honda','Chevrolet','Jeep')"
             )
+            conn.commit()
+            cur.execute('SELECT COUNT(*) FROM manuals')
+            total = cur.fetchone()[0]
+            if total > 0:
+                conn.close()
+                return
+            # Batch-insert all military seed entries in a single transaction
+            now = datetime.utcnow().isoformat() + 'Z'
+            rows = [
+                (
+                    item['mid'], item['brand'], item['model'], item['year'],
+                    item['title'], item['description'],
+                    'Public Domain / US DoD', None, None,
+                    json.dumps([]), now,
+                )
+                for item in _mil_seed_entries()
+            ]
+            cur.executemany(
+                'INSERT OR IGNORE INTO manuals '
+                '(id,brand,model,year,title,description,license,source_url,pdf_path,image_paths,created) '
+                'VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                rows,
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass  # Never crash app startup due to seed failure
 
     def add_manual(self, brand, model, year, title, description, license, source_url, pdf_path, image_paths, mid=None):
         if mid is None:
@@ -187,6 +168,9 @@ class ManualStore:
 
         Returns a list of created thumbnail relative URLs.
         """
+        if Image is None:
+            return []
+
         folder = os.path.join(self.image_dir, mid)
         if not os.path.isdir(folder):
             return []
@@ -220,3 +204,114 @@ class ManualStore:
                 # Skip problematic images
                 continue
         return created
+
+
+def _mil_seed_entries():
+    """Generate military vehicle DB seed entries (2000-2026)."""
+    def _yr(brand, model, start, end, desc, mid_pfx=None):
+        pfx = mid_pfx or ('mil-' + brand.lower().replace(' ', '')[:10] + '-' + model.lower().replace(' ', '').replace('/', '').replace('×', 'x')[:14])
+        return [
+            {
+                'brand': brand, 'model': model, 'year': str(y),
+                'title': f'{brand} {model} {y}',
+                'description': desc,
+                'image_paths': [],
+                'mid': f'{pfx}-{y}',
+            }
+            for y in range(max(2000, start), min(2026, end) + 1)
+        ]
+
+    out = []
+    # ── GROUND COMBAT ─────────────────────────────────────────────────────────
+    out += _yr('AM General', 'HMMWV M1114', 2000, 2022,
+        'Up-Armored HMMWV. 6.5L turbocharged V8 diesel, 4-speed TH400 automatic, 4×4, GVW 12,100 lb. Ballistic glass, armored cab, A/B-kit armor package, M2 .50-cal or MK19 roof mount.')
+    out += _yr('AM General', 'HMMWV M1151A1', 2006, 2026,
+        'Expanded Capacity Vehicle HMMWV. Enhanced underbody blast protection, 6.5L V8 diesel, 4×4, payload 2,500 lb, roof-mounted weapon system capable, ECV armor kit.')
+    out += _yr('AM General', 'LSSV', 2000, 2016,
+        'Light Service Support Vehicle. Commercial off-the-shelf pickup platform for logistics and support roles. 6.5L diesel or gasoline V8, 4×4.')
+    out += _yr('Oshkosh', 'M-ATV', 2009, 2026,
+        'MRAP All-Terrain Vehicle. TAK-4i independent suspension, Caterpillar C7 diesel 370 hp, monocoque V-hull crew capsule, 7-ton GVW, 4×4 wheeled.')
+    out += _yr('Oshkosh', 'JLTV L-ATV', 2016, 2026,
+        'Joint Light Tactical Vehicle. 6.6L Duramax turbodiesel, IWS independent wheel suspension, 3.5-ton payload, 70 mph road speed, B-kit armor capable, 4×4.')
+    out += _yr('Oshkosh', 'FMTV A2', 2000, 2026,
+        'Family of Medium Tactical Vehicles. Caterpillar C7 7.2L diesel, Allison 3000SP automatic, CTI central tire inflation, variants 2.5-10 ton payload, 6×6 wheeled.')
+    out += _yr('Oshkosh', 'HEMTT A4', 2000, 2026,
+        'Heavy Expanded Mobility Tactical Truck. Detroit Diesel Series 60, Allison HD4060P automatic, 8×8 wheeled, 15-ton payload, 65,000 lb GVW, tanker/wrecker/cargo variants.')
+    out += _yr('BAE Systems', 'M2A3 Bradley IFV', 2000, 2026,
+        'Infantry Fighting Vehicle. Cummins VTA-903T 600 hp diesel, 25mm M242 Bushmaster, TOW missile launcher, 7 dismounts, tracked, 33-ton combat weight.')
+    out += _yr('BAE Systems', 'M3A3 Bradley CFV', 2000, 2026,
+        'Cavalry Fighting Vehicle. Same M2A3 chassis, optimized for scout/recon, TOW missiles, no rear ramp dismount troop bay, 2-man crew + 2 scouts.')
+    out += _yr('BAE Systems', 'AMPV', 2020, 2026,
+        'Armored Multi-Purpose Vehicle. BAE turbodiesel 675 hp, tracked, replaces M113, 2 crew + 6 dismounts, improved blast protection, C2/medevac/mortar variants.')
+    out += _yr('BAE Systems', 'RG31 Nyala', 2006, 2020,
+        'South African V-hull MRAP. 7.2L diesel, 4×4 wheeled, 6-seat blast capsule, mine-protected floor, used in OIF/OEF by US/coalition forces.')
+    out += _yr('BAE Systems', 'M113A3 APC', 2000, 2015,
+        'Armored Personnel Carrier. Chrysler 75M V8 diesel, 11.4-ton, tracked, aluminum hull, amphibious, 2 crew + 11 infantry, widely replaced by AMPV.')
+    out += _yr('General Dynamics', 'M1A2 SEP Abrams', 2000, 2026,
+        'Main Battle Tank SEP. Honeywell AGT1500 gas turbine 1,500 hp, 120mm M256A1 smoothbore, composite Chobham/DU armor, 68-ton combat weight, tracked.')
+    out += _yr('General Dynamics', 'M1A2 SEPv3 Abrams', 2017, 2026,
+        'System Enhancement Package v3 MBT. New auxiliary power unit, improved FLIR, commander thermal viewer, USB-3 architecture, Trophy APS capable, 120mm cannon.')
+    out += _yr('General Dynamics', 'Stryker ICV', 2003, 2026,
+        'Infantry Carrier Vehicle. Caterpillar C7 diesel 350 hp, 8×8 wheeled, double V-hull, 9 dismounts + 2 crew, slat/appliqué armor options, 62 mph road speed.')
+    out += _yr('General Dynamics', 'Stryker MGS', 2008, 2026,
+        'Mobile Gun System. 105mm M68A2 rifled cannon, autoloader magazine, 350 hp diesel, 8×8 wheeled, direct-fire support for Stryker brigade combat teams.')
+    out += _yr('Force Protection', 'Cougar 4x4 MRAP', 2004, 2019,
+        'Category I MRAP. Caterpillar C7 diesel, V-hull monocoque capsule, 4×4 wheeled, 4-seat blast protected crew compartment, M2/MK19/M240 gun mount provisions.')
+    out += _yr('Force Protection', 'Cougar 6x6 MRAP', 2004, 2019,
+        'Category II MRAP. Caterpillar C9 diesel, 6×6 wheeled, enlarged 7-seat blast capsule, EOD and medevac variants, husky/buffalo family member.')
+    out += _yr('Navistar', 'MaxxPro MRAP', 2007, 2019,
+        'International MaxxPro. MaxxForce 9 diesel, V-hull under-body blast deflection, 4×4, Category I MRAP, add-on armor kit, 1 driver + 5 passengers.')
+    out += _yr('Navistar', 'MaxxPro Dash', 2010, 2019,
+        'Reduced height MaxxPro variant. Improved off-road mobility, lower center of gravity, same MaxxForce diesel, Category I MRAP, OIF/OEF deployed.')
+    out += _yr('Polaris', 'MRZR-D4', 2014, 2026,
+        'Ultra-Light Combat Vehicle. 4-cyl turbocharged diesel, 4×4, 1,500 lb payload, 14.5 in ground clearance, air-transportable, special operations forces primary vehicle.')
+    out += _yr('Textron', 'M1117 Guardian ASV', 2000, 2020,
+        'Armored Security Vehicle. Cummins 6CTA diesel, Allison automatic, 4×4 wheeled, M2 .50-cal + MK19, V-hull, military police and convoy escort platform.')
+
+    # ── AVIATION ──────────────────────────────────────────────────────────────
+    out += _yr('Boeing', 'AH-64D Apache Longbow', 2000, 2012,
+        'Attack helicopter. Two GE T700-GE-701C turboshafts 1,890 shp each, 30mm M230 chain gun, 16× Hellfire or 76× Hydra rockets, Longbow millimeter-wave radar dome.')
+    out += _yr('Boeing', 'AH-64E Apache Guardian', 2012, 2026,
+        'Block III attack helicopter. Two GE T700-GE-701D 2,000 shp each, improved drivetrain, UAS teaming Level IV autonomy, 30mm cannon, Hellfire/Stinger/Spike NLOS.')
+    out += _yr('Boeing', 'CH-47D Chinook', 2000, 2012,
+        'Heavy-lift tandem rotor helicopter. Two Lycoming T55-L-712 turboshafts 3,750 shp each, 26,000 lb useful load, triple-hook cargo system, 55 troops or 24 litters.')
+    out += _yr('Boeing', 'CH-47F Chinook', 2007, 2026,
+        'Modernized Chinook. Two Honeywell T55-GA-714A 4,733 shp each, CAAS digital cockpit, 21,000 lb sling load, multi-mode digital automatic flight control system.')
+    out += _yr('Sikorsky', 'UH-60L Black Hawk', 2000, 2009,
+        'Utility transport helicopter. Two GE T700-GE-701C 1,940 shp each, 11 troops or 8,000 lb external load, ESSS stub wing pylons, HOIST, 178 kt max speed.')
+    out += _yr('Sikorsky', 'UH-60M Black Hawk', 2007, 2026,
+        'Upgraded Black Hawk. Two GE T700-GE-701D 2,000 shp each, wide-chord composite blades, Rockwell Collins EFIS cockpit, FADEC, 9,000 lb sling load capability.')
+    out += _yr('Bell', 'UH-1Y Venom', 2008, 2026,
+        'USMC utility helicopter. Two GE T700-GE-401C 1,828 shp each, four-blade composite rotor, 8,000 lb sling load, 4 crew + 10 troops, H-1 upgrade commonality with AH-1Z.')
+    out += _yr('Bell', 'AH-1Z Viper', 2010, 2026,
+        'USMC attack helicopter. Two GE T700-GE-401C, four-blade semi-rigid rotor, 20mm M197 tri-barrel, Hellfire/Zuni/Sidewinder/APKWS, NTS targeting system, USMC primary attack helo.')
+    out += _yr('Lockheed Martin', 'F-22A Raptor', 2005, 2026,
+        '5th-gen air superiority fighter. Two P&W F119-PW-100 35,000 lbf with A/B, supercruise at Mach 1.8, stealth LO signature, 20mm M61A2 Vulcan, AIM-120/AIM-9.')
+    out += _yr('Lockheed Martin', 'F-35A Lightning II', 2015, 2026,
+        'CTOL multi-role 5th-gen fighter. P&W F135-PW-100 43,000 lbf, 25mm GAU-22/A internal gun, EOTS/EODAS/APG-81 AESA, LO stealth, USAF primary tactical fighter.')
+    out += _yr('Lockheed Martin', 'F-35B Lightning II', 2015, 2026,
+        'STOVL 5th-gen fighter. P&W F135-PW-600 with LiftSystem shaft-driven lift fan, 18,000 lbf vertical thrust, USMC/UK/Italy STOVL primary strike aircraft.')
+    out += _yr('Lockheed Martin', 'F-35C Lightning II', 2019, 2026,
+        'CV naval 5th-gen fighter. P&W F135-PW-400, reinforced undercarriage, catapult launch bar, folding wingtips, USN carrier-based primary strike/air superiority.')
+    out += _yr('Boeing', 'F-15EX Eagle II', 2021, 2026,
+        'Advanced 4th-gen fighter. Two P&W F100-PW-229EEP 29,000 lbf each, 8 wing pylons + 5 centerline, 29,500 lb max payload, Raytheon EPAWSS EW, USAF air superiority.')
+    out += _yr('General Atomics', 'MQ-9A Reaper', 2007, 2026,
+        'MALE UCAV. Honeywell TPE331-10T turboprop 900 shp, 50,000 ft service ceiling, 14+ hr endurance, 4× AGM-114 Hellfire, 2× GBU-12, Lynx multi-mode radar, USAF/CIA primary.')
+    out += _yr('Northrop Grumman', 'RQ-4B Global Hawk', 2004, 2026,
+        'HALE strategic ISR UAV. Rolls-Royce AE3007H turbofan 7,050 lbf, 60,000 ft cruise, 30+ hr endurance, SAR/EO/IR/SIGINT integrated suite, signals intelligence mission aircraft.')
+    out += _yr('Northrop Grumman', 'MQ-4C Triton', 2018, 2026,
+        'BAMS maritime HALE UAV. RR AE3007H turbofan, 360° sensor sweep, multi-INT maritime surface search, 30+ hr endurance, USN Broad Area Maritime Surveillance program.')
+
+    # ── NAVAL ─────────────────────────────────────────────────────────────────
+    out += _yr('Huntington Ingalls', 'DDG-51 Arleigh Burke', 2000, 2026,
+        'Guided-missile destroyer. Two GE LM2500-30 gas turbines COGAG, 100,000 shp, 30+ kt, Mk 41 VLS 96 cells, Aegis AN/SPY-1D(V) radar, Phalanx CIWS, 5in/62 gun.')
+    out += _yr('Huntington Ingalls', 'LCS-1 Freedom', 2008, 2026,
+        'Freedom-class Littoral Combat Ship (monohull). CODAG propulsion, 47-kt sprint speed, Mk 110 57mm gun, reconfigurable mission module bays, 40 crew core.')
+    out += _yr('General Dynamics', 'LCS-2 Independence', 2010, 2026,
+        'Independence-class trimaran LCS. COGAG propulsion, 44-kt sprint, large flight deck for two MH-60 helicopters, MQ-8 capable, reconfigurable mission modules.')
+    out += _yr('General Dynamics', 'Virginia-class SSN', 2004, 2026,
+        'Fast-attack nuclear submarine. S9G PWR reactor, GE steam turbines, 25+ kt submerged, 12× VLS Tomahawk TLAM, four 533mm torpedo tubes Mk 48 ADCAP, 135 crew.')
+    out += _yr('Huntington Ingalls', 'CVN-78 Ford-class', 2017, 2026,
+        'Nuclear aircraft carrier. Two A1B PWR reactors, EMALS electromagnetic catapult, AAG arresting gear, 90 aircraft, 4.5-acre flight deck, AN/SPY-3 MFR, 4,539 crew.')
+
+    return out

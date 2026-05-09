@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Manuals — Future Code Delta</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
   </head>
   <body>
     <header class="hero">
@@ -55,5 +55,6 @@
         <p class="backend-status-text">If you want, I can add an admin upload route and an ingestion script to fetch public-domain vehicle images from Wikimedia Commons. I cannot fetch or embed proprietary manuals or blueprints without explicit permission.</p>
       </aside>
     </main>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
   </html>

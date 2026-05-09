@@ -3,24 +3,83 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Mechanics — All Vehicles</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <title>Mechanics — Military Vehicles</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
   </head>
   <body>
     <header class="hero">
       <div class="title">
-        <h1>MECHANICS — ALL VEHICLES</h1>
-        <p class="tag">Browse all makes, models, and years. Click a year for blueprints/manuals.</p>
+        <h1>MECHANICS — MILITARY VEHICLES</h1>
+        <p class="tag">Ground Combat • Aviation • Naval • 2000–2026 platforms. Click a year for blueprints &amp; manuals.</p>
       </div>
       {% include '_top_nav.html' %}
     </header>
-    <main class="container mechanics-browser-main">
-      <section class="editor mechanics-browser-section">
-        <div class="output mechanics-browser-scroll">
-          <h2>All Makes & Models</h2>
-          {% if brands %}
+    <main>
+      <div class="mechanics-browser-main">
+      <section class="mechanics-browser-section">
+        <div class="mechanics-browser-scroll">
+          {% set GROUND_BRANDS = ['AM General','Oshkosh','BAE Systems','General Dynamics','Force Protection','Navistar','Polaris','Textron'] %}
+          {% set AIR_BRANDS    = ['Boeing','Sikorsky','Bell','Lockheed Martin','General Atomics','Northrop Grumman'] %}
+          {% set NAVAL_BRANDS  = ['Huntington Ingalls'] %}
+          {% set CATEGORIES = [
+              ('GROUND COMBAT', GROUND_BRANDS, 'cat-ground'),
+              ('AVIATION',      AIR_BRANDS,    'cat-air'),
+              ('NAVAL',         NAVAL_BRANDS,  'cat-naval'),
+          ] %}
+          {% set all_cat_brands = GROUND_BRANDS + AIR_BRANDS + NAVAL_BRANDS %}
+
+          {% for cat_label, cat_brands, cat_cls in CATEGORIES %}
+            {% set cat_items = brands | selectattr('__class__') | list %}
+            {# filter brands list to those in this category #}
+            {% set ns = namespace(has_items=false) %}
+            {% for brand in brands %}{% if brand in cat_brands %}{% set ns.has_items = true %}{% endif %}{% endfor %}
+            {% if ns.has_items %}
+            <div class="mil-category {{ cat_cls }}">
+              <h2 class="cat-heading">{{ cat_label }}</h2>
+              <ul class="mech-make-list">
+                {% for brand in brands %}
+                  {% if brand in cat_brands %}
+                  <li class="mech-make">
+                    <strong>{{ brand }}</strong>
+                    {% set models = models_by_brand.get(brand, []) %}
+                    {% if models %}
+                      <ul class="mech-model-list">
+                        {% for model in models %}
+                          <li class="mech-model">
+                            <span>{{ model }}</span>
+                            {% set years = years_by_brand_model.get((brand, model), []) %}
+                            {% if years %}
+                              <span class="mech-years">
+                              {% for year in years %}
+                                <a class="mech-year-link" href="/mechanics/{{ brand }}/{{ model }}/{{ year }}">{{ year }}</a>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                              </span>
+                            {% else %}
+                              <em>no years</em>
+                            {% endif %}
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <em>no models</em>
+                    {% endif %}
+                  </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+          {% endfor %}
+
+          {# Uncategorised brands (fallback) #}
+          {% set has_other = namespace(v=false) %}
+          {% for brand in brands %}{% if brand not in all_cat_brands %}{% set has_other.v = true %}{% endif %}{% endfor %}
+          {% if has_other.v %}
+          <div class="mil-category cat-other">
+            <h2 class="cat-heading">OTHER</h2>
             <ul class="mech-make-list">
               {% for brand in brands %}
+                {% if brand not in all_cat_brands %}
                 <li class="mech-make">
                   <strong>{{ brand }}</strong>
                   {% set models = models_by_brand.get(brand, []) %}
@@ -31,7 +90,7 @@
                           <span>{{ model }}</span>
                           {% set years = years_by_brand_model.get((brand, model), []) %}
                           {% if years %}
-                            <span class="mech-years">Years:
+                            <span class="mech-years">
                             {% for year in years %}
                               <a class="mech-year-link" href="/mechanics/{{ brand }}/{{ model }}/{{ year }}">{{ year }}</a>{% if not loop.last %}, {% endif %}
                             {% endfor %}
@@ -46,25 +105,19 @@
                     <em>no models</em>
                   {% endif %}
                 </li>
+                {% endif %}
               {% endfor %}
             </ul>
-          {% else %}
+          </div>
+          {% endif %}
+
+          {% if not brands %}
             <p>No vehicles indexed yet.</p>
           {% endif %}
         </div>
       </section>
+      </div>
     </main>
-    <style>
-      .mechanics-browser-main{max-width:1200px;margin:0 auto;padding:24px 0;}
-      .mechanics-browser-section{background:var(--panel);border-radius:12px;padding:24px;box-shadow:0 2px 12px #0002;}
-      .mechanics-browser-scroll{max-height:70vh;overflow-y:auto;}
-      .mech-make-list{list-style:none;padding:0;margin:0;display:grid;gap:18px;}
-      .mech-make>strong{font-size:1.2rem;color:var(--accent-bright);letter-spacing:1.5px;}
-      .mech-model-list{list-style:none;padding-left:18px;margin:8px 0 0;display:grid;gap:8px;}
-      .mech-model>span{font-weight:600;color:var(--gold);margin-right:8px;}
-      .mech-years{font-size:.98em;color:var(--text2);margin-left:8px;}
-      .mech-year-link{color:var(--accent);text-decoration:underline dotted;transition:color .2s;}
-      .mech-year-link:hover{color:var(--accent-bright);}
-    </style>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

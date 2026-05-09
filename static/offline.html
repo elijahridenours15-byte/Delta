@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1a1f16">
+    <title>Delta Coding Offline</title>
+    <style>
+      :root {
+        --bg: #0d1109;
+        --panel: #141912;
+        --panel-2: #1d2418;
+        --border: #2d3728;
+        --accent: #8b9d6a;
+        --accent-bright: #c8d5a3;
+        --text: #edf2e2;
+        --muted: #a3ae95;
+        --warning: #c4a265;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(139, 157, 106, 0.16), transparent 38%),
+          linear-gradient(180deg, #0c1008 0%, #11160d 100%);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .offline-shell {
+        width: min(860px, 100%);
+        background: rgba(20, 25, 18, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      }
+
+      .eyebrow,
+      .link-list a,
+      .status {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .eyebrow {
+        color: var(--accent-bright);
+        letter-spacing: 1.6px;
+        font-size: 0.72rem;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        line-height: 1.05;
+      }
+
+      p {
+        margin: 0 0 14px;
+        line-height: 1.65;
+        color: var(--muted);
+        max-width: 62ch;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 6px 0 22px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(196, 162, 101, 0.28);
+        background: rgba(196, 162, 101, 0.08);
+        color: var(--warning);
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .status::before {
+        content: '';
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--warning);
+        box-shadow: 0 0 12px rgba(196, 162, 101, 0.45);
+      }
+
+      .link-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin: 22px 0;
+      }
+
+      .link-list a {
+        display: block;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--accent-bright);
+        text-decoration: none;
+        font-size: 0.76rem;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+      }
+
+      .link-list a:hover {
+        border-color: var(--accent);
+      }
+
+      .note-box {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+      }
+
+      .note-box strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      .note-box ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      @media (max-width: 640px) {
+        .offline-shell {
+          padding: 22px;
+          border-radius: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="offline-shell">
+      <div class="eyebrow">Delta Offline Mode</div>
+      <h1>Core site shell is available without Wi-Fi.</h1>
+      <div class="status">Connection unavailable</div>
+      <p>The website now keeps the main pages cached on your device after you visit them online once. You can reopen those cached routes later without a network connection.</p>
+      <p>Use these cached entry points while offline:</p>
+      <div class="link-list">
+        <a href="/">Ops Center</a>
+        <a href="/drone">Drone Command</a>
+        <a href="/map">Tac Map</a>
+        <a href="/survival">Survival</a>
+        <a href="/weapons">Weapons</a>
+        <a href="/mechanics">Mechanics</a>
+        <a href="/mechanics/blueprints">Blueprints</a>
+        <a href="/manuals">Manuals</a>
+        <a href="/radio">Radio</a>
+        <a href="/truth">Truth</a>
+      </div>
+      <div class="note-box">
+        <strong>Offline limits</strong>
+        <ul>
+          <li>Live feeds, internet lookups, online visitor counts, and external AI calls still need connectivity.</li>
+          <li>If a page was never cached before going offline, reopen it once while connected so the service worker can store it.</li>
+          <li>For a full installable copy, use the Offline App download from the navigation menu, extract it, and run the installer script for your PC.</li>
+        </ul>
+      </div>
+    </main>
+  </body>
+</html>

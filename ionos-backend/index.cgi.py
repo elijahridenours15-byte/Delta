@@ -12,11 +12,12 @@ os.chdir(ROOT)
 sys.path.insert(0, str(ROOT))
 
 
-def fail_with_traceback():
+def fail_with_error():
+    sys.stderr.write(traceback.format_exc())
     print('Status: 500 Internal Server Error')
-    print('Content-Type: text/plain')
+    print('Content-Type: text/plain; charset=utf-8')
     print()
-    print(traceback.format_exc())
+    print('Delta Coding backend failed to start.')
 
 deps_dir = ROOT / 'vendor'
 if deps_dir.exists():
@@ -77,19 +78,8 @@ try:
             environ['SCRIPT_NAME'] = ''
 
         environ['PATH_INFO'] = path_info or '/'
-        try:
-            return app.wsgi_app(environ, start_response)
-        except Exception:
-            body = traceback.format_exc().encode('utf-8')
-            start_response(
-                '500 Internal Server Error',
-                [
-                    ('Content-Type', 'text/plain; charset=utf-8'),
-                    ('Content-Length', str(len(body))),
-                ],
-            )
-            return [body]
+        return app.wsgi_app(environ, start_response)
 
     CGIHandler().run(root_mounted_app)
 except Exception:
-    fail_with_traceback()
+    fail_with_error()

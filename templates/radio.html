@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — SIGINT Radio Lab</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Software-defined radio tools, frequency guides, and SIGINT intelligence resources. SDR scanner references, ham radio, and radio communications at FutureCodeDelta.org.">
+    <meta name="keywords" content="SDR, software defined radio, SIGINT, ham radio, frequency scanner, radio intelligence, RTL-SDR, radio tools, amateur radio">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — SIGINT Radio Lab">
+    <meta property="og:description" content="Software-defined radio tools, frequency guides, and SIGINT resources for ham radio and SDR operators.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/radio">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — SIGINT Radio Lab">
+    <meta name="twitter:description" content="SDR tools, frequency guides, and SIGINT resources for radio operators at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/radio">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
       .radio-page{padding:18px 24px;max-width:1300px;margin:0 auto}
       .radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -25,6 +38,10 @@
       .station-name{display:block;font-weight:700;margin-bottom:2px}
       .station-freq{font-size:10px;color:var(--muted);letter-spacing:1px}
       .station-btn.active .station-freq{color:var(--bg)}
+      .station-note{
+        margin-top:10px;padding:10px 12px;background:rgba(18,24,16,.8);border:1px solid rgba(139,157,106,.22);border-radius:4px;
+        color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;letter-spacing:.4px;
+      }
 
       .now-playing{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:14px}
       .np-viz{width:60px;height:40px;display:flex;align-items:flex-end;gap:2px}
@@ -133,9 +150,37 @@
         border:1px solid var(--border);border-radius:4px;padding:8px;
         font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;box-sizing:border-box;
       }
+
+      .freq-card{margin-top:18px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:24px}
+      .freq-card h3{color:var(--accent-bright);margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:2px;text-transform:uppercase}
+      .freq-intro{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.7;max-width:980px}
+      .freq-briefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
+      .freq-brief{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px}
+      .freq-brief-label{display:block;margin-bottom:6px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase}
+      .freq-brief strong{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:4px}
+      .freq-brief p{margin:0;color:var(--text2);font-size:12px;line-height:1.6}
+      .freq-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+      .freq-tab-btn{
+        background:var(--bg2);color:var(--muted);border:1px solid var(--border);border-radius:4px;
+        padding:9px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;
+        text-transform:uppercase;transition:all .2s;
+      }
+      .freq-tab-btn:hover{color:var(--accent)}
+      .freq-tab-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent)}
+      .freq-panel{display:none}
+      .freq-panel.active{display:block}
+      .freq-panel-note{margin:0 0 12px;padding:10px 12px;background:rgba(18,24,16,.8);border:1px solid rgba(139,157,106,.18);border-radius:4px;color:var(--muted);font-size:12px;line-height:1.7}
+      .freq-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;background:var(--bg2)}
+      .freq-table{width:100%;border-collapse:collapse;min-width:720px}
+      .freq-table th,.freq-table td{padding:10px 12px;border-bottom:1px solid rgba(139,157,106,.14);text-align:left;vertical-align:top}
+      .freq-table th{background:rgba(18,24,16,.92);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase}
+      .freq-table td{color:var(--text2);font-size:12px;line-height:1.55}
+      .freq-table tbody tr:last-child td{border-bottom:none}
+      .freq-table strong{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:12px}
       @media(max-width:600px){
         .radio-page{padding:14px 12px 22px}
         .radio-player-card,.morse-card,.lang-card{padding:16px}
+        .freq-card{padding:16px}
         .station-grid{grid-template-columns:1fr}
         .station-btn{min-height:46px}
         .now-playing{flex-direction:column;align-items:flex-start}
@@ -151,6 +196,10 @@
         .morse-mode-btn,.morse-btn{width:100%;min-height:42px}
         .lang-row{flex-direction:column;align-items:stretch}
         .lang-select{width:100%;min-width:0}
+        .freq-briefs{grid-template-columns:1fr}
+        .freq-tabs{flex-direction:column}
+        .freq-tab-btn{width:100%;min-height:42px}
+        .freq-table{min-width:620px}
         .morse-ref-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       }
       @media(max-width:400px){
@@ -189,6 +238,7 @@
           <div class="radio-player-card" style="margin-bottom:18px">
             <h3>&#x1F4E1; RADIO INTERCEPT</h3>
             <div class="station-grid" id="station-grid"></div>
+            <div class="station-note">End Time Headlines Live launches the ministry live desk in a new tab because ETH does not publish a raw public audio stream. Prophecy Today Radio is a direct Christian stream and stays inside the player.</div>
 
             <div class="now-playing">
               <div class="np-viz" id="np-viz"></div>
@@ -321,6 +371,130 @@
           </div>
         </div>
       </div>
+
+      <div class="freq-card">
+        <h3>&#x2699; FREQUENCY SETTINGS &amp; BAND PLAN</h3>
+        <p class="freq-intro">Use this desk as the radio bar settings page for quick reference. Ham bands cover licensed amateur nets and repeaters, VHF covers marine, weather, and short-range line-of-sight channels, CB covers citizen-band mobile traffic and skip, and HF windows show where long-haul utility, emergency, and skywave contacts usually come alive.</p>
+
+        <div class="freq-briefs">
+          <div class="freq-brief">
+            <span class="freq-brief-label">Ham</span>
+            <strong>Local repeaters and trained nets</strong>
+            <p>Best for licensed operators working repeaters, simplex calling, APRS, emergency nets, and regional HF traffic.</p>
+          </div>
+          <div class="freq-brief">
+            <span class="freq-brief-label">CB</span>
+            <strong>Mobile convoy and roadside traffic</strong>
+            <p>Most useful for truckers, convoy coordination, and no-license local comms, with skip opening when solar conditions rise.</p>
+          </div>
+          <div class="freq-brief">
+            <span class="freq-brief-label">VHF</span>
+            <strong>Line-of-sight local and marine traffic</strong>
+            <p>Best for boats, port traffic, NOAA weather, MURS, and other local short-haul channels where terrain matters.</p>
+          </div>
+          <div class="freq-brief">
+            <span class="freq-brief-label">HF</span>
+            <strong>Regional to intercontinental reach</strong>
+            <p>Long-haul skywave windows connect aviation, maritime, military, broadcasters, and disaster traffic well beyond line of sight.</p>
+          </div>
+        </div>
+
+        <div class="freq-tabs" role="tablist" aria-label="Frequency reference tabs">
+          <button class="freq-tab-btn active" data-band="ham" role="tab" aria-selected="true">Ham / Amateur</button>
+          <button class="freq-tab-btn" data-band="vhf" role="tab" aria-selected="false">VHF / Marine</button>
+          <button class="freq-tab-btn" data-band="cb" role="tab" aria-selected="false">CB / 11 Meter</button>
+          <button class="freq-tab-btn" data-band="hf" role="tab" aria-selected="false">HF / Long Haul</button>
+        </div>
+
+        <section class="freq-panel active" data-band-panel="ham">
+          <p class="freq-panel-note">These amateur allocations are the quickest way to decide what your radio will connect to: HF bands carry NVIS and long-haul contacts, while 6 m, 2 m, and 70 cm connect to repeaters, simplex calling channels, APRS, and local tactical nets. Transmit only where your license class permits.</p>
+          <div class="freq-table-wrap">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Band</th>
+                  <th>Range</th>
+                  <th>Best link</th>
+                  <th>What it connects to</th>
+                </tr>
+              </thead>
+              <tbody id="ham-band-rows"></tbody>
+            </table>
+          </div>
+          <div class="freq-table-wrap" style="margin-top:12px">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Call / data freq</th>
+                  <th>Mode</th>
+                  <th>Use</th>
+                </tr>
+              </thead>
+              <tbody id="ham-call-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="freq-panel" data-band-panel="vhf">
+          <p class="freq-panel-note">VHF stays mostly line-of-sight, so it connects to nearby vessels, coastal stations, weather transmitters, and local tactical users rather than skywave skip. Channels 1 and 2 are included here first, then the main marine, weather, and MURS channels operators actually use in the field.</p>
+          <div class="freq-table-wrap">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Frequency</th>
+                  <th>What it connects to</th>
+                </tr>
+              </thead>
+              <tbody id="vhf-channel-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="freq-panel" data-band-panel="cb">
+          <p class="freq-panel-note">CB channels are fixed. Most will connect to nearby mobile rigs and base stations, while strong ionospheric openings turn 11 meters into a long-range skip band. Channel 9 stays the emergency/traveler-assist standby, Channel 19 remains the main highway channel, and Channels 36-40 are the most common SSB DX windows.</p>
+          <div class="freq-table-wrap">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Channel</th>
+                  <th>Frequency</th>
+                  <th>What it will connect to</th>
+                </tr>
+              </thead>
+              <tbody id="cb-channel-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="freq-panel" data-band-panel="hf">
+          <p class="freq-panel-note">HF propagation changes by daylight, season, and solar conditions. Lower HF usually stays regional at night, middle HF carries cross-country traffic, and the upper HF windows open true intercontinental paths when the sun cooperates. The utility list below gives you practical frequencies that routinely connect to maritime, aviation, and military traffic.</p>
+          <div class="freq-table-wrap">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Range</th>
+                  <th>When it opens</th>
+                  <th>What you will hear / connect to</th>
+                </tr>
+              </thead>
+              <tbody id="hf-window-rows"></tbody>
+            </table>
+          </div>
+          <div class="freq-table-wrap" style="margin-top:12px">
+            <table class="freq-table">
+              <thead>
+                <tr>
+                  <th>Frequency</th>
+                  <th>Service</th>
+                  <th>Typical traffic</th>
+                </tr>
+              </thead>
+              <tbody id="hf-utility-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
 
     <script>
@@ -329,16 +503,89 @@
       // RADIO STATIONS — Free internet radio streams
       // ══════════════════════════════════════════════════════════
       const STATIONS = [
-        {name:'NOAA Weather',    freq:'162.400 MHz', url:'https://radio.weatherusa.net/NWR/KEC80.mp3', genre:'Weather'},
-        {name:'Scanner Radio',   freq:'VHF/UHF',     url:'https://broadcastify.cdnstream1.com/14747', genre:'Scanner'},
-        {name:'BBC World Svc',   freq:'SW 6.195 MHz', url:'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service', genre:'Intel'},
-        {name:'NPR News',        freq:'FM 90.1',     url:'https://npr-ice.streamguys1.com/live.mp3', genre:'News'},
-        {name:'Classical WQXR',  freq:'FM 105.9',    url:'https://stream.wqxr.org/js-stream.aac', genre:'Ambient'},
-        {name:'Lofi Beats',      freq:'NET STREAM',  url:'https://play.streamafrica.net/lofiradio', genre:'Focus'},
-        {name:'Jazz FM',         freq:'NET STREAM',  url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3', genre:'Jazz'},
-        {name:'Infowars Live',   freq:'NET STREAM',  url:'https://stream.infowars.com/live', genre:'Talk'},
-        {name:'Deep Space Radio', freq:'NET STREAM', url:'https://stream.deepspaceone.com/deepspaceone.aac', genre:'Ambient'},
-        {name:'Bible Audio',     freq:'AM 1110',    url:'https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3', genre:'Scripture'},
+        {key:'noaa', name:'NOAA Weather', freq:'162.400 MHz', url:'https://radio.weatherusa.net/NWR/KEC80.mp3', genre:'Weather'},
+        {key:'scanner', name:'Scanner Radio', freq:'VHF/UHF', url:'https://broadcastify.cdnstream1.com/14747', genre:'Scanner'},
+        {key:'bbc-world-service', name:'BBC World Svc', freq:'SW 6.195 MHz', url:'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service', genre:'Intel'},
+        {key:'npr-news', name:'NPR News', freq:'FM 90.1', url:'https://npr-ice.streamguys1.com/live.mp3', genre:'News'},
+        {key:'classical-wqxr', name:'Classical WQXR', freq:'FM 105.9', url:'https://stream.wqxr.org/js-stream.aac', genre:'Ambient'},
+        {key:'lofi-beats', name:'Lofi Beats', freq:'NET STREAM', url:'https://play.streamafrica.net/lofiradio', genre:'Focus'},
+        {key:'jazz-fm', name:'Jazz FM', freq:'NET STREAM', url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3', genre:'Jazz'},
+        {key:'infowars-live', name:'Infowars Live', freq:'NET STREAM', url:'https://stream.infowars.com/live', genre:'Talk'},
+        {key:'end-time-headlines-live', name:'End Time Headlines Live', freq:'LIVE DESK', url:'https://www.youtube.com/@EndtimeheadlinesOrg/live', genre:'External', mode:'external', detail:'Launches ETH live page'},
+        {key:'prophecy-today-radio', name:'Prophecy Today Radio', freq:'NET STREAM', url:'https://streaming.radio.co/sa2953afc7/listen', genre:'Christian'},
+        {key:'deep-space', name:'Deep Space Radio', freq:'NET STREAM', url:'https://stream.deepspaceone.com/deepspaceone.aac', genre:'Ambient'},
+        {key:'bible-audio', name:'Bible Audio', freq:'AM 1110', url:'https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3', genre:'Scripture'},
+      ];
+
+      const HAM_BANDS = [
+        {band:'160m', range:'1.800-2.000 MHz', link:'Night / NVIS', connects:'Regional night nets, rural base stations, disaster traffic inside a few hundred miles.'},
+        {band:'80m', range:'3.500-4.000 MHz', link:'Night / NVIS', connects:'Statewide nets, emergency groups, church and preparedness nets after dark.'},
+        {band:'60m', range:'5.3305-5.4035 MHz', link:'Controlled regional', connects:'Channelized emergency and interoperability work where NVIS regional reach matters.'},
+        {band:'40m', range:'7.000-7.300 MHz', link:'Day + night', connects:'Regional nets by day and cross-country contacts after sunset.'},
+        {band:'30m', range:'10.100-10.150 MHz', link:'Digital / CW long haul', connects:'Keyboard digital, weak-signal links, and dependable medium to long-haul paths.'},
+        {band:'20m', range:'14.000-14.350 MHz', link:'Daylight intercontinental', connects:'Long-haul DX, maritime mobile nets, and global voice/data traffic.'},
+        {band:'17m', range:'18.068-18.168 MHz', link:'Daylight long haul', connects:'Cleaner DX windows and lower-contest long-haul contacts.'},
+        {band:'15m', range:'21.000-21.450 MHz', link:'Daylight / solar driven', connects:'Fast long-range contacts when the MUF rises and solar conditions are healthy.'},
+        {band:'12m', range:'24.890-24.990 MHz', link:'High-solar daylight', connects:'DX openings, tactical long-haul checks, and sparse but strong skip.'},
+        {band:'10m', range:'28.000-29.700 MHz', link:'Skip + local FM', connects:'Worldwide skip in active solar conditions plus FM repeaters and simplex locally.'},
+        {band:'6m', range:'50.000-54.000 MHz', link:'Local + sporadic E', connects:'Nearby simplex/repeaters most days and surprise multi-state skip during openings.'},
+        {band:'2m', range:'144.000-148.000 MHz', link:'Line of sight / repeater', connects:'Local repeaters, simplex calling, APRS, event ops, and most day-to-day ham traffic.'},
+        {band:'1.25m', range:'222.000-225.000 MHz', link:'Line of sight', connects:'Less crowded local repeaters and tactical simplex where supported.'},
+        {band:'70cm', range:'420.000-450.000 MHz', link:'Line of sight / repeater', connects:'Dense repeater networks, handheld ops, satellite work, and short tactical links.'},
+      ];
+
+      const HAM_CALLS = [
+        {freq:'50.125 MHz', mode:'6m SSB calling', use:'Primary weak-signal/calling point when six meters opens for skip.'},
+        {freq:'52.525 MHz', mode:'6m FM simplex', use:'Local FM calling and ad-hoc field coordination on six meters.'},
+        {freq:'146.520 MHz', mode:'2m FM simplex', use:'National calling channel for direct local contacts and meetup coordination.'},
+        {freq:'144.390 MHz', mode:'APRS', use:'Position beacons, tactical icons, text bursts, and digipeater/gateway traffic.'},
+        {freq:'446.000 MHz', mode:'70cm FM simplex', use:'UHF national calling channel for handheld-to-handheld and urban simplex.'},
+        {freq:'29.600 MHz', mode:'10m FM repeater', use:'Popular 10-meter repeater calling/output point when band conditions support it.'},
+        {freq:'14.300 MHz', mode:'20m USB', use:'Maritime Mobile Service Net and traveler/emergency assistance window.'},
+      ];
+
+      const VHF_CHANNELS = [
+        {channel:'Marine CH 01', freq:'156.050 MHz', connects:'Commercial, port, and nearby vessel traffic where Channel 1 is locally assigned.'},
+        {channel:'Marine CH 02', freq:'156.100 MHz', connects:'Harbor, coastal, and ship-to-ship traffic where Channel 2 is locally assigned.'},
+        {channel:'Marine CH 09', freq:'156.450 MHz', connects:'Alternate hailing, marina approach, and bridge contact without tying up distress channel 16.'},
+        {channel:'Marine CH 13', freq:'156.650 MHz', connects:'Bridge-to-bridge navigation safety traffic between vessels in close quarters.'},
+        {channel:'Marine CH 16', freq:'156.800 MHz', connects:'Primary hailing, distress, Coast Guard watch, and emergency maritime contact.'},
+        {channel:'Marine CH 22A', freq:'157.100 MHz', connects:'Coast Guard liaison and follow-up traffic after initial hail on Channel 16.'},
+        {channel:'NOAA WX 1', freq:'162.550 MHz', connects:'National Weather Service voice forecasts and severe weather alerts.'},
+        {channel:'NOAA WX 2', freq:'162.400 MHz', connects:'National Weather Service voice forecasts and local alerting where WX2 is active.'},
+        {channel:'NOAA WX 3', freq:'162.475 MHz', connects:'National Weather Service forecasts, watches, and warning bulletins.'},
+        {channel:'MURS 1', freq:'151.820 MHz', connects:'License-free local handheld traffic for farms, sites, and short-range team comms.'},
+        {channel:'MURS 2', freq:'151.880 MHz', connects:'License-free local team traffic and low-power business or rural coordination.'},
+      ];
+
+      const CB_FREQUENCIES = [
+        '26.965','26.975','26.985','27.005','27.015','27.025','27.035','27.055','27.065','27.075',
+        '27.085','27.105','27.115','27.125','27.135','27.155','27.165','27.175','27.185','27.205',
+        '27.215','27.225','27.255','27.235','27.245','27.265','27.275','27.285','27.295','27.305',
+        '27.315','27.325','27.335','27.345','27.355','27.365','27.375','27.385','27.395','27.405'
+      ];
+
+      const HF_WINDOWS = [
+        {range:'2.3-5 MHz', opens:'Night / poor solar daylight', hears:'Regional NVIS, lower-HF emergency nets, rural base stations, and maritime nighttime traffic.'},
+        {range:'5-8 MHz', opens:'Night + gray line', hears:'Cross-state voice nets, aeronautical support, and dependable overnight regional links.'},
+        {range:'8-12 MHz', opens:'Morning to evening', hears:'Cross-country traffic, maritime and aviation utility channels, and strong medium-haul paths.'},
+        {range:'12-18 MHz', opens:'Daylight', hears:'International broadcasters, long-haul utility, maritime, and aviation circuits.'},
+        {range:'18-22 MHz', opens:'Midday / high MUF', hears:'Intercontinental paths, long-range DX, and high-band utility during active solar periods.'},
+        {range:'22-30 MHz', opens:'Strong solar daylight', hears:'Upper-HF skip, military/aviation utility, and long-range sporadic openings.'},
+      ];
+
+      const HF_UTILITIES = [
+        {freq:'2182 kHz', service:'Maritime distress voice', traffic:'Legacy marine emergency/calling traffic and coastal watch activity.'},
+        {freq:'4125 kHz', service:'Maritime distress voice', traffic:'Longer-range marine emergency calls and ship-to-shore safety traffic.'},
+        {freq:'6215 kHz', service:'Maritime distress voice', traffic:'Mid-range oceanic emergency and safety traffic.'},
+        {freq:'8291 kHz', service:'Maritime distress voice', traffic:'Ocean-going vessel distress and offshore coordination.'},
+        {freq:'12290 kHz', service:'Maritime distress voice', traffic:'Daylight long-haul marine safety and ship coordination.'},
+        {freq:'16420 kHz', service:'Maritime distress voice', traffic:'High-band daylight marine distress and intercontinental ship traffic.'},
+        {freq:'3023 kHz', service:'Aeronautical emergency', traffic:'HF emergency and support traffic tied to long-range aviation operations.'},
+        {freq:'5680 kHz', service:'Aeronautical SAR / support', traffic:'Search-and-rescue support, ferry traffic, and aviation coordination.'},
+        {freq:'8992 kHz', service:'HFGCS / long-haul air', traffic:'USAF and long-range aviation command, relay, and EAM-style traffic.'},
+        {freq:'11175 kHz', service:'HFGCS / USAF global', traffic:'Strategic broadcast, command net, and military long-haul traffic.'},
+        {freq:'15016 kHz', service:'HFGCS daytime', traffic:'Daylight military and aviation long-haul command traffic.'},
       ];
 
       const audio = document.getElementById('radio-audio');
@@ -355,7 +602,8 @@
       STATIONS.forEach((s, i) => {
         const btn = document.createElement('button');
         btn.className = 'station-btn';
-        btn.innerHTML = `<span class="station-name">${s.name}</span><span class="station-freq">${s.freq} — ${s.genre}</span>`;
+        const subline = s.detail || `${s.freq} — ${s.genre}`;
+        btn.innerHTML = `<span class="station-name">${s.name}</span><span class="station-freq">${subline}</span>`;
         btn.addEventListener('click', () => tuneStation(i));
         stationGrid.appendChild(btn);
       });
@@ -370,13 +618,72 @@
         vizBars.push(bar);
       }
 
+      const hamBandRows = document.getElementById('ham-band-rows');
+      const hamCallRows = document.getElementById('ham-call-rows');
+  const vhfChannelRows = document.getElementById('vhf-channel-rows');
+      const cbChannelRows = document.getElementById('cb-channel-rows');
+      const hfWindowRows = document.getElementById('hf-window-rows');
+      const hfUtilityRows = document.getElementById('hf-utility-rows');
+
+      const cbPriorityNotes = {
+        6: 'High-power DX channel when skip is rolling. Expect loud long-haul stations during openings.',
+        9: 'Emergency / traveler assist. Best for roadside help and monitored emergency calls.',
+        11: 'Informal calling and skip chatter when the band opens up.',
+        17: 'Alternate highway channel often favored on north-south routes.',
+        19: 'Primary trucker and convoy channel on major highways.',
+        36: 'Common SSB DX window when operators move off AM channels.',
+        37: 'SSB long-range traffic during skip openings.',
+        38: 'LSB long-haul calling channel and the busiest SSB CB frequency.',
+        39: 'SSB DX overflow and roaming long-range contacts.',
+        40: 'Upper-end SSB overflow and local coordination when 38 gets crowded.',
+      };
+
+      HAM_BANDS.forEach((band) => {
+        hamBandRows.insertAdjacentHTML('beforeend', `<tr><td><strong>${band.band}</strong></td><td>${band.range}</td><td>${band.link}</td><td>${band.connects}</td></tr>`);
+      });
+
+      HAM_CALLS.forEach((entry) => {
+        hamCallRows.insertAdjacentHTML('beforeend', `<tr><td><strong>${entry.freq}</strong></td><td>${entry.mode}</td><td>${entry.use}</td></tr>`);
+      });
+
+      VHF_CHANNELS.forEach((entry) => {
+        vhfChannelRows.insertAdjacentHTML('beforeend', `<tr><td><strong>${entry.channel}</strong></td><td>${entry.freq}</td><td>${entry.connects}</td></tr>`);
+      });
+
+      CB_FREQUENCIES.forEach((freq, index) => {
+        const channel = index + 1;
+        const note = cbPriorityNotes[channel] || 'General local mobile/base traffic; during strong openings this channel can also carry skip from hundreds of miles away.';
+        cbChannelRows.insertAdjacentHTML('beforeend', `<tr><td><strong>CH ${channel}</strong></td><td>${freq} MHz</td><td>${note}</td></tr>`);
+      });
+
+      HF_WINDOWS.forEach((window) => {
+        hfWindowRows.insertAdjacentHTML('beforeend', `<tr><td><strong>${window.range}</strong></td><td>${window.opens}</td><td>${window.hears}</td></tr>`);
+      });
+
+      HF_UTILITIES.forEach((entry) => {
+        hfUtilityRows.insertAdjacentHTML('beforeend', `<tr><td><strong>${entry.freq}</strong></td><td>${entry.service}</td><td>${entry.traffic}</td></tr>`);
+      });
+
+      document.querySelectorAll('.freq-tab-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          const band = button.dataset.band;
+          document.querySelectorAll('.freq-tab-btn').forEach((tabButton) => {
+            const active = tabButton === button;
+            tabButton.classList.toggle('active', active);
+            tabButton.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          document.querySelectorAll('.freq-panel').forEach((panel) => {
+            panel.classList.toggle('active', panel.dataset.bandPanel === band);
+          });
+        });
+      });
+
       function saveState(){
-        const idx = STATIONS.indexOf(currentStation);
         localStorage.setItem('deltaRadio', JSON.stringify({
-          src: audio.src || '',
+          src: currentStation && currentStation.mode === 'external' ? '' : (audio.src || currentStation?.url || ''),
           vol: Math.round(audio.volume * 100),
-          playing: !audio.paused && !!audio.src,
-          station: idx >= 0 ? idx : -1,
+          playing: currentStation && currentStation.mode === 'external' ? false : (!audio.paused && !!audio.src),
+          station: currentStation ? currentStation.key : '',
           name: currentStation ? currentStation.name : ''
         }));
       }
@@ -384,6 +691,17 @@
       function tuneStation(idx){
         currentStation = STATIONS[idx];
         stationGrid.querySelectorAll('.station-btn').forEach((b,j) => b.classList.toggle('active', j===idx));
+        if(currentStation.mode === 'external'){
+          audio.pause();
+          audio.removeAttribute('src');
+          audio.load();
+          npStation.textContent = currentStation.name + ' — launching live page';
+          document.getElementById('btn-play').innerHTML = '&#x25B6;';
+          stopViz();
+          saveState();
+          window.open(currentStation.url, '_blank', 'noopener,noreferrer');
+          return;
+        }
         audio.src = currentStation.url;
         audio.load();
         audio.play().catch(()=>{});
@@ -394,6 +712,12 @@
       }
 
       document.getElementById('btn-play').addEventListener('click', () => {
+        if(currentStation && currentStation.mode === 'external'){
+          window.open(currentStation.url, '_blank', 'noopener,noreferrer');
+          npStation.textContent = currentStation.name + ' — launching live page';
+          saveState();
+          return;
+        }
         if(!audio.src) return;
         if(audio.paused){ audio.play().catch(()=>{}); document.getElementById('btn-play').innerHTML='&#x23F8;'; startViz(); }
         else{ audio.pause(); document.getElementById('btn-play').innerHTML='&#x25B6;'; stopViz(); }
@@ -401,7 +725,7 @@
       });
 
       document.getElementById('btn-stop').addEventListener('click', () => {
-        audio.pause(); audio.currentTime = 0; audio.src = '';
+        audio.pause(); audio.currentTime = 0; audio.removeAttribute('src'); audio.load();
         document.getElementById('btn-play').innerHTML = '&#x25B6;';
         npStation.textContent = '— NO SIGNAL —';
         stationGrid.querySelectorAll('.station-btn').forEach(b => b.classList.remove('active'));
@@ -422,14 +746,21 @@
         const saved = JSON.parse(localStorage.getItem('deltaRadio'));
         if(saved){
           if(saved.vol !== undefined){ audio.volume = saved.vol / 100; volSlider.value = saved.vol; volLabel.textContent = saved.vol + '%'; }
-          if(saved.station >= 0 && saved.station < STATIONS.length){
-            currentStation = STATIONS[saved.station];
-            stationGrid.querySelectorAll('.station-btn').forEach((b,j) => b.classList.toggle('active', j===saved.station));
-            audio.src = currentStation.url;
-            npStation.textContent = currentStation.name + ' — ' + currentStation.freq;
-            if(saved.playing){
-              audio.play().then(()=>{ document.getElementById('btn-play').innerHTML='&#x23F8;'; startViz(); })
-                .catch(()=>{ npStation.textContent = currentStation.name + ' — SIGNAL READY (tap play)'; });
+          const savedIndex = STATIONS.findIndex((station, index) => {
+            return station.key === saved.station || String(index) === String(saved.station) || station.url === saved.station || (saved.src && station.url === saved.src);
+          });
+          if(savedIndex >= 0){
+            currentStation = STATIONS[savedIndex];
+            stationGrid.querySelectorAll('.station-btn').forEach((b,j) => b.classList.toggle('active', j===savedIndex));
+            if(currentStation.mode === 'external'){
+              npStation.textContent = currentStation.name + ' — tap play to launch live page';
+            } else {
+              audio.src = saved.src || currentStation.url;
+              npStation.textContent = currentStation.name + ' — ' + currentStation.freq;
+              if(saved.playing){
+                audio.play().then(()=>{ document.getElementById('btn-play').innerHTML='&#x23F8;'; startViz(); })
+                  .catch(()=>{ npStation.textContent = currentStation.name + ' — SIGNAL READY (tap play)'; });
+              }
             }
           }
         }
@@ -734,5 +1065,6 @@
     })();
     </script>
     <div style="position:fixed;bottom:0;left:0;right:0;z-index:9000;text-align:center;padding:4px 10px;background:var(--bg2);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.2px"><span style="color:var(--accent)">&copy;</span> DELTA CODING</div>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

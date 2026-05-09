@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Drone Command</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Drone operations resources: field manuals, tactical planning guides, FPV tips, and drone command references. Free drone intel at FutureCodeDelta.org.">
+    <meta name="keywords" content="drone operations, FPV drone, drone manuals, UAV, drone tactics, drone field guide, drone command, sUAS">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Drone Command">
+    <meta property="og:description" content="Drone operations resources, field manuals, and tactical drone planning guides. Free drone intelligence.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/drone">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Drone Command">
+    <meta name="twitter:description" content="Drone operations field manuals and tactical planning resources at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/drone">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
       .container{display:block;height:auto}
       .drone-wrap{max-width:1200px;margin:0 auto;padding:16px}
@@ -13,6 +26,7 @@
       /* ── RESPONSIVE ── */
       @media(max-width:860px){
         .drone-grid{grid-template-columns:1fr}
+        .fleet-panel{grid-template-columns:1fr}
         .ctrl-sidebar{flex-direction:row;flex-wrap:wrap}
         .ctrl-section{flex:1;min-width:200px}
       }
@@ -24,6 +38,12 @@
         .conn-card{min-width:100%}
         .conn-btns{flex-direction:column}
         .conn-btn{min-height:42px;display:flex;align-items:center;justify-content:center}
+        .fleet-form{grid-template-columns:1fr}
+        .fleet-actions{flex-direction:column}
+        .fleet-feed-strip{grid-template-columns:1fr}
+        .fleet-list{max-height:none}
+        .drone-mini-map{height:260px}
+        .quad-grid{grid-template-columns:1fr}
         .cam-feed{min-height:260px}
         .cam-panel{min-height:260px}
         .cam-bottom{flex-wrap:wrap}
@@ -84,6 +104,81 @@
       .conn-btn.scan{background:var(--panel);color:var(--gold);border-color:var(--gold)}
       .conn-btn.scan:hover{background:rgba(196,162,101,.1)}
       .conn-btn:disabled{opacity:.4;cursor:not-allowed}
+
+      /* ── CONNECTED DRONE ROSTER ── */
+      .fleet-panel{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.9fr);gap:14px;margin-bottom:16px}
+      .fleet-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;min-width:0}
+      .fleet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+      .fleet-head h3{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent-bright);margin:0;letter-spacing:1px}
+      .fleet-status{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+      .fleet-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px}
+      .fleet-field{display:grid;gap:4px;min-width:0}
+      .fleet-field label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+      .fleet-input,.fleet-select{width:100%;font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--bg2);color:var(--text);border:1px solid var(--border2);padding:7px 8px;border-radius:4px;min-width:0}
+      .fleet-input:focus,.fleet-select:focus{outline:none;border-color:var(--accent)}
+      .fleet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+      .fleet-actions .conn-btn{flex:1 1 150px}
+      .bridge-status-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:rgba(20,25,18,.5)}
+      .bridge-status-copy{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 220px}
+      .bridge-dot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex-shrink:0;box-shadow:0 0 6px rgba(204,68,68,.35)}
+      .bridge-dot.online{background:var(--success);box-shadow:0 0 8px rgba(90,143,90,.45)}
+      .bridge-dot.sync{background:var(--warning);box-shadow:0 0 8px rgba(196,162,101,.42)}
+      .bridge-copy-lines{display:grid;gap:2px;min-width:0}
+      .bridge-copy-lines strong{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--accent-bright);letter-spacing:.8px;text-transform:uppercase}
+      .bridge-copy-lines span{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);line-height:1.5}
+      .bridge-status-actions{display:flex;gap:8px;flex-wrap:wrap;flex:0 0 auto}
+      .fleet-note{font-size:.66rem;line-height:1.5;color:var(--muted);margin-bottom:10px}
+      .fleet-feed-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px}
+      .fleet-chip{background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;cursor:pointer;transition:border-color .2s,transform .15s;display:grid;gap:3px}
+      .fleet-chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+      .fleet-chip.active{border-color:var(--accent-bright);box-shadow:0 0 10px rgba(139,157,106,.18)}
+      .fleet-chip strong{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);font-weight:700}
+      .fleet-chip span{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.7px;text-transform:uppercase}
+      .fleet-list{display:grid;gap:8px;max-height:250px;overflow:auto;padding-right:3px}
+      .fleet-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--panel2);cursor:pointer;transition:border-color .2s,transform .15s}
+      .fleet-item:hover{border-color:var(--accent)}
+      .fleet-item.active{border-color:var(--accent-bright);box-shadow:0 0 10px rgba(139,157,106,.12)}
+      .fleet-copy{display:grid;gap:4px;min-width:0}
+      .fleet-copy strong{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--text);font-weight:700}
+      .fleet-copy span{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);line-height:1.4}
+      .fleet-inline-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+      .fleet-inline-actions .conn-btn{flex:0 0 auto;min-width:84px}
+      .fleet-empty{padding:14px;border:1px dashed var(--border);border-radius:6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.66rem;line-height:1.6;color:var(--muted);background:rgba(20,25,18,.6)}
+      .drone-mini-map{width:100%;height:320px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:#0a0d08}
+      .fleet-map-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px}
+      .fleet-map-status{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.6px}
+      .drone-mini-popup{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.5}
+      .drone-mini-popup strong{color:var(--accent-bright)}
+
+      /* ── QUAD VIEW ── */
+      .quad-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px}
+      .quad-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+      .quad-head h3{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent-bright);margin:0;letter-spacing:1px}
+      .quad-status{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+      .quad-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      .quad-empty{padding:24px;border:1px dashed var(--border);border-radius:8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;line-height:1.6;color:var(--muted);grid-column:1/-1;background:rgba(20,25,18,.55)}
+      .quad-tile{background:var(--panel2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;display:grid;grid-template-rows:auto minmax(220px,1fr);min-height:320px}
+      .quad-tile.active{border-color:var(--accent-bright);box-shadow:0 0 14px rgba(139,157,106,.16)}
+      .quad-tile-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);background:rgba(10,13,8,.45)}
+      .quad-tile-copy{display:grid;gap:3px;min-width:0}
+      .quad-tile-copy strong{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);font-weight:700}
+      .quad-tile-copy span{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+      .quad-tile-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+      .quad-pill{font-family:'JetBrains Mono',monospace;font-size:.5rem;font-weight:700;letter-spacing:1px;padding:3px 6px;border-radius:999px;border:1px solid var(--border2);background:rgba(20,25,18,.75);color:var(--muted);text-transform:uppercase}
+      .quad-pill.connected{border-color:rgba(90,143,90,.35);color:var(--success);background:rgba(90,143,90,.12)}
+      .quad-pill.starting{border-color:rgba(196,162,101,.35);color:var(--warning);background:rgba(196,162,101,.12)}
+      .quad-pill.degraded{border-color:rgba(196,162,101,.35);color:var(--gold);background:rgba(196,162,101,.12)}
+      .quad-pill.error{border-color:rgba(204,68,68,.35);color:var(--danger);background:rgba(204,68,68,.12)}
+      .quad-focus{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:1px;padding:4px 8px;background:var(--panel);color:var(--accent-bright);border:1px solid var(--border2);border-radius:4px;cursor:pointer;flex:0 0 auto}
+      .quad-focus:hover{border-color:var(--accent)}
+      .quad-reconnect{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:700;letter-spacing:1px;padding:4px 8px;background:rgba(196,162,101,.08);color:var(--gold);border:1px solid rgba(196,162,101,.35);border-radius:4px;cursor:pointer;flex:0 0 auto}
+      .quad-reconnect:hover{background:rgba(196,162,101,.15)}
+      .quad-media{position:relative;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:220px}
+      .quad-media video,.quad-media iframe,.quad-media img{width:100%;height:100%;border:0;object-fit:cover;background:#000}
+      .quad-overlay{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(0deg,rgba(0,0,0,.78) 0%,transparent 100%);display:flex;justify-content:space-between;gap:8px;align-items:flex-end;pointer-events:none}
+      .quad-meta{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--accent-bright);letter-spacing:.6px}
+      .quad-tags{font-family:'JetBrains Mono',monospace;font-size:.54rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;text-align:right}
+      .quad-error{padding:18px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.66rem;line-height:1.6;color:var(--muted)}
 
       /* ── MAIN GRID: CAMERA + CONTROLS ── */
       .drone-grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:16px}
@@ -295,6 +390,108 @@
               <button class="conn-btn scan" id="btn-calibrate" style="width:100%">&#x1F9ED; CALIBRATE</button>
               <button class="conn-btn danger" id="btn-emergency" style="width:100%">&#x26A0; EMERGENCY STOP</button>
             </div>
+          </div>
+        </div>
+
+        <div class="fleet-panel">
+          <div class="fleet-card">
+            <div class="fleet-head">
+              <h3>&#x1F6F8; CONNECTED DRONE ROSTER</h3>
+              <div class="fleet-status" id="fleet-status">NO DRONES CONNECTED</div>
+            </div>
+            <div class="fleet-form">
+              <div class="fleet-field">
+                <label for="drone-name">Drone Name</label>
+                <input class="fleet-input" id="drone-name" type="text" placeholder="Scout-Alpha">
+              </div>
+              <div class="fleet-field">
+                <label for="drone-source-type">Source Type</label>
+                <select class="fleet-select" id="drone-source-type">
+                  <option value="local" selected>Local Camera</option>
+                  <option value="stream">Stream URL</option>
+                  <option value="bridge">Bridge: Tello / RTSP</option>
+                </select>
+              </div>
+              <div class="fleet-field" id="drone-device-field">
+                <label for="drone-camera-device">Camera Device</label>
+                <select class="fleet-select" id="drone-camera-device">
+                  <option value="">Default Rear Camera</option>
+                </select>
+              </div>
+              <div class="fleet-field" id="drone-stream-field" style="display:none">
+                <label for="drone-stream-url">Stream URL</label>
+                <input class="fleet-input" id="drone-stream-url" type="text" placeholder="https:// or rtsp://">
+              </div>
+              <div class="fleet-field" id="drone-bridge-field" style="display:none">
+                <label for="drone-bridge-kind">Bridge Mode</label>
+                <select class="fleet-select" id="drone-bridge-kind">
+                  <option value="tello" selected>Tello Bridge</option>
+                  <option value="rtsp">RTSP Relay</option>
+                </select>
+              </div>
+              <div class="fleet-field" id="drone-bridge-endpoint-field" style="display:none">
+                <label for="drone-bridge-endpoint">Bridge API Endpoint</label>
+                <input class="fleet-input" id="drone-bridge-endpoint" type="text" placeholder="leave blank for site bridge or use https://bridge-host">
+              </div>
+              <div class="fleet-field" id="drone-bridge-token-field" style="display:none">
+                <label for="drone-bridge-token">Bridge Token</label>
+                <input class="fleet-input" id="drone-bridge-token" type="password" placeholder="optional bridge access token">
+              </div>
+              <div class="fleet-field" id="drone-bridge-preset-field" style="display:none">
+                <label for="drone-bridge-preset">Bridge Preset</label>
+                <select class="fleet-select" id="drone-bridge-preset">
+                  <option value="">No saved bridge preset</option>
+                </select>
+              </div>
+            </div>
+            <div class="fleet-actions">
+              <button class="conn-btn scan" id="drone-refresh-cams">REFRESH CAMERAS</button>
+              <button class="conn-btn primary" id="drone-add">ADD DRONE</button>
+              <button class="conn-btn danger" id="drone-remove" disabled>REMOVE ACTIVE</button>
+            </div>
+            <div class="fleet-actions" id="bridge-actions" style="display:none">
+              <button class="conn-btn scan" id="drone-bridge-check">CHECK BRIDGE</button>
+              <button class="conn-btn scan" id="drone-bridge-load">LOAD PRESET</button>
+              <button class="conn-btn scan" id="drone-bridge-save">SAVE PRESET</button>
+            </div>
+            <div class="bridge-status-bar" id="bridge-status-bar" style="display:none">
+              <div class="bridge-status-copy">
+                <span class="bridge-dot" id="bridge-status-dot"></span>
+                <div class="bridge-copy-lines">
+                  <strong id="bridge-status-title">BRIDGE LINK STANDBY</strong>
+                  <span id="bridge-status-detail">Use the built-in bridge on this site or point the dashboard at a separate bridge runtime on the same network as your drones. On the live HTTPS site, off-box bridge endpoints also need HTTPS.</span>
+                </div>
+              </div>
+              <div class="bridge-status-actions">
+                <button class="conn-btn scan" id="drone-bridge-sync">SYNC SESSIONS</button>
+              </div>
+            </div>
+            <div class="fleet-note" id="fleet-note">Link your own drone cameras through browser camera devices, browser-playable stream endpoints, or the backend Tello and RTSP bridge. For real hardware bridging on a different host, point the bridge endpoint at your dedicated runtime and save it as a preset.</div>
+            <div class="fleet-feed-strip" id="fleet-feed-strip"></div>
+            <div class="fleet-list" id="fleet-list">
+              <div class="fleet-empty">No drones linked yet. Scan WiFi or Bluetooth above, or add a local camera or stream here.</div>
+            </div>
+          </div>
+          <div class="fleet-card">
+            <div class="fleet-head">
+              <h3>&#x1F5FA; DRONE MINI MAP</h3>
+              <div class="fleet-status" id="fleet-map-badge">FOLLOW ACTIVE</div>
+            </div>
+            <div class="drone-mini-map" id="drone-mini-map"></div>
+            <div class="fleet-map-footer">
+              <span class="fleet-map-status" id="fleet-map-status">Awaiting drone link...</span>
+              <button class="conn-btn scan" id="fleet-follow-toggle" style="max-width:180px">FOLLOW ACTIVE</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="quad-panel">
+          <div class="quad-head">
+            <h3>&#x1F3A5; QUAD VIEW FLIGHT DECK</h3>
+            <div class="quad-status" id="quad-status">0 FEEDS LIVE</div>
+          </div>
+          <div class="quad-grid" id="quad-grid">
+            <div class="quad-empty">Link up to four drones to view multiple live feeds at once. The active drone still routes into the primary viewer and telemetry block.</div>
           </div>
         </div>
 
@@ -876,168 +1073,69 @@
       });
 
       // ══════════════════════════════════════════════════════════
-      // WIFI CONNECTION (simulated scan + real camera access)
-      // ══════════════════════════════════════════════════════════
-      let wifiConnected = false;
-      const wifiDot = document.getElementById('wifi-dot');
-      const wifiStatus = document.getElementById('wifi-status');
-      const wifiList = document.getElementById('wifi-list');
-      const wifiConnect = document.getElementById('wifi-connect');
-      const wifiDisconnect = document.getElementById('wifi-disconnect');
-
-      const DRONE_WIFI_NAMES = [
-        'DJI-MAVIC-3E-WIFI','TELLO-ED89F2','SKYDIO-X2-AP','PARROT-ANAFI-5G',
-        'AUTEL-EVO2-LINK','HOLY-STONE-HS720','DJI-MINI4-PRO','FIMI-X8SE-NET'
-      ];
-
-      document.getElementById('wifi-scan').addEventListener('click', () => {
-        wifiDot.className = 'conn-dot scanning';
-        wifiStatus.textContent = 'SCANNING...';
-        log('WiFi scan initiated — searching for drone access points...','warn');
-        wifiList.innerHTML = '<option value="">— SCANNING... —</option>';
-        setTimeout(() => {
-          wifiList.innerHTML = '<option value="">— SELECT DRONE —</option>';
-          const found = DRONE_WIFI_NAMES.filter(() => Math.random() > 0.3);
-          if(!found.length) found.push(DRONE_WIFI_NAMES[0]);
-          found.forEach(n => { const o=document.createElement('option'); o.value=n; o.textContent=n; wifiList.appendChild(o); });
-          wifiDot.className = 'conn-dot';
-          wifiStatus.textContent = found.length + ' NETWORKS FOUND';
-          wifiConnect.disabled = false;
-          log('Scan complete — '+found.length+' drone networks detected','ok');
-        }, 2000);
-      });
-
-      wifiConnect.addEventListener('click', () => {
-        if(!wifiList.value) return;
-        wifiDot.className = 'conn-dot scanning';
-        wifiStatus.textContent = 'CONNECTING...';
-        log('Connecting to '+wifiList.value+'...','warn');
-        setTimeout(() => {
-          wifiConnected = true;
-          wifiDot.className = 'conn-dot connected';
-          wifiStatus.textContent = 'CONNECTED: '+wifiList.value;
-          wifiConnect.disabled = true;
-          wifiDisconnect.disabled = false;
-          log('WiFi connected to '+wifiList.value,'ok');
-          startTelemetry();
-          // Auto-start camera feed on connection
-          log('Initializing drone camera feed...','warn');
-          autoStartCameraFeed();
-        }, 1500);
-      });
-
-      wifiDisconnect.addEventListener('click', () => {
-        wifiConnected = false;
-        wifiDot.className = 'conn-dot';
-        wifiStatus.textContent = 'DISCONNECTED';
-        wifiConnect.disabled = false;
-        wifiDisconnect.disabled = true;
-        stopTelemetry();
-        stopCameraFeed();
-        log('WiFi disconnected','warn');
-      });
-
-      // ══════════════════════════════════════════════════════════
-      // BLUETOOTH CONNECTION (Web Bluetooth API)
-      // ══════════════════════════════════════════════════════════
-      let btDevice = null;
-      const btDot = document.getElementById('bt-dot');
-      const btStatus = document.getElementById('bt-status');
-      const btList = document.getElementById('bt-list');
-      const btConnect = document.getElementById('bt-connect');
-      const btDisconnect = document.getElementById('bt-disconnect');
-
-      document.getElementById('bt-scan').addEventListener('click', async () => {
-        if(!navigator.bluetooth){
-          log('Web Bluetooth API not available in this browser','err');
-          btStatus.textContent = 'NOT SUPPORTED';
-          // Fallback: simulate scan
-          btDot.className = 'conn-dot scanning';
-          btStatus.textContent = 'SCANNING (SIM)...';
-          setTimeout(() => {
-            btList.innerHTML = '<option value="">— SELECT DEVICE —</option>';
-            ['TELLO-BLE-001','DJI-RC-BT','DRONE-CTRL-7F'].forEach(n => {
-              const o=document.createElement('option'); o.value=n; o.textContent=n; btList.appendChild(o);
-            });
-            btDot.className = 'conn-dot'; btStatus.textContent = '3 DEVICES (SIM)';
-            btConnect.disabled = false;
-            log('Simulated BT scan — 3 devices found','warn');
-          }, 1500);
-          return;
-        }
-        try {
-          btDot.className = 'conn-dot scanning';
-          btStatus.textContent = 'SCANNING...';
-          log('Bluetooth scan initiated — requesting device...','warn');
-          btDevice = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: ['battery_service','generic_access']
-          });
-          btList.innerHTML = '<option value="">— SELECT DEVICE —</option>';
-          const o = document.createElement('option');
-          o.value = btDevice.name || btDevice.id;
-          o.textContent = btDevice.name || 'BT-'+btDevice.id.slice(0,8);
-          o.selected = true;
-          btList.appendChild(o);
-          btDot.className = 'conn-dot';
-          btStatus.textContent = 'DEVICE FOUND';
-          btConnect.disabled = false;
-          log('BT device found: '+(btDevice.name||btDevice.id),'ok');
-        } catch(e){
-          btDot.className = 'conn-dot';
-          btStatus.textContent = 'SCAN CANCELLED';
-          log('BT scan: '+e.message,'err');
-        }
-      });
-
-      btConnect.addEventListener('click', async () => {
-        btDot.className = 'conn-dot scanning';
-        btStatus.textContent = 'PAIRING...';
-        log('Pairing Bluetooth device...','warn');
-        try {
-          if(btDevice && btDevice.gatt){
-            await btDevice.gatt.connect();
-            btDot.className = 'conn-dot connected';
-            btStatus.textContent = 'PAIRED: '+(btDevice.name||btDevice.id);
-            btConnect.disabled = true; btDisconnect.disabled = false;
-            log('BT paired: '+(btDevice.name||btDevice.id),'ok');
-            log('Initializing drone camera feed via BT...','warn');
-            autoStartCameraFeed();
-          } else {
-            // Simulated pair
-            setTimeout(() => {
-              btDot.className = 'conn-dot connected';
-              btStatus.textContent = 'PAIRED: '+btList.value;
-              btConnect.disabled = true; btDisconnect.disabled = false;
-              log('BT paired (sim): '+btList.value,'ok');
-              log('Initializing drone camera feed via BT...','warn');
-              autoStartCameraFeed();
-            }, 1200);
-          }
-        } catch(e){
-          btDot.className = 'conn-dot';
-          btStatus.textContent = 'PAIR FAILED';
-          log('BT pair failed: '+e.message,'err');
-        }
-      });
-
-      btDisconnect.addEventListener('click', () => {
-        if(btDevice && btDevice.gatt && btDevice.gatt.connected) btDevice.gatt.disconnect();
-        btDevice = null;
-        btDot.className = 'conn-dot';
-        btStatus.textContent = 'DISCONNECTED';
-        btConnect.disabled = false; btDisconnect.disabled = true;
-        stopCameraFeed();
-        log('Bluetooth disconnected','warn');
-      });
-
-      // ══════════════════════════════════════════════════════════
-      // CAMERA FEED (getUserMedia / stream URL)
+      // CONNECTED DRONES + CAMERA ROUTING + MINI MAP
       // ══════════════════════════════════════════════════════════
       const video = document.getElementById('cam-video');
       const placeholder = document.getElementById('cam-placeholder');
       const camRes = document.getElementById('cam-res');
       const camFps = document.getElementById('cam-fps');
+      const wifiDot = document.getElementById('wifi-dot');
+      const wifiStatus = document.getElementById('wifi-status');
+      const wifiList = document.getElementById('wifi-list');
+      const wifiConnect = document.getElementById('wifi-connect');
+      const wifiDisconnect = document.getElementById('wifi-disconnect');
+      const btDot = document.getElementById('bt-dot');
+      const btStatus = document.getElementById('bt-status');
+      const btList = document.getElementById('bt-list');
+      const btConnect = document.getElementById('bt-connect');
+      const btDisconnect = document.getElementById('bt-disconnect');
+      const fleetStatus = document.getElementById('fleet-status');
+      const fleetNote = document.getElementById('fleet-note');
+      const fleetFeedStrip = document.getElementById('fleet-feed-strip');
+      const fleetList = document.getElementById('fleet-list');
+      const fleetMapBadge = document.getElementById('fleet-map-badge');
+      const fleetMapStatus = document.getElementById('fleet-map-status');
+      const fleetFollowToggle = document.getElementById('fleet-follow-toggle');
+      const quadGrid = document.getElementById('quad-grid');
+      const quadStatus = document.getElementById('quad-status');
+      const droneNameInput = document.getElementById('drone-name');
+      const droneSourceType = document.getElementById('drone-source-type');
+      const droneCameraDevice = document.getElementById('drone-camera-device');
+      const droneStreamUrl = document.getElementById('drone-stream-url');
+      const droneDeviceField = document.getElementById('drone-device-field');
+      const droneStreamField = document.getElementById('drone-stream-field');
+      const droneBridgeField = document.getElementById('drone-bridge-field');
+      const droneBridgeKind = document.getElementById('drone-bridge-kind');
+      const droneBridgeEndpointField = document.getElementById('drone-bridge-endpoint-field');
+      const droneBridgeTokenField = document.getElementById('drone-bridge-token-field');
+      const droneBridgePresetField = document.getElementById('drone-bridge-preset-field');
+      const droneBridgeEndpoint = document.getElementById('drone-bridge-endpoint');
+      const droneBridgeToken = document.getElementById('drone-bridge-token');
+      const droneBridgePreset = document.getElementById('drone-bridge-preset');
+      const droneRefreshCams = document.getElementById('drone-refresh-cams');
+      const droneAdd = document.getElementById('drone-add');
+      const droneRemove = document.getElementById('drone-remove');
+      const bridgeActions = document.getElementById('bridge-actions');
+      const bridgeStatusBar = document.getElementById('bridge-status-bar');
+      const bridgeStatusDot = document.getElementById('bridge-status-dot');
+      const bridgeStatusTitle = document.getElementById('bridge-status-title');
+      const bridgeStatusDetail = document.getElementById('bridge-status-detail');
+      const droneBridgeCheck = document.getElementById('drone-bridge-check');
+      const droneBridgeLoad = document.getElementById('drone-bridge-load');
+      const droneBridgeSave = document.getElementById('drone-bridge-save');
+      const droneBridgeSync = document.getElementById('drone-bridge-sync');
+      const DRONE_WIFI_NAMES = [
+        'DJI-MAVIC-3E-WIFI','TELLO-ED89F2','SKYDIO-X2-AP','PARROT-ANAFI-5G',
+        'AUTEL-EVO2-LINK','HOLY-STONE-HS720','DJI-MINI4-PRO','FIMI-X8SE-NET'
+      ];
+      const DRONE_BT_NAMES = ['TELLO-BLE-001','DJI-RC-BT','DRONE-CTRL-7F'];
+      const connectedDrones = [];
+      const droneMiniMarkers = new Map();
+      const droneMiniTrails = new Map();
+      const DEFAULT_HOME = {lat:33.7490,lng:-84.3880};
+      let homePoint = {lat:DEFAULT_HOME.lat,lng:DEFAULT_HOME.lng};
+      let homePointResolved = false;
+      let activeDroneId = null;
       let currentStream = null;
       let mediaRecorder = null;
       let recordedChunks = [];
@@ -1045,183 +1143,1552 @@
       let facingMode = 'environment';
       let fpsCounter = 0;
       let fpsInterval = null;
+      let telemInterval = null;
+      let bridgePollInterval = null;
+      let btDevice = null;
+      let droneMiniMap = null;
+      let droneMiniMapInit = false;
+      let droneHomeMarker = null;
+      let followActiveDrone = true;
+      const sharedLocalStreams = new Map();
+      const EMBED_PATTERN = /(youtube\.com\/embed|player\.vimeo\.com|ustream\.tv\/embed)/i;
+      const BRIDGE_DRAFT_KEY = 'delta-drone-bridge-draft-v1';
+      const BRIDGE_PRESETS_KEY = 'delta-drone-bridge-presets-v1';
+      let bridgePresets = [];
 
-      async function startCamera(deviceId){
+      function escapeHtml(value){
+        return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      }
+
+      function normalizeBridgeBaseUrl(value){
+        const trimmed = String(value || '').trim().replace(/\/+$/, '');
+        if(!trimmed) return '';
+        return trimmed.replace(/\/api\/drone\/bridge$/i, '');
+      }
+
+      function bridgeConfigKey(config){
+        return (normalizeBridgeBaseUrl(config.baseUrl) || 'site') + '::' + ((config.token || '').trim());
+      }
+
+      function describeBridgeSource(config){
+        const baseUrl = normalizeBridgeBaseUrl(config.baseUrl);
+        return baseUrl ? baseUrl : 'SITE BRIDGE';
+      }
+
+      function assertBridgeEndpointSupported(config){
+        const baseUrl = normalizeBridgeBaseUrl((config || {}).baseUrl);
+        if(window.location.protocol === 'https:' && /^http:\/\//i.test(baseUrl)){
+          throw new Error('The live site is HTTPS. Use an HTTPS bridge endpoint or the built-in site bridge.');
+        }
+      }
+
+      function readBridgeConfigFromForm(){
+        return {
+          baseUrl: normalizeBridgeBaseUrl(droneBridgeEndpoint.value),
+          token: (droneBridgeToken.value || '').trim(),
+          presetId: droneBridgePreset.value || '',
+        };
+      }
+
+      function bridgeConfigForDrone(drone){
+        return {
+          baseUrl: normalizeBridgeBaseUrl(drone.bridgeBaseUrl || ''),
+          token: (drone.bridgeToken || '').trim(),
+          presetId: drone.bridgePresetId || '',
+        };
+      }
+
+      function applyBridgeFormConfig(config){
+        if(Object.prototype.hasOwnProperty.call(config || {}, 'baseUrl')){
+          droneBridgeEndpoint.value = normalizeBridgeBaseUrl(config.baseUrl);
+        }
+        if(Object.prototype.hasOwnProperty.call(config || {}, 'token')){
+          droneBridgeToken.value = config.token || '';
+        }
+        if(Object.prototype.hasOwnProperty.call(config || {}, 'presetId')){
+          droneBridgePreset.value = config.presetId || '';
+        }
+      }
+
+      function saveBridgeDraft(){
+        localStorage.setItem(BRIDGE_DRAFT_KEY, JSON.stringify(readBridgeConfigFromForm()));
+      }
+
+      function loadBridgeDraft(){
         try {
-          if(currentStream) currentStream.getTracks().forEach(t => t.stop());
-          const constraints = { video: deviceId ? {deviceId:{exact:deviceId}} : {facingMode, width:{ideal:1920}, height:{ideal:1080}}, audio:false };
+          const saved = JSON.parse(localStorage.getItem(BRIDGE_DRAFT_KEY) || 'null');
+          if(saved && typeof saved === 'object') applyBridgeFormConfig(saved);
+        } catch(e){}
+      }
+
+      function saveBridgePresets(){
+        localStorage.setItem(BRIDGE_PRESETS_KEY, JSON.stringify(bridgePresets));
+      }
+
+      function renderBridgePresetOptions(selectedId){
+        const value = typeof selectedId === 'string' ? selectedId : (droneBridgePreset.value || '');
+        droneBridgePreset.innerHTML = '<option value="">No saved bridge preset</option>' + bridgePresets.map(preset => {
+          return '<option value="' + escapeHtml(preset.id) + '">' + escapeHtml(preset.label) + '</option>';
+        }).join('');
+        droneBridgePreset.value = value && bridgePresets.some(preset => preset.id === value) ? value : '';
+      }
+
+      function loadBridgePresets(){
+        try {
+          const saved = JSON.parse(localStorage.getItem(BRIDGE_PRESETS_KEY) || '[]');
+          bridgePresets = Array.isArray(saved) ? saved.filter(item => item && typeof item === 'object') : [];
+        } catch(e){
+          bridgePresets = [];
+        }
+        renderBridgePresetOptions();
+      }
+
+      function upsertBridgePreset(){
+        const config = readBridgeConfigFromForm();
+        const presetId = config.presetId || ('bridge-' + Date.now().toString(36));
+        const labelBase = (droneNameInput.value || '').trim() || (droneBridgeKind.value === 'rtsp' ? 'RTSP Relay' : 'Tello Bridge');
+        const label = labelBase + ' @ ' + describeBridgeSource(config);
+        const preset = {
+          id: presetId,
+          label,
+          baseUrl: config.baseUrl,
+          token: config.token,
+          bridgeKind: droneBridgeKind.value,
+          streamUrl: droneStreamUrl.value.trim(),
+        };
+        const existingIndex = bridgePresets.findIndex(item => item.id === presetId || item.label === label);
+        if(existingIndex === -1) bridgePresets.push(preset);
+        else bridgePresets.splice(existingIndex, 1, preset);
+        saveBridgePresets();
+        renderBridgePresetOptions(preset.id);
+        droneBridgePreset.value = preset.id;
+        saveBridgeDraft();
+        return preset;
+      }
+
+      function loadSelectedBridgePreset(){
+        const preset = bridgePresets.find(item => item.id === droneBridgePreset.value);
+        if(!preset) return null;
+        applyBridgeFormConfig(preset);
+        if(preset.bridgeKind) droneBridgeKind.value = preset.bridgeKind;
+        if(typeof preset.streamUrl === 'string') droneStreamUrl.value = preset.streamUrl;
+        syncSourceFields();
+        saveBridgeDraft();
+        return preset;
+      }
+
+      function updateBridgeStatus(mode, title, detail){
+        const hasBridgeContext = droneSourceType.value === 'bridge' || connectedDrones.some(drone => drone.sourceType === 'bridge');
+        bridgeStatusBar.style.display = hasBridgeContext ? '' : 'none';
+        bridgeStatusDot.className = 'bridge-dot';
+        if(mode === 'online') bridgeStatusDot.classList.add('online');
+        if(mode === 'sync') bridgeStatusDot.classList.add('sync');
+        bridgeStatusTitle.textContent = title;
+        bridgeStatusDetail.textContent = detail;
+      }
+
+      function bridgeHeaders(config, headers){
+        const merged = Object.assign({'Content-Type': 'application/json'}, headers || {});
+        if(config.token) merged['X-Bridge-Token'] = config.token;
+        return merged;
+      }
+
+      function resolveBridgeUrl(path, config, includeToken){
+        const baseUrl = normalizeBridgeBaseUrl(config.baseUrl);
+        const root = baseUrl || window.location.origin;
+        const url = /^https?:\/\//i.test(path) ? new URL(path) : new URL(path, root);
+        if(includeToken && config.token) url.searchParams.set('token', config.token);
+        return url.toString();
+      }
+
+      function cacheBustUrl(url){
+        try {
+          const target = new URL(url, window.location.origin);
+          target.searchParams.set('t', Date.now());
+          return target.toString();
+        } catch(e){
+          return url + (String(url || '').indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now();
+        }
+      }
+
+      async function apiJson(url, options, bridgeConfigOverride){
+        const bridgeConfig = bridgeConfigOverride || readBridgeConfigFromForm();
+        assertBridgeEndpointSupported(bridgeConfig);
+        const response = await fetch(resolveBridgeUrl(url, bridgeConfig, false), Object.assign({
+          headers: bridgeHeaders(bridgeConfig),
+        }, options || {}));
+        let data = {};
+        try {
+          data = await response.json();
+        } catch(e){}
+        if(!response.ok || data.ok === false){
+          throw new Error(data.error || ('Request failed: ' + response.status));
+        }
+        return data;
+      }
+
+      function readNumberSetting(id, fallback){
+        const value = Number(document.getElementById(id)?.value);
+        return Number.isFinite(value) ? value : fallback;
+      }
+
+      function distanceMeters(lat1, lng1, lat2, lng2){
+        const latMeters = (lat1 - lat2) * 111132;
+        const lngMeters = (lng1 - lng2) * 111320 * Math.cos(((lat1 + lat2) / 2) * Math.PI / 180);
+        return Math.sqrt(latMeters * latMeters + lngMeters * lngMeters);
+      }
+
+      function makeDroneId(){
+        return 'drone-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+      }
+
+      function getActiveDrone(){
+        return connectedDrones.find(drone => drone.id === activeDroneId) || null;
+      }
+
+      function syncSourceFields(){
+        const useLocal = droneSourceType.value === 'local';
+        const useStream = droneSourceType.value === 'stream';
+        const useBridge = droneSourceType.value === 'bridge';
+        const bridgeNeedsUrl = useBridge && droneBridgeKind.value === 'rtsp';
+        droneDeviceField.style.display = useLocal ? '' : 'none';
+        droneStreamField.style.display = useStream || bridgeNeedsUrl ? '' : 'none';
+        droneBridgeField.style.display = useBridge ? '' : 'none';
+        droneBridgeEndpointField.style.display = useBridge ? '' : 'none';
+        droneBridgeTokenField.style.display = useBridge ? '' : 'none';
+        droneBridgePresetField.style.display = useBridge ? '' : 'none';
+        bridgeActions.style.display = useBridge ? '' : 'none';
+        bridgeStatusBar.style.display = useBridge ? '' : 'none';
+        droneStreamUrl.placeholder = bridgeNeedsUrl ? 'rtsp:// required for RTSP relay only' : 'https:// or rtsp://';
+        if(useBridge && !bridgeStatusTitle.textContent.trim()){
+          updateBridgeStatus('idle', 'BRIDGE LINK STANDBY', 'Use the built-in bridge on this site or point the dashboard at a separate bridge runtime on the same network as your drones. On the live HTTPS site, off-box bridge endpoints also need HTTPS.');
+        }
+      }
+
+      function localStreamKeyFor(drone){
+        return drone.deviceId || 'default-camera';
+      }
+
+      function releaseLocalDroneStream(drone){
+        if(!drone.streamKey) return;
+        const entry = sharedLocalStreams.get(drone.streamKey);
+        if(entry){
+          entry.refs = Math.max(0, entry.refs - 1);
+          if(entry.refs === 0){
+            entry.stream.getTracks().forEach(track => track.stop());
+            sharedLocalStreams.delete(drone.streamKey);
+          }
+        }
+        drone.localStream = null;
+        drone.streamKey = null;
+      }
+
+      async function ensureLocalDroneStream(drone){
+        const streamKey = localStreamKeyFor(drone);
+        if(drone.streamKey === streamKey && drone.localStream) return drone.localStream;
+        if(drone.streamKey && drone.streamKey !== streamKey) releaseLocalDroneStream(drone);
+        let entry = sharedLocalStreams.get(streamKey);
+        if(!entry){
+          if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+            throw new Error('Local camera access is not available in this browser.');
+          }
+          const constraints = {
+            video: drone.deviceId ? {deviceId:{exact:drone.deviceId}} : {facingMode, width:{ideal:1920}, height:{ideal:1080}},
+            audio: false,
+          };
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const track = stream.getVideoTracks()[0];
+          entry = {
+            stream,
+            refs: 0,
+            label: (track && track.label) || drone.cameraLabel || 'Local Camera',
+          };
+          sharedLocalStreams.set(streamKey, entry);
+        }
+        entry.refs += 1;
+        drone.streamKey = streamKey;
+        drone.localStream = entry.stream;
+        drone.cameraLabel = entry.label || drone.cameraLabel;
+        return entry.stream;
+      }
+
+      async function refreshCameraDevices(silent){
+        droneCameraDevice.innerHTML = '<option value="">Default Rear Camera</option>';
+        if(!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices){
+          if(!silent) log('Camera enumeration is not available in this browser','warn');
+          return [];
+        }
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cams = devices.filter(device => device.kind === 'videoinput');
+          cams.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.textContent = device.label || ('Camera ' + (index + 1));
+            droneCameraDevice.appendChild(option);
+          });
+          if(!silent){
+            log('Camera sources refreshed - ' + cams.length + ' device(s) ready','ok');
+          }
+          return cams;
+        } catch(e){
+          if(!silent) log('Camera refresh error: ' + e.message,'err');
+          return [];
+        }
+      }
+
+      function ensureHomePoint(){
+        if(homePointResolved) return;
+        homePointResolved = true;
+        if(!navigator.geolocation){
+          initDroneMiniMap();
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(position => {
+          homePoint = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          if(droneHomeMarker) droneHomeMarker.setLatLng([homePoint.lat, homePoint.lng]);
+          if(droneMiniMap && !connectedDrones.length){
+            droneMiniMap.setView([homePoint.lat, homePoint.lng], 14);
+          }
+          fleetNote.textContent = 'Home point locked at ' + homePoint.lat.toFixed(4) + ', ' + homePoint.lng.toFixed(4) + '. Link local cameras, browser-playable streams, or backend bridge sessions, then route an active drone into the command view.';
+          updateDroneMiniMap();
+        }, () => {
+          initDroneMiniMap();
+        }, {enableHighAccuracy:true, timeout:4000, maximumAge:60000});
+      }
+
+      function nextDroneOrigin(index){
+        const angle = ((index + 1) * 47) * Math.PI / 180;
+        const offset = 0.003 + (index * 0.0008);
+        return {
+          lat: Number((homePoint.lat + Math.cos(angle) * offset).toFixed(5)),
+          lng: Number((homePoint.lng + Math.sin(angle) * offset).toFixed(5)),
+        };
+      }
+
+      function ensureMainIframe(){
+        let mainIframe = document.getElementById('cam-iframe');
+        if(!mainIframe){
+          mainIframe = document.createElement('iframe');
+          mainIframe.id = 'cam-iframe';
+          mainIframe.style.cssText = 'width:100%;height:100%;min-height:400px;border:0;background:#000;display:none';
+          mainIframe.setAttribute('allowfullscreen','');
+          document.getElementById('cam-feed').appendChild(mainIframe);
+        }
+        return mainIframe;
+      }
+
+      function ensureMainImage(){
+        let mainImg = document.getElementById('cam-sat-img');
+        if(!mainImg){
+          mainImg = document.createElement('img');
+          mainImg.id = 'cam-sat-img';
+          mainImg.style.cssText = 'width:100%;height:100%;min-height:400px;object-fit:contain;background:#000;display:none';
+          document.getElementById('cam-feed').appendChild(mainImg);
+        }
+        return mainImg;
+      }
+
+      function hideMainEmbeds(resetSources){
+        const mainIframe = document.getElementById('cam-iframe');
+        const mainImg = document.getElementById('cam-sat-img');
+        if(mainIframe){
+          mainIframe.style.display = 'none';
+          if(resetSources) mainIframe.src = 'about:blank';
+        }
+        if(mainImg){
+          mainImg.style.display = 'none';
+          if(resetSources) mainImg.removeAttribute('src');
+        }
+      }
+
+      function clearRecordingUi(stopRecorder){
+        if(stopRecorder && recording && mediaRecorder){
+          try{ mediaRecorder.stop(); }catch(e){}
+        }
+        recording = false;
+        document.getElementById('rec-badge').classList.remove('active');
+        document.getElementById('cam-record').classList.remove('rec-active');
+        document.getElementById('cam-record').innerHTML = '&#x25CF; RECORD';
+      }
+
+      function resetFeedSurface(showPlaceholder){
+        if(currentStream){
+          currentStream.getTracks().forEach(track => track.stop());
+          currentStream = null;
+        }
+        clearRecordingUi(true);
+        clearInterval(fpsInterval);
+        hideMainEmbeds(true);
+        try{ video.pause(); }catch(e){}
+        video.srcObject = null;
+        video.removeAttribute('src');
+        video.load();
+        video.style.display = 'none';
+        video.style.filter = '';
+        video.style.transform = '';
+        camRes.textContent = '—';
+        camFps.textContent = '—';
+        if(showPlaceholder){
+          placeholder.style.display = '';
+          placeholder.innerHTML = '<span class="icon">&#x1F4F7;</span>NO CAMERA FEED<br><br>Select an active drone from the roster or add one above<br>to begin live video feed';
+        } else {
+          placeholder.style.display = 'none';
+        }
+      }
+
+      async function startCamera(deviceId, droneName){
+        if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+          placeholder.style.display = '';
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ACCESS UNAVAILABLE<br><br>This browser cannot open local camera devices.';
+          log('Camera access is not available in this browser','err');
+          return;
+        }
+        try {
+          resetFeedSurface(false);
+          const constraints = {
+            video: deviceId ? {deviceId:{exact:deviceId}} : {facingMode, width:{ideal:1920}, height:{ideal:1080}},
+            audio: false,
+          };
           currentStream = await navigator.mediaDevices.getUserMedia(constraints);
           video.srcObject = currentStream;
           video.style.display = 'block';
           placeholder.style.display = 'none';
           const track = currentStream.getVideoTracks()[0];
-          const s = track.getSettings();
-          camRes.textContent = (s.width||'?')+'x'+(s.height||'?');
-          log('Camera active: '+(track.label||'Device')+ ' @ '+(s.width||'?')+'x'+(s.height||'?'),'ok');
-          startFpsCounter();
+          const settings = track.getSettings();
+          camRes.textContent = (settings.width || '?') + 'x' + (settings.height || '?');
+          startFpsCounter(droneName || track.label || 'LOCAL CAMERA');
+          const active = getActiveDrone();
+          if(active){
+            active.cameraLabel = track.label || active.cameraLabel;
+            renderConnectedDrones();
+          }
+          log('Camera active: ' + (droneName || track.label || 'Device') + ' @ ' + camRes.textContent,'ok');
         } catch(e){
-          log('Camera error: '+e.message,'err');
-          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ERROR<br><br>'+e.message;
+          placeholder.style.display = '';
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ERROR<br><br>' + escapeHtml(e.message);
+          log('Camera error: ' + e.message,'err');
         }
       }
 
-      function startFpsCounter(){
+      function startFpsCounter(label){
         clearInterval(fpsInterval);
         fpsCounter = 0;
-        video.requestVideoFrameCallback && (function countFrames(now, meta){
-          fpsCounter++;
-          video.requestVideoFrameCallback(countFrames);
-        })(0);
-        fpsInterval = setInterval(() => { camFps.textContent = fpsCounter+' FPS'; fpsCounter=0; }, 1000);
+        if(video.requestVideoFrameCallback){
+          video.requestVideoFrameCallback(function countFrames(){
+            fpsCounter++;
+            video.requestVideoFrameCallback(countFrames);
+          });
+        }
+        fpsInterval = setInterval(() => {
+          camFps.textContent = fpsCounter ? (fpsCounter + ' FPS') : (label || 'LIVE');
+          fpsCounter = 0;
+        }, 1000);
       }
 
-      // Auto-start camera when drone connects
-      async function autoStartCameraFeed(){
-        // 1) Check if a custom stream URL is set in settings
-        const streamUrl = document.getElementById('s-stream-url').value.trim();
-        if(streamUrl){
-          video.srcObject = null;
-          video.src = streamUrl;
-          video.style.display = 'block';
-          placeholder.style.display = 'none';
-          video.play().catch(e => {
-            log('Stream connect error: '+e.message,'err');
-            placeholder.style.display = '';
-            video.style.display = 'none';
-          });
-          log('Drone camera feed: connecting to '+streamUrl,'ok');
+      async function loadStreamSource(url, droneName){
+        resetFeedSurface(false);
+        if(/^rtsp:/i.test(url) || /^rtmp:/i.test(url)){
+          placeholder.style.display = '';
+          placeholder.innerHTML = '<span class="icon">&#x1F6F0;</span>STREAM GATEWAY REQUIRED<br><br>Direct browser playback is not available for RTSP or RTMP.<br>Bridge this feed to WebRTC or HTTPS/HLS, then reconnect it here.';
+          camRes.textContent = 'GATEWAY';
+          camFps.textContent = droneName || 'STREAM';
+          log('Direct browser playback is unavailable for RTSP/RTMP streams','warn');
           return;
         }
-        // 2) Try to access device camera (acts as drone camera proxy)
+        if(EMBED_PATTERN.test(url)){
+          const mainIframe = ensureMainIframe();
+          mainIframe.src = url;
+          mainIframe.style.display = 'block';
+          placeholder.style.display = 'none';
+          camRes.textContent = 'NETWORK';
+          camFps.textContent = droneName || 'STREAM';
+          log('Embedded stream opened: ' + (droneName || url),'ok');
+          return;
+        }
+        video.style.display = 'block';
+        video.srcObject = null;
+        video.src = url;
+        placeholder.style.display = 'none';
         try {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const cams = devices.filter(d => d.kind === 'videoinput');
-          if(cams.length){
-            // Prefer rear-facing / environment camera
-            log('Accessing drone camera ('+cams.length+' source'+(cams.length>1?'s':'')+' available)...','ok');
-            await startCamera();
-            placeholder.style.display = 'none';
-            video.style.display = 'block';
-            log('Drone camera feed LIVE — streaming to command center','ok');
-          } else {
-            log('No camera hardware found — connect a camera source or set a stream URL in settings','warn');
-            placeholder.innerHTML = '<span class="icon">&#x1F4F7;</span>DRONE CONNECTED — NO CAMERA DETECTED<br><br>Set a stream URL in Settings or connect a camera device';
-          }
+          await video.play();
+          camRes.textContent = 'NETWORK';
+          camFps.textContent = droneName || 'STREAM';
+          log('Network stream opened: ' + (droneName || url),'ok');
         } catch(e){
-          log('Auto camera error: '+e.message,'err');
-          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>CAMERA ACCESS DENIED<br><br>Grant camera permission or set a<br>stream URL in &#x2699; Drone Settings';
           placeholder.style.display = '';
           video.style.display = 'none';
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>STREAM ERROR<br><br>' + escapeHtml(e.message);
+          log('Stream connect error: ' + e.message,'err');
         }
       }
 
-      // Stop camera feed on disconnect
-      function stopCameraFeed(){
-        if(currentStream){
-          currentStream.getTracks().forEach(t => t.stop());
-          currentStream = null;
-        }
-        if(recording){
-          try{ mediaRecorder.stop(); }catch(e){}
-          recording = false;
-          document.getElementById('rec-badge').classList.remove('active');
-          document.getElementById('cam-record').classList.remove('rec-active');
-          document.getElementById('cam-record').innerHTML = '&#x25CF; RECORD';
-        }
-        video.srcObject = null;
-        video.src = '';
-        video.style.display = 'none';
-        video.style.filter = '';
-        video.style.transform = '';
-        placeholder.style.display = '';
-        placeholder.innerHTML = '<span class="icon">&#x1F4F7;</span>NO CAMERA FEED<br><br>Connect a drone or select a camera source<br>to begin live video feed';
-        camRes.textContent = '—';
-        camFps.textContent = '—';
-        clearInterval(fpsInterval);
-        log('Camera feed stopped','warn');
-      }
-
-      document.getElementById('btn-cam-source').addEventListener('click', async () => {
-        // Check for stream URL in settings
-        const streamUrl = document.getElementById('s-stream-url').value.trim();
-        if(streamUrl){
-          video.srcObject = null;
-          video.src = streamUrl;
-          video.style.display = 'block';
-          placeholder.style.display = 'none';
-          video.play().catch(e => log('Stream error: '+e.message,'err'));
-          log('Connecting to stream: '+streamUrl,'ok');
+      async function loadBridgeSource(drone){
+        resetFeedSurface(false);
+        if(!drone.feedUrl && !drone.previewUrl){
+          placeholder.style.display = '';
+          placeholder.innerHTML = '<span class="icon">&#x26A0;</span>BRIDGE FEED UNAVAILABLE<br><br>' + escapeHtml(drone.bridgeError || drone.bridgeMessage || 'Bridge session has not published a feed yet.');
+          camRes.textContent = drone.bridgeKind ? drone.bridgeKind.toUpperCase() : 'BRIDGE';
+          camFps.textContent = drone.name;
           return;
         }
-        // Otherwise use getUserMedia — let user pick camera
+        const mainImg = ensureMainImage();
+        mainImg.src = cacheBustUrl(drone.feedUrl || drone.previewUrl || '');
+        mainImg.style.display = 'block';
+        placeholder.style.display = 'none';
+        camRes.textContent = drone.bridgeKind ? drone.bridgeKind.toUpperCase() : 'BRIDGE';
+        camFps.textContent = drone.name;
+        log('Backend bridge feed opened: ' + drone.name,'ok');
+      }
+
+      async function focusDroneCamera(drone){
+        if(!drone){
+          resetFeedSurface(true);
+          return;
+        }
+        if(drone.sourceType === 'bridge'){
+          await loadBridgeSource(drone);
+          return;
+        }
+        if(drone.sourceType === 'stream'){
+          await loadStreamSource(drone.streamUrl, drone.name);
+          return;
+        }
+        const stream = await ensureLocalDroneStream(drone);
+        resetFeedSurface(false);
+        currentStream = stream.clone();
+        video.srcObject = currentStream;
+        video.style.display = 'block';
+        placeholder.style.display = 'none';
+        const track = currentStream.getVideoTracks()[0];
+        const settings = track ? track.getSettings() : {};
+        camRes.textContent = (settings.width || '?') + 'x' + (settings.height || '?');
+        camFps.textContent = drone.name;
+        startFpsCounter(drone.name);
+        log('Camera routed to active viewer: ' + drone.name,'ok');
+      }
+
+      function updateTelemetryPanel(drone){
+        if(!drone){
+          ['t-alt','t-spd','t-dist','t-bat','t-sig','t-sat','t-lat','t-lng'].forEach(id => document.getElementById(id).textContent = '—');
+          return;
+        }
+        document.getElementById('t-alt').textContent = drone.alt.toFixed(1) + 'm';
+        document.getElementById('t-spd').textContent = drone.speed.toFixed(1) + 'm/s';
+        document.getElementById('t-dist').textContent = drone.distance + 'm';
+        document.getElementById('t-bat').textContent = Math.round(drone.battery) + '%';
+        document.getElementById('t-sig').textContent = Math.round(drone.signal) + '%';
+        document.getElementById('t-sat').textContent = drone.sats;
+        document.getElementById('t-lat').textContent = drone.lat.toFixed(4) + '°';
+        document.getElementById('t-lng').textContent = drone.lng.toFixed(4) + '°';
+      }
+
+      function bridgeStatusTone(status){
+        if(status === 'connected') return 'connected';
+        if(status === 'starting') return 'starting';
+        if(status === 'degraded') return 'degraded';
+        if(status === 'error') return 'error';
+        return 'starting';
+      }
+
+      function applyBridgeSessionSnapshot(drone, session, bridgeConfig){
+        const telemetry = session.telemetry || {};
+        drone.feedUrl = bridgeAssetUrl(session.feed_url, bridgeConfig);
+        drone.previewUrl = bridgeAssetUrl(session.preview_url, bridgeConfig);
+        drone.bridgeKind = session.bridge_kind || drone.bridgeKind;
+        drone.bridgeStatus = session.status || drone.bridgeStatus || 'starting';
+        drone.bridgeMessage = session.message || '';
+        drone.bridgeError = session.error || '';
+        drone.bridgeServiceLabel = bridgeDisplayName(bridgeConfig.baseUrl);
+        drone.cameraLabel = (session.bridge_kind || 'bridge').toUpperCase() + ' Bridge';
+        drone.lat = Number(telemetry.lat ?? drone.lat);
+        drone.lng = Number(telemetry.lng ?? drone.lng);
+        drone.alt = Number(telemetry.alt ?? drone.alt);
+        drone.speed = Number(telemetry.speed ?? drone.speed);
+        drone.distance = Number(telemetry.distance ?? drone.distance);
+        drone.battery = Number(telemetry.battery ?? drone.battery);
+        drone.signal = Number(telemetry.signal ?? drone.signal);
+        drone.sats = Number(telemetry.sats ?? drone.sats);
+        drone.trail.push([drone.lat, drone.lng]);
+        if(drone.trail.length > 14) drone.trail.shift();
+      }
+
+      function renderConnectedDrones(){
+        fleetStatus.textContent = connectedDrones.length ? (connectedDrones.length + ' DRONES LINKED') : 'NO DRONES CONNECTED';
+        droneRemove.disabled = !activeDroneId;
+        quadStatus.textContent = Math.min(connectedDrones.length, 4) + ' FEEDS LIVE';
+        const bridgeCount = connectedDrones.filter(drone => drone.sourceType === 'bridge').length;
+        if(bridgeCount){
+          updateBridgeStatus('online', 'BRIDGE SESSIONS LIVE', bridgeCount + ' bridge session' + (bridgeCount === 1 ? '' : 's') + ' linked across ' + new Set(connectedDrones.filter(drone => drone.sourceType === 'bridge').map(drone => drone.bridgeServiceLabel || 'SITE BRIDGE')).size + ' endpoint(s).');
+        } else if(droneSourceType.value === 'bridge') {
+          updateBridgeStatus('idle', 'BRIDGE LINK STANDBY', 'Use the built-in bridge on this site or point the dashboard at a separate bridge runtime on the same network as your drones. On the live HTTPS site, off-box bridge endpoints also need HTTPS.');
+        }
+
+        if(!connectedDrones.length){
+          fleetFeedStrip.innerHTML = '';
+          fleetList.innerHTML = '<div class="fleet-empty">No drones linked yet. Scan WiFi or Bluetooth above, or add a local camera or stream here.</div>';
+          quadGrid.innerHTML = '<div class="quad-empty">Link up to four drones to view multiple live feeds at once. The active drone still routes into the primary viewer and telemetry block.</div>';
+          updateTelemetryPanel(null);
+          return;
+        }
+
+        fleetFeedStrip.innerHTML = connectedDrones.map(drone => {
+          const active = drone.id === activeDroneId ? ' active' : '';
+          return '<button type="button" class="fleet-chip' + active + '" data-drone-select="' + drone.id + '">' +
+            '<strong>' + escapeHtml(drone.name) + '</strong>' +
+            '<span>' + escapeHtml(drone.transport.toUpperCase()) + ' - ' + escapeHtml(drone.sourceType.toUpperCase()) + '</span>' +
+            '<span>BAT ' + Math.round(drone.battery) + '% - ALT ' + drone.alt.toFixed(1) + 'M</span>' +
+          '</button>';
+        }).join('');
+
+        fleetList.innerHTML = connectedDrones.map(drone => {
+          const active = drone.id === activeDroneId ? ' active' : '';
+          const statusLine = drone.sourceType === 'bridge'
+            ? (drone.bridgeStatus || 'starting').toUpperCase() + ' - ' + escapeHtml(drone.bridgeServiceLabel || 'SITE BRIDGE') + (drone.bridgeError ? ' - ' + escapeHtml(drone.bridgeError) : drone.bridgeMessage ? ' - ' + escapeHtml(drone.bridgeMessage) : '')
+            : 'BAT ' + Math.round(drone.battery) + '% - SPD ' + drone.speed.toFixed(1) + 'm/s - ' + drone.lat.toFixed(4) + ', ' + drone.lng.toFixed(4);
+          return '<div class="fleet-item' + active + '" data-drone-select="' + drone.id + '">' +
+            '<div class="fleet-copy">' +
+              '<strong>' + escapeHtml(drone.name) + '</strong>' +
+              '<span>' + escapeHtml(drone.transport.toUpperCase()) + ' - ' + escapeHtml(drone.cameraLabel || (drone.sourceType === 'stream' ? 'Network Stream' : drone.sourceType === 'bridge' ? ((drone.bridgeKind || 'bridge').toUpperCase() + ' Bridge') : 'Local Camera')) + '</span>' +
+              '<span>' + statusLine + '</span>' +
+            '</div>' +
+            '<div class="fleet-inline-actions">' +
+              '<button type="button" class="conn-btn scan" data-drone-view="' + drone.id + '">VIEW</button>' +
+              (drone.sourceType === 'bridge' ? '<button type="button" class="conn-btn scan" data-drone-reconnect="' + drone.id + '">RELINK</button>' : '') +
+              '<button type="button" class="conn-btn danger" data-drone-remove="' + drone.id + '">DROP</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        renderQuadView();
+      }
+
+      function attachQuadVideo(container, stream){
+        let element = container.querySelector('video');
+        if(!element){
+          element = document.createElement('video');
+          element.autoplay = true;
+          element.muted = true;
+          element.playsInline = true;
+          container.appendChild(element);
+        }
+        element.srcObject = stream;
+      }
+
+      function attachQuadStream(container, url){
+        if(EMBED_PATTERN.test(url)){
+          let element = container.querySelector('iframe');
+          if(!element){
+            element = document.createElement('iframe');
+            element.setAttribute('allowfullscreen', '');
+            container.appendChild(element);
+          }
+          element.src = url;
+          return;
+        }
+        let element = container.querySelector('video');
+        if(!element){
+          element = document.createElement('video');
+          element.autoplay = true;
+          element.muted = true;
+          element.playsInline = true;
+          container.appendChild(element);
+        }
+        element.src = url;
+        element.play().catch(() => {});
+      }
+
+      function attachQuadBridge(container, drone){
+        let element = container.querySelector('img');
+        if(!element){
+          element = document.createElement('img');
+          container.appendChild(element);
+        }
+        element.src = cacheBustUrl(drone.feedUrl || drone.previewUrl || '');
+      }
+
+      function renderQuadView(){
+        const visible = connectedDrones.slice(0, 4);
+        if(!visible.length){
+          quadGrid.innerHTML = '<div class="quad-empty">Link up to four drones to view multiple live feeds at once. The active drone still routes into the primary viewer and telemetry block.</div>';
+          quadStatus.textContent = '0 FEEDS LIVE';
+          return;
+        }
+        quadGrid.innerHTML = visible.map(drone => {
+          const active = drone.id === activeDroneId ? ' active' : '';
+          const status = drone.sourceType === 'bridge' ? (drone.bridgeStatus || 'starting') : 'connected';
+          return '<div class="quad-tile' + active + '" data-quad-drone="' + drone.id + '">' +
+            '<div class="quad-tile-head">' +
+              '<div class="quad-tile-copy">' +
+                '<strong>' + escapeHtml(drone.name) + '</strong>' +
+                '<span>' + escapeHtml((drone.bridgeKind || drone.sourceType).toUpperCase()) + ' - ' + escapeHtml(drone.transport.toUpperCase()) + '</span>' +
+              '</div>' +
+              '<div class="quad-tile-actions">' +
+                '<span class="quad-pill ' + bridgeStatusTone(status) + '">' + escapeHtml(status.toUpperCase()) + '</span>' +
+                (drone.sourceType === 'bridge' ? '<button type="button" class="quad-reconnect" data-quad-reconnect="' + drone.id + '">RELINK</button>' : '') +
+                '<button type="button" class="quad-focus" data-quad-focus="' + drone.id + '">FOCUS</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="quad-media" data-quad-media="' + drone.id + '">' +
+              '<div class="quad-overlay">' +
+                '<span class="quad-meta">' + (drone.sourceType === 'bridge' ? escapeHtml((drone.bridgeMessage || drone.bridgeError || ('BAT ' + Math.round(drone.battery) + '% - ALT ' + drone.alt.toFixed(1) + 'm')).toString()) : 'BAT ' + Math.round(drone.battery) + '% - ALT ' + drone.alt.toFixed(1) + 'm') + '</span>' +
+                '<span class="quad-tags">' + escapeHtml((drone.bridgeKind || drone.sourceType).toUpperCase()) + (drone.sourceType === 'bridge' ? ' - ' + escapeHtml(drone.bridgeServiceLabel || 'SITE BRIDGE') : '') + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        visible.forEach(drone => {
+          const container = quadGrid.querySelector('[data-quad-media="' + drone.id + '"]');
+          if(!container) return;
+          if(drone.sourceType === 'bridge'){
+            attachQuadBridge(container, drone);
+            return;
+          }
+          if(drone.sourceType === 'stream'){
+            attachQuadStream(container, drone.streamUrl);
+            return;
+          }
+          ensureLocalDroneStream(drone).then(stream => {
+            attachQuadVideo(container, stream);
+          }).catch(error => {
+            container.innerHTML = '<div class="quad-error">' + escapeHtml(error.message || 'Feed unavailable') + '</div>';
+          });
+        });
+      }
+
+      function syncTransportStatus(){
+        const wifiCount = connectedDrones.filter(drone => drone.transport === 'wifi').length;
+        const btCount = connectedDrones.filter(drone => drone.transport === 'bluetooth').length;
+        wifiDisconnect.disabled = !wifiCount;
+        btDisconnect.disabled = !btCount;
+        if(wifiCount){
+          wifiDot.className = 'conn-dot connected';
+          wifiStatus.textContent = wifiCount + ' WIFI LINK' + (wifiCount === 1 ? '' : 'S');
+        } else if(!wifiDot.classList.contains('scanning')) {
+          wifiDot.className = 'conn-dot';
+          if(!/SCANNING/.test(wifiStatus.textContent)) wifiStatus.textContent = 'DISCONNECTED';
+        }
+        if(btCount){
+          btDot.className = 'conn-dot connected';
+          btStatus.textContent = btCount + ' BT LINK' + (btCount === 1 ? '' : 'S');
+        } else if(!btDot.classList.contains('scanning')) {
+          btDot.className = 'conn-dot';
+          if(!/SCANNING|DEVICE FOUND/.test(btStatus.textContent)) btStatus.textContent = 'DISCONNECTED';
+        }
+      }
+
+      async function setActiveDrone(droneId, options){
+        const drone = connectedDrones.find(item => item.id === droneId);
+        if(!drone) return;
+        activeDroneId = drone.id;
+        renderConnectedDrones();
+        updateTelemetryPanel(drone);
+        updateDroneMiniMap();
+        await focusDroneCamera(drone);
+        if(!options || !options.suppressLog){
+          log('Active drone routed to command view: ' + drone.name,'ok');
+        }
+      }
+
+      function stepDroneTelemetry(drone){
+        if(drone.sourceType === 'bridge') return;
+        const maxAlt = readNumberSetting('s-max-alt', 120);
+        const maxSpeed = readNumberSetting('s-max-spd', 15);
+        const maxDistance = readNumberSetting('s-max-dist', 500);
+        const flightMode = document.getElementById('s-flight-mode').value;
+        const speedScale = flightMode === 'sport' ? 0.92 : flightMode === 'cinematic' ? 0.45 : flightMode === 'tripod' ? 0.25 : 0.62;
+        drone.speed = Number((Math.max(1.2, maxSpeed * speedScale) * (0.45 + Math.random() * 0.55)).toFixed(1));
+        drone.alt = Number((Math.min(maxAlt, 8 + Math.random() * maxAlt * 0.72)).toFixed(1));
+        drone.battery = Number(Math.max(5, drone.battery - (0.02 + Math.random() * 0.04)).toFixed(1));
+        const driftLat = (Math.random() - 0.5) * 0.00045;
+        const driftLng = (Math.random() - 0.5) * 0.00045;
+        drone.lat = Number((drone.lat + driftLat).toFixed(5));
+        drone.lng = Number((drone.lng + driftLng).toFixed(5));
+        drone.distance = Math.round(distanceMeters(drone.lat, drone.lng, homePoint.lat, homePoint.lng));
+        if(drone.distance > maxDistance){
+          drone.lat = Number(((drone.lat + homePoint.lat) / 2).toFixed(5));
+          drone.lng = Number(((drone.lng + homePoint.lng) / 2).toFixed(5));
+          drone.distance = Math.round(distanceMeters(drone.lat, drone.lng, homePoint.lat, homePoint.lng));
+        }
+        drone.signal = Math.max(40, Math.min(100, Math.round(96 - (drone.distance / Math.max(120, maxDistance)) * 35 + (Math.random() * 6))));
+        drone.sats = Math.max(6, Math.round(8 + Math.random() * 8));
+        drone.trail.push([drone.lat, drone.lng]);
+        if(drone.trail.length > 14) drone.trail.shift();
+      }
+
+      async function refreshBridgeSessions(){
+        const bridgeDrones = connectedDrones.filter(drone => drone.sourceType === 'bridge');
+        if(!bridgeDrones.length) return;
+        const groups = new Map();
+        bridgeDrones.forEach(drone => {
+          const config = bridgeConfigForDrone(drone);
+          const key = bridgeConfigKey(config);
+          if(!groups.has(key)) groups.set(key, {config, drones: []});
+          groups.get(key).drones.push(drone);
+        });
+        let healthyGroups = 0;
+        for(const group of groups.values()){
+          try {
+            const data = await apiJson('/api/drone/bridge/sessions', {bridgeConfig: group.config}, group.config);
+            const sessions = new Map((data.sessions || []).map(session => [session.id, session]));
+            group.drones.forEach(drone => {
+              const session = sessions.get(drone.bridgeSessionId);
+              if(session){
+                applyBridgeSessionSnapshot(drone, session, group.config);
+              } else {
+                drone.bridgeStatus = 'error';
+                drone.bridgeMessage = 'Session missing on bridge runtime';
+                drone.bridgeError = '';
+              }
+            });
+            healthyGroups += 1;
+          } catch(e){
+            group.drones.forEach(drone => {
+              drone.bridgeStatus = 'error';
+              drone.bridgeMessage = 'Bridge runtime unreachable';
+              drone.bridgeError = e.message || 'Bridge runtime unreachable';
+            });
+            updateBridgeStatus('sync', 'BRIDGE SYNC FAILED', (e.message || 'Bridge runtime unreachable') + ' [' + describeBridgeSource(group.config) + ']');
+          }
+        }
+        if(healthyGroups){
+          updateBridgeStatus('online', 'BRIDGE SYNC COMPLETE', bridgeDrones.length + ' bridge drone' + (bridgeDrones.length === 1 ? '' : 's') + ' refreshed.');
+        }
+        renderConnectedDrones();
+        updateTelemetryPanel(getActiveDrone());
+        updateDroneMiniMap();
+      }
+
+      function ensureBridgePolling(){
+        if(bridgePollInterval || !connectedDrones.some(drone => drone.sourceType === 'bridge')) return;
+        bridgePollInterval = setInterval(refreshBridgeSessions, 2000);
+      }
+
+      function stopBridgePollingIfIdle(){
+        if(connectedDrones.some(drone => drone.sourceType === 'bridge')) return;
+        clearInterval(bridgePollInterval);
+        bridgePollInterval = null;
+      }
+
+      function disconnectBridgeSession(sessionId, bridgeConfig){
+        if(!sessionId) return Promise.resolve();
+        return fetch(resolveBridgeUrl('/api/drone/bridge/sessions/' + sessionId + '/disconnect', bridgeConfig || readBridgeConfigFromForm(), false), {
+          method: 'POST',
+          headers: bridgeHeaders(bridgeConfig || readBridgeConfigFromForm()),
+        }).catch(() => {});
+      }
+
+      function ensureTelemetryLoop(){
+        if(telemInterval || !connectedDrones.length) return;
+        log('Telemetry mesh active - ' + connectedDrones.length + ' linked drone(s)','ok');
+        telemInterval = setInterval(() => {
+          connectedDrones.forEach(stepDroneTelemetry);
+          renderConnectedDrones();
+          updateTelemetryPanel(getActiveDrone());
+          updateDroneMiniMap();
+        }, 1000);
+      }
+
+      function stopTelemetryLoop(){
+        clearInterval(telemInterval);
+        telemInterval = null;
+        updateTelemetryPanel(null);
+      }
+
+      function initDroneMiniMap(){
+        if(droneMiniMapInit) return;
+        droneMiniMapInit = true;
+        function build(){
+          droneMiniMap = L.map('drone-mini-map', {zoomControl:true, attributionControl:false}).setView([homePoint.lat, homePoint.lng], 14);
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+          }).addTo(droneMiniMap);
+          droneHomeMarker = L.circleMarker([homePoint.lat, homePoint.lng], {
+            radius: 6,
+            color: '#C8D5A3',
+            weight: 2,
+            fillColor: '#8B9D6A',
+            fillOpacity: 0.95,
+          }).addTo(droneMiniMap).bindTooltip('HOME', {permanent:true, direction:'top', offset:[0,-6]});
+          fleetMapStatus.textContent = 'Home point ready - awaiting drone link';
+          setTimeout(() => droneMiniMap.invalidateSize(), 150);
+          updateDroneMiniMap();
+        }
+        if(typeof L === 'undefined'){
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(link);
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          script.onload = build;
+          document.head.appendChild(script);
+        } else {
+          build();
+        }
+      }
+
+      function updateDroneMiniMap(){
+        if(!droneMiniMap) return;
+        const active = getActiveDrone();
+        const liveIds = new Set(connectedDrones.map(drone => drone.id));
+
+        droneMiniMarkers.forEach((marker, id) => {
+          if(!liveIds.has(id)){
+            droneMiniMap.removeLayer(marker);
+            droneMiniMarkers.delete(id);
+          }
+        });
+        droneMiniTrails.forEach((trail, id) => {
+          if(!liveIds.has(id)){
+            droneMiniMap.removeLayer(trail);
+            droneMiniTrails.delete(id);
+          }
+        });
+        if(droneHomeMarker) droneHomeMarker.setLatLng([homePoint.lat, homePoint.lng]);
+
+        connectedDrones.forEach(drone => {
+          let marker = droneMiniMarkers.get(drone.id);
+          if(!marker){
+            marker = L.circleMarker([drone.lat, drone.lng], {
+              radius: 6,
+              color: '#cc4444',
+              weight: 2,
+              fillColor: '#cc4444',
+              fillOpacity: 0.9,
+            }).addTo(droneMiniMap);
+            marker.on('click', () => setActiveDrone(drone.id));
+            droneMiniMarkers.set(drone.id, marker);
+          }
+          marker.setLatLng([drone.lat, drone.lng]);
+          marker.setStyle({
+            color: drone.id === activeDroneId ? '#C8D5A3' : '#cc4444',
+            fillColor: drone.id === activeDroneId ? '#8B9D6A' : '#cc4444',
+          });
+          marker.bindPopup('<div class="drone-mini-popup"><strong>' + escapeHtml(drone.name) + '</strong><br>BAT ' + Math.round(drone.battery) + '%<br>ALT ' + drone.alt.toFixed(1) + 'm<br>SPD ' + drone.speed.toFixed(1) + 'm/s</div>');
+
+          let trail = droneMiniTrails.get(drone.id);
+          if(!trail){
+            trail = L.polyline(drone.trail, {
+              color: drone.id === activeDroneId ? '#8B9D6A' : '#cc4444',
+              weight: 2,
+              opacity: 0.7,
+            }).addTo(droneMiniMap);
+            droneMiniTrails.set(drone.id, trail);
+          }
+          trail.setLatLngs(drone.trail);
+          trail.setStyle({color: drone.id === activeDroneId ? '#8B9D6A' : '#cc4444'});
+        });
+
+        if(connectedDrones.length){
+          if(followActiveDrone && active){
+            droneMiniMap.setView([active.lat, active.lng], Math.max(droneMiniMap.getZoom(), 15), {animate:false});
+          }
+          fleetMapStatus.textContent = (active ? active.name : connectedDrones[0].name) + ' - ' + (active ? active.lat.toFixed(4) + ', ' + active.lng.toFixed(4) : connectedDrones.length + ' drones linked');
+        } else {
+          droneMiniMap.setView([homePoint.lat, homePoint.lng], 14, {animate:false});
+          fleetMapStatus.textContent = 'Awaiting drone link...';
+        }
+        fleetMapBadge.textContent = followActiveDrone ? 'FOLLOW ACTIVE' : 'FREE PAN';
+        fleetFollowToggle.textContent = followActiveDrone ? 'FOLLOW ACTIVE' : 'FREE PAN';
+      }
+
+      async function registerDrone(options){
+        ensureHomePoint();
+        initDroneMiniMap();
+        const name = (options.name || '').trim() || ('Drone ' + (connectedDrones.length + 1));
+        const sourceType = options.sourceType || 'local';
+        const bridgeKind = options.bridgeKind || '';
+        const bridgeConfig = options.bridgeConfig || readBridgeConfigFromForm();
+        if(sourceType === 'stream' && !options.streamUrl){
+          log('Enter a stream URL before linking a network drone','err');
+          return null;
+        }
+        if(sourceType === 'bridge' && bridgeKind === 'rtsp' && !options.streamUrl){
+          log('Enter an RTSP URL before opening a relay bridge','err');
+          return null;
+        }
+        const existing = connectedDrones.find(drone => drone.name === name && drone.transport === options.transport);
+        const origin = existing ? {lat:existing.lat, lng:existing.lng} : nextDroneOrigin(connectedDrones.length);
+        const drone = existing || {id: makeDroneId(), trail: [[origin.lat, origin.lng]]};
+        if(existing && existing.sourceType === 'local' && sourceType !== 'local') releaseLocalDroneStream(existing);
+        if(existing && existing.sourceType === 'bridge' && existing.bridgeSessionId && (
+          sourceType !== 'bridge' ||
+          existing.bridgeSessionId !== options.bridgeSessionId ||
+          bridgeConfigKey(bridgeConfigForDrone(existing)) !== bridgeConfigKey(bridgeConfig)
+        )){
+          disconnectBridgeSession(existing.bridgeSessionId, bridgeConfigForDrone(existing));
+        }
+        drone.name = name;
+        drone.sourceType = sourceType;
+        drone.deviceId = options.deviceId || '';
+        drone.streamUrl = options.streamUrl || '';
+        drone.bridgeKind = bridgeKind || '';
+        drone.bridgeSessionId = options.bridgeSessionId || '';
+        drone.bridgeBaseUrl = sourceType === 'bridge' ? normalizeBridgeBaseUrl(bridgeConfig.baseUrl) : '';
+        drone.bridgeToken = sourceType === 'bridge' ? (bridgeConfig.token || '') : '';
+        drone.bridgePresetId = sourceType === 'bridge' ? (bridgeConfig.presetId || '') : '';
+        drone.bridgeServiceLabel = sourceType === 'bridge' ? bridgeDisplayName(bridgeConfig.baseUrl) : '';
+        drone.feedUrl = options.feedUrl ? bridgeAssetUrl(options.feedUrl, bridgeConfig) : '';
+        drone.previewUrl = options.previewUrl ? bridgeAssetUrl(options.previewUrl, bridgeConfig) : '';
+        drone.bridgeStatus = sourceType === 'bridge' ? (options.bridgeStatus || 'starting') : '';
+        drone.bridgeMessage = sourceType === 'bridge' ? (options.bridgeMessage || '') : '';
+        drone.bridgeError = sourceType === 'bridge' ? (options.bridgeError || '') : '';
+        drone.transport = options.transport || 'manual';
+        drone.cameraLabel = options.cameraLabel || (sourceType === 'stream' ? 'Network Stream' : sourceType === 'bridge' ? ((bridgeKind || 'bridge').toUpperCase() + ' Bridge') : 'Default Rear Camera');
+        drone.lat = origin.lat;
+        drone.lng = origin.lng;
+        drone.alt = drone.alt || 0;
+        drone.speed = drone.speed || 0;
+        drone.distance = Math.round(distanceMeters(drone.lat, drone.lng, homePoint.lat, homePoint.lng));
+        drone.battery = drone.battery || (92 - Math.round(Math.random() * 12));
+        drone.signal = drone.signal || 92;
+        drone.sats = drone.sats || 10;
+        if(sourceType === 'local'){
+          try {
+            await ensureLocalDroneStream(drone);
+          } catch(e){
+            log('Camera access failed: ' + e.message,'err');
+            return null;
+          }
+        }
+        if(!existing) connectedDrones.push(drone);
+        renderConnectedDrones();
+        syncTransportStatus();
+        ensureTelemetryLoop();
+        if(sourceType === 'bridge'){
+          ensureBridgePolling();
+          await refreshBridgeSessions();
+        }
+        await setActiveDrone(drone.id, {suppressLog:true});
+        return drone;
+      }
+
+      function removeDrone(droneId){
+        const index = connectedDrones.findIndex(drone => drone.id === droneId);
+        if(index === -1) return;
+        const removed = connectedDrones.splice(index, 1)[0];
+        if(droneMiniMarkers.has(removed.id)){
+          droneMiniMap && droneMiniMap.removeLayer(droneMiniMarkers.get(removed.id));
+          droneMiniMarkers.delete(removed.id);
+        }
+        if(droneMiniTrails.has(removed.id)){
+          droneMiniMap && droneMiniMap.removeLayer(droneMiniTrails.get(removed.id));
+          droneMiniTrails.delete(removed.id);
+        }
+        if(removed.sourceType === 'local') releaseLocalDroneStream(removed);
+        if(removed.bridgeSessionId) disconnectBridgeSession(removed.bridgeSessionId, bridgeConfigForDrone(removed));
+        if(activeDroneId === removed.id){
+          activeDroneId = connectedDrones[0] ? connectedDrones[0].id : null;
+          if(activeDroneId) setActiveDrone(activeDroneId, {suppressLog:true});
+          else resetFeedSurface(true);
+        }
+        if(!connectedDrones.length) stopTelemetryLoop();
+        renderConnectedDrones();
+        syncTransportStatus();
+        stopBridgePollingIfIdle();
+        updateDroneMiniMap();
+        log('Drone unlinked: ' + removed.name,'warn');
+      }
+
+      async function reconnectBridgeDrone(droneId){
+        const drone = connectedDrones.find(item => item.id === droneId);
+        if(!drone || drone.sourceType !== 'bridge') return;
+        const bridgeConfig = bridgeConfigForDrone(drone);
+        updateBridgeStatus('sync', 'BRIDGE RELINK IN PROGRESS', drone.name + ' -> ' + describeBridgeSource(bridgeConfig));
         try {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const cams = devices.filter(d => d.kind === 'videoinput');
-          if(!cams.length){ log('No cameras found','err'); return; }
-          if(cams.length === 1){ startCamera(cams[0].deviceId); return; }
-          // Multiple cameras — cycle through
-          const currentTrack = currentStream && currentStream.getVideoTracks()[0];
-          const currentId = currentTrack ? currentTrack.getSettings().deviceId : '';
-          const idx = cams.findIndex(c => c.deviceId === currentId);
-          const nextCam = cams[(idx+1) % cams.length];
-          startCamera(nextCam.deviceId);
-        } catch(e){ log('Camera source error: '+e.message,'err'); }
+          if(drone.bridgeSessionId) await disconnectBridgeSession(drone.bridgeSessionId, bridgeConfig);
+          let data;
+          if(drone.bridgeKind === 'tello'){
+            data = await apiJson('/api/drone/bridge/tello/connect', {
+              method: 'POST',
+              body: JSON.stringify({name: drone.name, home: homePoint}),
+              bridgeConfig,
+            }, bridgeConfig);
+          } else {
+            data = await apiJson('/api/drone/bridge/rtsp/open', {
+              method: 'POST',
+              body: JSON.stringify({name: drone.name, url: drone.streamUrl}),
+              bridgeConfig,
+            }, bridgeConfig);
+          }
+          const session = data.session || {};
+          await registerDrone({
+            name: drone.name,
+            sourceType: 'bridge',
+            bridgeKind: drone.bridgeKind,
+            streamUrl: drone.streamUrl,
+            bridgeSessionId: session.id,
+            feedUrl: session.feed_url,
+            previewUrl: session.preview_url,
+            transport: drone.transport,
+            cameraLabel: (drone.bridgeKind || 'bridge').toUpperCase() + ' Bridge',
+            bridgeConfig,
+            bridgeStatus: session.status || 'starting',
+            bridgeMessage: session.message || '',
+            bridgeError: session.error || '',
+          });
+          updateBridgeStatus('online', 'BRIDGE RELINK COMPLETE', drone.name + ' reattached via ' + describeBridgeSource(bridgeConfig));
+          log('Bridge drone relinked: ' + drone.name,'ok');
+        } catch(e){
+          drone.bridgeStatus = 'error';
+          drone.bridgeMessage = 'Reconnect failed';
+          drone.bridgeError = e.message || 'Reconnect failed';
+          renderConnectedDrones();
+          updateBridgeStatus('sync', 'BRIDGE RELINK FAILED', (e.message || 'Reconnect failed') + ' [' + describeBridgeSource(bridgeConfig) + ']');
+          log('Bridge reconnect failed: ' + e.message,'err');
+        }
+      }
+
+      async function inspectBridgeRuntime(){
+        const bridgeConfig = readBridgeConfigFromForm();
+        updateBridgeStatus('sync', 'BRIDGE CAPABILITY CHECK', 'Querying ' + describeBridgeSource(bridgeConfig));
+        const capabilityData = await apiJson('/api/drone/bridge/capabilities', {bridgeConfig}, bridgeConfig);
+        const sessionsData = await apiJson('/api/drone/bridge/sessions', {bridgeConfig}, bridgeConfig);
+        const telloReady = capabilityData.capabilities && capabilityData.capabilities.tello && capabilityData.capabilities.tello.available;
+        const rtspReady = capabilityData.capabilities && capabilityData.capabilities.rtsp && capabilityData.capabilities.rtsp.available;
+        updateBridgeStatus(
+          'online',
+          'BRIDGE LINK VERIFIED',
+          describeBridgeSource(bridgeConfig) + ' - Tello ' + (telloReady ? 'READY' : 'UNAVAILABLE') + ' - RTSP ' + (rtspReady ? 'READY' : 'UNAVAILABLE') + ' - ' + (sessionsData.sessions || []).length + ' session(s) visible.'
+        );
+        saveBridgeDraft();
+        log('Bridge verified: ' + describeBridgeSource(bridgeConfig),'ok');
+        return {capabilityData, sessionsData};
+      }
+
+      fleetFeedStrip.addEventListener('click', event => {
+        const trigger = event.target.closest('[data-drone-select]');
+        if(trigger) setActiveDrone(trigger.dataset.droneSelect);
       });
 
-      document.getElementById('cam-flip').addEventListener('click', () => {
+      fleetList.addEventListener('click', event => {
+        const reconnect = event.target.closest('[data-drone-reconnect]');
+        if(reconnect){
+          event.stopPropagation();
+          reconnectBridgeDrone(reconnect.dataset.droneReconnect);
+          return;
+        }
+        const remove = event.target.closest('[data-drone-remove]');
+        if(remove){
+          event.stopPropagation();
+          removeDrone(remove.dataset.droneRemove);
+          return;
+        }
+        const view = event.target.closest('[data-drone-view]');
+        if(view){
+          event.stopPropagation();
+          setActiveDrone(view.dataset.droneView);
+          return;
+        }
+        const select = event.target.closest('[data-drone-select]');
+        if(select) setActiveDrone(select.dataset.droneSelect);
+      });
+
+      quadGrid.addEventListener('click', event => {
+        const reconnect = event.target.closest('[data-quad-reconnect]');
+        if(reconnect){
+          event.stopPropagation();
+          reconnectBridgeDrone(reconnect.dataset.quadReconnect);
+          return;
+        }
+        const focus = event.target.closest('[data-quad-focus]');
+        if(focus){
+          event.stopPropagation();
+          setActiveDrone(focus.dataset.quadFocus);
+          return;
+        }
+        const tile = event.target.closest('[data-quad-drone]');
+        if(tile) setActiveDrone(tile.dataset.quadDrone);
+      });
+
+      droneSourceType.addEventListener('change', () => {
+        syncSourceFields();
+        saveBridgeDraft();
+      });
+      droneBridgeKind.addEventListener('change', () => {
+        syncSourceFields();
+        saveBridgeDraft();
+      });
+      droneBridgeEndpoint.addEventListener('change', saveBridgeDraft);
+      droneBridgeToken.addEventListener('change', saveBridgeDraft);
+      droneBridgePreset.addEventListener('change', saveBridgeDraft);
+      droneRefreshCams.addEventListener('click', () => refreshCameraDevices(false));
+      droneAdd.addEventListener('click', async () => {
+        const sourceType = droneSourceType.value;
+        const name = droneNameInput.value.trim() || ('Drone ' + (connectedDrones.length + 1));
+        if(sourceType === 'bridge'){
+          const bridgeKind = droneBridgeKind.value;
+          const bridgeConfig = readBridgeConfigFromForm();
+          try {
+            let data;
+            if(bridgeKind === 'tello'){
+              data = await apiJson('/api/drone/bridge/tello/connect', {
+                method: 'POST',
+                body: JSON.stringify({name, home: homePoint}),
+                bridgeConfig,
+              }, bridgeConfig);
+            } else {
+              const streamUrl = droneStreamUrl.value.trim();
+              data = await apiJson('/api/drone/bridge/rtsp/open', {
+                method: 'POST',
+                body: JSON.stringify({name, url: streamUrl}),
+                bridgeConfig,
+              }, bridgeConfig);
+            }
+            const session = data.session || {};
+            const drone = await registerDrone({
+              name,
+              sourceType: 'bridge',
+              bridgeKind,
+              streamUrl: bridgeKind === 'rtsp' ? droneStreamUrl.value.trim() : '',
+              bridgeSessionId: session.id,
+              feedUrl: session.feed_url,
+              previewUrl: session.preview_url,
+              transport: 'bridge',
+              cameraLabel: bridgeKind.toUpperCase() + ' Bridge',
+              bridgeConfig,
+              bridgeStatus: session.status || 'starting',
+              bridgeMessage: session.message || '',
+              bridgeError: session.error || '',
+            });
+            if(drone){
+              log('Bridge drone linked: ' + drone.name,'ok');
+              droneNameInput.value = '';
+              if(bridgeKind === 'rtsp') droneStreamUrl.value = '';
+            }
+          } catch(e){
+            log('Bridge link failed: ' + e.message,'err');
+          }
+          return;
+        }
+        if(sourceType === 'stream'){
+          const streamUrl = droneStreamUrl.value.trim();
+          const drone = await registerDrone({
+            name,
+            sourceType: 'stream',
+            streamUrl,
+            transport: 'manual',
+            cameraLabel: 'Network Stream',
+          });
+          if(drone){
+            log('Stream drone linked: ' + drone.name,'ok');
+            droneNameInput.value = '';
+          }
+          return;
+        }
+        const selectedOption = droneCameraDevice.options[droneCameraDevice.selectedIndex];
+        const drone = await registerDrone({
+          name,
+          sourceType: 'local',
+          deviceId: droneCameraDevice.value,
+          transport: 'manual',
+          cameraLabel: selectedOption ? selectedOption.textContent : 'Default Rear Camera',
+        });
+        if(drone){
+          log('Local drone linked: ' + drone.name,'ok');
+          droneNameInput.value = '';
+        }
+      });
+      droneBridgeCheck.addEventListener('click', async () => {
+        try {
+          await inspectBridgeRuntime();
+        } catch(e){
+          updateBridgeStatus('sync', 'BRIDGE CHECK FAILED', e.message || 'Bridge capability check failed');
+          log('Bridge check failed: ' + e.message,'err');
+        }
+      });
+      droneBridgeSync.addEventListener('click', async () => {
+        if(connectedDrones.some(drone => drone.sourceType === 'bridge')){
+          await refreshBridgeSessions();
+          return;
+        }
+        try {
+          await inspectBridgeRuntime();
+        } catch(e){
+          updateBridgeStatus('sync', 'BRIDGE SYNC FAILED', e.message || 'Bridge sync failed');
+          log('Bridge sync failed: ' + e.message,'err');
+        }
+      });
+      droneBridgeSave.addEventListener('click', () => {
+        const preset = upsertBridgePreset();
+        updateBridgeStatus('sync', 'BRIDGE PRESET SAVED', preset.label + ' stored in browser memory.');
+        log('Bridge preset saved: ' + preset.label,'ok');
+      });
+      droneBridgeLoad.addEventListener('click', () => {
+        const preset = loadSelectedBridgePreset();
+        if(!preset){
+          updateBridgeStatus('sync', 'NO BRIDGE PRESET SELECTED', 'Choose a saved bridge preset before loading it.');
+          log('Select a bridge preset before loading','warn');
+          return;
+        }
+        updateBridgeStatus('sync', 'BRIDGE PRESET LOADED', preset.label + ' applied to the bridge form.');
+        log('Bridge preset loaded: ' + preset.label,'ok');
+      });
+      droneRemove.addEventListener('click', () => {
+        if(activeDroneId) removeDrone(activeDroneId);
+      });
+      fleetFollowToggle.addEventListener('click', () => {
+        followActiveDrone = !followActiveDrone;
+        updateDroneMiniMap();
+        log(followActiveDrone ? 'Mini map follow enabled' : 'Mini map follow paused','ok');
+      });
+
+      document.getElementById('wifi-scan').addEventListener('click', () => {
+        wifiDot.className = 'conn-dot scanning';
+        wifiStatus.textContent = 'SCANNING...';
+        log('WiFi scan initiated - searching for drone access points...','warn');
+        wifiList.innerHTML = '<option value="">- SCANNING... -</option>';
+        setTimeout(() => {
+          wifiList.innerHTML = '<option value="">- SELECT DRONE -</option>';
+          const found = DRONE_WIFI_NAMES.filter(() => Math.random() > 0.3);
+          if(!found.length) found.push(DRONE_WIFI_NAMES[0]);
+          found.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            wifiList.appendChild(option);
+          });
+          wifiDot.className = 'conn-dot';
+          wifiStatus.textContent = found.length + ' NETWORKS FOUND';
+          wifiConnect.disabled = false;
+          log('Scan complete - ' + found.length + ' drone networks detected','ok');
+        }, 1400);
+      });
+
+      wifiConnect.addEventListener('click', () => {
+        if(!wifiList.value) return;
+        const sourceType = document.getElementById('s-stream-url').value.trim() ? 'stream' : 'local';
+        const selectedOption = droneCameraDevice.options[droneCameraDevice.selectedIndex];
+        wifiDot.className = 'conn-dot scanning';
+        wifiStatus.textContent = 'LINKING...';
+        log('Linking WiFi drone ' + wifiList.value + ' into roster...','warn');
+        setTimeout(async () => {
+          const drone = await registerDrone({
+            name: wifiList.value,
+            sourceType,
+            streamUrl: document.getElementById('s-stream-url').value.trim(),
+            deviceId: droneCameraDevice.value,
+            cameraLabel: sourceType === 'stream' ? 'Network Stream' : (selectedOption ? selectedOption.textContent : 'Default Rear Camera'),
+            transport: 'wifi',
+          });
+          if(drone){
+            syncTransportStatus();
+            log('WiFi link established: ' + drone.name,'ok');
+          }
+        }, 900);
+      });
+
+      wifiDisconnect.addEventListener('click', () => {
+        const target = connectedDrones.find(drone => drone.transport === 'wifi' && drone.name === wifiList.value)
+          || connectedDrones.find(drone => drone.transport === 'wifi' && drone.id === activeDroneId)
+          || connectedDrones.find(drone => drone.transport === 'wifi');
+        if(!target) return;
+        removeDrone(target.id);
+        syncTransportStatus();
+      });
+
+      document.getElementById('bt-scan').addEventListener('click', async () => {
+        if(!navigator.bluetooth){
+          btDot.className = 'conn-dot scanning';
+          btStatus.textContent = 'SCANNING (SIM)...';
+          setTimeout(() => {
+            btList.innerHTML = '<option value="">- SELECT DEVICE -</option>';
+            DRONE_BT_NAMES.forEach(name => {
+              const option = document.createElement('option');
+              option.value = name;
+              option.textContent = name;
+              btList.appendChild(option);
+            });
+            btDot.className = 'conn-dot';
+            btStatus.textContent = '3 DEVICES (SIM)';
+            btConnect.disabled = false;
+            log('Simulated Bluetooth scan complete - 3 devices found','warn');
+          }, 1200);
+          return;
+        }
+        try {
+          btDot.className = 'conn-dot scanning';
+          btStatus.textContent = 'SCANNING...';
+          log('Bluetooth scan initiated - requesting device...','warn');
+          btDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['battery_service','generic_access']
+          });
+          btList.innerHTML = '<option value="">- SELECT DEVICE -</option>';
+          const option = document.createElement('option');
+          option.value = btDevice.name || btDevice.id;
+          option.textContent = btDevice.name || ('BT-' + btDevice.id.slice(0, 8));
+          option.selected = true;
+          btList.appendChild(option);
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'DEVICE FOUND';
+          btConnect.disabled = false;
+          log('Bluetooth device found: ' + (btDevice.name || btDevice.id),'ok');
+        } catch(e){
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'SCAN CANCELLED';
+          log('Bluetooth scan: ' + e.message,'err');
+        }
+      });
+
+      btConnect.addEventListener('click', async () => {
+        const selectedName = btList.value || (btDevice ? (btDevice.name || btDevice.id) : 'BT-DRONE');
+        if(!selectedName) return;
+        btDot.className = 'conn-dot scanning';
+        btStatus.textContent = 'PAIRING...';
+        log('Pairing Bluetooth device ' + selectedName + '...','warn');
+        try {
+          if(btDevice && btDevice.gatt && !btDevice.gatt.connected){
+            await btDevice.gatt.connect();
+          }
+          const sourceType = document.getElementById('s-stream-url').value.trim() ? 'stream' : 'local';
+          const selectedOption = droneCameraDevice.options[droneCameraDevice.selectedIndex];
+          const drone = await registerDrone({
+            name: selectedName,
+            sourceType,
+            streamUrl: document.getElementById('s-stream-url').value.trim(),
+            deviceId: droneCameraDevice.value,
+            cameraLabel: sourceType === 'stream' ? 'Network Stream' : (selectedOption ? selectedOption.textContent : 'Default Rear Camera'),
+            transport: 'bluetooth',
+          });
+          if(drone){
+            btDot.className = 'conn-dot connected';
+            syncTransportStatus();
+            log('Bluetooth link established: ' + drone.name,'ok');
+          }
+        } catch(e){
+          btDot.className = 'conn-dot';
+          btStatus.textContent = 'PAIR FAILED';
+          log('Bluetooth pair failed: ' + e.message,'err');
+        }
+      });
+
+      btDisconnect.addEventListener('click', () => {
+        if(btDevice && btDevice.gatt && btDevice.gatt.connected) btDevice.gatt.disconnect();
+        const target = connectedDrones.find(drone => drone.transport === 'bluetooth' && drone.name === btList.value)
+          || connectedDrones.find(drone => drone.transport === 'bluetooth' && drone.id === activeDroneId)
+          || connectedDrones.find(drone => drone.transport === 'bluetooth');
+        if(target) removeDrone(target.id);
+        btDevice = null;
+        syncTransportStatus();
+      });
+
+      document.getElementById('btn-cam-source').addEventListener('click', async () => {
+        const active = getActiveDrone();
+        if(!active){
+          log('Select an active drone before switching camera source','err');
+          return;
+        }
+        if(active.sourceType === 'bridge'){
+          await refreshBridgeSessions();
+          await focusDroneCamera(active);
+          log('Bridge feed refreshed for ' + active.name,'ok');
+          return;
+        }
+        if(active.sourceType === 'stream'){
+          await focusDroneCamera(active);
+          log('Reconnected network stream for ' + active.name,'ok');
+          return;
+        }
+        const cams = await refreshCameraDevices(true);
+        if(!cams.length && !active.deviceId){
+          await startCamera('', active.name);
+          return;
+        }
+        const currentIndex = cams.findIndex(cam => cam.deviceId === active.deviceId);
+        const nextCam = cams[(currentIndex + 1 + cams.length) % cams.length];
+        active.deviceId = nextCam ? nextCam.deviceId : '';
+        active.cameraLabel = nextCam ? nextCam.label || 'Camera Source' : 'Default Rear Camera';
+        await focusDroneCamera(active);
+        renderConnectedDrones();
+        log('Camera source switched for ' + active.name,'ok');
+      });
+
+      document.getElementById('cam-flip').addEventListener('click', async () => {
+        const active = getActiveDrone();
+        if(active && active.sourceType !== 'local'){
+          log('Flip is available for local camera drones only','warn');
+          return;
+        }
         facingMode = facingMode === 'environment' ? 'user' : 'environment';
-        startCamera();
-        log('Camera flipped to: '+facingMode.toUpperCase(),'ok');
+        if(active){
+          active.deviceId = '';
+          active.cameraLabel = facingMode === 'environment' ? 'Default Rear Camera' : 'Front Camera';
+          await focusDroneCamera(active);
+        } else {
+          await startCamera('', 'LOCAL CAMERA');
+        }
+        log('Camera flipped to: ' + facingMode.toUpperCase(),'ok');
       });
 
       document.getElementById('cam-fullscreen').addEventListener('click', () => {
-        const el = document.getElementById('cam-feed');
-        if(el.requestFullscreen) el.requestFullscreen();
-        else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        const element = document.getElementById('cam-feed');
+        if(element.requestFullscreen) element.requestFullscreen();
+        else if(element.webkitRequestFullscreen) element.webkitRequestFullscreen();
       });
 
       document.getElementById('cam-pip').addEventListener('click', async () => {
-        try{
+        try {
           if(document.pictureInPictureElement) await document.exitPictureInPicture();
           else if(video.srcObject || video.src) await video.requestPictureInPicture();
-        }catch(e){ log('PiP error: '+e.message,'err'); }
+          else log('Picture in Picture is only available for browser video feeds','warn');
+        } catch(e){
+          log('PiP error: ' + e.message,'err');
+        }
       });
 
-      // Snapshot
       document.getElementById('cam-snapshot').addEventListener('click', () => {
-        if(!video.srcObject && !video.src) return log('No camera feed','err');
+        const mainImage = document.getElementById('cam-sat-img');
+        const hasVideo = !!(video.srcObject || video.src);
+        const hasImage = !!(mainImage && mainImage.getAttribute('src'));
+        if(!hasVideo && !hasImage) return log('No camera feed','err');
         const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const fmt = document.getElementById('s-photo-fmt').value || 'jpeg';
-        const mime = fmt === 'png' ? 'image/png' : 'image/jpeg';
+        if(hasVideo){
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          canvas.getContext('2d').drawImage(video, 0, 0);
+        } else {
+          canvas.width = mainImage.naturalWidth || 1280;
+          canvas.height = mainImage.naturalHeight || 720;
+          canvas.getContext('2d').drawImage(mainImage, 0, 0);
+        }
+        const format = document.getElementById('s-photo-fmt').value || 'jpeg';
+        const mime = format === 'png' ? 'image/png' : 'image/jpeg';
         canvas.toBlob(blob => {
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'drone_snapshot_'+Date.now()+'.'+(fmt==='png'?'png':'jpg');
-          a.click();
-          URL.revokeObjectURL(a.href);
+          const anchor = document.createElement('a');
+          anchor.href = URL.createObjectURL(blob);
+          anchor.download = 'drone_snapshot_' + Date.now() + '.' + (format === 'png' ? 'png' : 'jpg');
+          anchor.click();
+          URL.revokeObjectURL(anchor.href);
           log('Snapshot saved','ok');
         }, mime, 0.95);
       });
 
-      // Record
       document.getElementById('cam-record').addEventListener('click', () => {
-        if(!currentStream && !video.captureStream){ log('No stream to record','err'); return; }
+        if(!currentStream && !video.captureStream){
+          log('No stream to record','err');
+          return;
+        }
         const recBadge = document.getElementById('rec-badge');
         const recBtn = document.getElementById('cam-record');
         if(!recording){
           recordedChunks = [];
           const stream = currentStream || video.captureStream(30);
           mediaRecorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
-          mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+          mediaRecorder.ondataavailable = event => { if(event.data.size > 0) recordedChunks.push(event.data); };
           mediaRecorder.onstop = () => {
             const blob = new Blob(recordedChunks, {type:'video/webm'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'drone_recording_'+Date.now()+'.webm';
-            a.click();
-            log('Recording saved ('+Math.round(blob.size/1024)+'KB)','ok');
+            const anchor = document.createElement('a');
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = 'drone_recording_' + Date.now() + '.webm';
+            anchor.click();
+            log('Recording saved (' + Math.round(blob.size / 1024) + 'KB)','ok');
           };
           mediaRecorder.start(1000);
           recording = true;
@@ -1231,64 +2698,65 @@
           log('Recording started','warn');
         } else {
           mediaRecorder.stop();
-          recording = false;
-          recBadge.classList.remove('active');
-          recBtn.classList.remove('rec-active');
-          recBtn.innerHTML = '&#x25CF; RECORD';
+          clearRecordingUi(false);
         }
       });
 
-      // Camera filter controls
       document.getElementById('ctrl-zoom').addEventListener('input', function(){
-        document.getElementById('ctrl-zoom-val').textContent = parseFloat(this.value).toFixed(1)+'x';
-        video.style.transform = 'scale('+this.value+')';
+        document.getElementById('ctrl-zoom-val').textContent = parseFloat(this.value).toFixed(1) + 'x';
+        video.style.transform = 'scale(' + this.value + ')';
       });
       document.getElementById('ctrl-bright').addEventListener('input', function(){
-        document.getElementById('ctrl-bright-val').textContent = this.value+'%';
+        document.getElementById('ctrl-bright-val').textContent = this.value + '%';
         applyFilters();
       });
       document.getElementById('ctrl-contrast').addEventListener('input', function(){
-        document.getElementById('ctrl-contrast-val').textContent = this.value+'%';
+        document.getElementById('ctrl-contrast-val').textContent = this.value + '%';
         applyFilters();
       });
-      let nvOn = false, thermalOn = false;
+      let nvOn = false;
+      let thermalOn = false;
       document.getElementById('ctrl-nv').addEventListener('click', function(){
-        nvOn = !nvOn; thermalOn = false;
+        nvOn = !nvOn;
+        thermalOn = false;
         this.classList.toggle('on', nvOn);
         document.getElementById('ctrl-thermal').classList.remove('on');
         applyFilters();
-        log(nvOn?'Night vision ENABLED':'Night vision DISABLED','ok');
+        log(nvOn ? 'Night vision ENABLED' : 'Night vision DISABLED','ok');
       });
       document.getElementById('ctrl-thermal').addEventListener('click', function(){
-        thermalOn = !thermalOn; nvOn = false;
+        thermalOn = !thermalOn;
+        nvOn = false;
         this.classList.toggle('on', thermalOn);
         document.getElementById('ctrl-nv').classList.remove('on');
         applyFilters();
-        log(thermalOn?'Thermal view ENABLED':'Thermal view DISABLED','ok');
+        log(thermalOn ? 'Thermal view ENABLED' : 'Thermal view DISABLED','ok');
       });
       function applyFilters(){
-        const b = document.getElementById('ctrl-bright').value;
-        const c = document.getElementById('ctrl-contrast').value;
-        let f = 'brightness('+b+'%) contrast('+c+'%)';
-        if(nvOn) f += ' saturate(0) brightness(150%) sepia(100%) hue-rotate(70deg)';
-        if(thermalOn) f += ' saturate(200%) hue-rotate(180deg) contrast(150%)';
-        video.style.filter = f;
+        const brightness = document.getElementById('ctrl-bright').value;
+        const contrast = document.getElementById('ctrl-contrast').value;
+        let filters = 'brightness(' + brightness + '%) contrast(' + contrast + '%)';
+        if(nvOn) filters += ' saturate(0) brightness(150%) sepia(100%) hue-rotate(70deg)';
+        if(thermalOn) filters += ' saturate(200%) hue-rotate(180deg) contrast(150%)';
+        video.style.filter = filters;
       }
 
-      // ══════════════════════════════════════════════════════════
-      // GIMBAL PAD
-      // ══════════════════════════════════════════════════════════
       const gimbalPad = document.getElementById('gimbal-pad');
       const gimbalDot = document.getElementById('gimbal-dot');
       let gimbalDragging = false;
 
       function updateGimbal(x, y){
         const rect = gimbalPad.getBoundingClientRect();
-        const cx = rect.width/2, cy = rect.height/2;
-        let dx = x - rect.left - cx, dy = y - rect.top - cy;
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        let dx = x - rect.left - cx;
+        let dy = y - rect.top - cy;
         const max = cx - 10;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist > max){ dx = dx/dist*max; dy = dy/dist*max; }
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if(distance > max){
+          dx = dx / distance * max;
+          dy = dy / distance * max;
+        }
         gimbalDot.style.left = (cx + dx) + 'px';
         gimbalDot.style.top = (cy + dy) + 'px';
         gimbalDot.style.transform = 'translate(-50%,-50%)';
@@ -1298,55 +2766,48 @@
         document.getElementById('gimbal-yaw').textContent = yaw;
       }
 
-      gimbalPad.addEventListener('mousedown', e => { gimbalDragging=true; updateGimbal(e.clientX, e.clientY); });
-      window.addEventListener('mousemove', e => { if(gimbalDragging) updateGimbal(e.clientX, e.clientY); });
-      window.addEventListener('mouseup', () => { gimbalDragging=false; });
-      gimbalPad.addEventListener('touchstart', e => { e.preventDefault(); gimbalDragging=true; updateGimbal(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
-      window.addEventListener('touchmove', e => { if(gimbalDragging) updateGimbal(e.touches[0].clientX, e.touches[0].clientY); });
-      window.addEventListener('touchend', () => { gimbalDragging=false; });
+      gimbalPad.addEventListener('mousedown', event => { gimbalDragging = true; updateGimbal(event.clientX, event.clientY); });
+      window.addEventListener('mousemove', event => { if(gimbalDragging) updateGimbal(event.clientX, event.clientY); });
+      window.addEventListener('mouseup', () => { gimbalDragging = false; });
+      gimbalPad.addEventListener('touchstart', event => {
+        event.preventDefault();
+        gimbalDragging = true;
+        updateGimbal(event.touches[0].clientX, event.touches[0].clientY);
+      }, {passive:false});
+      window.addEventListener('touchmove', event => { if(gimbalDragging) updateGimbal(event.touches[0].clientX, event.touches[0].clientY); });
+      window.addEventListener('touchend', () => { gimbalDragging = false; });
 
-      // ══════════════════════════════════════════════════════════
-      // TELEMETRY (simulated when connected)
-      // ══════════════════════════════════════════════════════════
-      let telemInterval = null;
-      function startTelemetry(){
-        stopTelemetry();
-        log('Telemetry stream active','ok');
-        telemInterval = setInterval(() => {
-          document.getElementById('t-alt').textContent = (5+Math.random()*115).toFixed(1)+'m';
-          document.getElementById('t-spd').textContent = (Math.random()*15).toFixed(1)+'m/s';
-          document.getElementById('t-dist').textContent = (10+Math.random()*490).toFixed(0)+'m';
-          document.getElementById('t-bat').textContent = Math.max(5,Math.round(100-Math.random()*30))+'%';
-          document.getElementById('t-sig').textContent = Math.round(60+Math.random()*40)+'%';
-          document.getElementById('t-sat').textContent = Math.round(6+Math.random()*12);
-          document.getElementById('t-lat').textContent = (33.7+Math.random()*0.1).toFixed(4)+'°';
-          document.getElementById('t-lng').textContent = (-84.3+Math.random()*0.1).toFixed(4)+'°';
-        }, 1000);
-      }
-      function stopTelemetry(){
-        clearInterval(telemInterval);
-        ['t-alt','t-spd','t-dist','t-bat','t-sig','t-sat','t-lat','t-lng'].forEach(id => document.getElementById(id).textContent='—');
-      }
-
-      // ══════════════════════════════════════════════════════════
-      // CALIBRATE + EMERGENCY
-      // ══════════════════════════════════════════════════════════
       document.getElementById('btn-calibrate').addEventListener('click', () => {
         log('Calibration sequence initiated... Hold drone level.','warn');
         setTimeout(() => log('IMU calibration complete','ok'), 2000);
         setTimeout(() => log('Compass calibration complete','ok'), 3500);
-        setTimeout(() => log('Gimbal calibration complete — ALL SYSTEMS GO','ok'), 5000);
+        setTimeout(() => log('Gimbal calibration complete - ALL SYSTEMS GO','ok'), 5000);
       });
 
       document.getElementById('btn-emergency').addEventListener('click', () => {
         log('*** EMERGENCY STOP ACTIVATED ***','err');
-        stopCameraFeed();
-        placeholder.innerHTML = '<span class="icon" style="color:var(--danger)">&#x26A0;</span>EMERGENCY STOP<br><br>All motors disabled<br>Drone will descend immediately';
-        stopTelemetry();
-        wifiConnected = false;
-        wifiDot.className = 'conn-dot';
+        while(connectedDrones.length) connectedDrones.pop();
+        activeDroneId = null;
+        droneMiniMarkers.forEach(marker => droneMiniMap && droneMiniMap.removeLayer(marker));
+        droneMiniTrails.forEach(trail => droneMiniMap && droneMiniMap.removeLayer(trail));
+        droneMiniMarkers.clear();
+        droneMiniTrails.clear();
+        stopTelemetryLoop();
+        resetFeedSurface(true);
+        renderConnectedDrones();
+        syncTransportStatus();
+        updateDroneMiniMap();
         wifiStatus.textContent = 'E-STOP';
+        btStatus.textContent = 'E-STOP';
       });
+
+      loadBridgePresets();
+      loadBridgeDraft();
+      updateBridgeStatus('idle', 'BRIDGE LINK STANDBY', 'Use the built-in bridge on this site or point the dashboard at a separate bridge runtime on the same network as your drones. On the live HTTPS site, off-box bridge endpoints also need HTTPS.');
+      syncSourceFields();
+      refreshCameraDevices(true);
+      ensureHomePoint();
+      initDroneMiniMap();
 
       // ══════════════════════════════════════════════════════════
       // LIVE FEEDS — TABS + SATELLITE MAP + FEED-TO-SCREEN
@@ -1821,5 +3282,6 @@
     })();
     </script>
 
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

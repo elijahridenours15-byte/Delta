@@ -1,6 +1,27 @@
 {% set path = request.path or '/' %}
 {% set ops_active = path == '/' or path.startswith('/share/') %}
-{% set dropdown_active = path in ['/cyber', '/drone', '/survival', '/mechanics', '/mechanics/browser', '/mechanics/blueprints'] %}
+{% set mechanics_active = path.startswith('/mechanics') %}
+{% set weapons_active = path == '/weapons' %}
+{% set dropdown_active = path in ['/cyber', '/drone', '/survival', '/weapons'] or mechanics_active %}
+<div class="topline-strip" id="topline-strip">
+  <div class="topline-kicker-wrap">
+    <span class="topline-live-dot" aria-hidden="true"></span>
+    <span class="topline-kicker">LIVE // BREAKING</span>
+  </div>
+  <div class="topline-window is-loading" id="topline-window">
+    <div class="topline-motion-mask">
+      <div class="topline-marquee">
+        <div class="topline-track" id="topline-track-primary">
+          <span class="topline-item is-source-scripture-intel is-scripture is-static">
+            <span class="topline-source">HOURLY SCRIPTURE</span>
+            <span class="topline-copy">Loading priority headlines and scripture rotation...</span>
+          </span>
+        </div>
+        <div class="topline-track topline-track-clone" id="topline-track-clone" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
 <nav class="top-nav">
   <a href="/" class="{% if ops_active %}active{% endif %}">Ops Center</a>
   <a href="/ai" class="{% if path == '/ai' %}active{% endif %}">AI Recon</a>
@@ -12,11 +33,127 @@
       <a href="/cyber" class="{% if path == '/cyber' %}active{% endif %}">Cyber Intel</a>
       <a href="/drone" class="{% if path == '/drone' %}active{% endif %}">Drone</a>
       <a href="/survival" class="{% if path == '/survival' %}active{% endif %}">Survival</a>
-        <a href="/mechanics" class="{% if path == '/mechanics' %}active{% endif %}">Mechanics</a>
-        <a href="/mechanics/blueprints" class="{% if path == '/mechanics/blueprints' %}active{% endif %}">Blueprints</a>
-        <a href="/mechanics/browser" class="{% if path.startswith('/mechanics/browser') %}active{% endif %}">All Vehicles</a>
-      <a href="/download/offline-site" class="nav-download">Download</a>
+      <a href="/mechanics" class="{% if mechanics_active %}active{% endif %}">Mechanics</a>
+      <a href="/weapons" class="{% if weapons_active %}active{% endif %}">Weapons</a>
+      <a href="/download/offline-site" class="nav-download">Offline App</a>
     </div>
   </details>
+  <a class="online-indicator" id="online-indicator" href="/live" title="Live visitor map" aria-label="Operators online — view world map">
+    <span class="online-dot" aria-hidden="true"></span>
+    <span class="online-count" id="online-count">—</span>
+    <span class="online-label">ONLINE</span>
+  </a>
 </nav>
-{% include '_radio_footer.html' %}
+<script>
+(function(){
+  if (window.__deltaOnlineInitialized) return;
+  window.__deltaOnlineInitialized = true;
+  const el = document.getElementById('online-count');
+  if (!el) return;
+
+  // generate a persistent session token
+  let token = localStorage.getItem('dco_tok');
+  if (!token) {
+    token = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+    localStorage.setItem('dco_tok', token);
+  }
+
+  function ping() {
+    fetch('/api/ping', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({token}),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  function poll() {
+    fetch('/api/online').then(r => r.json()).then(d => {
+      if (typeof d.count === 'number') el.textContent = d.count;
+    }).catch(() => {});
+  }
+
+  ping();
+  poll();
+  setInterval(ping, 60000);
+  setInterval(poll, 30000);
+})();
+
+(function(){
+  if (window.__deltaToplineInitialized) return;
+  window.__deltaToplineInitialized = true;
+
+  const refreshMs = 3600000;
+  const defaultDurationSeconds = 38;
+  const minDurationSeconds = 28;
+  const maxDurationSeconds = 58;
+
+  const stripEl = document.getElementById('topline-strip');
+  const windowEl = document.getElementById('topline-window');
+  const primary = document.getElementById('topline-track-primary');
+  const clone = document.getElementById('topline-track-clone');
+  if (!stripEl || !windowEl || !primary || !clone) return;
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[char]));
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, '&#96;');
+  }
+
+  function normalizeClassToken(value) {
+    return String(value || 'delta').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'delta';
+  }
+
+  function computeDurationSeconds(items) {
+    const totalChars = items.reduce((sum, item) => sum + String(item.label || '').length + String(item.text || '').length, 0);
+    const computed = 22 + (items.length * 2.1) + (totalChars / 22);
+    return Math.max(minDurationSeconds, Math.min(maxDurationSeconds, computed));
+  }
+
+  function renderItems(items) {
+    if (!Array.isArray(items) || !items.length) return;
+
+    const markup = items.map((item) => {
+      const label = escapeHtml(item.label || item.source || 'DELTA');
+      const text = escapeHtml(item.text || '');
+      const sourceKey = normalizeClassToken(item.source_key || item.kind || 'delta');
+      const classes = 'topline-item is-source-' + sourceKey + (item.kind === 'scripture' ? ' is-scripture' : '');
+      const body = `<span class="topline-source">${label}</span><span class="topline-copy">${text}</span>`;
+      const sep = '<span class="topline-sep">//</span>';
+      return `<span class="${classes}">${body}</span>${sep}`;
+    }).join('');
+
+    primary.innerHTML = markup;
+    clone.innerHTML = markup;
+    stripEl.style.setProperty('--topline-duration', `${computeDurationSeconds(items)}s`);
+    windowEl.classList.remove('is-loading');
+  }
+
+  async function loadTopline(forceRefresh = false) {
+    try {
+      const endpoint = forceRefresh ? '/api/topline-intel?refresh=1' : '/api/topline-intel';
+      const response = await fetch(endpoint, {cache: 'no-store'});
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data && Array.isArray(data.items) && data.items.length) {
+        renderItems(data.items);
+      }
+    } catch (_) {
+      // Keep the seeded copy if the request fails.
+    }
+  }
+
+  stripEl.style.setProperty('--topline-duration', `${defaultDurationSeconds}s`);
+  loadTopline();
+  setInterval(() => loadTopline(true), refreshMs);
+})();
+</script>

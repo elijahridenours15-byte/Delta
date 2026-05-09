@@ -1,0 +1,3028 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding - Armory Reference Viewer</title>
+    <meta name="description" content="Interactive weapon armory viewer with stock-form web images, attachment reference images, platform selection, and attachment tuning for the FutureCodeDelta weapons catalog.">
+    <meta name="keywords" content="weapon viewer, armory reference, attachment bench, small arms viewer, rifle builder, tactical armory">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Delta Coding - Armory Reference Viewer">
+    <meta property="og:description" content="Interactive armory bench for inspecting stock weapon images and tuning the FutureCodeDelta weapons catalog.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/weapons/armory">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding - Armory Reference Viewer">
+    <meta name="twitter:description" content="Stock-image weapon inspection and attachment tuning surface at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/weapons/armory">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <style>
+      .armory-page { padding: 20px 22px 44px; }
+      .armory-wrap { max-width: 1480px; margin: 0 auto; }
+      .armory-hero {
+        background: linear-gradient(180deg, rgba(18,22,15,.94), rgba(12,15,10,.96));
+        border: 1px solid var(--border2);
+        border-radius: 14px;
+        padding: 26px 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) auto;
+        gap: 18px;
+        margin-bottom: 18px;
+        position: relative;
+        overflow: hidden;
+      }
+      .armory-hero::after {
+        content: '';
+        position: absolute;
+        inset: auto -10% -45% auto;
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(184,155,103,.16), transparent 68%);
+        pointer-events: none;
+      }
+      .armory-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(164,184,122,.22);
+        background: rgba(18,24,15,.78);
+        color: var(--accent-bright);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+      }
+      .armory-hero h2 {
+        margin: 16px 0 12px;
+        color: var(--text);
+        font: 800 clamp(1.75rem, 3vw, 2.7rem)/1.05 'Inter', sans-serif;
+        max-width: 12ch;
+      }
+      .armory-hero p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 15px;
+        line-height: 1.72;
+        max-width: 68ch;
+      }
+      .armory-hero-briefs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .armory-hero-brief {
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(164,184,122,.16);
+        background: rgba(11,14,9,.58);
+      }
+      .armory-hero-brief strong {
+        display: block;
+        color: var(--accent-bright);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .armory-hero-brief span {
+        display: block;
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .armory-hero-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        justify-content: space-between;
+      }
+      .armory-classif {
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 7px 12px;
+      }
+      .armory-nav-link,
+      .armory-action-btn,
+      .armory-slot-option,
+      .armory-filter-chip,
+      .armory-roster-item,
+      .armory-preset-btn,
+      .armory-manifest-btn,
+      .armory-clear-btn {
+        appearance: none;
+        border: 1px solid rgba(164,184,122,.18);
+        background: rgba(12,17,10,.86);
+        color: var(--text2);
+        cursor: pointer;
+      }
+      .armory-nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 14px;
+        border-radius: 999px;
+        color: var(--sand);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      .armory-layout {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr) 380px;
+        gap: 18px;
+        align-items: start;
+        grid-auto-rows: minmax(0, auto);
+      }
+      .armory-layout > * { min-height: 0; }
+      .armory-card {
+        background: linear-gradient(180deg, var(--panel), rgba(16,20,13,.94));
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 20px 38px rgba(0,0,0,.18);
+      }
+      .armory-catalog-card,
+      .armory-bench-card { padding: 18px; }
+      .armory-stage-card { padding: 18px; display: grid; gap: 14px; min-width: 0; }
+      .armory-card h3 {
+        margin: 0 0 12px;
+        color: var(--accent-bright);
+        font: 700 12px 'JetBrains Mono', monospace;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+      }
+      .armory-search {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 1px solid rgba(139,157,106,.18);
+        background: rgba(11,14,9,.78);
+        color: var(--text);
+        padding: 12px 14px;
+        font: 700 12px 'JetBrains Mono', monospace;
+        margin-bottom: 12px;
+      }
+      .armory-filter-group { display: grid; gap: 8px; margin-bottom: 12px; }
+      .armory-filter-label {
+        color: var(--muted);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+      }
+      .armory-filter-row { display: flex; flex-wrap: wrap; gap: 8px; }
+      .armory-filter-chip {
+        padding: 8px 10px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-filter-chip.active,
+      .armory-preset-btn.active,
+      .armory-slot-option.active,
+      .armory-roster-item.active {
+        color: #f1f6e5;
+        border-color: rgba(196,162,101,.38);
+        background: linear-gradient(180deg, rgba(80,63,33,.98), rgba(54,42,22,.98));
+        box-shadow: 0 0 14px rgba(184,155,103,.14);
+      }
+      .armory-roster-meta {
+        margin: -2px 0 12px;
+        color: var(--muted);
+        font: 700 10px/1.5 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-roster {
+        display: grid;
+        gap: 8px;
+        max-height: calc(100vh - 320px);
+        overflow: auto;
+        padding-right: 6px;
+      }
+      .armory-roster-item {
+        width: 100%;
+        text-align: left;
+        padding: 11px 12px;
+        border-radius: 12px;
+        display: grid;
+        gap: 4px;
+      }
+      .armory-roster-item strong {
+        display: block;
+        color: var(--text);
+        font: 700 13px/1.45 'Inter', sans-serif;
+      }
+      .armory-roster-item span {
+        display: block;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+      }
+      .armory-stage-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .armory-stage-head h3 {
+        margin: 8px 0 6px;
+        color: var(--sand);
+        font: 800 clamp(1.45rem, 2.4vw, 2rem)/1.08 'Inter', sans-serif;
+        letter-spacing: .02em;
+      }
+      .armory-stage-head p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .armory-pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+      .armory-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 11px;
+        border-radius: 999px;
+        border: 1px solid rgba(164,184,122,.18);
+        background: rgba(34,42,28,.92);
+        color: var(--accent-bright);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-stage-viewport {
+        position: relative;
+        min-height: 500px;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(164,184,122,.16);
+        background:
+          radial-gradient(circle at 50% 48%, rgba(139,157,106,.16), transparent 34%),
+          linear-gradient(180deg, rgba(17,21,14,.98), rgba(8,10,7,.98));
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+      .armory-stage-viewport::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          repeating-linear-gradient(90deg, rgba(196,162,101,.06) 0 1px, transparent 1px 48px),
+          repeating-linear-gradient(0deg, rgba(196,162,101,.05) 0 1px, transparent 1px 48px);
+        opacity: .7;
+        pointer-events: none;
+      }
+      .armory-stage-viewport::after {
+        content: '';
+        position: absolute;
+        inset: 10% 10%;
+        border: 1px solid rgba(164,184,122,.08);
+        border-radius: 18px;
+        pointer-events: none;
+      }
+      .armory-stage-image-shell {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        min-height: 360px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        border: 1px solid rgba(164,184,122,.14);
+        background: linear-gradient(180deg, rgba(10,13,9,.62), rgba(16,21,14,.78));
+        overflow: hidden;
+        padding: 18px;
+      }
+      .armory-stage-image {
+        max-width: 100%;
+        max-height: 380px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 22px 42px rgba(0,0,0,.36));
+      }
+      .armory-stage-image.is-hidden { display: none; }
+      .armory-stage-fallback {
+        width: min(100%, 980px);
+        display: none;
+      }
+      .armory-stage-fallback.active { display: block; }
+      .armory-stage-fallback svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        filter: drop-shadow(0 22px 42px rgba(0,0,0,.4));
+      }
+      .armory-stage-toolbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .armory-stage-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        appearance: none;
+        border: 1px solid rgba(164,184,122,.18);
+        background: rgba(12,17,10,.86);
+        color: var(--text2);
+        cursor: pointer;
+        padding: 10px 12px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      .armory-stage-btn[aria-disabled="true"] {
+        opacity: .56;
+        pointer-events: none;
+      }
+      .armory-stage-caption {
+        color: var(--muted);
+        font: 400 10px/1.6 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        flex: 1 1 240px;
+      }
+      .armory-stage-source-note {
+        color: var(--text2);
+        font: 400 12px/1.65 'Inter', sans-serif;
+      }
+      .armory-stage-source-note a {
+        color: var(--accent-bright);
+        text-decoration: none;
+      }
+      .armory-stage-source-note a:hover { text-decoration: underline; }
+      .armory-reference-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .armory-reference-card {
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.7);
+        border: 1px solid rgba(164,184,122,.14);
+        display: grid;
+        gap: 10px;
+      }
+      .armory-reference-card strong {
+        display: block;
+        color: var(--text);
+        font: 700 13px/1.45 'Inter', sans-serif;
+      }
+      .armory-reference-card span {
+        display: block;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+      }
+      .armory-reference-card p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+      .armory-reference-figure {
+        aspect-ratio: 4 / 3;
+        border-radius: 10px;
+        border: 1px solid rgba(164,184,122,.12);
+        background: linear-gradient(180deg, rgba(17,21,14,.82), rgba(8,10,7,.92));
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        padding: 12px;
+      }
+      .armory-reference-figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      .armory-reference-source {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(164,184,122,.18);
+        color: var(--accent-bright);
+        text-decoration: none;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-reference-empty {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px dashed rgba(164,184,122,.18);
+        color: var(--muted);
+        font: 400 12px/1.6 'JetBrains Mono', monospace;
+        text-align: center;
+      }
+      .armory-weapon-svg {
+        width: min(100%, 980px);
+        height: auto;
+        filter: drop-shadow(0 22px 42px rgba(0,0,0,.44));
+      }
+      .weapon-floor-shadow { fill: rgba(0,0,0,.34); filter: blur(16px); }
+      .weapon-body-depth { fill: #1f271f; }
+      .weapon-body-top { fill: #5e7256; }
+      .weapon-body-edge { fill: #839977; }
+      .weapon-body-accent { fill: #b89b67; }
+      .weapon-body-detail { fill: rgba(11,14,9,.86); }
+      .module-body { fill: #cba865; }
+      .module-edge { fill: #f0d298; }
+      .module-dark { fill: #3a3020; }
+      .module-wire { stroke: #dbc089; stroke-width: 4; stroke-linecap: round; fill: none; }
+      .armory-metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .armory-metric-card {
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.72);
+        border: 1px solid rgba(164,184,122,.16);
+      }
+      .armory-metric-card strong {
+        display: block;
+        color: var(--accent-bright);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .armory-meter-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--text2);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 7px;
+      }
+      .armory-meter-bar {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(34,42,28,.92);
+        overflow: hidden;
+      }
+      .armory-meter-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(132,164,106,.94), rgba(196,162,101,.94));
+      }
+      .armory-meter-fill.warn { background: linear-gradient(90deg, #b38b45, #d0ae68); }
+      .armory-meter-fill.alert { background: linear-gradient(90deg, #8f3131, #cf6969); }
+      .armory-bench-card {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 14px;
+        align-self: start;
+        position: sticky;
+        top: 16px;
+        max-height: calc(100vh - 32px);
+        overflow: hidden;
+      }
+      .armory-bench-scroll {
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        min-height: 0;
+        max-height: calc(100vh - 132px);
+        overflow: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        padding-right: 6px;
+      }
+      .armory-preset-row { display: flex; flex-wrap: wrap; gap: 8px; }
+      .armory-preset-btn {
+        padding: 9px 12px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-slot-stack { display: grid; gap: 12px; }
+      .armory-slot-card {
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.7);
+        border: 1px solid rgba(164,184,122,.14);
+        display: grid;
+        gap: 10px;
+      }
+      .armory-slot-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .armory-slot-head strong {
+        display: block;
+        color: var(--text);
+        font: 700 14px/1.35 'Inter', sans-serif;
+      }
+      .armory-slot-head span {
+        display: block;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 2px;
+      }
+      .armory-slot-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .armory-slot-option {
+        padding: 8px 10px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+      }
+      .armory-slot-option.clear { color: #e6c2c2; border-color: rgba(204,68,68,.26); }
+      .armory-slot-detail {
+        color: var(--text2);
+        font-size: 12px;
+        line-height: 1.65;
+      }
+      .armory-status {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(164,184,122,.18);
+        background: rgba(11,14,9,.72);
+        color: var(--text2);
+        font: 400 12px/1.6 'JetBrains Mono', monospace;
+        min-height: 58px;
+      }
+      .armory-status.alert {
+        border-color: rgba(204,68,68,.34);
+        color: #f0c1c1;
+      }
+      .armory-manifest-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .armory-manifest-btn,
+      .armory-clear-btn {
+        flex: 1 1 140px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .armory-manifest-list { display: grid; gap: 10px; }
+      .armory-manifest-item {
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.68);
+        border: 1px solid rgba(164,184,122,.14);
+        display: grid;
+        gap: 6px;
+      }
+      .armory-manifest-item strong {
+        display: block;
+        color: var(--text);
+        font: 700 14px/1.4 'Inter', sans-serif;
+      }
+      .armory-manifest-item span {
+        display: block;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+      }
+      .armory-manifest-item p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+      @media (max-width: 1320px) {
+        .armory-layout { grid-template-columns: 290px minmax(0, 1fr) 340px; }
+      }
+      @media (max-width: 1180px) {
+        .armory-layout { grid-template-columns: 1fr; }
+        .armory-catalog-card,
+        .armory-stage-card,
+        .armory-bench-card { max-height: none; }
+        .armory-bench-card {
+          position: static;
+          overflow: visible;
+        }
+        .armory-bench-scroll {
+          max-height: none;
+          overflow: visible;
+          padding-right: 0;
+        }
+        .armory-roster { max-height: 360px; }
+      }
+      @media (max-width: 820px) {
+        .armory-page { padding: 16px 14px 34px; }
+        .armory-hero,
+        .armory-catalog-card,
+        .armory-stage-card,
+        .armory-bench-card { padding: 16px; }
+        .armory-hero { grid-template-columns: 1fr; }
+        .armory-hero-actions { align-items: flex-start; }
+        .armory-hero-briefs,
+        .armory-metric-grid { grid-template-columns: 1fr; }
+        .armory-stage-viewport { min-height: 420px; }
+      }
+      @media (max-width: 560px) {
+        .armory-page { padding: 14px 12px 28px; }
+        .armory-hero,
+        .armory-catalog-card,
+        .armory-stage-card,
+        .armory-bench-card { padding: 14px; }
+        .armory-filter-row,
+        .armory-preset-row,
+        .armory-slot-options,
+        .armory-manifest-actions,
+        .armory-stage-toolbar { flex-direction: column; }
+        .armory-filter-chip,
+        .armory-preset-btn,
+        .armory-slot-option,
+        .armory-manifest-btn,
+        .armory-clear-btn,
+        .armory-nav-link,
+        .armory-stage-btn { width: 100%; min-height: 42px; }
+        .armory-roster-item { padding: 10px 11px; }
+        .armory-stage-viewport { min-height: 340px; }
+        .armory-stage-image-shell { min-height: 280px; padding: 14px; }
+        .armory-stage-image { max-height: 300px; }
+        .armory-stage-caption,
+        .armory-stage-source-note { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/" class="delta-logo" aria-label="FutureCodeDelta home" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA - ARMORY REFERENCE VIEWER</h1>
+        <p class="tag">WEAPON INSPECTION - STOCK IMAGES - ATTACHMENT BENCH - ARMORY MANIFEST</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="armory-page">
+      <div class="armory-wrap">
+        <section class="armory-hero armory-card">
+          <div>
+            <span class="armory-kicker">Interactive Weapon Bench</span>
+            <h2>Armory Reference Viewer</h2>
+            <p>Pick any platform from the weapons catalog, inspect a stock-form reference image from the web, and hot-swap optics, lights, lasers, muzzle devices, and support hardware without losing the loadout bench. The center viewer now focuses on real stock photos where available and shows separate attachment reference images so each selected part is easier to identify.</p>
+            <div class="armory-hero-briefs">
+              <div class="armory-hero-brief">
+                <strong>Catalog Coverage</strong>
+                <span>All currently listed weapons are selectable from the armory roster with nation and category filters.</span>
+              </div>
+              <div class="armory-hero-brief">
+                <strong>Viewer Logic</strong>
+                <span>The center panel now loads stock weapon photos from the web when available and falls back to a local reference plate when a source image is missing.</span>
+              </div>
+              <div class="armory-hero-brief">
+                <strong>Attachment Bench</strong>
+                <span>Each category still exposes matching slots and quick presets, and selected attachments now get their own reference images below the main weapon image.</span>
+              </div>
+            </div>
+          </div>
+          <div class="armory-hero-actions">
+            <span class="armory-classif">LIVE BENCH // IMAGE REFERENCE READY</span>
+            <a class="armory-nav-link" href="/weapons">Back To Field Reference</a>
+          </div>
+        </section>
+
+        <section class="armory-layout">
+          <aside class="armory-catalog-card armory-card">
+            <h3>Weapon Index</h3>
+            <input class="armory-search" id="armorySearch" type="text" placeholder="Search weapon, maker, caliber..." aria-label="Search armory weapons">
+            <div class="armory-filter-group">
+              <span class="armory-filter-label">Nation Filter</span>
+              <div class="armory-filter-row" id="armoryNationFilters"></div>
+            </div>
+            <div class="armory-filter-group">
+              <span class="armory-filter-label">Category Filter</span>
+              <div class="armory-filter-row" id="armoryCategoryFilters"></div>
+            </div>
+            <div class="armory-roster-meta" id="armoryRosterMeta"></div>
+            <div class="armory-roster" id="armoryWeaponList"></div>
+          </aside>
+
+          <section class="armory-stage-card armory-card">
+            <div class="armory-stage-head">
+              <div>
+                <div class="armory-pill-row" id="armoryStageTags"></div>
+                <h3 id="armoryWeaponName">-</h3>
+                <p id="armoryWeaponMeta">-</p>
+              </div>
+              <div class="armory-pill-row">
+                <span class="armory-pill" id="armoryPresetTag">Preset</span>
+                <span class="armory-pill" id="armoryAttachmentCountTag">0 modules</span>
+              </div>
+            </div>
+
+            <div class="armory-stage-viewport" id="armoryStageViewport">
+              <div class="armory-stage-image-shell">
+                <img class="armory-stage-image" id="armoryStageImage" alt="">
+                <div class="armory-stage-fallback" id="armoryStageFallback"></div>
+              </div>
+            </div>
+
+            <div class="armory-stage-toolbar">
+              <a class="armory-stage-btn" id="armoryImageSource" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">Stock Source Unavailable</a>
+              <span class="armory-stage-caption" id="armoryStageCaption">Stock weapon images and selected attachment references load from the web when available.</span>
+            </div>
+            <div class="armory-stage-source-note" id="armoryStageSourceNote"></div>
+            <div class="armory-reference-grid" id="armoryAttachmentReferenceGrid"></div>
+
+            <div class="armory-metric-grid" id="armoryMetricGrid"></div>
+          </section>
+
+          <aside class="armory-bench-card armory-card">
+            <h3>Attachment Bench</h3>
+            <div class="armory-bench-scroll" id="armoryBenchScroll">
+              <div class="armory-preset-row" id="armoryPresetRow"></div>
+              <div class="armory-slot-stack" id="armorySlotStack"></div>
+              <div class="armory-status" id="armoryStatus" aria-live="polite"></div>
+              <div class="armory-manifest-actions">
+                <button class="armory-manifest-btn" id="armoryCopyBuild">Copy Build</button>
+                <button class="armory-manifest-btn" id="armoryExportBuild">Export Build</button>
+                <button class="armory-clear-btn" id="armoryResetBuild">Clear Build</button>
+              </div>
+              <div class="armory-manifest-list" id="armoryManifestList"></div>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </main>
+
+    <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'deltaWeaponsArmoryV1';
+      const DEFAULT_STATUS = 'Select a weapon and load a preset to start building.';
+      const NATION_LABELS = { us: 'USA', rus: 'RUS', chn: 'CHN', isr: 'ISR' };
+      const NATION_FULL = { us: 'United States', rus: 'Russia', chn: 'China', isr: 'Israel' };
+      const CAT_LABELS = {
+        rifle: 'Rifle / Carbine',
+        machinegun: 'Machine Gun',
+        sniper: 'Sniper / DMR',
+        pistol: 'Pistol / Sidearm',
+        smg: 'SMG / PDW',
+        launcher: 'Launcher / AT',
+        manpads: 'MANPADS'
+      };
+      const SLOT_LABELS = {
+        optic: 'Optic',
+        muzzle: 'Muzzle',
+        aiming: 'Laser / Aiming',
+        light: 'Light',
+        support: 'Support',
+        carry: 'Carry',
+        observation: 'Observation'
+      };
+      const CATEGORY_SLOTS = {
+        rifle: ['optic', 'muzzle', 'aiming', 'light', 'support', 'carry'],
+        machinegun: ['optic', 'light', 'support', 'carry', 'observation'],
+        sniper: ['optic', 'muzzle', 'support', 'carry', 'observation'],
+        pistol: ['optic', 'muzzle', 'aiming', 'light', 'carry'],
+        smg: ['optic', 'muzzle', 'aiming', 'light', 'support', 'carry'],
+        launcher: ['optic', 'support', 'carry', 'observation'],
+        manpads: ['optic', 'support', 'carry', 'observation']
+      };
+      const CATEGORY_BASE_STATS = {
+        rifle: { mobility: 74, control: 68, stealth: 58, acquisition: 72 },
+        machinegun: { mobility: 32, control: 86, stealth: 28, acquisition: 65 },
+        sniper: { mobility: 42, control: 84, stealth: 56, acquisition: 80 },
+        pistol: { mobility: 92, control: 54, stealth: 74, acquisition: 70 },
+        smg: { mobility: 84, control: 62, stealth: 70, acquisition: 78 },
+        launcher: { mobility: 36, control: 76, stealth: 24, acquisition: 68 },
+        manpads: { mobility: 30, control: 74, stealth: 20, acquisition: 72 }
+      };
+      const CATEGORY_BASE_VOLUME = {
+        rifle: 5.8,
+        machinegun: 13.8,
+        sniper: 8.9,
+        pistol: 1.8,
+        smg: 3.9,
+        launcher: 15.5,
+        manpads: 21.0
+      };
+      const ARMORY_WEAPONS = [
+        { id: 'm4a1-carbine', name: 'M4A1 Carbine', nation: 'us', cat: 'rifle', caliber: '5.56x45mm NATO', weightLb: 6.43, range: '500 m', maker: 'Colt Defense / FN America' },
+        { id: 'm16a4-rifle', name: 'M16A4 Rifle', nation: 'us', cat: 'rifle', caliber: '5.56x45mm NATO', weightLb: 7.5, range: '550 m', maker: 'FN America' },
+        { id: 'm27-iar', name: 'M27 IAR', nation: 'us', cat: 'rifle', caliber: '5.56x45mm NATO', weightLb: 7.9, range: '550 m', maker: 'Heckler & Koch (US)' },
+        { id: 'm249-saw', name: 'M249 SAW', nation: 'us', cat: 'machinegun', caliber: '5.56x45mm NATO', weightLb: 17.0, range: '800 m', maker: 'FN America' },
+        { id: 'm240b-gpmg', name: 'M240B GPMG', nation: 'us', cat: 'machinegun', caliber: '7.62x51mm NATO', weightLb: 27.6, range: '1100 m', maker: 'FN America' },
+        { id: 'm2a1-hmg', name: 'M2A1 HMG (.50 Cal)', nation: 'us', cat: 'machinegun', caliber: '.50 BMG (12.7x99mm)', weightLb: 84.0, range: '1800 m', maker: 'General Dynamics / U.S. Ordnance' },
+        { id: 'm110-sass', name: 'M110 SASS', nation: 'us', cat: 'sniper', caliber: '7.62x51mm NATO', weightLb: 15.4, range: '800 m', maker: 'Knight\'s Armament Company' },
+        { id: 'm24-sws', name: 'M24 SWS', nation: 'us', cat: 'sniper', caliber: '7.62x51mm NATO', weightLb: 12.1, range: '800 m', maker: 'Remington Arms' },
+        { id: 'm82a1-m107', name: 'M82A1 / M107', nation: 'us', cat: 'sniper', caliber: '.50 BMG (12.7x99mm)', weightLb: 30.9, range: '1800 m', maker: 'Barrett Firearms' },
+        { id: 'm17-p320', name: 'M17 / SIG Sauer P320-M17', nation: 'us', cat: 'pistol', caliber: '9x19mm NATO', weightLb: 1.9, range: '50 m', maker: 'SIG Sauer USA' },
+        { id: 'm9a3-beretta', name: 'M9A3 Beretta', nation: 'us', cat: 'pistol', caliber: '9x19mm NATO', weightLb: 2.1, range: '50 m', maker: 'Beretta USA' },
+        { id: 'm320-glm', name: 'M320 GLM', nation: 'us', cat: 'launcher', caliber: '40x46mm Low Velocity', weightLb: 3.3, range: '350 m', maker: 'Heckler & Koch (US production)' },
+        { id: 'at4-launcher', name: 'AT4 Anti-Armor Launcher', nation: 'us', cat: 'launcher', caliber: '84mm HEAT', weightLb: 14.8, range: '300 m', maker: 'Saab / Alliant Techsystems' },
+        { id: 'fim-92-stinger', name: 'FIM-92 Stinger', nation: 'us', cat: 'manpads', caliber: '70mm IR-guided missile', weightLb: 34.5, range: '4800 m', maker: 'Raytheon Technologies' },
+        { id: 'ak-74m', name: 'AK-74M', nation: 'rus', cat: 'rifle', caliber: '5.45x39mm', weightLb: 7.5, range: '500 m', maker: 'Kalashnikov Concern' },
+        { id: 'ak-12', name: 'AK-12 (6P70)', nation: 'rus', cat: 'rifle', caliber: '5.45x39mm', weightLb: 7.9, range: '600 m', maker: 'Kalashnikov Concern' },
+        { id: 'ak-103', name: 'AK-103', nation: 'rus', cat: 'rifle', caliber: '7.62x39mm', weightLb: 7.5, range: '500 m', maker: 'Kalashnikov Concern' },
+        { id: 'pkm-gpmg', name: 'PKM General Purpose Machine Gun', nation: 'rus', cat: 'machinegun', caliber: '7.62x54mmR', weightLb: 19.8, range: '1000 m', maker: 'Kalashnikov Concern' },
+        { id: 'rpk-16', name: 'RPK-16 Light Machine Gun', nation: 'rus', cat: 'machinegun', caliber: '5.45x39mm', weightLb: 9.5, range: '800 m', maker: 'Kalashnikov Concern' },
+        { id: 'svd-dragunov', name: 'SVD Dragunov', nation: 'rus', cat: 'sniper', caliber: '7.62x54mmR', weightLb: 9.5, range: '800 m', maker: 'Izhmash / Kalashnikov Concern' },
+        { id: 'sv-98', name: 'SV-98 Precision Sniper Rifle', nation: 'rus', cat: 'sniper', caliber: '7.62x54mmR', weightLb: 14.1, range: '1000 m', maker: 'Izhmash / Kalashnikov Concern' },
+        { id: 'mp-443-grach', name: 'MP-443 Grach (PYa)', nation: 'rus', cat: 'pistol', caliber: '9x19mm / 7N21 AP', weightLb: 2.1, range: '50 m', maker: 'Izhevsk Mechanical Plant' },
+        { id: 'rpg-7v2', name: 'RPG-7V2 Anti-Tank Launcher', nation: 'rus', cat: 'launcher', caliber: '40-105mm warhead family', weightLb: 15.0, range: '300-700 m', maker: 'Bazalt / FSUE Bazalt' },
+        { id: 'igla-s', name: '9K38 Igla-S (SA-24)', nation: 'rus', cat: 'manpads', caliber: '72mm IR/UV guided missile', weightLb: 38.0, range: '6000 m', maker: 'KBM Design Bureau' },
+        { id: 'qbz-95-1', name: 'QBZ-95-1 (Type 95-1)', nation: 'chn', cat: 'rifle', caliber: '5.8x42mm DBP87', weightLb: 7.3, range: '400 m', maker: 'Norinco / CSGC' },
+        { id: 'qbz-191', name: 'QBZ-191 (Type 191)', nation: 'chn', cat: 'rifle', caliber: '5.8x42mm DBP191', weightLb: 8.4, range: '600 m', maker: 'Norinco / CSGC' },
+        { id: 'qbz-03', name: 'QBZ-03 (Type 03)', nation: 'chn', cat: 'rifle', caliber: '5.8x42mm DBP87', weightLb: 7.3, range: '400 m', maker: 'Norinco' },
+        { id: 'qjy-88', name: 'QJY-88 GPMG (Type 88)', nation: 'chn', cat: 'machinegun', caliber: '5.8x42mm DBP87', weightLb: 22.9, range: '800 m', maker: 'Norinco' },
+        { id: 'cs-lr4', name: 'CS/LR4 Sniper Rifle', nation: 'chn', cat: 'sniper', caliber: '7.62x51mm NATO', weightLb: 13.4, range: '1000 m', maker: 'CSGC / China North Industries' },
+        { id: 'qsz-92', name: 'QSZ-92 Sidearm', nation: 'chn', cat: 'pistol', caliber: '5.8x21mm / 9x19mm', weightLb: 1.7, range: '50 m', maker: 'Norinco' },
+        { id: 'qlz-87', name: 'QLZ-87 Automatic Grenade Launcher', nation: 'chn', cat: 'launcher', caliber: '35x32mm', weightLb: 42.5, range: '1750 m', maker: 'Norinco' },
+        { id: 'hj-12', name: 'HJ-12 (Red Arrow 12) ATGM', nation: 'chn', cat: 'launcher', caliber: '152mm tandem HEAT', weightLb: 43.5, range: '4000 m', maker: 'NORINCO / CASIC' },
+        { id: 'qw-18', name: 'QW-18 MANPADS', nation: 'chn', cat: 'manpads', caliber: '72mm IR/UV guided missile', weightLb: 35.3, range: '6000 m', maker: 'CASIC (9th Academy)' },
+        { id: 'tavor-tar-21', name: 'Tavor TAR-21', nation: 'isr', cat: 'rifle', caliber: '5.56x45mm NATO', weightLb: 7.9, range: '500 m', maker: 'Israel Weapon Industries (IWI)' },
+        { id: 'x95-micro-tavor', name: 'X95 Micro Tavor', nation: 'isr', cat: 'rifle', caliber: '5.56x45mm NATO / 9x19mm', weightLb: 6.6, range: '400 m', maker: 'Israel Weapon Industries (IWI)' },
+        { id: 'galil-ace-52', name: 'Galil ACE 52', nation: 'isr', cat: 'rifle', caliber: '7.62x51mm NATO', weightLb: 8.4, range: '600 m', maker: 'Israel Weapon Industries (IWI)' },
+        { id: 'negev-ng7', name: 'Negev NG7 LMG', nation: 'isr', cat: 'machinegun', caliber: '7.62x51mm NATO', weightLb: 17.2, range: '1000 m', maker: 'Israel Weapon Industries (IWI)' },
+        { id: 'galatz', name: 'Galatz (Galil Sniper)', nation: 'isr', cat: 'sniper', caliber: '7.62x51mm NATO', weightLb: 14.1, range: '800 m', maker: 'Israel Military Industries / IWI' },
+        { id: 'jericho-941-f', name: 'Jericho 941 F', nation: 'isr', cat: 'pistol', caliber: '9x19mm / .40 S&W / .45 ACP', weightLb: 2.6, range: '50 m', maker: 'Israel Weapon Industries (IWI)' },
+        { id: 'desert-eagle-mk-xix', name: 'Desert Eagle Mk XIX', nation: 'isr', cat: 'pistol', caliber: '.357 Mag / .44 Mag / .50 AE', weightLb: 4.4, range: '50 m', maker: 'Magnum Research / IWI' },
+        { id: 'spike-atgm', name: 'Spike ATGM (Spike-MR/LR2)', nation: 'isr', cat: 'launcher', caliber: '130mm tandem HEAT / EFP', weightLb: 56.5, range: '2500-4000 m', maker: 'Rafael Advanced Defense Systems' },
+        { id: 'uzi-pro-smg', name: 'Uzi Pro SMG', nation: 'isr', cat: 'smg', caliber: '9x19mm', weightLb: 4.4, range: '100 m', maker: 'Israel Weapon Industries (IWI)' }
+      ];
+      const SLOT_LIBRARY = {
+        optic: [
+          { id: 'optic-acog', label: 'ACOG 4x', categories: ['rifle'], weight: 0.9, volume: 0.4, style: 'optic-acog', description: 'Fixed combat optic for mixed-distance field work.', stats: { mobility: -2, control: 3, acquisition: 6 } },
+          { id: 'optic-lpvo', label: 'LPVO 1-10x', categories: ['rifle', 'machinegun', 'sniper'], weight: 1.5, volume: 0.6, style: 'optic-lpvo', description: 'Variable optic for observation and deliberate holds.', stats: { mobility: -5, control: 6, acquisition: 8 } },
+          { id: 'optic-red-dot', label: 'Aimpoint Red Dot', categories: ['rifle', 'smg'], weight: 0.4, volume: 0.2, style: 'optic-dot', description: 'Compact reflex optic for speed inside CQB and vehicle work.', stats: { mobility: -1, control: 2, acquisition: 7 } },
+          { id: 'optic-sniper', label: 'ATACR 5-25x', categories: ['sniper'], weight: 2.2, volume: 0.8, style: 'optic-scope', description: 'High magnification optic for hide-site precision and observation.', stats: { mobility: -7, control: 9, acquisition: 10 } },
+          { id: 'optic-pistol-dot', label: 'RMR Type 2', categories: ['pistol'], weight: 0.1, volume: 0.1, style: 'optic-mini', description: 'Miniature red dot for faster pistol tracking and sight recovery.', stats: { mobility: 0, control: 1, acquisition: 6 } },
+          { id: 'optic-launch-sight', label: 'Day Sight Unit', categories: ['launcher'], weight: 1.3, volume: 0.7, style: 'optic-launch', description: 'Primary day optic for shoulder-fired launchers and grenade systems.', stats: { mobility: -4, control: 4, acquisition: 6 } },
+          { id: 'optic-iff', label: 'IFF Sight Module', categories: ['manpads'], weight: 1.7, volume: 0.8, style: 'optic-iff', description: 'Friend-or-foe sighting unit for air defense identification workflows.', stats: { mobility: -4, control: 3, acquisition: 7 } }
+        ],
+        muzzle: [
+          { id: 'muzzle-flash', label: 'Flash Hider', categories: ['rifle', 'smg'], weight: 0.2, volume: 0.1, style: 'muzzle-flash', description: 'Baseline flash control with minimal front-end penalty.', stats: { stealth: 3, mobility: 0 } },
+          { id: 'muzzle-suppressor', label: 'QD Suppressor', categories: ['rifle', 'smg', 'sniper'], weight: 1.0, volume: 0.5, style: 'muzzle-suppressor', description: 'Suppressor for flash reduction, blast control, and lower visible signature.', stats: { stealth: 10, mobility: -4, control: 2 } },
+          { id: 'muzzle-comp', label: 'Compensator', categories: ['pistol'], weight: 0.3, volume: 0.2, style: 'muzzle-comp', description: 'Pistol compensator that flattens recoil at the cost of extra bulk.', stats: { control: 4, mobility: -2, stealth: -1 } },
+          { id: 'muzzle-brake', label: 'Muzzle Brake', categories: ['machinegun', 'sniper'], weight: 0.5, volume: 0.2, style: 'muzzle-brake', description: 'Recoil-reduction brake for heavy guns and precision platforms.', stats: { control: 5, mobility: -1, stealth: -2 } }
+        ],
+        aiming: [
+          { id: 'aiming-peq15', label: 'AN/PEQ-15', categories: ['rifle'], weight: 0.5, volume: 0.2, style: 'aiming-peq', description: 'Visible and IR laser package for night-capable carbine setups.', stats: { acquisition: 5, mobility: -1 } },
+          { id: 'aiming-dbal', label: 'DBAL-A3', categories: ['rifle', 'smg'], weight: 0.5, volume: 0.2, style: 'aiming-dbal', description: 'Compact laser and illuminator suite for low-light aiming.', stats: { acquisition: 6, mobility: -1 } },
+          { id: 'aiming-pistol-laser', label: 'Rail Laser', categories: ['pistol'], weight: 0.2, volume: 0.1, style: 'aiming-pistol', description: 'Short-range laser aid for night entry or close-protection sidearms.', stats: { acquisition: 4, mobility: -1 } }
+        ],
+        light: [
+          { id: 'light-scout', label: 'Scout Light', categories: ['rifle'], weight: 0.4, volume: 0.2, style: 'light-scout', description: 'White light for positive identification in structure and vehicle work.', stats: { acquisition: 3, mobility: -1 } },
+          { id: 'light-flood', label: 'Flood Light', categories: ['machinegun', 'launcher'], weight: 0.7, volume: 0.3, style: 'light-flood', description: 'Large-head light for static support positions and launcher setup.', stats: { acquisition: 4, mobility: -2 } },
+          { id: 'light-pistol', label: 'Pistol Light', categories: ['pistol'], weight: 0.3, volume: 0.2, style: 'light-pistol', description: 'Compact pistol light for rooms, vehicles, and low-light carry.', stats: { acquisition: 3, mobility: -1 } },
+          { id: 'light-compact', label: 'Compact Light', categories: ['smg'], weight: 0.3, volume: 0.2, style: 'light-compact', description: 'Short weapon light sized for PDW and SMG handguards.', stats: { acquisition: 3, mobility: -1 } }
+        ],
+        support: [
+          { id: 'support-handstop', label: 'Hand Stop', categories: ['rifle', 'smg'], weight: 0.1, volume: 0.1, style: 'support-handstop', description: 'Small control index that keeps the front end compact.', stats: { control: 2, mobility: 1 } },
+          { id: 'support-bipod', label: 'Bipod', categories: ['rifle', 'machinegun', 'sniper'], weight: 0.8, volume: 0.4, style: 'support-bipod', description: 'Forward support for prone fire and deliberate holds.', stats: { control: 8, mobility: -5 } },
+          { id: 'support-tripod', label: 'Tripod Rig', categories: ['machinegun', 'launcher'], weight: 12.0, volume: 3.0, style: 'support-tripod', description: 'Crew-served stability package for static support and launcher positions.', stats: { control: 14, mobility: -12 } },
+          { id: 'support-brace', label: 'Shoulder Brace', categories: ['launcher', 'manpads'], weight: 0.8, volume: 0.4, style: 'support-brace', description: 'Brace hardware that steadies heavy shoulder-fired systems.', stats: { control: 6, mobility: -3 } }
+        ],
+        carry: [
+          { id: 'carry-sling', label: 'Two-Point Sling', categories: ['rifle', 'sniper', 'smg'], weight: 0.3, volume: 0.1, style: 'carry-sling', description: 'Retention sling for transitions and hands-free movement.', stats: { mobility: 2, control: 1 } },
+          { id: 'carry-holster', label: 'Duty Holster', categories: ['pistol'], weight: 0.8, volume: 0.5, style: 'carry-holster', description: 'Retention holster sized for belt or vest-mounted pistol carry.', stats: { mobility: 1, acquisition: 2 } },
+          { id: 'carry-harness', label: 'Padded Harness', categories: ['machinegun', 'launcher', 'manpads'], weight: 0.8, volume: 0.4, style: 'carry-harness', description: 'Carry harness that spreads load across the shoulders during short moves.', stats: { mobility: 3, control: 1 } },
+          { id: 'carry-hardcase', label: 'Transit Case', categories: ['launcher', 'manpads'], weight: 3.2, volume: 2.2, style: 'carry-hardcase', description: 'Hard case for weatherproof transport and staged deployment.', stats: { stealth: 2, mobility: -6 } }
+        ],
+        observation: [
+          { id: 'obs-thermal', label: 'Thermal Viewer', categories: ['machinegun', 'sniper', 'launcher', 'manpads'], weight: 2.0, volume: 0.9, style: 'obs-thermal', description: 'Thermal observation device for reduced-visibility spotting and target search.', stats: { acquisition: 8, control: 2, mobility: -4 } },
+          { id: 'obs-rangefinder', label: 'Rangefinder', categories: ['rifle', 'sniper'], weight: 0.6, volume: 0.3, style: 'obs-rangefinder', description: 'Compact laser rangefinder for callouts, holds, and quick distance confirmation.', stats: { acquisition: 5, control: 3, mobility: -1 } },
+          { id: 'obs-binocular', label: 'Binocular Mount', categories: ['manpads'], weight: 1.0, volume: 0.5, style: 'obs-binocular', description: 'Stable scan aid for aircraft recognition before shoulder-up sequence.', stats: { acquisition: 6, control: 2, mobility: -2 } },
+          { id: 'obs-power', label: 'Power Canister', categories: ['manpads'], weight: 1.8, volume: 0.7, style: 'obs-power', description: 'Auxiliary power canister for longer watch periods and powered optics.', stats: { acquisition: 3, stealth: 1, mobility: -3 } }
+        ]
+      };
+      const ARMORY_PRESETS = {
+        rifle: [
+          { id: 'service-issue', label: 'Service Issue', slots: { optic: 'optic-acog', muzzle: 'muzzle-flash', aiming: 'aiming-peq15', light: 'light-scout', support: 'support-handstop', carry: 'carry-sling' } },
+          { id: 'recon', label: 'Recon', slots: { optic: 'optic-lpvo', muzzle: 'muzzle-suppressor', aiming: 'aiming-dbal', light: 'light-scout', support: 'support-bipod', carry: 'carry-sling' } },
+          { id: 'night-raid', label: 'Night Raid', slots: { optic: 'optic-red-dot', muzzle: 'muzzle-suppressor', aiming: 'aiming-dbal', light: 'light-scout', support: 'support-handstop', carry: 'carry-sling' } }
+        ],
+        machinegun: [
+          { id: 'mobile-support', label: 'Mobile Support', slots: { optic: 'optic-lpvo', light: 'light-flood', support: 'support-bipod', carry: 'carry-harness', observation: 'obs-thermal' } },
+          { id: 'static-overwatch', label: 'Static Overwatch', slots: { optic: 'optic-lpvo', light: 'light-flood', support: 'support-tripod', carry: 'carry-harness', observation: 'obs-thermal' } }
+        ],
+        sniper: [
+          { id: 'hide-site', label: 'Hide Site', slots: { optic: 'optic-sniper', muzzle: 'muzzle-suppressor', support: 'support-bipod', carry: 'carry-sling', observation: 'obs-thermal' } },
+          { id: 'mobile-marksman', label: 'Mobile Marksman', slots: { optic: 'optic-lpvo', muzzle: 'muzzle-brake', support: 'support-bipod', carry: 'carry-sling', observation: 'obs-rangefinder' } }
+        ],
+        pistol: [
+          { id: 'duty-belt', label: 'Duty Belt', slots: { optic: 'optic-pistol-dot', muzzle: 'muzzle-comp', aiming: 'aiming-pistol-laser', light: 'light-pistol', carry: 'carry-holster' } },
+          { id: 'night-entry', label: 'Night Entry', slots: { optic: 'optic-pistol-dot', muzzle: 'muzzle-comp', aiming: 'aiming-pistol-laser', light: 'light-pistol', carry: 'carry-holster' } }
+        ],
+        smg: [
+          { id: 'protective-detail', label: 'Protective Detail', slots: { optic: 'optic-red-dot', muzzle: 'muzzle-flash', aiming: 'aiming-dbal', light: 'light-compact', support: 'support-handstop', carry: 'carry-sling' } },
+          { id: 'night-pdw', label: 'Night PDW', slots: { optic: 'optic-red-dot', muzzle: 'muzzle-suppressor', aiming: 'aiming-dbal', light: 'light-compact', support: 'support-handstop', carry: 'carry-sling' } }
+        ],
+        launcher: [
+          { id: 'day-sight', label: 'Day Sight', slots: { optic: 'optic-launch-sight', support: 'support-brace', carry: 'carry-harness', observation: 'obs-thermal' } },
+          { id: 'low-light-hunter', label: 'Low-Light Hunter', slots: { optic: 'optic-launch-sight', support: 'support-tripod', carry: 'carry-hardcase', observation: 'obs-thermal' } }
+        ],
+        manpads: [
+          { id: 'shoulder-ready', label: 'Shoulder Ready', slots: { optic: 'optic-iff', support: 'support-brace', carry: 'carry-harness', observation: 'obs-binocular' } },
+          { id: 'air-watch', label: 'Air Watch', slots: { optic: 'optic-iff', support: 'support-brace', carry: 'carry-hardcase', observation: 'obs-thermal' } }
+        ]
+      };
+      const VIEW_LAYOUTS = {
+        rifle: { optic: [420, 142], muzzle: [800, 184], aiming: [536, 154], light: [585, 223], support: [525, 252], carry: [252, 264], observation: [615, 132] },
+        machinegun: { optic: [430, 144], light: [585, 222], support: [548, 286], carry: [250, 260], observation: [630, 128], muzzle: [812, 182] },
+        sniper: { optic: [455, 128], muzzle: [812, 184], support: [500, 282], carry: [250, 262], observation: [652, 120] },
+        pistol: { optic: [432, 138], muzzle: [694, 184], aiming: [510, 190], light: [520, 232], support: [500, 244], carry: [344, 252], observation: [592, 132] },
+        smg: { optic: [418, 144], muzzle: [728, 184], aiming: [510, 156], light: [556, 224], support: [500, 250], carry: [244, 258], observation: [610, 128] },
+        launcher: { optic: [306, 144], support: [482, 292], carry: [240, 246], observation: [560, 122] },
+        manpads: { optic: [306, 142], support: [494, 288], carry: [246, 244], observation: [570, 118] }
+      };
+      const MODEL_VIEW_LAYOUTS = {
+        'ar-carbine': { optic: [418, 147, 0.95], muzzle: [808, 184, 0.86], aiming: [550, 164, 0.94], light: [582, 226, 0.94], support: [530, 252, 0.9], carry: [234, 258, 1], observation: [632, 136, 0.92] },
+        'ar-rifle': { optic: [428, 144, 1], muzzle: [818, 184, 0.9], aiming: [544, 160, 0.95], light: [594, 226, 0.94], support: [534, 254, 0.94], carry: [228, 260, 1], observation: [640, 136, 0.94] },
+        'ar-precision': { optic: [450, 132, 1.08], muzzle: [820, 184, 1.05], aiming: [560, 164, 0.96], light: [600, 226, 0.94], support: [514, 276, 1.05], carry: [232, 258, 1], observation: [664, 124, 1.02] },
+        'rifle-ak': { optic: [408, 148, 0.95], muzzle: [798, 184, 0.92], aiming: [520, 164, 0.92], light: [570, 230, 0.94], support: [505, 258, 0.95], carry: [220, 260, 1], observation: [618, 134, 0.92] },
+        'mg-rpk': { optic: [414, 146, 0.96], muzzle: [808, 184, 0.96], light: [578, 230, 0.94], support: [512, 280, 1], carry: [220, 262, 1], observation: [626, 132, 0.94] },
+        'rifle-bullpup': { optic: [448, 134, 0.98], muzzle: [702, 186, 0.86], aiming: [566, 170, 0.88], light: [594, 232, 0.88], support: [486, 262, 0.9], carry: [260, 258, 1], observation: [618, 134, 0.92] },
+        'rifle-modern': { optic: [430, 144, 0.98], muzzle: [808, 184, 0.9], aiming: [548, 162, 0.92], light: [590, 226, 0.94], support: [528, 256, 0.96], carry: [226, 260, 1], observation: [640, 134, 0.94] },
+        'mg-saw': { optic: [446, 142, 1.02], light: [600, 230, 1], support: [544, 296, 1.1], carry: [224, 264, 1.02], observation: [650, 124, 1], muzzle: [818, 182, 1.02] },
+        'mg-gpmg': { optic: [454, 140, 1.08], light: [610, 232, 1.04], support: [562, 304, 1.16], carry: [216, 266, 1.04], observation: [662, 122, 1.04], muzzle: [832, 182, 1.08] },
+        'mg-heavy': { optic: [454, 128, 1.12], light: [620, 228, 1.05], support: [532, 314, 1.28], carry: [248, 268, 1.08], observation: [674, 118, 1.08] },
+        'sniper-bolt': { optic: [462, 124, 1.08], muzzle: [830, 184, 1.06], support: [494, 290, 1.08], carry: [226, 264, 1], observation: [672, 118, 1.02] },
+        'sniper-marksman': { optic: [448, 128, 1.04], muzzle: [816, 184, 1], support: [506, 286, 1.02], carry: [228, 262, 1], observation: [662, 122, 0.98] },
+        'sniper-antimaterial': { optic: [470, 122, 1.16], muzzle: [844, 184, 1.24], support: [522, 302, 1.18], carry: [218, 268, 1.06], observation: [692, 116, 1.08] },
+        'pistol-service': { optic: [448, 176, 0.72], muzzle: [706, 188, 0.74], aiming: [520, 214, 0.76], light: [528, 238, 0.82], carry: [354, 254, 0.92], observation: [596, 146, 0.76] },
+        'pistol-heavy': { optic: [472, 176, 0.82], muzzle: [732, 188, 1.02], aiming: [548, 216, 0.82], light: [556, 242, 0.86], carry: [336, 254, 1.04], observation: [622, 146, 0.78] },
+        'smg-uzi': { optic: [396, 156, 0.88], muzzle: [682, 186, 0.82], aiming: [504, 170, 0.86], light: [542, 234, 0.86], support: [476, 254, 0.86], carry: [250, 260, 0.94], observation: [582, 136, 0.9] },
+        'launcher-single': { optic: [338, 170, 0.96], support: [470, 300, 1], carry: [244, 246, 0.96], observation: [544, 128, 0.98] },
+        'launcher-tube': { optic: [314, 158, 1.02], support: [498, 300, 1.08], carry: [234, 246, 1], observation: [574, 126, 1.02] },
+        'launcher-rpg': { optic: [386, 162, 0.94], support: [492, 298, 1], carry: [246, 246, 0.96], observation: [548, 132, 1] },
+        'launcher-atgm': { optic: [296, 144, 1.08], support: [506, 304, 1.18], carry: [236, 244, 1.12], observation: [594, 118, 1.1] },
+        'launcher-auto-grenade': { optic: [324, 146, 1.12], support: [500, 308, 1.2], carry: [230, 244, 1.02], observation: [590, 120, 1.1] },
+        'launcher-manpads': { optic: [312, 144, 1.04], support: [504, 294, 1.08], carry: [244, 244, 1], observation: [584, 118, 1.04] }
+      };
+
+      const state = {
+        weaponId: ARMORY_WEAPONS[0].id,
+        nation: 'all',
+        cat: 'all',
+        search: '',
+        selections: {},
+        status: DEFAULT_STATUS,
+        tone: 'ok'
+      };
+
+      const armorySearch = document.getElementById('armorySearch');
+      const armoryNationFilters = document.getElementById('armoryNationFilters');
+      const armoryCategoryFilters = document.getElementById('armoryCategoryFilters');
+      const armoryRosterMeta = document.getElementById('armoryRosterMeta');
+      const armoryWeaponList = document.getElementById('armoryWeaponList');
+      const armoryStageTags = document.getElementById('armoryStageTags');
+      const armoryWeaponName = document.getElementById('armoryWeaponName');
+      const armoryWeaponMeta = document.getElementById('armoryWeaponMeta');
+      const armoryPresetTag = document.getElementById('armoryPresetTag');
+      const armoryAttachmentCountTag = document.getElementById('armoryAttachmentCountTag');
+      const armoryHudWeapon = document.getElementById('armoryHudWeapon');
+      const armoryHudCaliber = document.getElementById('armoryHudCaliber');
+      const armoryHudRange = document.getElementById('armoryHudRange');
+      const armoryStageViewport = document.getElementById('armoryStageViewport');
+      const armoryStageImage = document.getElementById('armoryStageImage');
+      const armoryStageFallback = document.getElementById('armoryStageFallback');
+      const armoryWeaponRig = document.getElementById('armoryWeaponRig');
+      const armoryStageCanvas = document.getElementById('armoryStageCanvas');
+      const armoryResetView = document.getElementById('armoryResetView');
+      const armoryToggleSpin = document.getElementById('armoryToggleSpin');
+      const armoryImageSource = document.getElementById('armoryImageSource');
+      const armoryStageCaption = document.getElementById('armoryStageCaption');
+      const armoryStageSourceNote = document.getElementById('armoryStageSourceNote');
+      const armoryAttachmentReferenceGrid = document.getElementById('armoryAttachmentReferenceGrid');
+      const armoryMetricGrid = document.getElementById('armoryMetricGrid');
+      const armoryPresetRow = document.getElementById('armoryPresetRow');
+      const armorySlotStack = document.getElementById('armorySlotStack');
+      const armoryStatus = document.getElementById('armoryStatus');
+      const armoryManifestList = document.getElementById('armoryManifestList');
+      const armoryCopyBuild = document.getElementById('armoryCopyBuild');
+      const armoryExportBuild = document.getElementById('armoryExportBuild');
+      const armoryResetBuild = document.getElementById('armoryResetBuild');
+
+      const mediaCache = new Map();
+      let stageRenderToken = 0;
+      let attachmentRenderToken = 0;
+      const WEAPON_IMAGE_SEARCH_OVERRIDES = {
+        'm110-sass': 'M110 Semi-Automatic Sniper System',
+        'm24-sws': 'M24 Sniper Weapon System',
+        'm82a1-m107': 'Barrett M82',
+        'm17-p320': 'SIG Sauer P320',
+        'm320-glm': 'M320 grenade launcher',
+        'pkm-gpmg': 'PK machine gun',
+        'rpg-7v2': 'RPG-7',
+        'igla-s': '9K38 Igla',
+        'qjy-88': 'QJY-88',
+        'cs-lr4': 'CS/LR4 sniper rifle',
+        'qw-18': 'QW-18',
+        'galatz': 'Galatz',
+        'spike-atgm': 'Spike missile',
+        'negev-ng7': 'IWI Negev',
+        'uzi-pro-smg': 'Uzi Pro'
+      };
+      const ATTACHMENT_IMAGE_SEARCH = {
+        'optic-acog': 'Trijicon ACOG',
+        'optic-lpvo': 'low-power variable optic',
+        'optic-dot': 'red dot sight',
+        'optic-mini': 'pistol red dot sight',
+        'optic-scope': 'sniper riflescope',
+        'optic-launch': 'grenade launcher sight',
+        'optic-iff': 'FIM-92 Stinger sight unit',
+        'muzzle-flash': 'flash suppressor',
+        'muzzle-suppressor': 'firearm suppressor',
+        'muzzle-comp': 'pistol compensator',
+        'muzzle-brake': 'muzzle brake',
+        'aiming-peq': 'AN/PEQ-15',
+        'aiming-dbal': 'DBAL-A3',
+        'aiming-pistol': 'weapon-mounted laser sight',
+        'light-scout': 'weapon light flashlight',
+        'light-flood': 'tactical flashlight',
+        'light-pistol': 'pistol weapon light',
+        'light-compact': 'compact weapon light',
+        'support-handstop': 'hand stop firearm accessory',
+        'support-bipod': 'rifle bipod',
+        'support-tripod': 'machine gun tripod',
+        'support-brace': 'shoulder stock firearm',
+        'carry-sling': 'gun sling',
+        'carry-holster': 'pistol holster',
+        'carry-harness': 'load-bearing harness',
+        'carry-hardcase': 'gun case',
+        'obs-thermal': 'thermal imaging sight',
+        'obs-rangefinder': 'laser rangefinder',
+        'obs-binocular': 'binoculars',
+        'obs-power': 'battery pack'
+      };
+
+      const HARDPOINT_LAYOUTS = {
+        rifle: { optic: [0.95, 0.44, 0], muzzle: [5.25, 0.04, 0], aiming: [1.48, 0.12, -0.28], light: [1.72, -0.12, 0.3], support: [0.95, -0.35, 0], carry: [-1.9, -0.18, 0.14], observation: [2.3, 0.32, 0] },
+        machinegun: { optic: [0.9, 0.44, 0], muzzle: [5.75, 0.04, 0], light: [1.85, -0.08, 0.32], support: [1.02, -0.4, 0], carry: [-2.4, -0.16, 0.16], observation: [2.45, 0.36, 0], muzzleAlt: [5.45, 0.04, 0] },
+        sniper: { optic: [0.82, 0.56, 0], muzzle: [6.25, 0.03, 0], support: [0.64, -0.44, 0], carry: [-2.3, -0.15, 0.18], observation: [2.15, 0.3, 0] },
+        pistol: { optic: [0.22, 0.36, 0], muzzle: [2.28, 0.02, 0], aiming: [0.18, -0.08, -0.18], light: [0.28, -0.22, 0.2], support: [0.1, -0.24, 0], carry: [-0.98, -0.34, 0], observation: [0.85, 0.18, 0] },
+        smg: { optic: [0.7, 0.4, 0], muzzle: [3.7, 0.03, 0], aiming: [0.98, 0.08, -0.22], light: [1.15, -0.14, 0.24], support: [0.65, -0.34, 0], carry: [-1.55, -0.18, 0.14], observation: [1.65, 0.28, 0] },
+        launcher: { optic: [-0.95, 0.52, 0], support: [-0.1, -0.52, 0], carry: [-2.5, -0.2, 0.18], observation: [1.15, 0.45, 0] },
+        manpads: { optic: [-1.1, 0.64, 0], support: [0.15, -0.48, 0], carry: [-2.6, -0.16, 0.18], observation: [1.3, 0.54, 0] }
+      };
+      const CATEGORY_MODEL_CONFIG = {
+        rifle: {
+          distance: 8.2,
+          pieces: [
+            { kind: 'box', size: [2.35, 0.38, 0.36], pos: [0.05, 0.03, 0], material: 'body' },
+            { kind: 'box', size: [1.95, 0.46, 0.42], pos: [-2.05, 0.1, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [1.85, 0.26, 0.26], pos: [1.95, 0.02, 0], material: 'body' },
+            { kind: 'cylinder', length: 2.8, radius: 0.065, pos: [3.95, 0.04, 0], material: 'detail' },
+            { kind: 'box', size: [1.8, 0.06, 0.18], pos: [0.95, 0.28, 0], material: 'edge' },
+            { kind: 'box', size: [0.34, 0.9, 0.36], pos: [0.08, -0.62, 0], rot: [0, 0, 0.26], material: 'accent' },
+            { kind: 'box', size: [0.28, 0.8, 0.28], pos: [-0.55, -0.56, 0], rot: [0, 0, 0.46], material: 'accent' },
+            { kind: 'box', size: [0.34, 0.16, 0.4], pos: [-0.82, 0.08, 0], material: 'detail' }
+          ]
+        },
+        machinegun: {
+          distance: 9.5,
+          pieces: [
+            { kind: 'box', size: [2.7, 0.42, 0.42], pos: [0.1, 0.04, 0], material: 'body' },
+            { kind: 'box', size: [2.2, 0.52, 0.5], pos: [-2.35, 0.12, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [2.3, 0.28, 0.32], pos: [2.2, 0.02, 0], material: 'body' },
+            { kind: 'cylinder', length: 3.15, radius: 0.08, pos: [4.45, 0.04, 0], material: 'detail' },
+            { kind: 'box', size: [1.9, 0.08, 0.2], pos: [1.0, 0.32, 0], material: 'edge' },
+            { kind: 'box', size: [0.86, 0.86, 0.72], pos: [-0.05, -0.55, 0], material: 'accent' },
+            { kind: 'box', size: [0.32, 0.88, 0.3], pos: [-0.75, -0.58, 0], rot: [0, 0, 0.48], material: 'accent' }
+          ]
+        },
+        sniper: {
+          distance: 10.2,
+          pieces: [
+            { kind: 'box', size: [2.55, 0.34, 0.34], pos: [0.05, 0.03, 0], material: 'body' },
+            { kind: 'box', size: [2.1, 0.44, 0.38], pos: [-2.15, 0.08, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [2.4, 0.22, 0.22], pos: [2.15, 0.02, 0], material: 'body' },
+            { kind: 'cylinder', length: 3.95, radius: 0.055, pos: [4.75, 0.03, 0], material: 'detail' },
+            { kind: 'box', size: [1.55, 0.06, 0.18], pos: [0.72, 0.34, 0], material: 'edge' },
+            { kind: 'box', size: [0.32, 0.82, 0.26], pos: [-0.6, -0.56, 0], rot: [0, 0, 0.5], material: 'accent' }
+          ]
+        },
+        pistol: {
+          distance: 5.5,
+          pieces: [
+            { kind: 'box', size: [2.5, 0.34, 0.38], pos: [0.55, 0.2, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [2.0, 0.26, 0.3], pos: [0.35, 0.06, 0], material: 'body' },
+            { kind: 'box', size: [1.0, 0.3, 0.34], pos: [-0.65, -0.12, 0], material: 'detail' },
+            { kind: 'box', size: [0.42, 1.05, 0.34], pos: [-0.45, -0.6, 0], rot: [0, 0, 0.34], material: 'accent' },
+            { kind: 'cylinder', length: 0.78, radius: 0.055, pos: [1.92, 0.08, 0], material: 'detail' }
+          ]
+        },
+        smg: {
+          distance: 6.7,
+          pieces: [
+            { kind: 'box', size: [1.8, 0.38, 0.34], pos: [0.05, 0.04, 0], material: 'body' },
+            { kind: 'box', size: [1.45, 0.44, 0.38], pos: [-1.75, 0.08, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [1.45, 0.24, 0.24], pos: [1.55, 0.02, 0], material: 'body' },
+            { kind: 'cylinder', length: 1.55, radius: 0.055, pos: [2.78, 0.04, 0], material: 'detail' },
+            { kind: 'box', size: [0.32, 1.0, 0.34], pos: [-0.12, -0.62, 0], material: 'accent' },
+            { kind: 'box', size: [0.26, 0.72, 0.24], pos: [-0.68, -0.55, 0], rot: [0, 0, 0.46], material: 'accent' },
+            { kind: 'box', size: [1.2, 0.06, 0.16], pos: [0.65, 0.28, 0], material: 'edge' }
+          ]
+        },
+        launcher: {
+          distance: 8.9,
+          pieces: [
+            { kind: 'cylinder', length: 6.4, radius: 0.42, pos: [0.1, 0.18, 0], material: 'body' },
+            { kind: 'box', size: [0.92, 0.7, 0.7], pos: [-2.2, 0.42, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [0.52, 0.98, 0.36], pos: [-0.45, -0.48, 0], rot: [0, 0, 0.28], material: 'accent' },
+            { kind: 'box', size: [0.42, 0.38, 0.52], pos: [2.6, 0.18, 0], material: 'detail' }
+          ]
+        },
+        manpads: {
+          distance: 9.5,
+          pieces: [
+            { kind: 'cylinder', length: 6.8, radius: 0.36, pos: [0.2, 0.16, 0], material: 'body' },
+            { kind: 'box', size: [1.2, 1.0, 0.9], pos: [-2.1, 0.52, 0], material: 'bodyAlt' },
+            { kind: 'box', size: [0.5, 1.2, 0.42], pos: [-0.35, -0.52, 0], rot: [0, 0, 0.26], material: 'accent' },
+            { kind: 'box', size: [0.72, 0.82, 0.68], pos: [1.8, 0.6, 0], material: 'detail' },
+            { kind: 'box', size: [0.4, 0.36, 0.5], pos: [2.8, 0.14, 0], material: 'detail' }
+          ]
+        }
+      };
+      const viewer = {
+        ready: false,
+        renderer: null,
+        scene: null,
+        camera: null,
+        materials: null,
+        stageRoot: null,
+        resizeObserver: null,
+        currentWeaponId: null,
+        controlsBound: false
+      };
+      const viewerState = {
+        spin: false,
+        dragging: false,
+        pointerId: null,
+        lastX: 0,
+        lastY: 0,
+        yaw: -0.88,
+        pitch: 0.24,
+        distance: 8.2
+      };
+      const WEAPON_MODEL_KEY = {
+        'm4a1-carbine': 'ar-carbine',
+        'm16a4-rifle': 'ar-rifle',
+        'm27-iar': 'ar-rifle',
+        'm249-saw': 'mg-saw',
+        'm240b-gpmg': 'mg-gpmg',
+        'm2a1-hmg': 'mg-heavy',
+        'm110-sass': 'ar-precision',
+        'm24-sws': 'sniper-bolt',
+        'm82a1-m107': 'sniper-antimaterial',
+        'm17-p320': 'pistol-service',
+        'm9a3-beretta': 'pistol-service',
+        'm320-glm': 'launcher-single',
+        'at4-launcher': 'launcher-tube',
+        'fim-92-stinger': 'launcher-manpads',
+        'ak-74m': 'rifle-ak',
+        'ak-12': 'rifle-ak',
+        'ak-103': 'rifle-ak',
+        'pkm-gpmg': 'mg-gpmg',
+        'rpk-16': 'mg-rpk',
+        'svd-dragunov': 'sniper-marksman',
+        'sv-98': 'sniper-bolt',
+        'mp-443-grach': 'pistol-service',
+        'rpg-7v2': 'launcher-rpg',
+        'igla-s': 'launcher-manpads',
+        'qbz-95-1': 'rifle-bullpup',
+        'qbz-191': 'rifle-modern',
+        'qbz-03': 'rifle-modern',
+        'qjy-88': 'mg-gpmg',
+        'cs-lr4': 'sniper-bolt',
+        'qsz-92': 'pistol-service',
+        'qlz-87': 'launcher-auto-grenade',
+        'hj-12': 'launcher-atgm',
+        'qw-18': 'launcher-manpads',
+        'tavor-tar-21': 'rifle-bullpup',
+        'x95-micro-tavor': 'rifle-bullpup',
+        'galil-ace-52': 'rifle-modern',
+        'negev-ng7': 'mg-gpmg',
+        'galatz': 'sniper-marksman',
+        'jericho-941-f': 'pistol-service',
+        'desert-eagle-mk-xix': 'pistol-heavy',
+        'spike-atgm': 'launcher-atgm',
+        'uzi-pro-smg': 'smg-uzi'
+      };
+      const MODEL_VIEW_DISTANCE = {
+        'ar-carbine': 8.3,
+        'ar-rifle': 8.7,
+        'ar-precision': 9.3,
+        'rifle-ak': 8.6,
+        'rifle-bullpup': 7.8,
+        'rifle-modern': 8.4,
+        'mg-saw': 9.4,
+        'mg-gpmg': 9.8,
+        'mg-rpk': 9.0,
+        'mg-heavy': 11.6,
+        'sniper-bolt': 10.2,
+        'sniper-marksman': 9.7,
+        'sniper-antimaterial': 11.2,
+        'pistol-service': 5.8,
+        'pistol-heavy': 6.4,
+        'smg-uzi': 6.5,
+        'launcher-single': 6.9,
+        'launcher-tube': 8.8,
+        'launcher-rpg': 9.2,
+        'launcher-manpads': 9.5,
+        'launcher-atgm': 9.8,
+        'launcher-auto-grenade': 10.0
+      };
+
+      function setStatus(text, tone) {
+        state.status = text;
+        state.tone = tone || 'ok';
+      }
+
+      function currentWeapon() {
+        return ARMORY_WEAPONS.find((weapon) => weapon.id === state.weaponId) || ARMORY_WEAPONS[0];
+      }
+
+      function availableWeapons() {
+        const query = state.search.trim().toLowerCase();
+        return ARMORY_WEAPONS.filter((weapon) => {
+          if (state.nation !== 'all' && weapon.nation !== state.nation) return false;
+          if (state.cat !== 'all' && weapon.cat !== state.cat) return false;
+          if (!query) return true;
+          return `${weapon.name} ${weapon.maker} ${weapon.caliber} ${weapon.range}`.toLowerCase().includes(query);
+        });
+      }
+
+      function optionsForSlot(slot, weapon) {
+        return (SLOT_LIBRARY[slot] || []).filter((option) => option.categories.includes(weapon.cat));
+      }
+
+      function ensureSelections(weapon, preferredPresetId) {
+        if (!state.selections[weapon.id]) state.selections[weapon.id] = {};
+        const slotSelections = state.selections[weapon.id];
+        (CATEGORY_SLOTS[weapon.cat] || []).forEach((slot) => {
+          const validIds = optionsForSlot(slot, weapon).map((option) => option.id);
+          if (slotSelections[slot] && !validIds.includes(slotSelections[slot])) delete slotSelections[slot];
+        });
+        const hasAnySelection = Object.values(slotSelections).some(Boolean);
+        if (!hasAnySelection) {
+          const preset = (ARMORY_PRESETS[weapon.cat] || []).find((entry) => entry.id === preferredPresetId) || (ARMORY_PRESETS[weapon.cat] || [])[0];
+          if (preset) {
+            state.selections[weapon.id] = { ...preset.slots };
+          }
+        }
+      }
+
+      function selectedMap(weapon) {
+        const target = weapon || currentWeapon();
+        ensureSelections(target);
+        return state.selections[target.id] || {};
+      }
+
+      function selectedAttachments(weapon) {
+        const target = weapon || currentWeapon();
+        const selections = selectedMap(target);
+        return (CATEGORY_SLOTS[target.cat] || []).map((slot) => {
+          const selectedId = selections[slot];
+          const option = optionsForSlot(slot, target).find((item) => item.id === selectedId);
+          return option ? { ...option, slot } : null;
+        }).filter(Boolean);
+      }
+
+      function presetSignature(weapon, slots) {
+        return JSON.stringify((CATEGORY_SLOTS[weapon.cat] || []).map((slot) => [slot, slots[slot] || '']));
+      }
+
+      function currentPreset(weapon) {
+        const target = weapon || currentWeapon();
+        const slots = selectedMap(target);
+        const signature = presetSignature(target, slots);
+        return (ARMORY_PRESETS[target.cat] || []).find((preset) => presetSignature(target, preset.slots) === signature) || null;
+      }
+
+      function computeMetrics(weapon) {
+        const target = weapon || currentWeapon();
+        const attachments = selectedAttachments(target);
+        const totals = attachments.reduce((acc, attachment) => {
+          acc.weight += attachment.weight;
+          acc.volume += attachment.volume;
+          acc.mobility += attachment.stats.mobility || 0;
+          acc.control += attachment.stats.control || 0;
+          acc.stealth += attachment.stats.stealth || 0;
+          acc.acquisition += attachment.stats.acquisition || 0;
+          return acc;
+        }, { weight: 0, volume: 0, mobility: 0, control: 0, stealth: 0, acquisition: 0 });
+        const baseStats = CATEGORY_BASE_STATS[target.cat];
+        return {
+          weight: target.weightLb + totals.weight,
+          attachmentWeight: totals.weight,
+          volume: CATEGORY_BASE_VOLUME[target.cat] + totals.volume,
+          attachmentVolume: totals.volume,
+          mobility: Math.max(12, Math.min(99, baseStats.mobility + totals.mobility)),
+          control: Math.max(12, Math.min(99, baseStats.control + totals.control)),
+          stealth: Math.max(12, Math.min(99, baseStats.stealth + totals.stealth)),
+          acquisition: Math.max(12, Math.min(99, baseStats.acquisition + totals.acquisition)),
+          attachmentCount: attachments.length
+        };
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            weaponId: state.weaponId,
+            nation: state.nation,
+            cat: state.cat,
+            search: state.search,
+            selections: state.selections
+          }));
+        } catch (error) {}
+      }
+
+      function restoreState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          if (saved && typeof saved.weaponId === 'string' && ARMORY_WEAPONS.some((weapon) => weapon.id === saved.weaponId)) state.weaponId = saved.weaponId;
+          if (saved && typeof saved.nation === 'string') state.nation = saved.nation;
+          if (saved && typeof saved.cat === 'string') state.cat = saved.cat;
+          if (saved && typeof saved.search === 'string') state.search = saved.search;
+          if (saved && saved.selections && typeof saved.selections === 'object') state.selections = saved.selections;
+        } catch (error) {}
+      }
+
+      function metricTone(value) {
+        if (value < 28) return 'alert';
+        if (value < 45) return 'warn';
+        return '';
+      }
+
+      function usageTone(value) {
+        if (value > 30) return 'alert';
+        if (value > 16) return 'warn';
+        return '';
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function createMaterials() {
+        return {
+          body: new THREE.MeshStandardMaterial({ color: 0x5e7256, metalness: 0.42, roughness: 0.58 }),
+          bodyAlt: new THREE.MeshStandardMaterial({ color: 0x839977, metalness: 0.34, roughness: 0.46 }),
+          edge: new THREE.MeshStandardMaterial({ color: 0xc8d5a3, metalness: 0.28, roughness: 0.34 }),
+          accent: new THREE.MeshStandardMaterial({ color: 0xb89b67, metalness: 0.55, roughness: 0.36 }),
+          detail: new THREE.MeshStandardMaterial({ color: 0x1f271f, metalness: 0.6, roughness: 0.62 }),
+          module: new THREE.MeshStandardMaterial({ color: 0xcba865, metalness: 0.5, roughness: 0.3 }),
+          moduleEdge: new THREE.MeshStandardMaterial({ color: 0xf0d298, metalness: 0.42, roughness: 0.18 }),
+          glass: new THREE.MeshStandardMaterial({ color: 0x9ec0d1, metalness: 0.12, roughness: 0.08 }),
+          strap: new THREE.MeshStandardMaterial({ color: 0x43503a, metalness: 0.1, roughness: 0.9 }),
+          beacon: new THREE.MeshStandardMaterial({ color: 0x8fa364, emissive: 0x465327, metalness: 0.16, roughness: 0.5 }),
+          activeBeacon: new THREE.MeshStandardMaterial({ color: 0xe0bb78, emissive: 0x7b5720, metalness: 0.24, roughness: 0.28 }),
+          floor: new THREE.MeshStandardMaterial({ color: 0x1a1f16, metalness: 0.04, roughness: 0.94 })
+        };
+      }
+
+      function disposeStageRoot(root) {
+        if (!root) return;
+        root.traverse((node) => {
+          if (node.geometry) node.geometry.dispose();
+          if (node.material) {
+            const materials = Array.isArray(node.material) ? node.material : [node.material];
+            materials.forEach((material) => {
+              if (material && material.userData && material.userData.disposeMap && material.map) {
+                material.map.dispose();
+              }
+              if (material && material.userData && material.userData.disposeSelf) {
+                material.dispose();
+              }
+            });
+          }
+        });
+      }
+
+      function createPiece(piece) {
+        let geometry;
+        if (piece.kind === 'box') {
+          geometry = new THREE.BoxGeometry(piece.size[0], piece.size[1], piece.size[2]);
+        } else if (piece.kind === 'cylinder') {
+          geometry = new THREE.CylinderGeometry(piece.radiusTop || piece.radius, piece.radiusBottom || piece.radius, piece.length, piece.segments || 22);
+        } else if (piece.kind === 'sphere') {
+          geometry = new THREE.SphereGeometry(piece.radius, piece.widthSegments || 18, piece.heightSegments || 14);
+        } else if (piece.kind === 'torus') {
+          geometry = new THREE.TorusGeometry(piece.radius, piece.tube, piece.radialSegments || 10, piece.tubularSegments || 28, piece.arc || (Math.PI * 2));
+        }
+        const mesh = new THREE.Mesh(geometry, viewer.materials[piece.material] || viewer.materials.body);
+        if (piece.pos) mesh.position.set(piece.pos[0], piece.pos[1], piece.pos[2]);
+        if (piece.kind === 'cylinder') {
+          const rot = piece.rot || [0, 0, 0];
+          mesh.rotation.set(rot[0] || 0, rot[1] || 0, (rot[2] || 0) + (Math.PI / 2));
+        } else if (piece.rot) {
+          mesh.rotation.set(piece.rot[0] || 0, piece.rot[1] || 0, piece.rot[2] || 0);
+        }
+        return mesh;
+      }
+
+      function createExtrudedProfileMesh(points, options) {
+        const depth = options.depth || 0.28;
+        const shape = new THREE.Shape();
+        shape.moveTo(points[0][0], points[0][1]);
+        for (let index = 1; index < points.length; index += 1) {
+          shape.lineTo(points[index][0], points[index][1]);
+        }
+        shape.closePath();
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth,
+          steps: 1,
+          bevelEnabled: options.bevelEnabled !== false,
+          bevelSegments: options.bevelSegments || 2,
+          bevelSize: options.bevelSize ?? 0.022,
+          bevelThickness: options.bevelThickness ?? 0.024,
+          curveSegments: options.curveSegments || 6
+        });
+        geometry.translate(0, 0, -(depth / 2));
+        const mesh = new THREE.Mesh(geometry, viewer.materials[options.material] || viewer.materials.body);
+        if (options.pos) mesh.position.set(options.pos[0], options.pos[1], options.pos[2] || 0);
+        if (options.rot) mesh.rotation.set(options.rot[0] || 0, options.rot[1] || 0, options.rot[2] || 0);
+        if (options.scale) mesh.scale.set(options.scale[0], options.scale[1], options.scale[2] || 1);
+        return mesh;
+      }
+
+      function addProfile(group, points, options) {
+        group.add(createExtrudedProfileMesh(points, options));
+      }
+
+      function scaleModel(group, scale) {
+        if (!scale) return group;
+        if (Array.isArray(scale)) {
+          group.scale.set(scale[0], scale[1], scale[2] || 1);
+        } else {
+          group.scale.set(scale, scale, 1);
+        }
+        return group;
+      }
+
+      function modelKeyForWeapon(weapon) {
+        return WEAPON_MODEL_KEY[weapon.id] || weapon.cat;
+      }
+
+      function modelDistanceFor(target) {
+        if (target && typeof target === 'object' && target.id) {
+          return MODEL_VIEW_DISTANCE[modelKeyForWeapon(target)] || (CATEGORY_MODEL_CONFIG[target.cat] || CATEGORY_MODEL_CONFIG.rifle).distance;
+        }
+        return (CATEGORY_MODEL_CONFIG[target] || CATEGORY_MODEL_CONFIG.rifle).distance;
+      }
+
+      function buildARPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.25, 0.02], [-2.78, 0.46], [-1.98, 0.46], [-1.55, 0.12], [-2.18, -0.12], [-3.25, -0.12]], { depth: 0.26, material: 'bodyAlt' });
+        addProfile(group, [[-1.54, 0.12], [-1.1, 0.36], [0.96, 0.36], [1.22, 0.22], [1.22, -0.05], [0.82, -0.14], [-0.3, -0.14], [-0.55, -0.28], [-1.15, -0.28], [-1.33, -0.08], [-1.54, -0.02]], { depth: 0.38, material: 'body' });
+        addProfile(group, [[1.16, 0.24], [3.18, 0.24], [3.4, 0.18], [3.4, -0.05], [1.16, -0.05]], { depth: 0.32, material: spec.handguardMaterial || 'bodyAlt' });
+        addProfile(group, [[-0.44, -0.14], [0.12, -0.14], [0.3, -1.18], [-0.82, -1.18]], { depth: 0.22, material: spec.magMaterial || 'accent' });
+        addProfile(group, [[-1.08, -0.05], [-0.58, -0.05], [-0.34, -0.98], [-0.76, -0.98], [-1.02, -0.46]], { depth: 0.24, material: 'accent' });
+        group.add(createPiece({ kind: 'box', size: [3.18, 0.08, 0.18], pos: [1.0, 0.45, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.24, 0.2, 0.28], pos: [-0.18, 0.18, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 2.18, radius: spec.barrelRadius || 0.058, pos: [4.06 + ((spec.barrelLength || 2.18) - 2.18) / 2, 0.1, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.16, 0.22, 0.12], pos: [3.04, 0.28, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.32, 0.18, 0.32], pos: [0.2, 0.18, 0], material: 'detail' }));
+        if (spec.receiverPad) {
+          group.add(createPiece({ kind: 'box', size: [0.68, 0.16, 0.3], pos: [0.86, 0.18, 0], material: 'bodyAlt' }));
+        }
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildAKPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.18, 0.1], [-2.36, 0.44], [-1.52, 0.24], [-1.88, 0.02], [-2.44, -0.12], [-3.18, -0.12]], { depth: 0.24, material: 'bodyAlt' });
+        addProfile(group, [[-1.58, 0.18], [-0.74, 0.36], [0.86, 0.32], [1.1, 0.18], [1.24, 0.18], [1.28, -0.04], [0.9, -0.14], [-0.16, -0.16], [-0.54, -0.26], [-1.18, -0.26], [-1.38, -0.08], [-1.58, -0.02]], { depth: 0.36, material: 'body' });
+        addProfile(group, [[0.92, 0.18], [2.96, 0.18], [3.16, 0.12], [3.16, -0.08], [0.92, -0.08]], { depth: 0.28, material: 'bodyAlt' });
+        addProfile(group, [[0.74, 0.28], [2.34, 0.28], [2.46, 0.22], [2.46, 0.14], [0.74, 0.14]], { depth: 0.16, material: 'edge' });
+        addProfile(group, [[-0.62, -0.1], [-0.12, -0.12], [0.12, -0.36], [0.1, -1.06], [-0.58, -1.16], [-1.0, -0.92], [-0.92, -0.34]], { depth: 0.22, material: 'accent' });
+        addProfile(group, [[-1.16, -0.06], [-0.72, -0.06], [-0.4, -0.92], [-0.82, -0.92], [-1.08, -0.42]], { depth: 0.22, material: 'accent' });
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 2.22, radius: 0.058, pos: [4.0 + ((spec.barrelLength || 2.22) - 2.22) / 2, 0.08, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.26, 0.16, 0.28], pos: [1.54, 0.22, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.14, 0.26, 0.14], pos: [2.86, 0.22, 0], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildBullpupPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-2.96, 0.04], [-2.42, 0.38], [0.22, 0.38], [0.84, 0.52], [2.48, 0.42], [2.88, 0.28], [2.88, 0.06], [2.24, -0.08], [1.28, -0.08], [0.9, -0.2], [0.58, -0.38], [0.12, -0.38], [-0.16, -0.12], [-1.6, -0.12], [-1.88, -0.82], [-2.28, -0.82], [-2.14, -0.12], [-2.96, -0.12]], { depth: 0.36, material: 'body' });
+        addProfile(group, [[-0.72, -0.08], [-0.18, -0.08], [0.04, -1.04], [-0.64, -1.04]], { depth: 0.2, material: 'accent' });
+        addProfile(group, [[1.18, 0.52], [2.82, 0.52], [2.98, 0.46], [2.98, 0.34], [1.18, 0.34]], { depth: 0.16, material: 'edge' });
+        group.add(createPiece({ kind: 'box', size: [1.26, 0.3, 0.3], pos: [1.82, 0.12, 0], material: 'bodyAlt' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 2.04, radius: 0.052, pos: [4.06 + ((spec.barrelLength || 2.04) - 2.04) / 2, 0.14, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.18, 0.3, 0.12], pos: [0.26, 0.26, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildModernRiflePlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.06, 0.06], [-2.52, 0.44], [-1.78, 0.4], [-1.4, 0.12], [-1.84, 0.0], [-2.36, -0.08], [-3.06, -0.08]], { depth: 0.2, material: 'bodyAlt' });
+        addProfile(group, [[-1.5, 0.16], [-0.96, 0.38], [0.96, 0.38], [1.44, 0.28], [1.78, 0.28], [1.82, 0.04], [1.18, -0.08], [0.3, -0.1], [-0.1, -0.16], [-0.4, -0.3], [-1.12, -0.3], [-1.36, -0.08], [-1.5, 0.0]], { depth: 0.34, material: 'body' });
+        addProfile(group, [[1.44, 0.26], [3.28, 0.26], [3.48, 0.18], [3.48, -0.04], [1.44, -0.04]], { depth: 0.28, material: 'bodyAlt' });
+        addProfile(group, [[-0.38, -0.12], [0.18, -0.12], [0.36, -1.08], [-0.74, -1.08]], { depth: 0.2, material: 'accent' });
+        addProfile(group, [[-0.98, -0.08], [-0.56, -0.08], [-0.34, -0.94], [-0.76, -0.94], [-0.96, -0.46]], { depth: 0.22, material: 'accent' });
+        group.add(createPiece({ kind: 'box', size: [3.28, 0.08, 0.16], pos: [1.14, 0.48, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 2.16, radius: 0.056, pos: [4.12 + ((spec.barrelLength || 2.16) - 2.16) / 2, 0.12, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.22, 0.22, 0.3], pos: [0.12, 0.18, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildMarksmanPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.12, 0.08], [-2.48, 0.34], [-1.62, 0.32], [-1.18, 0.14], [-0.86, 0.18], [-0.74, 0.34], [-0.18, 0.34], [-0.08, 0.18], [0.82, 0.18], [1.28, 0.1], [1.28, -0.08], [0.84, -0.18], [-0.12, -0.18], [-0.52, -0.42], [-1.24, -0.42], [-1.52, -0.22], [-2.02, -0.18], [-2.36, -0.1], [-3.12, -0.1]], { depth: 0.28, material: 'bodyAlt' });
+        addProfile(group, [[-0.4, -0.16], [0.1, -0.16], [0.24, -1.08], [-0.64, -1.08]], { depth: 0.18, material: 'accent' });
+        addProfile(group, [[1.06, 0.18], [2.98, 0.18], [3.22, 0.12], [3.22, -0.02], [1.06, -0.02]], { depth: 0.24, material: 'body' });
+        group.add(createPiece({ kind: 'box', size: [1.84, 0.08, 0.18], pos: [1.02, 0.42, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 3.22, radius: 0.05, pos: [4.54 + ((spec.barrelLength || 3.22) - 3.22) / 2, 0.12, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.12, 0.36, 0.1], pos: [3.18, 0.24, 0], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildBoltSniperPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.34, 0.06], [-2.74, 0.42], [-1.84, 0.42], [-1.22, 0.18], [0.58, 0.18], [1.12, 0.34], [2.16, 0.34], [2.58, 0.28], [2.58, 0.14], [1.14, 0.14], [0.64, -0.04], [-0.12, -0.04], [-0.58, -0.14], [-0.84, -0.44], [-1.86, -0.44], [-2.42, -0.24], [-2.86, -0.18], [-3.34, -0.12]], { depth: 0.28, material: 'bodyAlt' });
+        addProfile(group, [[-0.44, -0.08], [0.02, -0.08], [0.2, -1.02], [-0.64, -1.02]], { depth: 0.18, material: 'accent' });
+        group.add(createPiece({ kind: 'box', size: [1.96, 0.08, 0.18], pos: [1.14, 0.46, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [1.26, 0.2, 0.28], pos: [1.2, 0.18, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 4.12, radius: spec.barrelRadius || 0.046, pos: [4.8 + ((spec.barrelLength || 4.12) - 4.12) / 2, 0.16, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.28, radius: 0.024, pos: [1.62, -0.04, 0], rot: [0, 0, -0.62], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildAntiMaterialPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.46, 0.06], [-2.92, 0.42], [-1.92, 0.42], [-1.22, 0.18], [0.74, 0.18], [1.42, 0.34], [2.76, 0.34], [3.08, 0.28], [3.08, 0.1], [1.46, 0.1], [0.94, -0.04], [0.04, -0.04], [-0.52, -0.12], [-0.88, -0.42], [-1.94, -0.42], [-2.72, -0.22], [-3.16, -0.18], [-3.46, -0.1]], { depth: 0.36, material: 'bodyAlt' });
+        addProfile(group, [[-0.36, -0.08], [0.16, -0.08], [0.42, -1.2], [-0.78, -1.2]], { depth: 0.22, material: 'accent' });
+        group.add(createPiece({ kind: 'box', size: [2.48, 0.1, 0.22], pos: [1.58, 0.5, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [1.56, 0.26, 0.36], pos: [1.3, 0.18, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'cylinder', length: 4.66, radius: 0.064, pos: [5.08 + ((4.66) - 4.66) / 2, 0.18, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.46, radiusTop: 0.12, radiusBottom: 0.16, pos: [7.44, 0.18, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.2, 0.44, 0.14], pos: [3.54, 0.28, 0], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildBeltFedPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-3.18, 0.06], [-2.52, 0.44], [-1.72, 0.42], [-1.22, 0.16], [0.18, 0.16], [0.64, 0.34], [1.54, 0.34], [1.92, 0.28], [1.92, 0.06], [1.18, -0.06], [0.52, -0.08], [0.18, -0.22], [-0.36, -0.22], [-0.68, -0.48], [-1.46, -0.48], [-1.86, -0.26], [-2.4, -0.18], [-3.18, -0.12]], { depth: 0.38, material: 'body' });
+        addProfile(group, [[-0.58, -0.1], [0.08, -0.1], [0.18, -1.16], [-0.84, -1.16]], { depth: 0.2, material: 'accent' });
+        addProfile(group, [[0.96, 0.18], [3.56, 0.18], [3.92, 0.12], [3.92, -0.08], [0.96, -0.08]], { depth: 0.3, material: 'bodyAlt' });
+        group.add(createPiece({ kind: 'box', size: [1.02, 0.76, 0.68], pos: [0.06, -0.62, 0], material: 'accent' }));
+        group.add(createPiece({ kind: 'box', size: [2.12, 0.08, 0.18], pos: [1.74, 0.44, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: spec.barrelLength || 2.74, radius: spec.barrelRadius || 0.072, pos: [4.98 + ((spec.barrelLength || 2.74) - 2.74) / 2, 0.12, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.78, radius: 0.028, pos: [2.22, -0.42, 0], rot: [0, 0, -0.56], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.78, radius: 0.028, pos: [2.52, -0.42, 0], rot: [0, 0, 0.56], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildHeavyMachineGunModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-2.46, 0.12], [-1.72, 0.62], [1.48, 0.62], [2.82, 0.54], [3.22, 0.34], [3.22, 0.08], [2.42, 0.02], [1.82, -0.12], [0.58, -0.12], [0.12, -0.22], [-0.62, -0.22], [-0.92, -0.48], [-1.84, -0.48], [-2.24, -0.22], [-2.46, -0.08]], { depth: 0.52, material: 'body' });
+        group.add(createPiece({ kind: 'box', size: [2.34, 0.1, 0.24], pos: [1.14, 0.78, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 4.86, radius: 0.11, pos: [5.26, 0.18, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.48, radiusTop: 0.14, radiusBottom: 0.2, pos: [7.74, 0.18, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.34, 0.76, 0.16], pos: [-2.22, -0.26, -0.12], material: 'accent' }));
+        group.add(createPiece({ kind: 'box', size: [0.34, 0.76, 0.16], pos: [-2.22, -0.26, 0.12], material: 'accent' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.26, radius: 0.04, pos: [-0.12, -0.72, 0], rot: [0, 0, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.18, radius: 0.04, pos: [-0.42, -0.52, 0], rot: [0, 0, -0.5], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.18, radius: 0.04, pos: [0.18, -0.52, 0], rot: [0, 0, 0.5], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildServicePistolModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-1.06, -0.12], [-0.46, -0.12], [0.08, -0.02], [0.48, -0.02], [1.52, -0.02], [1.86, 0.02], [1.86, 0.2], [1.28, 0.28], [0.22, 0.28], [-0.26, 0.22], [-0.62, 0.06], [-0.92, -0.02], [-1.06, -0.02]], { depth: 0.28, material: 'body' });
+        addProfile(group, [[-0.12, -0.04], [0.22, -0.04], [0.42, -1.04], [-0.28, -1.04], [-0.42, -0.42]], { depth: 0.24, material: 'accent' });
+        addProfile(group, [[-0.88, 0.12], [1.86, 0.12], [2.08, 0.16], [2.08, 0.44], [1.62, 0.52], [-0.22, 0.52], [-0.88, 0.44]], { depth: 0.28, material: 'bodyAlt' });
+        group.add(createPiece({ kind: 'cylinder', length: 0.44, radius: 0.05, pos: [2.22, 0.18, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.24, 0.1, 0.16], pos: [0.44, -0.02, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildHeavyPistolModel(spec) {
+        const group = buildServicePistolModel({ scale: [1.12, 1.14, 1.08] });
+        group.add(createPiece({ kind: 'box', size: [0.56, 0.12, 0.22], pos: [0.96, 0.58, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.58, radius: 0.075, pos: [2.42, 0.18, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildUziPlatformModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-1.84, 0.02], [-1.42, 0.44], [0.72, 0.44], [1.28, 0.38], [1.56, 0.28], [1.56, 0.02], [1.06, -0.06], [0.28, -0.06], [-0.18, -0.18], [-0.28, -0.42], [-0.82, -0.42], [-0.92, -0.14], [-1.84, -0.14]], { depth: 0.34, material: 'body' });
+        addProfile(group, [[-0.36, -0.04], [0.18, -0.04], [0.32, -1.16], [-0.34, -1.16]], { depth: 0.2, material: 'accent' });
+        addProfile(group, [[-0.72, -0.04], [-0.2, -0.04], [0.04, -1.08], [-0.48, -1.08]], { depth: 0.18, material: 'accent' });
+        group.add(createPiece({ kind: 'box', size: [1.92, 0.08, 0.18], pos: [0.42, 0.56, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.22, radius: 0.048, pos: [2.18, 0.14, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildSingleLauncherModel(spec) {
+        const group = new THREE.Group();
+        addProfile(group, [[-1.12, 0.12], [0.68, 0.12], [1.04, 0.16], [1.04, 0.34], [0.72, 0.42], [-1.12, 0.42]], { depth: 0.28, material: 'bodyAlt' });
+        addProfile(group, [[-0.22, 0.02], [0.18, 0.02], [0.36, -1.0], [-0.26, -1.0]], { depth: 0.22, material: 'accent' });
+        group.add(createPiece({ kind: 'cylinder', length: 2.46, radius: 0.14, pos: [1.26, 0.24, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'box', size: [0.42, 0.16, 0.2], pos: [0.18, 0.54, 0], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildTubeLauncherModel(spec) {
+        const group = new THREE.Group();
+        group.add(createPiece({ kind: 'cylinder', length: spec.tubeLength || 6.42, radius: spec.tubeRadius || 0.44, pos: [0.32, 0.2, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.34, radiusTop: spec.frontCap || 0.48, radiusBottom: spec.tubeRadius || 0.44, pos: [3.58, 0.2, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.4, radiusTop: spec.tubeRadius || 0.44, radiusBottom: spec.rearCap || 0.52, pos: [-2.94, 0.2, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.92, spec.sightHeight || 0.72, 0.62], pos: [-1.42, 0.62, 0], material: 'bodyAlt' }));
+        group.add(createPiece({ kind: 'box', size: [0.44, 1.08, 0.28], pos: [-0.36, -0.46, 0], material: 'accent' }));
+        group.add(createPiece({ kind: 'box', size: [0.54, 0.18, 0.26], pos: [-0.12, -0.68, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.38, 0.22, 0.36], pos: [1.82, 0.54, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildRpgPlatformModel(spec) {
+        const group = new THREE.Group();
+        group.add(createPiece({ kind: 'cylinder', length: 5.84, radius: 0.18, pos: [0.08, 0.16, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.12, radiusTop: 0.02, radiusBottom: 0.48, pos: [2.86, 0.28, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 0.72, radiusTop: 0.3, radiusBottom: 0.12, pos: [-2.82, 0.16, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.46, 0.98, 0.28], pos: [-0.42, -0.46, 0], material: 'accent' }));
+        group.add(createPiece({ kind: 'box', size: [0.62, 0.18, 0.26], pos: [-0.18, -0.7, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.3, 0.46, 0.26], pos: [0.82, 0.42, 0], material: 'bodyAlt' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildAtgmPlatformModel(spec) {
+        const group = new THREE.Group();
+        group.add(createPiece({ kind: 'box', size: [4.22, 0.82, 0.72], pos: [0.5, 0.24, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'cylinder', length: 2.62, radius: 0.22, pos: [3.84, 0.24, 0], material: 'bodyAlt' }));
+        group.add(createPiece({ kind: 'box', size: [1.02, 1.02, 0.72], pos: [-1.68, 0.66, 0], material: 'bodyAlt' }));
+        group.add(createPiece({ kind: 'box', size: [0.42, 1.18, 0.32], pos: [-0.4, -0.46, 0], material: 'accent' }));
+        group.add(createPiece({ kind: 'box', size: [0.66, 0.22, 0.28], pos: [-0.04, -0.72, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'box', size: [0.56, 0.22, 0.34], pos: [1.84, 0.72, 0], material: 'detail' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildAutoGrenadePlatformModel(spec) {
+        const group = new THREE.Group();
+        group.add(createPiece({ kind: 'box', size: [2.9, 0.8, 0.72], pos: [0.6, 0.22, 0], material: 'body' }));
+        group.add(createPiece({ kind: 'box', size: [1.26, 0.84, 0.66], pos: [-1.3, 0.1, 0], material: 'bodyAlt' }));
+        group.add(createPiece({ kind: 'cylinder', length: 2.88, radius: 0.12, pos: [3.42, 0.24, 0], material: 'detail' }));
+        group.add(createPiece({ kind: 'box', size: [0.56, 1.12, 0.42], pos: [-0.28, -0.52, 0], material: 'accent' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.22, radius: 0.04, pos: [0.18, -0.92, 0], rot: [0, 0, 0], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.08, radius: 0.04, pos: [-0.2, -0.68, 0], rot: [0, 0, -0.6], material: 'edge' }));
+        group.add(createPiece({ kind: 'cylinder', length: 1.08, radius: 0.04, pos: [0.56, -0.68, 0], rot: [0, 0, 0.6], material: 'edge' }));
+        return scaleModel(group, spec.scale);
+      }
+
+      function buildWeaponArtRoot(weapon) {
+        switch (modelKeyForWeapon(weapon)) {
+          case 'ar-carbine':
+            return buildARPlatformModel({ barrelLength: 2.06, scale: [1, 1, 1] });
+          case 'ar-rifle':
+            return buildARPlatformModel({ barrelLength: 2.42, scale: [1.06, 1.02, 1] });
+          case 'ar-precision':
+            return buildARPlatformModel({ barrelLength: 2.88, receiverPad: true, handguardMaterial: 'body', scale: [1.08, 1.06, 1] });
+          case 'rifle-ak':
+            return buildAKPlatformModel({ barrelLength: weapon.id === 'rpk-16' ? 2.78 : 2.24, scale: [weapon.id === 'rpk-16' ? 1.08 : 1, 1.02, 1] });
+          case 'rifle-bullpup':
+            return buildBullpupPlatformModel({ barrelLength: weapon.id === 'x95-micro-tavor' ? 1.72 : 2.12, scale: [weapon.id === 'x95-micro-tavor' ? 0.92 : 1, 1, 1] });
+          case 'rifle-modern':
+            return buildModernRiflePlatformModel({ barrelLength: weapon.id === 'galil-ace-52' ? 2.56 : 2.22, scale: [weapon.id === 'qbz-03' ? 0.98 : 1.02, 1.02, 1] });
+          case 'mg-saw':
+            return buildBeltFedPlatformModel({ barrelLength: 2.58, scale: [1.02, 1, 1] });
+          case 'mg-gpmg':
+            return buildBeltFedPlatformModel({ barrelLength: 2.92, barrelRadius: 0.078, scale: [1.12, 1.06, 1.02] });
+          case 'mg-rpk':
+            return buildAKPlatformModel({ barrelLength: 2.72, scale: [1.08, 1.06, 1] });
+          case 'mg-heavy':
+            return buildHeavyMachineGunModel({ scale: [1.12, 1.14, 1.06] });
+          case 'sniper-bolt':
+            return buildBoltSniperPlatformModel({ barrelLength: weapon.id === 'm24-sws' ? 3.82 : 4.12, scale: [weapon.id === 'sv-98' ? 1.02 : 1, 1.04, 1] });
+          case 'sniper-marksman':
+            return buildMarksmanPlatformModel({ barrelLength: 3.28, scale: [1.02, 1.02, 1] });
+          case 'sniper-antimaterial':
+            return buildAntiMaterialPlatformModel({ scale: [1.08, 1.08, 1.04] });
+          case 'pistol-service':
+            return buildServicePistolModel({ scale: [1, 1, 1] });
+          case 'pistol-heavy':
+            return buildHeavyPistolModel({ scale: [1.06, 1.08, 1.02] });
+          case 'smg-uzi':
+            return buildUziPlatformModel({ scale: [1.02, 1.02, 1] });
+          case 'launcher-single':
+            return buildSingleLauncherModel({ scale: [1.04, 1, 1] });
+          case 'launcher-rpg':
+            return buildRpgPlatformModel({ scale: [1.06, 1.02, 1] });
+          case 'launcher-manpads':
+            return buildTubeLauncherModel({ tubeLength: 6.72, tubeRadius: 0.38, sightHeight: 0.9, scale: [1.04, 1.06, 1] });
+          case 'launcher-atgm':
+            return buildAtgmPlatformModel({ scale: [1.08, 1.08, 1.04] });
+          case 'launcher-auto-grenade':
+            return buildAutoGrenadePlatformModel({ scale: [1.06, 1.08, 1.02] });
+          case 'launcher-tube':
+          default:
+            return buildTubeLauncherModel({ tubeLength: 6.38, tubeRadius: 0.42, sightHeight: 0.72, scale: [1, 1, 1] });
+        }
+      }
+
+      function weaponSvgStyleMarkup() {
+        return `
+          <style>
+            .weapon-floor-shadow { fill: rgba(0,0,0,.28); filter: blur(12px); }
+            .weapon-body-depth { fill: #25301f; stroke: #11160f; stroke-width: 3; stroke-linejoin: round; }
+            .weapon-body-top { fill: #687c5d; stroke: #1a2115; stroke-width: 3; stroke-linejoin: round; }
+            .weapon-body-edge { fill: #9eb28d; stroke: #22291c; stroke-width: 2.5; }
+            .weapon-body-accent { fill: #bf9f66; stroke: #4f4025; stroke-width: 2.5; }
+            .weapon-body-detail { fill: rgba(18,22,14,.94); stroke: rgba(18,22,14,.94); }
+            .module-body { fill: #d8b06c; }
+            .module-edge { fill: #f4d699; }
+            .module-dark { fill: #342b1d; }
+            .module-wire { stroke: #e3c98d; stroke-width: 4; stroke-linecap: round; fill: none; }
+          </style>
+        `;
+      }
+
+      function weaponSilhouetteMarkup(weapon) {
+        switch (modelKeyForWeapon(weapon)) {
+          case 'ar-carbine':
+          case 'ar-rifle':
+          case 'ar-precision':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="458" cy="334" rx="292" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M98 224 L150 214 L214 172 L292 172 L326 184 L502 184 L554 176 L666 176 L704 168 L746 168 L772 186 L748 202 L686 202 L646 210 L592 210 L556 222 L520 222 L492 236 L448 236 L422 314 L370 314 L354 246 L308 220 L214 220 L154 264 L114 264 Z"></path>
+              <path class="weapon-body-top" d="M96 204 L148 194 L212 154 L292 154 L328 166 L506 166 L560 158 L670 158 L708 150 L748 150 L776 170 L750 186 L688 186 L648 194 L596 194 L560 206 L524 206 L494 220 L450 220 L424 296 L374 296 L358 228 L312 204 L216 204 L156 248 L116 248 Z"></path>
+              <rect class="weapon-body-edge" x="300" y="148" width="260" height="18" rx="5"></rect>
+              <rect class="weapon-body-detail" x="238" y="178" width="76" height="24" rx="5"></rect>
+              <path class="weapon-body-accent" d="M360 226 L420 226 L448 322 L378 322 Z"></path>
+              <rect class="weapon-body-detail" x="564" y="166" width="118" height="14" rx="4"></rect>
+              <path class="weapon-body-detail" d="M156 206 L106 236" stroke-width="10" stroke-linecap="round" fill="none"></path>
+              <path class="weapon-body-detail" d="M694 184 L792 184" stroke-width="8" stroke-linecap="round" fill="none"></path>
+            `;
+          case 'rifle-ak':
+          case 'mg-rpk':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="452" cy="334" rx="286" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M100 226 L166 214 L222 174 L292 174 L338 188 L484 188 L542 178 L648 178 L688 170 L728 170 L748 186 L724 202 L662 202 L616 210 L560 210 L520 222 L492 222 L462 238 L430 238 L406 314 L356 314 L338 248 L286 222 L226 222 L168 264 L122 264 Z"></path>
+              <path class="weapon-body-top" d="M100 206 L166 194 L222 156 L292 156 L338 170 L486 170 L546 160 L650 160 L692 152 L730 152 L752 170 L726 186 L664 186 L618 194 L564 194 L522 206 L494 206 L466 222 L434 222 L410 296 L362 296 L342 230 L290 204 L228 204 L170 246 L124 246 Z"></path>
+              <rect class="weapon-body-edge" x="306" y="150" width="182" height="18" rx="5"></rect>
+              <path class="weapon-body-accent" d="M360 220 Q336 232 326 248 Q318 272 332 314 L404 314 Q388 236 360 220 Z"></path>
+              <rect class="weapon-body-detail" x="508" y="168" width="118" height="14" rx="4"></rect>
+              <path class="weapon-body-detail" d="M244 190 L516 190" stroke-width="8" stroke-linecap="round" fill="none"></path>
+              <path class="weapon-body-detail" d="M690 184 L790 184" stroke-width="8" stroke-linecap="round" fill="none"></path>
+            `;
+          case 'rifle-bullpup':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="454" cy="332" rx="248" ry="22"></ellipse>
+              <path class="weapon-body-depth" d="M160 226 L236 208 L290 168 L428 168 L490 180 L620 180 L682 170 L710 184 L692 200 L630 200 L594 212 L542 212 L492 240 L418 240 L390 314 L336 314 L324 242 L258 242 L194 268 L160 268 Z"></path>
+              <path class="weapon-body-top" d="M160 206 L236 190 L292 150 L430 150 L492 162 L622 162 L684 152 L714 168 L694 184 L632 184 L596 196 L544 196 L492 224 L422 224 L394 296 L342 296 L328 224 L262 224 L196 250 L162 250 Z"></path>
+              <rect class="weapon-body-edge" x="336" y="142" width="218" height="20" rx="6"></rect>
+              <rect class="weapon-body-detail" x="270" y="176" width="58" height="34" rx="7"></rect>
+              <path class="weapon-body-accent" d="M422 238 L470 238 L494 314 L430 314 Z"></path>
+              <rect class="weapon-body-detail" x="568" y="172" width="78" height="14" rx="4"></rect>
+            `;
+          case 'rifle-modern':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="458" cy="334" rx="282" ry="23"></ellipse>
+              <path class="weapon-body-depth" d="M102 224 L158 214 L216 174 L286 174 L324 186 L500 186 L560 174 L670 174 L706 166 L744 166 L768 184 L744 200 L684 200 L642 208 L590 208 L550 222 L512 222 L486 236 L440 236 L414 312 L362 312 L348 244 L302 220 L216 220 L156 262 L114 262 Z"></path>
+              <path class="weapon-body-top" d="M100 204 L156 194 L214 154 L286 154 L326 166 L504 166 L564 156 L674 156 L710 148 L746 148 L772 168 L746 184 L686 184 L644 192 L592 192 L552 206 L516 206 L488 220 L444 220 L418 294 L368 294 L352 228 L306 202 L218 202 L158 246 L116 246 Z"></path>
+              <rect class="weapon-body-edge" x="292" y="146" width="252" height="18" rx="5"></rect>
+              <rect class="weapon-body-detail" x="254" y="176" width="72" height="20" rx="5"></rect>
+              <path class="weapon-body-accent" d="M362 226 L418 226 L444 318 L374 318 Z"></path>
+              <rect class="weapon-body-detail" x="560" y="166" width="132" height="12" rx="4"></rect>
+            `;
+          case 'mg-saw':
+          case 'mg-gpmg':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="470" cy="338" rx="304" ry="26"></ellipse>
+              <path class="weapon-body-depth" d="M96 224 L160 214 L216 176 L288 176 L340 190 L544 190 L610 180 L722 180 L758 172 L796 172 L818 188 L794 204 L732 204 L688 212 L632 212 L590 226 L540 226 L508 242 L450 242 L422 318 L370 318 L358 246 L292 226 L216 226 L160 268 L118 268 Z"></path>
+              <path class="weapon-body-top" d="M96 204 L160 194 L216 158 L290 158 L342 172 L548 172 L614 162 L724 162 L762 154 L798 154 L822 172 L796 188 L734 188 L690 196 L634 196 L592 210 L544 210 L512 224 L454 224 L426 300 L374 300 L360 228 L296 208 L218 208 L162 250 L120 250 Z"></path>
+              <rect class="weapon-body-edge" x="316" y="148" width="232" height="18" rx="5"></rect>
+              <rect class="weapon-body-accent" x="360" y="226" width="104" height="70" rx="8"></rect>
+              <rect class="weapon-body-detail" x="576" y="170" width="110" height="14" rx="4"></rect>
+              <path class="weapon-body-detail" d="M528 244 L500 322 M574 244 L602 322" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'mg-heavy':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="462" cy="340" rx="274" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M138 218 L204 202 L254 162 L374 162 L458 178 L620 178 L684 170 L744 170 L768 184 L746 200 L692 200 L654 208 L598 208 L560 220 L512 220 L486 240 L422 240 L388 274 L300 274 L254 250 L208 250 L168 270 L138 270 Z"></path>
+              <path class="weapon-body-top" d="M138 198 L204 182 L256 144 L378 144 L462 160 L624 160 L688 152 L746 152 L770 168 L748 184 L694 184 L656 192 L600 192 L562 204 L514 204 L488 224 L426 224 L392 256 L304 256 L258 232 L210 232 L170 252 L138 252 Z"></path>
+              <rect class="weapon-body-edge" x="270" y="136" width="274" height="18" rx="6"></rect>
+              <rect class="weapon-body-detail" x="320" y="174" width="192" height="26" rx="6"></rect>
+              <path class="weapon-body-detail" d="M450 240 L410 332 M500 240 L542 332" stroke-width="8" stroke-linecap="round"></path>
+              <rect class="weapon-body-accent" x="250" y="256" width="58" height="34" rx="6"></rect>
+            `;
+          case 'sniper-bolt':
+          case 'sniper-marksman':
+          case 'sniper-antimaterial':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="470" cy="336" rx="308" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M90 228 L152 214 L220 178 L298 178 L346 190 L552 190 L620 176 L742 176 L794 168 L826 168 L842 182 L820 196 L760 196 L706 204 L646 204 L592 218 L530 218 L478 236 L422 236 L388 312 L334 312 L320 244 L270 224 L220 224 L160 266 L112 266 Z"></path>
+              <path class="weapon-body-top" d="M88 208 L150 194 L218 158 L300 158 L348 170 L556 170 L624 156 L744 156 L798 148 L828 148 L846 164 L822 178 L762 178 L708 186 L648 186 L594 200 L534 200 L482 218 L426 218 L392 294 L340 294 L324 226 L274 206 L222 206 L162 248 L114 248 Z"></path>
+              <rect class="weapon-body-edge" x="338" y="140" width="248" height="20" rx="6"></rect>
+              <path class="weapon-body-accent" d="M364 226 L420 226 L446 318 L374 318 Z"></path>
+              <path class="weapon-body-detail" d="M514 240 L486 318 M556 240 L586 318" stroke-width="7" stroke-linecap="round"></path>
+              <rect class="weapon-body-detail" x="420" y="168" width="74" height="18" rx="4"></rect>
+            `;
+          case 'pistol-service':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="450" cy="332" rx="156" ry="20"></ellipse>
+              <path class="weapon-body-depth" d="M240 236 L410 236 L504 220 L642 220 L664 234 L620 234 L594 246 L536 246 L506 260 L480 320 L416 320 L386 256 L324 244 L240 244 Z"></path>
+              <path class="weapon-body-top" d="M240 214 L412 214 L506 196 L646 196 L670 212 L624 212 L598 224 L540 224 L508 238 L484 300 L422 300 L390 236 L326 222 L240 222 Z"></path>
+              <rect class="weapon-body-edge" x="336" y="186" width="250" height="18" rx="4"></rect>
+              <path class="weapon-body-accent" d="M404 238 L454 238 L480 320 L420 320 Z"></path>
+              <path class="weapon-body-detail" d="M462 222 Q486 244 510 222" stroke-width="9" stroke-linecap="round" fill="none"></path>
+              <rect class="weapon-body-detail" x="530" y="214" width="72" height="10" rx="3"></rect>
+            `;
+          case 'pistol-heavy':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="454" cy="334" rx="170" ry="22"></ellipse>
+              <path class="weapon-body-depth" d="M228 240 L416 240 L538 218 L704 218 L724 234 L652 234 L616 248 L560 248 L522 266 L494 326 L430 326 L394 258 L328 246 L228 246 Z"></path>
+              <path class="weapon-body-top" d="M228 216 L418 216 L540 192 L708 192 L730 208 L656 208 L620 222 L564 222 L524 240 L498 306 L436 306 L398 238 L330 224 L228 224 Z"></path>
+              <rect class="weapon-body-edge" x="330" y="184" width="300" height="20" rx="4"></rect>
+              <path class="weapon-body-accent" d="M410 242 L464 242 L494 326 L430 326 Z"></path>
+              <rect class="weapon-body-detail" x="600" y="200" width="90" height="12" rx="4"></rect>
+              <path class="weapon-body-detail" d="M476 226 Q502 250 530 226" stroke-width="10" stroke-linecap="round" fill="none"></path>
+            `;
+          case 'smg-uzi':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="446" cy="332" rx="208" ry="22"></ellipse>
+              <path class="weapon-body-depth" d="M184 226 L252 212 L304 176 L484 176 L554 186 L642 186 L666 200 L640 214 L586 214 L552 226 L506 226 L470 242 L438 312 L384 312 L376 246 L326 226 L254 226 L206 264 L184 264 Z"></path>
+              <path class="weapon-body-top" d="M184 206 L252 192 L304 156 L488 156 L558 166 L646 166 L670 182 L642 196 L588 196 L554 208 L510 208 L474 224 L444 294 L390 294 L380 228 L330 206 L256 206 L208 246 L184 246 Z"></path>
+              <rect class="weapon-body-edge" x="332" y="148" width="164" height="20" rx="5"></rect>
+              <path class="weapon-body-accent" d="M404 228 L446 228 L466 312 L414 312 Z"></path>
+              <rect class="weapon-body-detail" x="360" y="172" width="88" height="20" rx="5"></rect>
+            `;
+          case 'launcher-single':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="450" cy="334" rx="214" ry="22"></ellipse>
+              <path class="weapon-body-depth" d="M202 226 L286 226 L352 188 L566 188 L618 178 L654 178 L672 192 L650 206 L598 206 L556 216 L492 216 L456 232 L420 314 L370 314 L352 246 L288 246 L238 268 L202 268 Z"></path>
+              <path class="weapon-body-top" d="M202 206 L286 206 L352 168 L568 168 L620 158 L656 158 L676 174 L652 188 L600 188 L558 198 L494 198 L458 214 L424 296 L374 296 L356 228 L292 228 L240 250 L202 250 Z"></path>
+              <rect class="weapon-body-edge" x="348" y="160" width="172" height="16" rx="5"></rect>
+              <rect class="weapon-body-detail" x="286" y="226" width="64" height="18" rx="5"></rect>
+            `;
+          case 'launcher-tube':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="448" cy="334" rx="256" ry="22"></ellipse>
+              <rect class="weapon-body-depth" x="170" y="166" width="542" height="82" rx="34"></rect>
+              <rect class="weapon-body-top" x="170" y="148" width="542" height="82" rx="34"></rect>
+              <rect class="weapon-body-edge" x="204" y="164" width="180" height="16" rx="6"></rect>
+              <rect class="weapon-body-detail" x="592" y="176" width="62" height="24" rx="8"></rect>
+              <path class="weapon-body-accent" d="M314 228 L370 228 L412 306 L354 306 Z"></path>
+            `;
+          case 'launcher-rpg':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="448" cy="334" rx="252" ry="22"></ellipse>
+              <rect class="weapon-body-depth" x="186" y="176" width="432" height="52" rx="22"></rect>
+              <rect class="weapon-body-top" x="186" y="160" width="432" height="52" rx="22"></rect>
+              <path class="weapon-body-accent" d="M618 146 L690 168 L690 204 L618 226 Z"></path>
+              <rect class="weapon-body-edge" x="372" y="150" width="92" height="16" rx="5"></rect>
+              <rect class="weapon-body-detail" x="294" y="228" width="82" height="18" rx="5"></rect>
+            `;
+          case 'launcher-atgm':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="452" cy="338" rx="262" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M152 230 L246 218 L312 176 L464 176 L560 188 L662 188 L710 176 L742 190 L724 206 L668 206 L626 218 L566 218 L510 242 L454 242 L426 314 L378 314 L360 250 L300 250 L222 274 L152 274 Z"></path>
+              <path class="weapon-body-top" d="M152 208 L246 196 L312 154 L468 154 L564 166 L666 166 L714 154 L748 170 L728 186 L672 186 L630 198 L570 198 L514 222 L458 222 L430 296 L382 296 L364 230 L304 230 L226 254 L152 254 Z"></path>
+              <rect class="weapon-body-edge" x="244" y="140" width="128" height="22" rx="6"></rect>
+              <rect class="weapon-body-detail" x="370" y="176" width="158" height="24" rx="6"></rect>
+              <path class="weapon-body-detail" d="M486 242 L462 316 M528 242 L552 316" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'launcher-auto-grenade':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="456" cy="338" rx="272" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M144 228 L224 216 L290 176 L472 176 L566 188 L672 188 L714 178 L746 192 L724 208 L666 208 L626 220 L572 220 L530 236 L466 236 L436 314 L388 314 L370 250 L304 228 L224 228 L170 270 L144 270 Z"></path>
+              <path class="weapon-body-top" d="M144 208 L224 196 L290 156 L476 156 L570 168 L676 168 L718 158 L750 174 L726 190 L670 190 L630 202 L576 202 L534 218 L470 218 L440 296 L392 296 L374 230 L308 208 L226 208 L172 250 L144 250 Z"></path>
+              <rect class="weapon-body-edge" x="250" y="142" width="124" height="20" rx="6"></rect>
+              <rect class="weapon-body-accent" x="372" y="224" width="84" height="70" rx="8"></rect>
+              <path class="weapon-body-detail" d="M504 240 L480 320 M544 240 L568 320" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'launcher-manpads':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="450" cy="336" rx="250" ry="22"></ellipse>
+              <rect class="weapon-body-depth" x="170" y="162" width="538" height="78" rx="32"></rect>
+              <rect class="weapon-body-top" x="170" y="144" width="538" height="78" rx="32"></rect>
+              <rect class="weapon-body-edge" x="198" y="160" width="168" height="16" rx="6"></rect>
+              <rect class="weapon-body-detail" x="282" y="110" width="78" height="42" rx="10"></rect>
+              <path class="weapon-body-accent" d="M314 226 L372 226 L412 304 L350 304 Z"></path>
+              <rect class="weapon-body-detail" x="610" y="174" width="52" height="24" rx="8"></rect>
+            `;
+          default:
+            return baseWeaponMarkup(weapon.cat);
+        }
+      }
+
+      function weaponVariantMarkup(weapon) {
+        switch (modelKeyForWeapon(weapon)) {
+          case 'ar-carbine':
+          case 'ar-rifle':
+          case 'ar-precision':
+            return `
+              <rect class="weapon-body-detail" x="246" y="170" width="112" height="20" rx="4"></rect>
+              <rect class="weapon-body-edge" x="506" y="166" width="118" height="14" rx="4"></rect>
+              <rect class="weapon-body-detail" x="628" y="176" width="84" height="10" rx="3"></rect>
+              <path class="weapon-body-detail" d="M260 214 L246 286"></path>
+              <path class="weapon-body-detail" d="M328 206 L344 286"></path>
+            `;
+          case 'rifle-ak':
+          case 'mg-rpk':
+            return `
+              <rect class="weapon-body-detail" x="300" y="172" width="124" height="18" rx="5"></rect>
+              <path class="weapon-body-detail" d="M398 200 Q356 212 332 222 Q314 242 326 286" stroke-width="10" stroke-linecap="round" fill="none"></path>
+              <rect class="weapon-body-edge" x="508" y="170" width="102" height="12" rx="4"></rect>
+            `;
+          case 'rifle-bullpup':
+            return `
+              <rect class="weapon-body-edge" x="374" y="148" width="170" height="18" rx="5"></rect>
+              <rect class="weapon-body-detail" x="548" y="176" width="84" height="16" rx="4"></rect>
+              <rect class="weapon-body-detail" x="256" y="178" width="54" height="32" rx="6"></rect>
+            `;
+          case 'rifle-modern':
+            return `
+              <rect class="weapon-body-edge" x="332" y="150" width="206" height="16" rx="4"></rect>
+              <rect class="weapon-body-detail" x="278" y="176" width="70" height="16" rx="4"></rect>
+              <rect class="weapon-body-detail" x="544" y="178" width="126" height="10" rx="3"></rect>
+            `;
+          case 'mg-saw':
+          case 'mg-gpmg':
+            return `
+              <rect class="weapon-body-detail" x="326" y="164" width="160" height="18" rx="4"></rect>
+              <rect class="weapon-body-accent" x="364" y="212" width="94" height="62" rx="8"></rect>
+              <path class="weapon-body-detail" d="M500 246 L480 312 M548 246 L568 312" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'mg-heavy':
+            return `
+              <rect class="weapon-body-edge" x="274" y="138" width="260" height="18" rx="5"></rect>
+              <rect class="weapon-body-detail" x="318" y="176" width="188" height="24" rx="5"></rect>
+              <path class="weapon-body-detail" d="M460 238 L444 316 M500 238 L516 316" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'sniper-bolt':
+          case 'sniper-marksman':
+          case 'sniper-antimaterial':
+            return `
+              <rect class="weapon-body-edge" x="350" y="138" width="226" height="20" rx="6"></rect>
+              <rect class="weapon-body-detail" x="420" y="170" width="70" height="18" rx="4"></rect>
+              <path class="weapon-body-detail" d="M500 242 L474 308 M540 242 L566 308" stroke-width="7" stroke-linecap="round"></path>
+            `;
+          case 'pistol-service':
+          case 'pistol-heavy':
+            return `
+              <rect class="weapon-body-edge" x="360" y="148" width="190" height="12" rx="3"></rect>
+              <path class="weapon-body-detail" d="M520 186 L652 186" stroke-width="8" stroke-linecap="round"></path>
+              <rect class="weapon-body-detail" x="400" y="208" width="44" height="16" rx="4"></rect>
+            `;
+          case 'smg-uzi':
+            return `
+              <rect class="weapon-body-edge" x="338" y="152" width="154" height="18" rx="4"></rect>
+              <rect class="weapon-body-detail" x="360" y="174" width="84" height="18" rx="5"></rect>
+              <path class="weapon-body-detail" d="M430 206 L430 278" stroke-width="10" stroke-linecap="round"></path>
+            `;
+          case 'launcher-single':
+          case 'launcher-tube':
+          case 'launcher-manpads':
+            return `
+              <rect class="weapon-body-edge" x="224" y="156" width="164" height="14" rx="5"></rect>
+              <rect class="weapon-body-detail" x="590" y="170" width="58" height="22" rx="7"></rect>
+              <rect class="weapon-body-detail" x="300" y="228" width="74" height="18" rx="5"></rect>
+            `;
+          case 'launcher-rpg':
+            return `
+              <circle class="weapon-body-accent" cx="694" cy="184" r="42"></circle>
+              <rect class="weapon-body-detail" x="292" y="222" width="86" height="18" rx="6"></rect>
+              <rect class="weapon-body-edge" x="372" y="154" width="84" height="14" rx="4"></rect>
+            `;
+          case 'launcher-atgm':
+          case 'launcher-auto-grenade':
+            return `
+              <rect class="weapon-body-edge" x="244" y="144" width="122" height="20" rx="6"></rect>
+              <rect class="weapon-body-detail" x="368" y="174" width="152" height="22" rx="6"></rect>
+              <path class="weapon-body-detail" d="M478 236 L460 302 M522 236 L540 302" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          default:
+            return '';
+        }
+      }
+
+      function renderWeaponSvgDataUrl(weapon, attachmentList) {
+        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(renderWeaponSvg(weapon, attachmentList))}`;
+      }
+
+      function renderAttachmentReferenceSvgDataUrl(attachment) {
+        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+          <svg viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            ${weaponSvgStyleMarkup()}
+            <rect x="10" y="10" width="160" height="120" rx="16" fill="rgba(17,21,14,.86)" stroke="rgba(164,184,122,.16)" />
+            <ellipse class="weapon-floor-shadow" cx="90" cy="112" rx="44" ry="8"></ellipse>
+            ${moduleMarkup(attachment.style, [90, 72, 1.28])}
+          </svg>
+        `)}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatWikiPath(title) {
+        return encodeURIComponent(String(title || '').replace(/ /g, '_'));
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url, {
+          headers: { Accept: 'application/json' },
+          mode: 'cors'
+        });
+        if (!response.ok) {
+          throw new Error(`Media lookup failed with ${response.status}`);
+        }
+        return response.json();
+      }
+
+      async function searchWikipediaTitle(query) {
+        const payload = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=1&utf8=1&format=json&origin=*`);
+        return payload && payload.query && payload.query.search && payload.query.search[0] ? payload.query.search[0].title : null;
+      }
+
+      async function fetchWikidataId(pageTitle) {
+        const payload = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&titles=${encodeURIComponent(pageTitle)}&redirects=1&format=json&origin=*`);
+        const page = payload && payload.query && payload.query.pages ? Object.values(payload.query.pages)[0] : null;
+        return page && page.pageprops ? page.pageprops.wikibase_item : null;
+      }
+
+      async function fetchCommonsImageName(entityId) {
+        const payload = await fetchJson(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${encodeURIComponent(entityId)}&props=claims&format=json&origin=*`);
+        const claims = payload && payload.entities && payload.entities[entityId] ? payload.entities[entityId].claims : null;
+        const imageClaim = claims && claims.P18 && claims.P18[0] ? claims.P18[0] : null;
+        return imageClaim && imageClaim.mainsnak && imageClaim.mainsnak.datavalue ? imageClaim.mainsnak.datavalue.value : null;
+      }
+
+      async function fetchCommonsImageInfo(fileName, width) {
+        const payload = await fetchJson(`https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(`File:${fileName}`)}&prop=imageinfo&iiprop=url&iiurlwidth=${width}&format=json&origin=*`);
+        const page = payload && payload.query && payload.query.pages ? Object.values(payload.query.pages)[0] : null;
+        return page && page.imageinfo && page.imageinfo[0] ? page.imageinfo[0] : null;
+      }
+
+      function weaponImageQuery(weapon) {
+        return WEAPON_IMAGE_SEARCH_OVERRIDES[weapon.id] || weapon.name.replace(/\s*\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' ');
+      }
+
+      function attachmentImageQuery(attachment) {
+        return ATTACHMENT_IMAGE_SEARCH[attachment.style] || attachment.label;
+      }
+
+      async function resolveMediaAsset(key, query, width) {
+        const cacheKey = `${key}::${query}::${width}`;
+        if (!mediaCache.has(cacheKey)) {
+          mediaCache.set(cacheKey, (async () => {
+            const pageTitle = await searchWikipediaTitle(query);
+            if (!pageTitle) return null;
+            const entityId = await fetchWikidataId(pageTitle);
+            if (!entityId) return null;
+            const fileName = await fetchCommonsImageName(entityId);
+            if (!fileName) return null;
+            const imageInfo = await fetchCommonsImageInfo(fileName, width);
+            if (!imageInfo || (!imageInfo.thumburl && !imageInfo.url)) return null;
+            return {
+              pageTitle,
+              pageUrl: `https://en.wikipedia.org/wiki/${formatWikiPath(pageTitle)}`,
+              fileName,
+              imageUrl: imageInfo.thumburl || imageInfo.url,
+              sourceUrl: imageInfo.descriptionurl || `https://commons.wikimedia.org/wiki/${formatWikiPath(`File:${fileName}`)}`
+            };
+          })().catch(() => null));
+        }
+        return mediaCache.get(cacheKey);
+      }
+
+      function setStageSourceLink(media) {
+        if (!media) {
+          armoryImageSource.textContent = 'Stock Source Unavailable';
+          armoryImageSource.href = '#';
+          armoryImageSource.setAttribute('aria-disabled', 'true');
+          return;
+        }
+        armoryImageSource.textContent = 'Open Stock Source';
+        armoryImageSource.href = media.sourceUrl;
+        armoryImageSource.removeAttribute('aria-disabled');
+      }
+
+      function renderAttachmentReferenceGrid(weapon) {
+        const attachments = selectedAttachments(weapon);
+        if (!attachments.length) {
+          armoryAttachmentReferenceGrid.innerHTML = '<div class="armory-reference-empty">Select a preset or slot option to load attachment reference images for the current weapon.</div>';
+          return;
+        }
+
+        const token = ++attachmentRenderToken;
+        armoryAttachmentReferenceGrid.innerHTML = attachments.map((attachment, index) => `
+          <article class="armory-reference-card">
+            <div class="armory-reference-figure">
+              <img src="${renderAttachmentReferenceSvgDataUrl(attachment)}" alt="${escapeHtml(attachment.label)} reference image" data-attachment-image="${index}">
+            </div>
+            <div>
+              <span>${escapeHtml(SLOT_LABELS[attachment.slot] || attachment.slot)}</span>
+              <strong>${escapeHtml(attachment.label)}</strong>
+            </div>
+            <p>${escapeHtml(attachment.description)}</p>
+            <a class="armory-reference-source" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true" data-attachment-source="${index}">Web Source Pending</a>
+          </article>
+        `).join('');
+
+        attachments.forEach(async (attachment, index) => {
+          const media = await resolveMediaAsset(`attachment:${attachment.id}`, attachmentImageQuery(attachment), 480);
+          if (token !== attachmentRenderToken || !media) return;
+          const image = armoryAttachmentReferenceGrid.querySelector(`[data-attachment-image="${index}"]`);
+          const source = armoryAttachmentReferenceGrid.querySelector(`[data-attachment-source="${index}"]`);
+          if (image) {
+            image.src = media.imageUrl;
+            image.alt = `${attachment.label} reference image from ${media.pageTitle}`;
+          }
+          if (source) {
+            source.href = media.sourceUrl;
+            source.textContent = 'Open Web Source';
+            source.removeAttribute('aria-disabled');
+          }
+        });
+      }
+
+      async function renderStageReference(weapon) {
+        const token = ++stageRenderToken;
+        const attachments = selectedAttachments(weapon);
+        armoryStageImage.classList.add('is-hidden');
+        armoryStageFallback.classList.add('active');
+        armoryStageFallback.innerHTML = renderWeaponSvg(weapon, []);
+        armoryStageImage.alt = '';
+        armoryStageCaption.textContent = `${weapon.name} // loading stock reference image // ${attachments.length} selected attachment ${attachments.length === 1 ? 'reference' : 'references'} below`;
+        armoryStageSourceNote.textContent = 'Searching Wikimedia-backed sources for a stock weapon photo.';
+        setStageSourceLink(null);
+
+        const media = await resolveMediaAsset(`weapon:${weapon.id}`, weaponImageQuery(weapon), 1280);
+        if (token !== stageRenderToken) return;
+
+        if (!media) {
+          armoryStageCaption.textContent = `${weapon.name} // stock web image unavailable // showing local reference plate with web attachment lookups below`;
+          armoryStageSourceNote.textContent = 'No stock web image resolved for this platform. The local reference plate stays active while attachment images still load from the web.';
+          return;
+        }
+
+        armoryStageImage.src = media.imageUrl;
+        armoryStageImage.alt = `${weapon.name} stock reference image from ${media.pageTitle}`;
+        armoryStageImage.classList.remove('is-hidden');
+        armoryStageFallback.classList.remove('active');
+        armoryStageCaption.textContent = `${weapon.name} // stock reference image matched to ${media.pageTitle} // ${attachments.length} selected attachment ${attachments.length === 1 ? 'reference' : 'references'} below`;
+        armoryStageSourceNote.innerHTML = `Matched source page <a href="${media.pageUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(media.pageTitle)}</a> with Commons file ${escapeHtml(media.fileName)}.`;
+        setStageSourceLink(media);
+      }
+
+      function applyWeaponTexture(material, weapon) {
+        const image = new Image();
+        image.decoding = 'async';
+        image.onload = () => {
+          const texture = new THREE.Texture(image);
+          texture.needsUpdate = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.anisotropy = 8;
+          if (material.map) {
+            material.map.dispose();
+          }
+          material.map = texture;
+          material.needsUpdate = true;
+        };
+        image.src = renderWeaponSvgDataUrl(weapon);
+      }
+
+      function buildIllustratedWeaponPlate(weapon) {
+        const group = new THREE.Group();
+        const shadowMaterial = new THREE.MeshStandardMaterial({ color: 0x0b0d09, transparent: true, opacity: 0.22, side: THREE.DoubleSide });
+        const plateMaterial = new THREE.MeshStandardMaterial({ color: 0x171d13, metalness: 0.12, roughness: 0.86 });
+        const frontMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, alphaTest: 0.14, metalness: 0.04, roughness: 0.82, side: THREE.DoubleSide });
+        const backMaterial = new THREE.MeshStandardMaterial({ color: 0xe3e4dc, transparent: true, alphaTest: 0.14, opacity: 0.24, metalness: 0.04, roughness: 0.88, side: THREE.DoubleSide });
+        frontMaterial.userData = { disposeMap: true, disposeSelf: true };
+        backMaterial.userData = { disposeMap: true, disposeSelf: true };
+        shadowMaterial.userData = { disposeSelf: true };
+        plateMaterial.userData = { disposeSelf: true };
+
+        const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.6, 4.1), shadowMaterial);
+        shadowPlane.position.set(0.18, -0.18, -0.12);
+        shadowPlane.rotation.z = -0.02;
+        group.add(shadowPlane);
+
+        const backingPlate = new THREE.Mesh(new THREE.BoxGeometry(8.78, 4.2, 0.08), plateMaterial);
+        backingPlate.position.set(0, 0.12, -0.03);
+        group.add(backingPlate);
+
+        const rearPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.58, 4.04), backMaterial);
+        rearPlane.position.set(0, 0.12, -0.08);
+        group.add(rearPlane);
+
+        const frontPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.58, 4.04), frontMaterial);
+        frontPlane.position.set(0, 0.12, 0.02);
+        group.add(frontPlane);
+
+        applyWeaponTexture(frontMaterial, weapon);
+        applyWeaponTexture(backMaterial, weapon);
+        return group;
+      }
+
+      function addPieces(group, pieces) {
+        pieces.forEach((piece) => group.add(createPiece(piece)));
+      }
+
+      function createAttachmentMesh(attachment) {
+        const group = new THREE.Group();
+        switch (attachment.style) {
+          case 'optic-acog':
+            addPieces(group, [
+              { kind: 'box', size: [0.56, 0.2, 0.24], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.22, 0.12, 0.18], pos: [0, 0.13, 0], material: 'glass' },
+              { kind: 'box', size: [0.32, 0.08, 0.2], pos: [0, -0.14, 0], material: 'detail' }
+            ]);
+            break;
+          case 'optic-lpvo':
+          case 'optic-scope':
+            addPieces(group, [
+              { kind: 'cylinder', length: attachment.style === 'optic-scope' ? 1.24 : 0.96, radius: attachment.style === 'optic-scope' ? 0.13 : 0.1, pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.26, 0.34, 0.24], pos: [0, 0, 0], material: 'moduleEdge' },
+              { kind: 'box', size: [0.5, 0.08, 0.22], pos: [0, -0.16, 0], material: 'detail' }
+            ]);
+            break;
+          case 'optic-dot':
+          case 'optic-mini':
+            addPieces(group, [
+              { kind: 'box', size: [0.32, 0.18, 0.22], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.14, 0.12, 0.18], pos: [0, 0.1, 0], material: 'glass' },
+              { kind: 'box', size: [0.2, 0.06, 0.18], pos: [0, -0.12, 0], material: 'detail' }
+            ]);
+            break;
+          case 'optic-launch':
+          case 'optic-iff':
+            addPieces(group, [
+              { kind: 'box', size: [0.46, 0.32, 0.26], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.18, 0.12, 0.18], pos: [0, 0.14, 0], material: 'glass' },
+              { kind: 'box', size: [0.22, 0.1, 0.16], pos: [0, -0.16, 0], material: 'detail' }
+            ]);
+            break;
+          case 'muzzle-flash':
+            addPieces(group, [{ kind: 'cylinder', length: 0.34, radius: 0.05, pos: [0, 0, 0], material: 'moduleEdge' }]);
+            break;
+          case 'muzzle-suppressor':
+            addPieces(group, [{ kind: 'cylinder', length: 0.82, radius: 0.09, pos: [0, 0, 0], material: 'module' }]);
+            break;
+          case 'muzzle-comp':
+          case 'muzzle-brake':
+            addPieces(group, [
+              { kind: 'cylinder', length: 0.42, radius: 0.065, pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.08, 0.04, 0.16], pos: [-0.08, 0.08, 0], material: 'detail' },
+              { kind: 'box', size: [0.08, 0.04, 0.16], pos: [0.08, 0.08, 0], material: 'detail' }
+            ]);
+            break;
+          case 'aiming-peq':
+          case 'aiming-dbal':
+          case 'aiming-pistol':
+            addPieces(group, [
+              { kind: 'box', size: [0.32, 0.18, 0.22], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.12, 0.08, 0.2], pos: [0, -0.1, 0], material: 'detail' }
+            ]);
+            break;
+          case 'light-scout':
+          case 'light-compact':
+          case 'light-pistol':
+          case 'light-flood':
+            addPieces(group, [
+              { kind: 'box', size: [0.28, 0.16, 0.18], pos: [-0.06, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.18, radius: attachment.style === 'light-flood' ? 0.1 : 0.08, pos: [0.14, 0, 0], material: 'glass' }
+            ]);
+            break;
+          case 'support-handstop':
+            addPieces(group, [{ kind: 'box', size: [0.12, 0.36, 0.14], pos: [0, -0.08, 0], material: 'moduleEdge' }]);
+            break;
+          case 'support-bipod':
+            addPieces(group, [
+              { kind: 'box', size: [0.22, 0.08, 0.18], pos: [0, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.56, radius: 0.02, pos: [-0.12, -0.22, 0], rot: [0, 0, -0.34], material: 'moduleEdge' },
+              { kind: 'cylinder', length: 0.56, radius: 0.02, pos: [0.12, -0.22, 0], rot: [0, 0, 0.34], material: 'moduleEdge' }
+            ]);
+            break;
+          case 'support-tripod':
+            addPieces(group, [
+              { kind: 'box', size: [0.18, 0.1, 0.18], pos: [0, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.7, radius: 0.022, pos: [0, -0.26, 0], rot: [0, 0, 0], material: 'moduleEdge' },
+              { kind: 'cylinder', length: 0.7, radius: 0.022, pos: [-0.2, -0.22, 0], rot: [0, 0, -0.46], material: 'moduleEdge' },
+              { kind: 'cylinder', length: 0.7, radius: 0.022, pos: [0.2, -0.22, 0], rot: [0, 0, 0.46], material: 'moduleEdge' }
+            ]);
+            break;
+          case 'support-brace':
+            addPieces(group, [
+              { kind: 'box', size: [0.14, 0.42, 0.16], pos: [0, -0.02, 0], material: 'module' },
+              { kind: 'box', size: [0.42, 0.08, 0.14], pos: [0, -0.18, 0], material: 'moduleEdge' }
+            ]);
+            break;
+          case 'carry-sling':
+          case 'carry-harness':
+            addPieces(group, [
+              { kind: 'torus', radius: attachment.style === 'carry-harness' ? 0.42 : 0.34, tube: 0.03, arc: Math.PI * 1.2, pos: [0, 0, 0], rot: [0, Math.PI / 2, 0], material: 'strap' }
+            ]);
+            break;
+          case 'carry-holster':
+            addPieces(group, [
+              { kind: 'box', size: [0.42, 0.58, 0.18], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.18, 0.12, 0.16], pos: [-0.12, 0.24, 0], material: 'detail' }
+            ]);
+            break;
+          case 'carry-hardcase':
+            addPieces(group, [
+              { kind: 'box', size: [0.76, 0.36, 0.32], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.18, 0.08, 0.14], pos: [0, 0.22, 0], material: 'detail' }
+            ]);
+            break;
+          case 'obs-thermal':
+            addPieces(group, [
+              { kind: 'box', size: [0.34, 0.28, 0.24], pos: [-0.05, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.16, radius: 0.1, pos: [0.18, 0, 0], material: 'glass' }
+            ]);
+            break;
+          case 'obs-rangefinder':
+            addPieces(group, [
+              { kind: 'box', size: [0.32, 0.2, 0.18], pos: [0, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.12, radius: 0.05, pos: [-0.08, 0.04, 0], material: 'glass' },
+              { kind: 'cylinder', length: 0.12, radius: 0.05, pos: [0.08, 0.04, 0], material: 'glass' }
+            ]);
+            break;
+          case 'obs-binocular':
+            addPieces(group, [
+              { kind: 'cylinder', length: 0.22, radius: 0.09, pos: [-0.1, 0, 0], material: 'module' },
+              { kind: 'cylinder', length: 0.22, radius: 0.09, pos: [0.1, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.24, 0.12, 0.12], pos: [0, 0.08, 0], material: 'moduleEdge' }
+            ]);
+            break;
+          case 'obs-power':
+            addPieces(group, [
+              { kind: 'box', size: [0.22, 0.44, 0.2], pos: [0, 0, 0], material: 'module' },
+              { kind: 'box', size: [0.14, 0.08, 0.14], pos: [0, 0.28, 0], material: 'detail' }
+            ]);
+            break;
+          default:
+            addPieces(group, [{ kind: 'box', size: [0.24, 0.18, 0.18], pos: [0, 0, 0], material: 'module' }]);
+        }
+        return group;
+      }
+
+      function resetViewerPose(target, silent) {
+        const category = target && typeof target === 'object' && target.cat ? target.cat : target;
+        viewerState.yaw = -0.88;
+        viewerState.pitch = 0.24;
+        viewerState.distance = modelDistanceFor(target);
+        if (!silent) {
+          setStatus(`View reset for ${CAT_LABELS[category]}.`, 'ok');
+          renderStatus();
+        }
+      }
+
+      function updateSpinButton() {
+        armoryToggleSpin.textContent = viewerState.spin ? 'Auto Spin: On' : 'Auto Spin: Off';
+      }
+
+      function updateViewerCamera() {
+        if (!viewer.camera) return;
+        viewerState.pitch = clamp(viewerState.pitch, -0.42, 0.56);
+        viewerState.distance = clamp(viewerState.distance, 4.5, 14.5);
+        const radius = Math.cos(viewerState.pitch) * viewerState.distance;
+        const x = Math.sin(viewerState.yaw) * radius;
+        const y = Math.sin(viewerState.pitch) * viewerState.distance + 1.2;
+        const z = Math.cos(viewerState.yaw) * radius;
+        viewer.camera.position.set(x, y, z);
+        viewer.camera.lookAt(0, 0.2, 0);
+      }
+
+      function resizeViewer() {
+        if (!viewer.renderer || !viewer.camera) return;
+        const width = Math.max(armoryStageViewport.clientWidth, 1);
+        const height = Math.max(armoryStageViewport.clientHeight, 1);
+        viewer.renderer.setSize(width, height, false);
+        viewer.camera.aspect = width / height;
+        viewer.camera.updateProjectionMatrix();
+      }
+
+      function initArmoryViewer() {
+        if (viewer.ready) return true;
+        try {
+          viewer.materials = createMaterials();
+          viewer.scene = new THREE.Scene();
+          viewer.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 60);
+          viewer.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+          viewer.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+          viewer.renderer.outputColorSpace = THREE.SRGBColorSpace;
+          armoryStageCanvas.replaceChildren(viewer.renderer.domElement);
+
+          const hemi = new THREE.HemisphereLight(0xc8d5a3, 0x090b07, 1.7);
+          viewer.scene.add(hemi);
+          const keyLight = new THREE.DirectionalLight(0xf3e2ba, 1.4);
+          keyLight.position.set(7, 9, 5);
+          viewer.scene.add(keyLight);
+          const rimLight = new THREE.DirectionalLight(0x8ba174, 1.0);
+          rimLight.position.set(-6, 4, -7);
+          viewer.scene.add(rimLight);
+
+          const base = new THREE.Mesh(new THREE.CylinderGeometry(5.0, 5.55, 0.2, 48), viewer.materials.floor);
+          base.position.set(0, -1.08, 0);
+          viewer.scene.add(base);
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(4.9, 0.05, 12, 56), viewer.materials.activeBeacon);
+          ring.rotation.x = Math.PI / 2;
+          ring.position.y = -0.96;
+          viewer.scene.add(ring);
+          const grid = new THREE.GridHelper(12, 24, 0x75603a, 0x303922);
+          grid.position.y = -0.95;
+          grid.material.opacity = 0.2;
+          grid.material.transparent = true;
+          viewer.scene.add(grid);
+
+          updateSpinButton();
+          resizeViewer();
+          updateViewerCamera();
+          viewer.renderer.setAnimationLoop(() => {
+            if (viewerState.spin && !viewerState.dragging) {
+              viewerState.yaw += 0.004;
+            }
+            updateViewerCamera();
+            viewer.renderer.render(viewer.scene, viewer.camera);
+          });
+
+          if ('ResizeObserver' in window) {
+            viewer.resizeObserver = new ResizeObserver(() => resizeViewer());
+            viewer.resizeObserver.observe(armoryStageViewport);
+          } else {
+            window.addEventListener('resize', resizeViewer);
+          }
+          viewer.ready = true;
+          bindViewerControls();
+          return true;
+        } catch (error) {
+          armoryStageCanvas.textContent = 'Armory viewer unavailable on this browser.';
+          armoryStageCaption.textContent = 'Armory viewer unavailable. Attachment bench still works.';
+          setStatus('Armory viewer failed to initialize. The attachment bench is still available.', 'alert');
+          renderStatus();
+          return false;
+        }
+      }
+
+      function bindViewerControls() {
+        if (viewer.controlsBound) return;
+        viewer.controlsBound = true;
+
+        armoryResetView.addEventListener('click', () => {
+          resetViewerPose(currentWeapon(), false);
+        });
+        armoryToggleSpin.addEventListener('click', () => {
+          viewerState.spin = !viewerState.spin;
+          updateSpinButton();
+          setStatus(viewerState.spin ? `Auto spin enabled for ${currentWeapon().name}.` : `Auto spin disabled for ${currentWeapon().name}.`, 'ok');
+          renderStatus();
+        });
+        armoryStageViewport.addEventListener('pointerdown', (event) => {
+          if (event.pointerType === 'mouse' && event.button !== 0) return;
+          viewerState.dragging = true;
+          viewerState.pointerId = event.pointerId;
+          viewerState.lastX = event.clientX;
+          viewerState.lastY = event.clientY;
+          armoryStageViewport.classList.add('is-dragging');
+          armoryStageViewport.setPointerCapture(event.pointerId);
+        });
+        armoryStageViewport.addEventListener('pointermove', (event) => {
+          if (!viewerState.dragging || event.pointerId !== viewerState.pointerId) return;
+          const deltaX = event.clientX - viewerState.lastX;
+          const deltaY = event.clientY - viewerState.lastY;
+          viewerState.yaw -= deltaX * 0.01;
+          viewerState.pitch = clamp(viewerState.pitch - (deltaY * 0.0065), -0.42, 0.56);
+          viewerState.lastX = event.clientX;
+          viewerState.lastY = event.clientY;
+        });
+        const releasePointer = (event) => {
+          if (event.pointerId !== viewerState.pointerId) return;
+          viewerState.dragging = false;
+          viewerState.pointerId = null;
+          armoryStageViewport.classList.remove('is-dragging');
+          if (armoryStageViewport.hasPointerCapture(event.pointerId)) {
+            armoryStageViewport.releasePointerCapture(event.pointerId);
+          }
+        };
+        armoryStageViewport.addEventListener('pointerup', releasePointer);
+        armoryStageViewport.addEventListener('pointercancel', releasePointer);
+        armoryStageViewport.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          viewerState.distance = clamp(viewerState.distance + (event.deltaY * 0.01), 4.5, 14.5);
+        }, { passive: false });
+      }
+
+      function buildWeaponScene(weapon) {
+        if (!initArmoryViewer()) return;
+        if (viewer.stageRoot) {
+          viewer.scene.remove(viewer.stageRoot);
+          disposeStageRoot(viewer.stageRoot);
+        }
+
+        const attachments = selectedAttachments(weapon);
+        const root = buildIllustratedWeaponPlate(weapon);
+        root.position.y = 0.18;
+
+        viewer.stageRoot = root;
+        viewer.scene.add(root);
+
+        if (viewer.currentWeaponId !== weapon.id) {
+          resetViewerPose(weapon, true);
+          viewer.currentWeaponId = weapon.id;
+        }
+
+        armoryStageCaption.textContent = `${weapon.name} // ${attachments.length} mounted modules // illustrated build plate // drag rotate // scroll zoom`;
+      }
+
+      function renderFilters() {
+        armoryNationFilters.innerHTML = [
+          '<button class="armory-filter-chip' + (state.nation === 'all' ? ' active' : '') + '" data-armory-nation="all">All Nations</button>',
+          '<button class="armory-filter-chip' + (state.nation === 'us' ? ' active' : '') + '" data-armory-nation="us">United States</button>',
+          '<button class="armory-filter-chip' + (state.nation === 'rus' ? ' active' : '') + '" data-armory-nation="rus">Russia</button>',
+          '<button class="armory-filter-chip' + (state.nation === 'chn' ? ' active' : '') + '" data-armory-nation="chn">China</button>',
+          '<button class="armory-filter-chip' + (state.nation === 'isr' ? ' active' : '') + '" data-armory-nation="isr">Israel</button>'
+        ].join('');
+        armoryCategoryFilters.innerHTML = [
+          ['all', 'All Categories'],
+          ['rifle', 'Rifles'],
+          ['machinegun', 'Machine Guns'],
+          ['sniper', 'Snipers'],
+          ['pistol', 'Pistols'],
+          ['smg', 'SMGs'],
+          ['launcher', 'Launchers'],
+          ['manpads', 'MANPADS']
+        ].map(([id, label]) => '<button class="armory-filter-chip' + (state.cat === id ? ' active' : '') + '" data-armory-cat="' + id + '">' + label + '</button>').join('');
+      }
+
+      function renderRoster() {
+        const list = availableWeapons();
+        if (!list.some((weapon) => weapon.id === state.weaponId) && list.length) {
+          state.weaponId = list[0].id;
+        }
+        armoryRosterMeta.textContent = `${list.length} OF ${ARMORY_WEAPONS.length} PLATFORMS READY`;
+        armoryWeaponList.innerHTML = list.map((weapon) => `
+          <button class="armory-roster-item${weapon.id === state.weaponId ? ' active' : ''}" data-armory-weapon="${weapon.id}">
+            <strong>${weapon.name}</strong>
+            <span>${NATION_FULL[weapon.nation]} | ${CAT_LABELS[weapon.cat]}</span>
+            <span>${weapon.caliber} | ${weapon.weightLb.toFixed(1)} lb</span>
+          </button>
+        `).join('') || '<div class="armory-roster-meta">No weapons match the current filter.</div>';
+      }
+
+      function renderPresetButtons(weapon) {
+        const preset = currentPreset(weapon);
+        armoryPresetRow.innerHTML = (ARMORY_PRESETS[weapon.cat] || []).map((entry) => `
+          <button class="armory-preset-btn${preset && preset.id === entry.id ? ' active' : ''}" data-armory-preset="${entry.id}">${entry.label}</button>
+        `).join('');
+      }
+
+      function renderSlotBench(weapon) {
+        const selections = selectedMap(weapon);
+        armorySlotStack.innerHTML = (CATEGORY_SLOTS[weapon.cat] || []).map((slot) => {
+          const options = optionsForSlot(slot, weapon);
+          const selectedId = selections[slot] || 'none';
+          const selectedOption = options.find((option) => option.id === selections[slot]) || null;
+          return `
+            <section class="armory-slot-card">
+              <div class="armory-slot-head">
+                <div>
+                  <strong>${SLOT_LABELS[slot]}</strong>
+                  <span>${selectedOption ? selectedOption.label : 'Bare slot'}</span>
+                </div>
+                <span class="armory-pill">${slot.toUpperCase()}</span>
+              </div>
+              <div class="armory-slot-options">
+                <button class="armory-slot-option clear${selectedId === 'none' ? ' active' : ''}" data-armory-slot="${slot}" data-armory-option="none">Bare Slot</button>
+                ${options.map((option) => `
+                  <button class="armory-slot-option${selectedId === option.id ? ' active' : ''}" data-armory-slot="${slot}" data-armory-option="${option.id}">${option.label}</button>
+                `).join('')}
+              </div>
+              <div class="armory-slot-detail">${selectedOption ? selectedOption.description + ' +' + selectedOption.weight.toFixed(1) + ' lb / +' + selectedOption.volume.toFixed(1) + ' L' : 'No module mounted in this slot.'}</div>
+            </section>
+          `;
+        }).join('');
+      }
+
+      function renderManifest(weapon) {
+        const attachments = selectedAttachments(weapon);
+        armoryManifestList.innerHTML = attachments.length ? attachments.map((attachment) => `
+          <article class="armory-manifest-item">
+            <strong>${SLOT_LABELS[attachment.slot]} - ${attachment.label}</strong>
+            <span>${attachment.weight.toFixed(1)} lb | ${attachment.volume.toFixed(1)} L</span>
+            <p>${attachment.description}</p>
+          </article>
+        `).join('') : '<div class="armory-status">No attachments mounted yet. Pick a preset or start slot-by-slot.</div>';
+      }
+
+      function renderMetrics(weapon) {
+        const metrics = computeMetrics(weapon);
+        const preset = currentPreset(weapon);
+        armoryPresetTag.textContent = preset ? preset.label.toUpperCase() : 'CUSTOM BUILD';
+        armoryAttachmentCountTag.textContent = `${metrics.attachmentCount} modules`;
+        armoryMetricGrid.innerHTML = [
+          { label: 'Configured Weight', value: `${metrics.weight.toFixed(1)} lb`, bar: Math.min((metrics.weight / (weapon.weightLb + 18)) * 100, 100), tone: usageTone(metrics.attachmentWeight) },
+          { label: 'Stow Volume', value: `${metrics.volume.toFixed(1)} L`, bar: Math.min((metrics.volume / (CATEGORY_BASE_VOLUME[weapon.cat] + 4)) * 100, 100), tone: usageTone(metrics.attachmentVolume) },
+          { label: 'Mobility', value: `${metrics.mobility}`, bar: metrics.mobility, tone: metricTone(metrics.mobility) },
+          { label: 'Control', value: `${metrics.control}`, bar: metrics.control, tone: metricTone(metrics.control) },
+          { label: 'Stealth', value: `${metrics.stealth}`, bar: metrics.stealth, tone: metricTone(metrics.stealth) },
+          { label: 'Acquisition', value: `${metrics.acquisition}`, bar: metrics.acquisition, tone: metricTone(metrics.acquisition) }
+        ].map((entry) => `
+          <div class="armory-metric-card">
+            <strong>${entry.label}</strong>
+            <div class="armory-meter-head"><span>Value</span><span>${entry.value}</span></div>
+            <div class="armory-meter-bar"><div class="armory-meter-fill ${entry.tone}" style="width:${entry.bar.toFixed(1)}%"></div></div>
+          </div>
+        `).join('');
+      }
+
+      function renderStageHeader(weapon) {
+        const preset = currentPreset(weapon);
+        armoryStageTags.innerHTML = [
+          `<span class="armory-pill">${NATION_FULL[weapon.nation]}</span>`,
+          `<span class="armory-pill">${CAT_LABELS[weapon.cat]}</span>`,
+          `<span class="armory-pill">${preset ? preset.label : 'Custom'}</span>`
+        ].join('');
+        armoryWeaponName.textContent = weapon.name;
+        armoryWeaponMeta.textContent = `${weapon.maker} | ${weapon.caliber} | Effective range ${weapon.range} | Base ${weapon.weightLb.toFixed(1)} lb`;
+      }
+
+      function baseWeaponMarkup(cat) {
+        switch (cat) {
+          case 'rifle':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="454" cy="326" rx="260" ry="28"></ellipse>
+              <path class="weapon-body-depth" d="M126 178 L238 178 L296 197 L622 197 L808 197 L808 214 L624 214 L572 248 L510 248 L466 214 L286 214 L244 286 L205 286 L218 214 L150 214 Z"></path>
+              <path class="weapon-body-top" d="M126 166 L238 166 L296 184 L622 184 L808 184 L808 198 L624 198 L572 236 L510 236 L466 204 L286 204 L244 274 L205 274 L218 204 L150 204 Z"></path>
+              <rect class="weapon-body-edge" x="308" y="154" width="238" height="12" rx="3"></rect>
+              <polygon class="weapon-body-accent" points="390,204 425,204 456,296 404,296"></polygon>
+              <rect class="weapon-body-detail" x="330" y="176" width="64" height="18" rx="3"></rect>
+            `;
+          case 'machinegun':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="468" cy="332" rx="270" ry="30"></ellipse>
+              <path class="weapon-body-depth" d="M118 184 L236 184 L292 204 L626 204 L820 204 L820 220 L636 220 L604 245 L490 245 L448 220 L278 220 L228 286 L190 286 L208 220 L142 220 Z"></path>
+              <path class="weapon-body-top" d="M118 170 L236 170 L292 190 L626 190 L820 190 L820 204 L636 204 L604 232 L490 232 L448 206 L278 206 L228 272 L190 272 L208 206 L142 206 Z"></path>
+              <rect class="weapon-body-edge" x="324" y="156" width="210" height="12" rx="3"></rect>
+              <rect class="weapon-body-accent" x="360" y="214" width="76" height="54" rx="6"></rect>
+              <path class="weapon-body-detail" d="M520 246 L498 308 M560 246 L582 308" stroke-width="10" stroke-linecap="round"></path>
+            `;
+          case 'sniper':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="472" cy="330" rx="286" ry="28"></ellipse>
+              <path class="weapon-body-depth" d="M120 184 L254 184 L306 202 L644 202 L828 202 L828 218 L654 218 L612 242 L506 242 L462 218 L292 218 L242 278 L202 278 L220 218 L148 218 Z"></path>
+              <path class="weapon-body-top" d="M120 170 L254 170 L306 188 L644 188 L828 188 L828 202 L654 202 L612 228 L506 228 L462 204 L292 204 L242 264 L202 264 L220 204 L148 204 Z"></path>
+              <rect class="weapon-body-edge" x="344" y="148" width="238" height="12" rx="3"></rect>
+              <path class="weapon-body-detail" d="M498 242 L474 306 M538 242 L562 306" stroke-width="8" stroke-linecap="round"></path>
+            `;
+          case 'pistol':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="452" cy="324" rx="176" ry="22"></ellipse>
+              <path class="weapon-body-depth" d="M284 188 L520 188 L698 188 L698 204 L620 204 L592 218 L520 218 L494 242 L452 242 L436 306 L378 306 L366 244 L326 222 L284 222 Z"></path>
+              <path class="weapon-body-top" d="M284 172 L520 172 L698 172 L698 188 L620 188 L592 202 L520 202 L494 226 L452 226 L436 290 L378 290 L366 228 L326 206 L284 206 Z"></path>
+              <rect class="weapon-body-edge" x="344" y="160" width="174" height="10" rx="3"></rect>
+              <path class="weapon-body-detail" d="M490 214 Q468 236 446 214" stroke-width="10" stroke-linecap="round"></path>
+            `;
+          case 'smg':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="446" cy="326" rx="214" ry="24"></ellipse>
+              <path class="weapon-body-depth" d="M156 190 L244 190 L300 206 L536 206 L720 206 L720 222 L540 222 L510 246 L464 246 L420 222 L306 222 L268 278 L226 278 L238 222 L182 222 Z"></path>
+              <path class="weapon-body-top" d="M156 176 L244 176 L300 192 L536 192 L720 192 L720 206 L540 206 L510 232 L464 232 L420 206 L306 206 L268 264 L226 264 L238 206 L182 206 Z"></path>
+              <rect class="weapon-body-edge" x="332" y="162" width="170" height="12" rx="3"></rect>
+              <polygon class="weapon-body-accent" points="398,206 430,206 452,278 404,278"></polygon>
+            `;
+          case 'launcher':
+            return `
+              <ellipse class="weapon-floor-shadow" cx="444" cy="328" rx="240" ry="26"></ellipse>
+              <rect class="weapon-body-depth" x="174" y="154" width="520" height="90" rx="34"></rect>
+              <rect class="weapon-body-top" x="174" y="140" width="520" height="90" rx="34"></rect>
+              <rect class="weapon-body-edge" x="192" y="154" width="484" height="20" rx="8"></rect>
+              <path class="weapon-body-accent" d="M316 230 L372 230 L414 302 L356 302 Z"></path>
+              <rect class="weapon-body-detail" x="614" y="172" width="48" height="24" rx="8"></rect>
+            `;
+          case 'manpads':
+          default:
+            return `
+              <ellipse class="weapon-floor-shadow" cx="450" cy="328" rx="250" ry="28"></ellipse>
+              <rect class="weapon-body-depth" x="170" y="150" width="540" height="86" rx="32"></rect>
+              <rect class="weapon-body-top" x="170" y="136" width="540" height="86" rx="32"></rect>
+              <rect class="weapon-body-edge" x="194" y="150" width="486" height="18" rx="8"></rect>
+              <path class="weapon-body-accent" d="M314 220 L372 220 L410 302 L350 302 Z"></path>
+              <rect class="weapon-body-detail" x="286" y="104" width="72" height="46" rx="10"></rect>
+            `;
+        }
+      }
+
+      function viewLayoutForWeapon(weapon) {
+        return {
+          ...(VIEW_LAYOUTS[weapon.cat] || VIEW_LAYOUTS.rifle),
+          ...(MODEL_VIEW_LAYOUTS[modelKeyForWeapon(weapon)] || {})
+        };
+      }
+
+      function normalizeModuleAnchor(position) {
+        if (Array.isArray(position)) {
+          return {
+            x: position[0] ?? 460,
+            y: position[1] ?? 160,
+            scale: position[2] ?? 1,
+            rotate: position[3] ?? 0
+          };
+        }
+        return {
+          x: position && typeof position.x === 'number' ? position.x : 460,
+          y: position && typeof position.y === 'number' ? position.y : 160,
+          scale: position && typeof position.scale === 'number' ? position.scale : 1,
+          rotate: position && typeof position.rotate === 'number' ? position.rotate : 0
+        };
+      }
+
+      function wrapModuleMarkup(position, innerMarkup) {
+        const anchor = normalizeModuleAnchor(position);
+        return `<g transform="translate(${anchor.x} ${anchor.y}) rotate(${anchor.rotate})"><g transform="scale(${anchor.scale})">${innerMarkup}</g></g>`;
+      }
+
+      function moduleMarkup(style, position) {
+        let innerMarkup = '';
+        switch (style) {
+          case 'optic-acog':
+            innerMarkup = '<rect class="module-body" x="-30" y="-16" width="60" height="22" rx="6"></rect><rect class="module-edge" x="-16" y="-26" width="32" height="10" rx="4"></rect><circle class="module-dark" cx="-24" cy="-5" r="6"></circle><circle class="module-dark" cx="24" cy="-5" r="6"></circle><rect class="module-dark" x="-10" y="6" width="20" height="11" rx="3"></rect>';
+            break;
+          case 'optic-lpvo':
+            innerMarkup = '<rect class="module-body" x="-54" y="-10" width="108" height="16" rx="8"></rect><circle class="module-dark" cx="-44" cy="-2" r="9"></circle><circle class="module-dark" cx="44" cy="-2" r="9"></circle><rect class="module-edge" x="-14" y="-18" width="28" height="32" rx="6"></rect><rect class="module-dark" x="-24" y="8" width="48" height="10" rx="4"></rect><rect class="module-edge" x="-38" y="-6" width="12" height="8" rx="3"></rect><rect class="module-edge" x="26" y="-6" width="12" height="8" rx="3"></rect>';
+            break;
+          case 'optic-dot':
+          case 'optic-mini':
+            innerMarkup = '<path class="module-body" d="M-18 8 L-12 -14 L12 -14 L18 8 Z"></path><rect class="module-edge" x="-8" y="-24" width="16" height="10" rx="4"></rect><rect class="module-dark" x="-10" y="-4" width="20" height="10" rx="4"></rect>';
+            break;
+          case 'optic-scope':
+            innerMarkup = '<rect class="module-body" x="-72" y="-10" width="144" height="18" rx="9"></rect><circle class="module-dark" cx="-60" cy="-1" r="10"></circle><circle class="module-dark" cx="60" cy="-1" r="10"></circle><rect class="module-edge" x="-18" y="-20" width="36" height="40" rx="8"></rect><rect class="module-dark" x="-34" y="10" width="68" height="10" rx="4"></rect><rect class="module-edge" x="-46" y="-6" width="12" height="8" rx="3"></rect><rect class="module-edge" x="34" y="-6" width="12" height="8" rx="3"></rect>';
+            break;
+          case 'optic-launch':
+          case 'optic-iff':
+            innerMarkup = '<rect class="module-body" x="-26" y="-18" width="52" height="34" rx="8"></rect><rect class="module-edge" x="-12" y="-28" width="24" height="10" rx="4"></rect><circle class="module-dark" cx="12" cy="-1" r="9"></circle><rect class="module-dark" x="-12" y="16" width="24" height="12" rx="4"></rect>';
+            break;
+          case 'muzzle-flash':
+            innerMarkup = '<rect class="module-body" x="-18" y="-5" width="36" height="10" rx="4"></rect><rect class="module-dark" x="-4" y="-4" width="3" height="8"></rect><rect class="module-dark" x="3" y="-4" width="3" height="8"></rect><rect class="module-edge" x="12" y="-7" width="8" height="14" rx="3"></rect>';
+            break;
+          case 'muzzle-suppressor':
+            innerMarkup = '<rect class="module-body" x="-44" y="-7" width="88" height="14" rx="6"></rect><rect class="module-dark" x="-18" y="-5" width="4" height="10"></rect><rect class="module-dark" x="-4" y="-5" width="4" height="10"></rect><rect class="module-dark" x="10" y="-5" width="4" height="10"></rect><rect class="module-edge" x="34" y="-9" width="10" height="18" rx="4"></rect>';
+            break;
+          case 'muzzle-comp':
+          case 'muzzle-brake':
+            innerMarkup = '<rect class="module-body" x="-26" y="-7" width="52" height="14" rx="5"></rect><rect class="module-dark" x="-14" y="-5" width="4" height="10"></rect><rect class="module-dark" x="-2" y="-5" width="4" height="10"></rect><rect class="module-dark" x="10" y="-5" width="4" height="10"></rect>';
+            break;
+          case 'aiming-peq':
+          case 'aiming-dbal':
+          case 'aiming-pistol':
+            innerMarkup = '<rect class="module-body" x="-20" y="-12" width="40" height="24" rx="5"></rect><circle class="module-dark" cx="-7" cy="0" r="5"></circle><circle class="module-dark" cx="9" cy="0" r="5"></circle><rect class="module-edge" x="-22" y="-2" width="44" height="6" rx="3"></rect>';
+            break;
+          case 'light-scout':
+          case 'light-compact':
+          case 'light-pistol':
+            innerMarkup = '<rect class="module-body" x="-22" y="-8" width="44" height="16" rx="7"></rect><rect class="module-dark" x="-20" y="-5" width="8" height="10" rx="3"></rect><circle class="module-edge" cx="24" cy="0" r="8"></circle><circle class="module-dark" cx="24" cy="0" r="4"></circle>';
+            break;
+          case 'light-flood':
+            innerMarkup = '<rect class="module-body" x="-26" y="-10" width="52" height="20" rx="7"></rect><rect class="module-dark" x="-20" y="-6" width="10" height="12" rx="4"></rect><circle class="module-edge" cx="28" cy="0" r="10"></circle><circle class="module-dark" cx="28" cy="0" r="5"></circle>';
+            break;
+          case 'support-handstop':
+            innerMarkup = '<path class="module-body" d="M-8 -2 L8 -2 L4 28 L-8 20 Z"></path>';
+            break;
+          case 'support-bipod':
+            innerMarkup = '<path class="module-wire" d="M-8 0 L-28 44"></path><path class="module-wire" d="M8 0 L28 44"></path><rect class="module-body" x="-12" y="-8" width="24" height="10" rx="4"></rect>';
+            break;
+          case 'support-tripod':
+            innerMarkup = '<path class="module-wire" d="M0 0 L-34 58"></path><path class="module-wire" d="M0 0 L0 62"></path><path class="module-wire" d="M0 0 L34 58"></path><rect class="module-body" x="-12" y="-10" width="24" height="12" rx="5"></rect>';
+            break;
+          case 'support-brace':
+            innerMarkup = '<rect class="module-body" x="-14" y="-10" width="28" height="42" rx="6"></rect><rect class="module-edge" x="-32" y="20" width="64" height="10" rx="5"></rect><rect class="module-dark" x="-6" y="-4" width="12" height="20" rx="4"></rect>';
+            break;
+          case 'carry-sling':
+            innerMarkup = '<path class="module-wire" d="M-60 -22 Q0 42 66 -18"></path>';
+            break;
+          case 'carry-holster':
+            innerMarkup = '<path class="module-body" d="M-28 -10 L20 -10 L30 36 L-18 36 Z"></path><rect class="module-edge" x="-16" y="-24" width="20" height="14" rx="4"></rect><rect class="module-dark" x="-10" y="4" width="20" height="8" rx="3"></rect>';
+            break;
+          case 'carry-harness':
+            innerMarkup = '<path class="module-wire" d="M-48 -38 Q0 8 52 -34"></path><path class="module-wire" d="M-44 30 Q0 -10 48 30"></path>';
+            break;
+          case 'carry-hardcase':
+            innerMarkup = '<rect class="module-body" x="-54" y="-18" width="108" height="52" rx="10"></rect><rect class="module-edge" x="-16" y="-28" width="32" height="12" rx="5"></rect><rect class="module-dark" x="-34" y="-6" width="8" height="8" rx="3"></rect><rect class="module-dark" x="26" y="-6" width="8" height="8" rx="3"></rect>';
+            break;
+          case 'obs-thermal':
+            innerMarkup = '<rect class="module-body" x="-22" y="-18" width="44" height="36" rx="7"></rect><circle class="module-edge" cx="28" cy="0" r="12"></circle><circle class="module-dark" cx="28" cy="0" r="7"></circle>';
+            break;
+          case 'obs-rangefinder':
+            innerMarkup = '<rect class="module-body" x="-18" y="-12" width="36" height="24" rx="6"></rect><circle class="module-edge" cx="-6" cy="0" r="5"></circle><circle class="module-edge" cx="10" cy="0" r="5"></circle><rect class="module-dark" x="-10" y="7" width="20" height="5" rx="2"></rect>';
+            break;
+          case 'obs-binocular':
+            innerMarkup = '<circle class="module-body" cx="-12" cy="0" r="14"></circle><circle class="module-body" cx="12" cy="0" r="14"></circle><circle class="module-dark" cx="-12" cy="0" r="7"></circle><circle class="module-dark" cx="12" cy="0" r="7"></circle><rect class="module-edge" x="-10" y="-12" width="20" height="24" rx="5"></rect>';
+            break;
+          case 'obs-power':
+            innerMarkup = '<rect class="module-body" x="-16" y="-24" width="32" height="48" rx="8"></rect><rect class="module-edge" x="-10" y="-34" width="20" height="10" rx="4"></rect><rect class="module-dark" x="-8" y="-6" width="16" height="12" rx="4"></rect>';
+            break;
+          default:
+            return '';
+        }
+        return wrapModuleMarkup(position, innerMarkup);
+      }
+
+      function renderWeaponSvg(weapon, attachmentList) {
+        const attachments = attachmentList === undefined ? selectedAttachments(weapon) : attachmentList;
+        const layout = viewLayoutForWeapon(weapon);
+        const overlays = attachments.map((attachment) => moduleMarkup(attachment.style, layout[attachment.slot] || [460, 160, 1])).join('');
+        return `
+          <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            ${weaponSvgStyleMarkup()}
+            ${weaponSilhouetteMarkup(weapon)}
+            ${weaponVariantMarkup(weapon)}
+            ${overlays}
+          </svg>
+        `;
+      }
+
+      function renderStage(weapon) {
+        renderStageHeader(weapon);
+        renderAttachmentReferenceGrid(weapon);
+        renderStageReference(weapon);
+      }
+
+      function renderStatus() {
+        armoryStatus.textContent = state.status;
+        armoryStatus.className = `armory-status${state.tone === 'alert' ? ' alert' : ''}`;
+      }
+
+      function manifestText(weapon) {
+        const metrics = computeMetrics(weapon);
+        const preset = currentPreset(weapon);
+        const attachments = selectedAttachments(weapon);
+        return [
+          'DELTA ARMORY BUILD',
+          `Platform: ${weapon.name}`,
+          `Nation: ${NATION_FULL[weapon.nation]}`,
+          `Category: ${CAT_LABELS[weapon.cat]}`,
+          `Caliber: ${weapon.caliber}`,
+          `Preset: ${preset ? preset.label : 'Custom Build'}`,
+          `Configured Weight: ${metrics.weight.toFixed(1)} lb`,
+          `Configured Volume: ${metrics.volume.toFixed(1)} L`,
+          '',
+          'Mounted Attachments:',
+          attachments.length ? attachments.map((attachment, index) => `${index + 1}. ${SLOT_LABELS[attachment.slot]} - ${attachment.label} (${attachment.weight.toFixed(1)} lb / ${attachment.volume.toFixed(1)} L)`).join('\n') : '- None'
+        ].join('\n');
+      }
+
+      function render() {
+        const visibleWeapons = availableWeapons();
+        if (!visibleWeapons.some((weapon) => weapon.id === state.weaponId) && visibleWeapons.length) {
+          state.weaponId = visibleWeapons[0].id;
+        }
+        const weapon = currentWeapon();
+        ensureSelections(weapon);
+        renderFilters();
+        renderRoster();
+        renderPresetButtons(weapon);
+        renderSlotBench(weapon);
+        renderMetrics(weapon);
+        renderStage(weapon);
+        renderManifest(weapon);
+        renderStatus();
+        saveState();
+      }
+
+      function applyPreset(presetId, silent) {
+        const weapon = currentWeapon();
+        const preset = (ARMORY_PRESETS[weapon.cat] || []).find((entry) => entry.id === presetId);
+        if (!preset) return;
+        state.selections[weapon.id] = { ...preset.slots };
+        if (!silent) setStatus(`${preset.label} loaded on ${weapon.name}.`, 'ok');
+        render();
+      }
+
+      function chooseWeapon(weaponId) {
+        state.weaponId = weaponId;
+        ensureSelections(currentWeapon());
+        setStatus(`${currentWeapon().name} selected. Tune the build from the attachment bench.`, 'ok');
+        render();
+      }
+
+      function setSlotOption(slot, optionId) {
+        const weapon = currentWeapon();
+        ensureSelections(weapon);
+        if (optionId === 'none') {
+          delete state.selections[weapon.id][slot];
+          setStatus(`${SLOT_LABELS[slot]} cleared from ${weapon.name}.`, 'ok');
+        } else {
+          state.selections[weapon.id][slot] = optionId;
+          const option = optionsForSlot(slot, weapon).find((entry) => entry.id === optionId);
+          setStatus(`${option.label} mounted on ${weapon.name}.`, 'ok');
+        }
+        render();
+      }
+
+      function bindEvents() {
+        armorySearch.addEventListener('input', () => {
+          state.search = armorySearch.value;
+          render();
+        });
+        armoryNationFilters.addEventListener('click', (event) => {
+          const chip = event.target.closest('[data-armory-nation]');
+          if (!chip) return;
+          state.nation = chip.dataset.armoryNation;
+          render();
+        });
+        armoryCategoryFilters.addEventListener('click', (event) => {
+          const chip = event.target.closest('[data-armory-cat]');
+          if (!chip) return;
+          state.cat = chip.dataset.armoryCat;
+          render();
+        });
+        armoryWeaponList.addEventListener('click', (event) => {
+          const item = event.target.closest('[data-armory-weapon]');
+          if (!item) return;
+          chooseWeapon(item.dataset.armoryWeapon);
+        });
+        armoryPresetRow.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-armory-preset]');
+          if (!button) return;
+          applyPreset(button.dataset.armoryPreset, false);
+        });
+        armorySlotStack.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-armory-slot]');
+          if (!button) return;
+          setSlotOption(button.dataset.armorySlot, button.dataset.armoryOption);
+        });
+        armoryCopyBuild.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(manifestText(currentWeapon()));
+            setStatus(`${currentWeapon().name} build copied to clipboard.`, 'ok');
+          } catch (error) {
+            setStatus('Clipboard write failed. Use export to save the build instead.', 'alert');
+          }
+          renderStatus();
+        });
+        armoryExportBuild.addEventListener('click', () => {
+          const weapon = currentWeapon();
+          const blob = new Blob([manifestText(weapon)], { type: 'text/plain;charset=utf-8' });
+          const anchor = document.createElement('a');
+          anchor.href = URL.createObjectURL(blob);
+          anchor.download = `${weapon.id}-armory-build.txt`;
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          setTimeout(() => URL.revokeObjectURL(anchor.href), 5000);
+          setStatus(`${weapon.name} build exported as text.`, 'ok');
+          renderStatus();
+        });
+        armoryResetBuild.addEventListener('click', () => {
+          state.selections[currentWeapon().id] = {};
+          setStatus(`${currentWeapon().name} cleared. Load a preset or rebuild slot-by-slot.`, 'ok');
+          render();
+        });
+      }
+
+      restoreState();
+      armorySearch.value = state.search;
+      ensureSelections(currentWeapon());
+      bindEvents();
+      render();
+    })();
+    </script>
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

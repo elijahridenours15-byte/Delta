@@ -1,5 +1,65 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Tactical Map</title>
+    <meta name="description" content="Live tactical map with real-time visitor tracking and geolocation intelligence. See active visitors from around the world at FutureCodeDelta.org.">
+    <meta name="keywords" content="tactical map, live visitor map, geolocation map, real-time map, IP mapping, world map, live tracking">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Tactical Map">
+    <meta property="og:description" content="Live tactical map showing real-time visitors from around the world. Geolocation intelligence at FutureCodeDelta.org.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/map">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Tactical Map">
+    <meta name="twitter:description" content="Live real-time visitor map and geolocation tracking at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/map">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
+    <script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/html2canvas.min.js') }}"></script>
+    <style>
+      .map-wrap{display:flex;flex-direction:column;height:calc(100vh - 190px);padding:20px 28px;max-width:1400px;margin:0 auto;width:100%}
+      #map{flex:1;border-radius:8px;border:1px solid var(--border);z-index:1;min-height:300px}
+
+      /* Coordinate / info bar */
+      .map-hud{display:flex;gap:16px;align-items:center;padding:12px 18px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap}
+      .hud-item{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--text2)}
+      .hud-label{color:var(--accent);font-weight:700;margin-right:6px;text-transform:uppercase}
+      .hud-val{color:var(--sand)}
+      .hud-sep{color:var(--border2)}
+
+      /* Layer panel */
+      .map-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+      .map-btn{
+        background:var(--panel);color:var(--accent);
+        border:1px solid var(--border);padding:6px 14px;
+        border-radius:4px;cursor:pointer;font-size:11px;
+        font-family:'JetBrains Mono',monospace;
+        letter-spacing:1px;text-transform:uppercase;
+        transition:all .15s;
+      }
+      .map-btn:hover{border-color:var(--accent2);box-shadow:0 0 8px var(--accent-glow)}
+      .map-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent)}
+
+      /* Override Leaflet controls to match theme */
+      .leaflet-control-zoom a{
+        background:var(--panel)!important;color:var(--accent)!important;
+        border-color:var(--border)!important;font-weight:700!important;
+        width:32px!important;height:32px!important;line-height:32px!important;
+        font-size:16px!important;
+      }
+      .leaflet-control-zoom a:hover{background:var(--panel2)!important;color:var(--accent-bright)!important}
+      .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:4px!important;overflow:hidden}
+      .leaflet-control-scale-line{
+        background:rgba(26,31,22,.85)!important;color:var(--accent)!important;
+        border-color:var(--accent2)!important;font-family:'JetBrains Mono',monospace!important;
+        font-size:10px!important;letter-spacing:.5px!important;padding:2px 6px!important
+      }
+      .leaflet-control-attribution{
         background:rgba(14,17,11,.8)!important;color:var(--muted)!important;
         font-size:9px!important;font-family:'JetBrains Mono',monospace!important
       }
@@ -26,6 +86,20 @@
 
       /* Grid toggle marker */
       .leaflet-grid-label{font-family:'JetBrains Mono',monospace!important;font-size:9px!important;color:var(--accent)!important}
+      .offline-atlas-label{background:transparent;border:none}
+      .offline-atlas-label span{
+        display:block;
+        padding:2px 6px;
+        border:1px solid rgba(164,184,122,.22);
+        border-radius:999px;
+        background:rgba(11,18,12,.84);
+        color:#D9E8B8;
+        font:700 10px/1.2 'JetBrains Mono',monospace;
+        letter-spacing:1.2px;
+        white-space:nowrap;
+        text-transform:uppercase;
+        box-shadow:0 0 16px rgba(139,157,106,.14);
+      }
 
       /* Fullscreen btn */
       .fs-btn{position:absolute;top:80px;right:10px;z-index:1000;
@@ -126,8 +200,14 @@
       .settings-actions{display:flex;gap:6px;flex-wrap:wrap}
       .settings-note{color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
 
-      .planning-panel{position:absolute;top:12px;left:12px;z-index:1190;width:min(390px,calc(100% - 24px));display:none;flex-direction:column;gap:10px;background:rgba(14,17,11,.96);border:1px solid rgba(164,184,122,.28);border-radius:8px;padding:12px 14px;backdrop-filter:blur(8px);box-shadow:0 14px 28px rgba(0,0,0,.32)}
+      .planning-panel{position:absolute;top:12px;left:12px;z-index:1190;width:min(390px,calc(100% - 24px));display:none;flex-direction:column;gap:0;max-height:min(84vh,680px);background:rgba(14,17,11,.96);border:1px solid rgba(164,184,122,.28);border-radius:8px;overflow:hidden;backdrop-filter:blur(8px);box-shadow:0 14px 28px rgba(0,0,0,.32)}
       .planning-panel.show{display:flex}
+      .planning-header{padding:12px 14px 10px;border-bottom:1px solid rgba(164,184,122,.18);flex-shrink:0}
+      .planning-body{flex:1;overflow-y:auto;padding:10px 14px 14px;display:flex;flex-direction:column;gap:10px}
+      .planning-body::-webkit-scrollbar{width:5px}
+      .planning-body::-webkit-scrollbar-track{background:transparent}
+      .planning-body::-webkit-scrollbar-thumb{background:rgba(139,157,106,.35);border-radius:3px}
+      .planning-body::-webkit-scrollbar-thumb:hover{background:rgba(139,157,106,.6)}
       .planning-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
       .planning-title h4{margin:0;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px}
       .planning-title p{margin:4px 0 0;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
@@ -210,7 +290,8 @@
         .goto-row{width:100%;flex-direction:column}
         .goto-input,.goto-select{width:100%;font-size:10px}
         .map-settings{right:10px;left:10px;width:auto;max-height:62vh;overflow:auto}
-        .planning-panel{right:10px;left:10px;top:10px;width:auto;max-height:62vh;overflow:auto}
+        .planning-panel{right:10px;left:10px;top:10px;width:auto;max-height:62vh}
+        .planning-body{max-height:calc(62vh - 60px)}
         .planning-grid{grid-template-columns:1fr}
         .planning-actions{flex-direction:column}
         .planning-actions .map-btn{width:100%}
@@ -224,6 +305,39 @@
         .map-wrap{padding:8px;height:calc(100dvh - 220px);min-height:560px}
         .hud-item{font-size:10px}
         .map-btn{font-size:10px;padding:8px 10px}
+      }
+
+      /* ── Fullscreen mode ────────────────────────────────── */
+      .map-wrap:fullscreen,
+      .map-wrap:-webkit-full-screen,
+      .map-wrap:-moz-full-screen,
+      .map-wrap:-ms-fullscreen {
+        height:100dvh!important;
+        max-width:100%!important;
+        width:100%!important;
+        padding:10px 14px!important;
+        margin:0!important;
+        background:var(--bg,#0e110b);
+        overflow:hidden;
+        box-sizing:border-box;
+      }
+      /* compact HUD rows in fullscreen so map gets max space */
+      .map-wrap:fullscreen .map-hud,
+      .map-wrap:-webkit-full-screen .map-hud {
+        padding:8px 10px;
+        margin-bottom:6px;
+      }
+      .map-wrap:fullscreen .map-hud-row2,
+      .map-wrap:-webkit-full-screen .map-hud-row2 {
+        padding:5px 10px;
+        margin-bottom:6px;
+      }
+      /* exit fullscreen button style override */
+      .map-wrap:fullscreen .fs-btn,
+      .map-wrap:-webkit-full-screen .fs-btn {
+        background:rgba(139,157,106,.18);
+        border-color:var(--accent);
+        color:var(--accent-bright);
       }
     </style>
   </head>
@@ -345,12 +459,15 @@
           </div>
         </div>
         <div class="planning-panel" id="planning-panel">
-          <div class="planning-title">
-            <div>
-              <h4>ROUTE PLANNING</h4>
-              <p>Public airfields, helipads, roads, waterways, and custom off-road sketches for civilian and emergency logistics planning.</p>
+          <div class="planning-header">
+            <div class="planning-title">
+              <div>
+                <h4>ROUTE PLANNING</h4>
+                <p>Public airfields, helipads, roads, waterways, and custom off-road sketches for civilian and emergency logistics planning.</p>
+              </div>
             </div>
           </div>
+          <div class="planning-body">
           <div class="planning-grid">
             <label class="planning-field">
               <span>Planning Mode</span>
@@ -463,6 +580,7 @@
           </div>
           <div class="planning-inline-note" id="planning-weather-status">Weather assist idle. Select start and end points to estimate ETA.</div>
           <div class="planning-summary" id="planning-summary"><strong>Awaiting plan.</strong><br>Set a start and end point, or load the sandbox route to preview the logistics estimator.</div>
+          </div><!-- /planning-body -->
         </div>
         <!-- Center crosshair -->
         <div class="crosshair" id="crosshair">
@@ -550,11 +668,113 @@
         attribution: 'Tiles &copy; USGS'
       });
 
+      function buildOfflineAtlasLayer() {
+        const layer = L.layerGroup();
+        const backdrop = L.rectangle([[-82, -180], [82, 180]], {
+          stroke: false,
+          fillColor: '#0b120c',
+          fillOpacity: 1,
+          interactive: false,
+        }).addTo(layer);
+
+        const continentStyle = {
+          color: '#7F9461',
+          weight: 1.1,
+          opacity: 0.82,
+          fillColor: '#24311e',
+          fillOpacity: 0.82,
+          interactive: false,
+        };
+
+        const continents = [
+          {
+            name: 'North America',
+            center: [46, -108],
+            coords: [[72, -168], [68, -140], [60, -125], [54, -118], [50, -108], [47, -96], [34, -82], [24, -97], [14, -89], [20, -76], [33, -69], [45, -61], [60, -74], [69, -96]],
+          },
+          {
+            name: 'South America',
+            center: [-18, -60],
+            coords: [[12, -81], [7, -77], [-5, -77], [-18, -73], [-31, -69], [-41, -65], [-54, -61], [-52, -51], [-39, -42], [-23, -39], [-8, -49], [4, -58], [11, -67]],
+          },
+          {
+            name: 'Greenland',
+            center: [73, -42],
+            coords: [[83, -73], [81, -48], [74, -20], [61, -34], [64, -58]],
+          },
+          {
+            name: 'Eurasia',
+            center: [49, 74],
+            coords: [[72, -10], [70, 20], [67, 44], [63, 82], [58, 112], [54, 138], [47, 152], [37, 143], [27, 123], [18, 103], [20, 83], [25, 65], [33, 54], [42, 40], [52, 28], [60, 10], [64, -4]],
+          },
+          {
+            name: 'Africa',
+            center: [4, 20],
+            coords: [[37, -17], [33, 5], [31, 18], [22, 26], [13, 44], [1, 51], [-12, 48], [-23, 36], [-34, 20], [-35, 10], [-28, 11], [-18, 15], [-3, 10], [11, 1], [19, -6], [30, -11]],
+          },
+          {
+            name: 'Australia',
+            center: [-24, 135],
+            coords: [[-11, 113], [-16, 129], [-25, 139], [-34, 151], [-39, 146], [-38, 128], [-31, 115], [-20, 112]],
+          },
+          {
+            name: 'Antarctica',
+            center: [-72, 0],
+            coords: [[-60, -180], [-78, -180], [-78, 180], [-60, 180]],
+          },
+        ];
+
+        continents.forEach(({name, center, coords}) => {
+          L.polygon(coords, continentStyle).addTo(layer);
+          L.marker(center, {
+            interactive: false,
+            keyboard: false,
+            icon: L.divIcon({
+              className: 'offline-atlas-label',
+              html: `<span>${name}</span>`,
+            }),
+          }).addTo(layer);
+        });
+
+        for (let lat = -75; lat <= 75; lat += 15) {
+          const major = lat % 45 === 0;
+          L.polyline([[lat, -180], [lat, 180]], {
+            color: major ? '#C4A265' : '#4D6442',
+            weight: major ? 1.2 : 0.6,
+            opacity: major ? 0.5 : 0.22,
+            interactive: false,
+          }).addTo(layer);
+        }
+
+        for (let lng = -180; lng <= 180; lng += 15) {
+          const major = lng % 45 === 0;
+          L.polyline([[-82, lng], [82, lng]], {
+            color: major ? '#C4A265' : '#4D6442',
+            weight: major ? 1.2 : 0.6,
+            opacity: major ? 0.5 : 0.22,
+            interactive: false,
+          }).addTo(layer);
+        }
+
+        L.polyline([[0, -180], [0, 180]], {
+          color: '#D7B774',
+          weight: 1.4,
+          opacity: 0.7,
+          interactive: false,
+        }).addTo(layer);
+
+        layer.getAttribution = () => 'Offline atlas';
+        return layer;
+      }
+
+      const offlineAtlas = buildOfflineAtlasLayer();
+      const initialBaseLayer = navigator.onLine ? topoMap : offlineAtlas;
+
       // ── Init Map ───────────────────────────────────────────
       const map = L.map('map', {
         center: [38.8977, -77.0365],  // Washington DC — default AO
         zoom: 6,
-        layers: [topoMap],
+        layers: [initialBaseLayer],
         zoomControl: true,
         maxZoom: 22,
         minZoom: 2,
@@ -575,6 +795,7 @@
 
       // ── Layer Control ──────────────────────────────────────
       const baseMaps = {
+        "&#x1F5FA; Offline Atlas": offlineAtlas,
         "&#x1F3D4; Topographic": topoMap,
         "&#x1F6F0; Satellite Recon": satellite,
         "&#x1F5FA; ESRI Topo": esriTopo,
@@ -583,8 +804,8 @@
         "&#x1F1FA;&#x1F1F8; USGS Imagery + Topo": usgsImageryTopo
       };
 
-      const baseLayerList = [topoMap, satellite, esriTopo, osmStd, darkTactical, usgsImageryTopo];
-      let activeBaseLayer = topoMap;
+      const baseLayerList = [offlineAtlas, topoMap, satellite, esriTopo, osmStd, darkTactical, usgsImageryTopo];
+      let activeBaseLayer = initialBaseLayer;
 
       function setBaseLayer(nextLayer) {
         baseLayerList.forEach(layer => {
@@ -1011,14 +1232,31 @@
       });
 
       // ── Fullscreen ─────────────────────────────────────────
-      document.getElementById('btn-fs').addEventListener('click', function(){
-        const el = document.getElementById('map');
-        if (!document.fullscreenElement) {
-          (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+      const fsBtn = document.getElementById('btn-fs');
+      const mapWrap = document.querySelector('.map-wrap');
+
+      function toggleFullscreen() {
+        const inFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        if (!inFs) {
+          const req = mapWrap.requestFullscreen || mapWrap.webkitRequestFullscreen;
+          if (req) req.call(mapWrap);
         } else {
-          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+          const exit = document.exitFullscreen || document.webkitExitFullscreen;
+          if (exit) exit.call(document);
         }
-      });
+      }
+
+      function onFullscreenChange() {
+        const inFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        fsBtn.innerHTML = inFs ? '&#x2715;' : '&#x26F6;';
+        fsBtn.title = inFs ? 'Exit Fullscreen (F)' : 'Fullscreen (F)';
+        // give the browser one frame to resize the element, then tell Leaflet
+        requestAnimationFrame(() => { setTimeout(() => map.invalidateSize(), 80); });
+      }
+
+      fsBtn.addEventListener('click', toggleFullscreen);
+      document.addEventListener('fullscreenchange', onFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
       // ══════════════════════════════════════════════════════
       // X-RAY BUILDING VIEW
@@ -1090,6 +1328,7 @@
       const HD_DETAIL_MIN_ZOOM = 18;
       const OFFLINE_PACK_KEY = 'deltaMapOfflinePackV1';
       const namedBaseLayers = {
+        offline: offlineAtlas,
         topographic: topoMap,
         satellite,
         esriTopo,
@@ -1142,6 +1381,11 @@
 
       function setOfflinePackStatus(message) {
         offlinePackStatus.textContent = message;
+      }
+
+      function activateOfflineAtlasFallback(message) {
+        setBaseLayer(offlineAtlas);
+        setOfflinePackStatus(message || 'Offline atlas active. Save a map pack while online to cache live tiles.');
       }
 
       async function postServiceWorkerMessage(message) {
@@ -1424,6 +1668,51 @@
       function parsePlanningNumber(input, fallback = 0) {
         const parsed = Number.parseFloat(input?.value ?? input);
         return Number.isFinite(parsed) ? parsed : fallback;
+      }
+
+      const OVERPASS_API_ENDPOINTS = [
+        'https://overpass.private.coffee/api/interpreter',
+        'https://overpass.kumi.systems/api/interpreter',
+        'https://overpass-api.de/api/interpreter'
+      ];
+
+      async function fetchOverpassJson(query, signal) {
+        let lastError = null;
+
+        for (const endpoint of OVERPASS_API_ENDPOINTS) {
+          if (signal?.aborted) {
+            throw new DOMException('The operation was aborted.', 'AbortError');
+          }
+
+          try {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {'Content-Type': 'text/plain;charset=UTF-8'},
+              body: query,
+              signal,
+            });
+
+            if (!response.ok) {
+              lastError = new Error(`Overpass endpoint unavailable: ${response.status}`);
+              continue;
+            }
+
+            const data = await response.json();
+            if (!Array.isArray(data.elements)) {
+              lastError = new Error('Overpass returned an invalid payload.');
+              continue;
+            }
+
+            return data;
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              throw error;
+            }
+            lastError = error;
+          }
+        }
+
+        throw lastError || new Error('All Overpass endpoints failed.');
       }
 
       function buildPlanningMarkerIcon(kind) {
@@ -1876,14 +2165,7 @@
         const bbox = `${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}`;
         const query = `[out:json][timeout:20];(node["aeroway"="helipad"](${bbox});way["aeroway"~"aerodrome|airstrip|helipad"](${bbox});relation["aeroway"="aerodrome"](${bbox}););out center;`;
         try {
-          const response = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain;charset=UTF-8'},
-            body: query,
-            signal: planningAirFetchController.signal,
-          });
-          const data = await response.json();
-          if (!response.ok || !Array.isArray(data.elements)) throw new Error('Airfield feed unavailable.');
+          const data = await fetchOverpassJson(query, planningAirFetchController.signal);
           const assets = data.elements.map(element => {
             const lat = Number(element.lat ?? element.center?.lat);
             const lng = Number(element.lon ?? element.center?.lon);
@@ -2323,16 +2605,7 @@
         const query = `[out:json][timeout:20];(way["building"](${bbox});relation["building"](${bbox}););out tags geom;`;
 
         try {
-          const response = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain;charset=UTF-8'},
-            body: query,
-            signal: xrayFetchController.signal
-          });
-          const data = await response.json();
-          if (!response.ok || !Array.isArray(data.elements)) {
-            throw new Error('Structure feed unavailable.');
-          }
+          const data = await fetchOverpassJson(query, xrayFetchController.signal);
 
           const collection = overpassFeatureCollection(data.elements.slice(0, 350));
           clearXrayStructures();
@@ -2792,7 +3065,12 @@
       offlinePackSaveBtn.addEventListener('click', saveOfflinePack);
       offlinePackLoadBtn.addEventListener('click', () => loadOfflinePack(false));
       window.addEventListener('offline', () => {
-        loadOfflinePack(true);
+        if (offlinePackExists()) {
+          activateOfflineAtlasFallback('Connection lost. Restoring saved offline map pack...');
+          loadOfflinePack(true);
+        } else {
+          activateOfflineAtlasFallback();
+        }
       });
       window.addEventListener('online', () => {
         setOfflinePackStatus('Back online. Live sources restored.');
@@ -2802,7 +3080,13 @@
           recalculatePlanningRoute(true);
         }
       });
-      if (offlinePackExists()) {
+      if (!navigator.onLine) {
+        if (offlinePackExists()) {
+          loadOfflinePack(true);
+        } else {
+          activateOfflineAtlasFallback();
+        }
+      } else if (offlinePackExists()) {
         setOfflinePackStatus('Offline map pack available for this browser.');
       }
 
@@ -3010,7 +3294,7 @@
           case 'c': document.getElementById('btn-clear').click(); break;
           case 'l': document.getElementById('btn-locate').click(); break;
           case 'g': document.getElementById('btn-goto').click(); break;
-          case 'f': document.getElementById('btn-fs').click(); break;
+          case 'f': toggleFullscreen(); break;
           case 'r': document.getElementById('btn-recon').click(); break;
           case 'x': document.getElementById('btn-xray').click(); break;
           case 'w': document.getElementById('btn-conflicts').click(); break;
@@ -3026,5 +3310,6 @@
     })();
     </script>
 
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

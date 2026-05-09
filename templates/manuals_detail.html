@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Manuals — {{ brand }} {{ model }} {{ year }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
   </head>
   <body>
     <header class="hero">
@@ -49,5 +49,6 @@
         <p><a href="/manuals/{{ brand }}">Back to {{ brand }}</a></p>
       </aside>
     </main>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
   </html>

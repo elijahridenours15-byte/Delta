@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Scripture Intel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Full Bible search and Scripture study tools. Look up any verse, passage, or keyword across the Old and New Testament. Free online Bible concordance.">
+    <meta name="keywords" content="Bible search, Scripture, Bible verses, concordance, Old Testament, New Testament, Bible study, free Bible, online Bible">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Scripture Intel">
+    <meta property="og:description" content="Free full-text Bible search and Scripture study tools. Look up any verse across the Old and New Testament.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/bible">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Scripture Intel — Free Bible Search">
+    <meta name="twitter:description" content="Search the full Bible by verse, keyword, or passage. Free Scripture study tools at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/bible">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
       .container{display:block;height:auto}
       .bible-wrap{max-width:960px;margin:0 auto;padding:20px}
@@ -750,5 +763,6 @@
     })();
     </script>
 
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

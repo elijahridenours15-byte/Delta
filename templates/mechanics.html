@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Field Mechanics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Vehicle manuals browser with make, model, and year lookup. Access field mechanics blueprints, wiring diagrams, and repair guides. Free vehicle manual search at FutureCodeDelta.org.">
+    <meta name="keywords" content="vehicle manuals, car repair guide, wiring diagram, mechanics blueprints, auto repair, make model year lookup, free repair manual, field mechanics">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Field Mechanics">
+    <meta property="og:description" content="Free vehicle manual browser with make, model, and year lookup. Access blueprints and repair guides for any vehicle.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/mechanics">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Field Mechanics">
+    <meta name="twitter:description" content="Free vehicle manual search by make, model, and year. Blueprints and repair guides at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/mechanics">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
       .container{display:block;height:auto}
       .mechanics-wrap{max-width:1180px;margin:0 auto;padding:20px}
@@ -99,7 +112,7 @@
       {% include '_top_nav.html' %}
     </header>
 
-    <main class="container">
+    <main>
       <div class="mechanics-wrap">
         <div class="mech-action-row">
           <a href="/mechanics/browser">Browse All Vehicles</a>
@@ -127,9 +140,13 @@
               <strong>Vehicle Browser</strong>
               <span>Browse every indexed make, model, and year from the mechanics library.</span>
             </a>
+            <a class="ops-card" href="/mechanics/gallery">
+              <strong>Blueprint Gallery</strong>
+              <span>Free blueprints and 3-view drawings for all 28 indexed military platforms.</span>
+            </a>
             <a class="ops-card" href="/mechanics/blueprints">
-              <strong>Blueprint Feed</strong>
-              <span>Open the current blueprint and image stream for uploaded mechanics work.</span>
+              <strong>Service Reference</strong>
+              <span>Open the mechanic blueprint roster with powertrain, service focus and inspection notes.</span>
             </a>
             <a class="ops-card" href="/manuals">
               <strong>Manuals Library</strong>
@@ -307,6 +324,8 @@
           </section>
         </div>
       </div>
+      </div>
     </main>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

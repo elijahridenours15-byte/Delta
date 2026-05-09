@@ -4,43 +4,156 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Mechanics Blueprints</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
     <style>
-      .blueprints-wrap{max-width:1180px;margin:18px auto;padding:18px}
+      .blueprints-wrap{max-width:1240px;margin:18px auto;padding:18px}
       .blueprints-header{text-align:center;margin-bottom:18px}
-      .blueprints-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-      .blueprint-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-      .blueprint-card img{max-width:100%;height:160px;object-fit:cover;border-radius:6px}
-      .blueprint-meta{margin-top:8px;font-size:.9rem;color:var(--text)}
-      @media(max-width:900px){.blueprints-grid{grid-template-columns:repeat(2,1fr)}}
-      @media(max-width:560px){.blueprints-grid{grid-template-columns:1fr}}
+      .blueprints-header p{max-width:840px;margin:8px auto 0;color:var(--muted);line-height:1.75}
+      .blueprints-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0 18px}
+      .blueprints-actions a{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--accent-bright);font:700 .74rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .blueprints-actions a.primary{background:var(--accent);color:var(--bg);border-color:transparent}
+      .blueprints-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+      .blueprint-stat{padding:14px;border-radius:12px;border:1px solid var(--border2);background:linear-gradient(180deg,rgba(28,35,24,.98),rgba(16,21,14,.96));text-align:center;box-shadow:0 14px 28px rgba(0,0,0,.12)}
+      .blueprint-stat strong{display:block;color:var(--accent-bright);font:800 1.35rem/1 'Inter',sans-serif;margin-bottom:8px}
+      .blueprint-stat span{display:block;color:var(--muted);font:700 .72rem/1.4 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .blueprints-filter{display:grid;gap:8px;padding:14px;border:1px solid var(--border2);border-radius:12px;background:rgba(21,27,18,.94);margin-bottom:18px}
+      .blueprints-filter label{color:var(--gold);font:700 .72rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .blueprints-filter input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--border2);background:#0f140d;color:var(--text);font-size:.95rem}
+      .blueprints-list{display:grid;gap:12px}
+      .blueprint-row{display:grid;grid-template-columns:minmax(220px,.95fr) minmax(260px,1fr) minmax(260px,1.1fr) auto;gap:14px;align-items:start;padding:16px 18px;border-radius:14px;border:1px solid rgba(160,173,148,.14);background:linear-gradient(180deg,rgba(20,24,17,.98),rgba(12,15,11,.98));box-shadow:0 16px 30px rgba(0,0,0,.12)}
+      .blueprint-platform{display:grid;gap:8px}
+      .blueprint-era{display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:4px 10px;border-radius:999px;border:1px solid rgba(196,162,101,.3);background:rgba(196,162,101,.08);color:var(--gold);font:700 .66rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .blueprint-platform h3{margin:0;color:var(--accent-bright);font:700 1.05rem/1.3 'Inter',sans-serif}
+      .blueprint-platform p{margin:0;color:var(--text2);line-height:1.65}
+      .blueprint-chips{display:flex;flex-wrap:wrap;gap:8px}
+      .blueprint-chips span{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:rgba(92,109,73,.16);color:var(--sand);font:700 .64rem/1 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .blueprint-detail{display:grid;gap:8px}
+      .detail-block{display:grid;gap:6px}
+      .detail-label{color:var(--accent);font:700 .66rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .detail-block p{margin:0;color:var(--text);line-height:1.68}
+      .blueprint-action{display:grid;gap:10px;justify-items:end;min-width:152px}
+      .blueprint-status{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;border:1px solid rgba(149,178,137,.2);background:rgba(149,178,137,.08);color:var(--muted);font:700 .62rem/1.2 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;text-align:center}
+      .blueprint-status.linked{color:var(--accent-bright);border-color:rgba(149,178,137,.28);background:rgba(149,178,137,.14)}
+      .blueprint-action a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--accent-bright);font:700 .7rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .blueprints-empty{padding:18px;border:1px dashed var(--border2);border-radius:12px;background:rgba(15,20,12,.6);color:var(--muted);text-align:center}
+      .hidden-row{display:none}
+      .blueprints-no-results{display:none;padding:18px;border:1px dashed var(--border2);border-radius:12px;background:rgba(15,20,12,.6);color:var(--muted);text-align:center}
+      .blueprints-no-results.show{display:block}
+      @media(max-width:1040px){.blueprint-row{grid-template-columns:1fr 1fr}.blueprint-action{grid-column:1/-1;justify-items:start}}
+      @media(max-width:720px){.blueprints-stats{grid-template-columns:1fr}.blueprints-actions{justify-content:stretch}.blueprints-actions a{flex:1 1 100%}.blueprint-row{grid-template-columns:1fr}}
     </style>
   </head>
   <body>
     <header class="hero">
+      <div class="title">
+        <h1>MECHANICS BLUEPRINTS</h1>
+        <p class="tag">MILITARY PLATFORM DOSSIER • 2000 THROUGH 2026 • SERVICE-LEVEL DETAIL</p>
+      </div>
       {% include '_top_nav.html' %}
     </header>
 
-    <main class="container">
+    <main>
       <div class="blueprints-wrap">
         <div class="blueprints-header">
-          <h2>MECHANICS BLUEPRINTS</h2>
-          <p class="tag">Collection of available blueprint images and reference diagrams from uploaded manuals.</p>
+          <h2>Mechanics Blueprint Reference</h2>
+          <p>Blueprints open as a compact service roster for military ground, aviation, and naval platforms fielded 2000–2026. Each line gives you the platform, driveline, failure zones, and shop-level inspection notes for US DoD vehicles and aircraft, with direct workbench links where the site has an indexed detail page.</p>
         </div>
 
-        {% if not blueprints %}
-          <div class="mechanics-card">No blueprints available yet. Upload manuals or run the demo data loader.</div>
+        <div class="blueprints-actions">
+          <a class="primary" href="/mechanics/browser">Browse All Vehicles</a>
+          <a href="/mechanics/gallery">Blueprint Gallery</a>
+          <a href="/mechanics">Mechanics Hub</a>
+          <a href="/manuals">Manuals Library</a>
+        </div>
+
+        <section class="blueprints-stats" aria-label="Blueprint statistics">
+          <div class="blueprint-stat"><strong>{{ blueprint_stats.entries }}</strong><span>Reference Rows</span></div>
+          <div class="blueprint-stat"><strong>{{ blueprint_stats.brands }}</strong><span>Makes Covered</span></div>
+          <div class="blueprint-stat"><strong>{{ blueprint_stats.linked }}</strong><span>Linked Workbench Files</span></div>
+        </section>
+
+        <section class="blueprints-filter" aria-label="Blueprint filter">
+          <label for="blueprint-filter-input">Filter mechanic roster</label>
+          <input id="blueprint-filter-input" type="search" placeholder="Search by decade, make, model, layout, or service note">
+        </section>
+
+        {% if not blueprint_rows %}
+          <div class="blueprints-empty">No mechanics references are available yet.</div>
         {% else %}
-          <div class="blueprints-grid">
-            {% for b in blueprints %}
-              <a class="blueprint-card" href="/mechanics/{{ b.brand }}/{{ b.model }}/{{ b.year }}">
-                <img src="{{ b.thumb }}" alt="{{ b.title }} blueprint" loading="lazy">
-                <div class="blueprint-meta">{{ b.title }}<br><small>{{ b.brand }} • {{ b.model }} • {{ b.year }}</small></div>
-              </a>
+          <div class="blueprints-list" id="blueprints-list">
+            {% for row in blueprint_rows %}
+              <article class="blueprint-row" data-blueprint-search="{{ (row.decade ~ ' ' ~ row.year ~ ' ' ~ row.brand ~ ' ' ~ row.model ~ ' ' ~ row.segment ~ ' ' ~ row.layout ~ ' ' ~ row.powertrain ~ ' ' ~ row.service_focus ~ ' ' ~ row.inspection_notes)|lower }}">
+                <div class="blueprint-platform">
+                  <span class="blueprint-era">{{ row.decade }}</span>
+                  <h3>{{ row.year }} {{ row.brand }} {{ row.model }}</h3>
+                  <p>{{ row.segment }}</p>
+                  <div class="blueprint-chips">
+                    <span>{{ row.layout }}</span>
+                    {% if row.linked %}
+                      <span>Indexed Detail</span>
+                    {% else %}
+                      <span>Reference Only</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="blueprint-detail">
+                  <div class="detail-block">
+                    <span class="detail-label">Powertrain</span>
+                    <p>{{ row.powertrain }}</p>
+                  </div>
+                  <div class="detail-block">
+                    <span class="detail-label">Service Focus</span>
+                    <p>{{ row.service_focus }}</p>
+                  </div>
+                </div>
+
+                <div class="blueprint-detail">
+                  <div class="detail-block">
+                    <span class="detail-label">Mechanic Notes</span>
+                    <p>{{ row.inspection_notes }}</p>
+                  </div>
+                </div>
+
+                <div class="blueprint-action">
+                  <span class="blueprint-status{% if row.linked %} linked{% endif %}">{{ row.status }}</span>
+                  {% if row.href %}
+                    <a href="{{ row.href }}">Open Detail</a>
+                  {% endif %}
+                </div>
+              </article>
             {% endfor %}
           </div>
+          <div class="blueprints-no-results" id="blueprints-no-results">No mechanics reference rows match that filter.</div>
         {% endif %}
       </div>
     </main>
-  </body>
+
+    <script>
+      const blueprintFilterInput = document.getElementById('blueprint-filter-input');
+      const blueprintRows = Array.from(document.querySelectorAll('[data-blueprint-search]'));
+      const blueprintNoResults = document.getElementById('blueprints-no-results');
+
+      if (blueprintFilterInput && blueprintRows.length) {
+        blueprintFilterInput.addEventListener('input', () => {
+          const query = blueprintFilterInput.value.trim().toLowerCase();
+          let visibleRows = 0;
+
+          for (const row of blueprintRows) {
+            const haystack = row.dataset.blueprintSearch || '';
+            const isVisible = !query || haystack.includes(query);
+            row.classList.toggle('hidden-row', !isVisible);
+            if (isVisible) {
+              visibleRows += 1;
+            }
+          }
+
+          if (blueprintNoResults) {
+            blueprintNoResults.classList.toggle('show', visibleRows === 0);
+          }
+        });
+      }
+    </script>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>

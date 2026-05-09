@@ -4,7 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Tactical Dev Platform</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260427h5') }}">
+    <meta name="description" content="Live coding playground for Python, Java, HTML, CSS, and JavaScript. Build, run, and share code in the browser. Free tactical developer tools at FutureCodeDelta.org.">
+    <meta name="keywords" content="online code editor, Python playground, Java online, HTML editor, run code online, web IDE, coding tools, developer platform">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Tactical Dev Platform">
+    <meta property="og:description" content="Live coding playground for Python, Java, HTML, CSS, and JS. Build, run, and share code in the browser for free.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Tactical Dev Platform">
+    <meta name="twitter:description" content="Free online code editor for Python, Java, HTML, CSS, and JS. Run code in your browser at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
   </head>
   <body>
     <header class="hero">
@@ -24,8 +37,9 @@
       {% include '_top_nav.html' %}
     </header>
 
-    <main class="container">
-      <section class="editor">
+    <main>
+      <div class="container">
+        <section class="editor">
         <div class="controls">
           <label for="language">Language</label>
           <select id="language">
@@ -51,9 +65,9 @@
           <div id="editorCss" class="editor-pane sub-editor" style="display:none;"></div>
           <div id="editorJs" class="editor-pane sub-editor" style="display:none;"></div>
         </div>
-      </section>
+        </section>
 
-      <aside class="output">
+        <aside class="output">
         <div class="agent-controls">
           <h2>Agent</h2>
           <textarea id="instruction" placeholder="Tell the agent what to build (e.g., 'create a Flask web API')"></textarea>
@@ -85,7 +99,7 @@
           <div class="share-row">
             <button id="shareCode">Share Current Code</button>
             <button id="copyShareLink" disabled>Copy Link</button>
-            <button id="downloadOfflineSite">Download Offline Site</button>
+            <button id="downloadOfflineSite">Download Offline App</button>
           </div>
           <input id="shareLink" class="share-link-input" type="text" readonly placeholder="Share link will appear here" />
         </div>
@@ -94,9 +108,67 @@
         <pre id="output">Awaiting code...</pre>
         <iframe id="htmlPreview" class="html-preview" style="display:none" sandbox="allow-scripts"></iframe>
 
-        <h3>Agent Result</h3>
-        <pre id="agent_output">No agent activity yet.</pre>
-      </aside>
+          <h3>Agent Result</h3>
+          <pre id="agent_output">No agent activity yet.</pre>
+        </aside>
+      </div>
+
+      <section class="home-ops-section" aria-labelledby="home-ops-title">
+        <div class="home-ops-intro">
+          <span class="home-ops-kicker">Mission Brief</span>
+          <h2 id="home-ops-title">Operational lanes for build, recon, and deployment</h2>
+          <p class="home-ops-copy">
+            Delta Coding is more than the browser editor. Use the command stack below to jump straight into the platform's live field tools.
+          </p>
+          <div class="home-ops-signals" aria-label="Platform signals">
+            <div class="home-ops-signal">
+              <span class="home-ops-signal-value">5</span>
+              <span class="home-ops-signal-label">Languages in the live editor</span>
+            </div>
+            <div class="home-ops-signal">
+              <span class="home-ops-signal-value">24/7</span>
+              <span class="home-ops-signal-label">Access to recon, map, and field pages</span>
+            </div>
+            <div class="home-ops-signal">
+              <span class="home-ops-signal-value">1 click</span>
+              <span class="home-ops-signal-label">Launch to an active operational surface</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-ops-grid" aria-label="Quick access tools">
+          <a class="home-ops-card" href="/ai">
+            <span class="home-ops-card-tag">AI Recon</span>
+            <strong>Draft and expand build instructions</strong>
+            <p>Move from idea to runnable project prompts with the agent workflow already wired into the stack.</p>
+          </a>
+          <a class="home-ops-card" href="/map">
+            <span class="home-ops-card-tag">Tac Map</span>
+            <strong>Open navigation, range, and offline map tools</strong>
+            <p>Jump into the tactical map surface for terrain viewing, overlays, and offline route planning.</p>
+          </a>
+          <a class="home-ops-card" href="/drone">
+            <span class="home-ops-card-tag">Drone Command</span>
+            <strong>Access drone-focused field references</strong>
+            <p>Review drone guidance, operational notes, and command-oriented layouts built for the site.</p>
+          </a>
+          <a class="home-ops-card" href="/weapons">
+            <span class="home-ops-card-tag">Weapons Desk</span>
+            <strong>Inspect weapon systems and supporting gear</strong>
+            <p>Move into the weapons library for platform breakdowns, attachments, and field loadout context.</p>
+          </a>
+          <a class="home-ops-card" href="/survival">
+            <span class="home-ops-card-tag">Survival</span>
+            <strong>Review bug-out and sustainment resources</strong>
+            <p>Check the survival page for carried gear, mission sustainment items, and readiness references.</p>
+          </a>
+          <a class="home-ops-card" href="/bible">
+            <span class="home-ops-card-tag">Scripture Intel</span>
+            <strong>Move from the headline rail into the full scripture index</strong>
+            <p>Open the scripture page for the broader library behind the hourly verse rotation in the top bar.</p>
+          </a>
+        </div>
+      </section>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
@@ -162,8 +234,7 @@
             const h = editorHtml.getValue(), c = editorCss.getValue(), j = editorJs.getValue();
             let combined = h;
             if (c) combined = combined.includes('</head>') ? combined.replace('</head>', `<style>${c}</style>\n</head>`) : `<style>${c}</style>\n` + combined;
-            if (j) combined = combined.includes('</body>') ? combined.replace('</body>', `<script>${j}<\/script>\n</body>`) : combined + `\n<script>${j}<\/script>`;
-            previewEl.srcdoc = combined;
+            if (j) combined = combined.includes('</body>') ? combined.replace('</body>', `<script>${j}<\/script>\n</body>`) : combined + `\n<script>${j}<\/script>`;            previewEl.srcdoc = combined;
           }
         }, 400);
       }
@@ -458,5 +529,6 @@
       refreshBackendStatus();
       loadSharedSnippetFromPath();
     </script>
-  </body>
+    {%- include '_radio_footer.html' %}
+</body>
 </html>
