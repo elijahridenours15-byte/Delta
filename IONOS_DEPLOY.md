@@ -1,28 +1,35 @@
 # IONOS Deploy Now
 
-This repository is set up to deploy the entire `batcode-playground` folder to IONOS Deploy Now as a containerized Flask app.
+This repository includes a Dockerfile, but the current IONOS Deploy Now product documentation only covers static sites and PHP apps deployed from GitHub to IONOS webspace. That means the live Flask app in this repository should stay on the existing webspace/SFTP deployment path unless the app is replatformed to a supported stack.
 
-## What is prepared
+## Current Status
 
-- `Dockerfile` installs Python dependencies and a headless JDK.
-- The container listens on `PORT` and defaults to `8080`.
-- A health endpoint is available at `/healthz`.
-- `.dockerignore` excludes local-only files from the deployment image.
+- The live `futurecodedelta.org` site is a Flask app served from IONOS webspace/CGI hosting.
+- The working production deployment path is the SFTP/webspace helper in `scripts/deploy_weapons_armor.py`.
+- IONOS Deploy Now is not currently a drop-in replacement for this repo's Python runtime.
+- The Dockerfile remains useful only if this app is moved to a platform that actually supports Dockerized Python workloads.
 
-## What to deploy
+## What Deploy Now Supports Today
 
-Deploy the whole `batcode-playground` repository root, not just `templates/` or `static/`.
+Based on the current official IONOS help center and `docs.ionos.space` documentation, Deploy Now supports:
 
-IONOS needs these files together:
+- static sites
+- single-page applications
+- PHP applications
 
-- `run.py`
-- `requirements.txt`
-- `Dockerfile`
-- `templates/`
-- `static/`
-- `agent/`
+The official docs describe Deploy Now as updating content on IONOS webspace and do not document Flask, Python WSGI, or Docker container deployment for this product.
 
-If you upload only the HTML assets, the Flask routes, code runner, agent endpoints, and health check will not work.
+## What to deploy now
+
+For the current live site, deploy via the existing webspace path, not Deploy Now.
+
+Use the helper from the repository root:
+
+```bash
+./venv/bin/python scripts/deploy_weapons_armor.py deploy
+```
+
+That helper uploads the Flask runtime, templates, static assets, and required supporting files for the shared-hosting setup.
 
 ## Git push checklist
 
@@ -69,28 +76,19 @@ Use this checklist before connecting the repo to IONOS Deploy Now:
 
 If `git push origin main` fails because GitHub authentication is not configured, fix GitHub access first and then retry the same push.
 
-## Deploy this folder to an existing IONOS website or domain
+## If you still want a GitHub-connected IONOS flow
 
-1. Push the current `batcode-playground` folder to a GitHub repository if it is not already there.
-2. Open IONOS Deploy Now.
-3. Create a new project from GitHub.
-4. Select the repository that contains this folder.
-5. If the repository contains only `batcode-playground`, use the repository root as the build context.
-6. If the repository contains additional top-level projects, point IONOS at the `batcode-playground` folder as the project root if that option is shown.
-7. Choose the Docker-based deployment path.
-8. Use `Dockerfile` as the container definition.
-9. If IONOS asks for a health check path, use `/healthz`.
-10. Complete the first deployment and wait for the generated IONOS app URL to become healthy.
+You currently have three realistic options:
 
-## Attach your already purchased IONOS domain
+1. Keep using the existing webspace/SFTP deployment path for the Flask app.
+2. Rebuild the site into a supported Deploy Now target such as a static export or PHP app.
+3. Move the Flask app to a host that supports Python or Docker natively, then point the domain there.
 
-1. Open the deployed app in IONOS Deploy Now.
-2. Add your existing IONOS domain as the custom domain for this deployment.
-3. In the IONOS domain or DNS panel, remove the default placeholder assignment if the domain is still attached to a parking page or old site.
-4. Apply the DNS target that IONOS Deploy Now shows for the custom domain.
-5. Point `www` to the same deployment, or set `www` to redirect to the root domain.
-6. Wait for DNS propagation.
-7. Enable SSL after the custom domain is attached.
+Until one of those changes is made, treat Deploy Now as unsupported for the current app.
+
+## Historical note
+
+Earlier local notes assumed a Docker-based Deploy Now path. Official IONOS documentation checked on 2026-05-09 did not support that assumption, so do not use this file as justification for switching the current Flask app to Deploy Now without revalidating the product capabilities first.
 
 ## Recommended environment variables
 
@@ -100,18 +98,18 @@ If `git push origin main` fails because GitHub authentication is not configured,
 
 ## After deployment
 
-Test these URLs after the domain is attached:
+For the current webspace deployment path, test these URLs after a production upload:
 
 - `/`
 - `/healthz`
 - `/cyber`
 - `/ai`
 
-If `/healthz` works but the main page does not, the container is running and the issue is usually domain routing or an outdated DNS assignment inside IONOS.
+If `/healthz` works but the main page does not, the app is up and the issue is usually a missing uploaded dependency, stale cached asset, or a webspace routing/config mismatch.
 
 ## Current domain note
 
-At the time this guide was added, `futurecodedelta.org` was still serving the default IONOS placeholder page over HTTP, `www.futurecodedelta.org` did not resolve, and HTTPS was not working yet. Replace that placeholder assignment with the Deploy Now project before testing the final domain.
+At the time this note was updated, `futurecodedelta.org` was already serving the live Flask site from IONOS webspace. Do not detach the domain from that working path unless you have first validated a replacement runtime.
 
 -- Alternative: Webspace Explorer & SFTP (non-container hosting) --
 
