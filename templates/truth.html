@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>The Death and Resurrection of Jesus Christ — Public Historical Files</title>
+    <meta name="description" content="Public files and historical evidence documenting the death, burial, and resurrection of Jesus Christ. Primary sources from Josephus, Tacitus, Pliny, the Talmud, and Scripture. Archaeological and scholarly research freely available.">
+    <meta name="keywords" content="Jesus Christ, death of Jesus, resurrection of Jesus, crucifixion, historical evidence, Josephus, Tacitus, Pontius Pilate, empty tomb, public records, Bible, Gospel, risen, alive">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="The Death and Resurrection of Jesus Christ — Public Historical Files">
+    <meta property="og:description" content="Freely accessible public files documenting the historical evidence for the death, burial, and resurrection of Jesus Christ from ancient historians, archaeologists, and Scripture.">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Public Files: The Death and Resurrection of Jesus Christ">
+    <meta name="twitter:description" content="Historical evidence and scripture documenting Jesus's crucifixion, burial, and resurrection. Public records from Josephus, Tacitus, and more.">
+    <link rel="canonical" href="/truth">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "The Death and Resurrection of Jesus Christ — Public Historical Files",
+      "description": "Public historical files and primary source documents about the death, burial, and resurrection of Jesus Christ, including testimony from Josephus, Tacitus, Pliny the Younger, the Babylonian Talmud, and the New Testament Scriptures.",
+      "author": {"@type": "Organization", "name": "The Truth"},
+      "keywords": "Jesus Christ, crucifixion, resurrection, historical evidence, public files, Gospel, Josephus, Tacitus, empty tomb",
+      "articleSection": "Historical Research"
+    }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+      .container{display:block;height:auto}
+      .truth-wrap{max-width:1100px;margin:0 auto;padding:20px}
+      .truth-header{text-align:center;margin-bottom:28px}
+      .truth-header h2{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.6rem;letter-spacing:3px;margin:0 0 6px}
+      .truth-header p{color:var(--muted);font-size:.88rem;margin:0;max-width:640px;display:inline-block;line-height:1.6}
+      .truth-cross{display:block;margin:0 auto 18px;opacity:.7}
+
+      /* Search */
+      .truth-search{display:flex;gap:8px;justify-content:center;margin-bottom:22px;flex-wrap:wrap}
+      .truth-search input{
+        font-family:'JetBrains Mono',monospace;font-size:.88rem;
+        background:var(--panel2);color:var(--text);border:1px solid var(--border2);
+        padding:10px 18px;border-radius:8px;width:480px;max-width:90%;
+      }
+      .truth-search input::placeholder{color:var(--muted)}
+      .truth-search input:focus{outline:none;border-color:var(--accent)}
+      .truth-search button{font-family:'JetBrains Mono',monospace;font-size:.85rem;background:var(--accent2);color:#fff;font-weight:700;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;letter-spacing:1px}
+      .truth-search button:hover{background:var(--accent)}
+      .truth-search button:disabled{opacity:.5;cursor:not-allowed}
+
+      /* Quick Topics */
+      .truth-topics{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+      .truth-topic{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;padding:6px 14px;background:var(--panel2);color:var(--text2);border:1px solid var(--border2);border-radius:20px;cursor:pointer;letter-spacing:.5px;transition:all .2s}
+      .truth-topic:hover{border-color:var(--accent);color:var(--accent-bright);transform:translateY(-1px)}
+
+      /* Results Panel */
+      .truth-results{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0;min-height:400px;overflow:hidden}
+      .truth-results-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+      .truth-results-header h3{margin:0;font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent-bright);letter-spacing:1px}
+      .truth-results-header .tr-count{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted)}
+      .truth-results-body{padding:20px}
+      .truth-loading{text-align:center;padding:60px 20px;color:var(--muted);font-style:italic}
+      .truth-loading .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:tspin .8s linear infinite;margin-right:8px;vertical-align:middle}
+      @keyframes tspin{to{transform:rotate(360deg)}}
+      .truth-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+      .truth-empty .icon{font-size:2.5rem;margin-bottom:12px;display:block;opacity:.5}
+
+      /* Source Card */
+      .truth-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:12px;transition:border-color .2s}
+      .truth-card:hover{border-color:var(--accent)}
+      .truth-card .tc-source{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+      .truth-card .tc-title{font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--accent-bright);font-weight:700;margin-bottom:6px}
+      .truth-card .tc-text{font-family:'Inter',sans-serif;font-size:.88rem;color:var(--text);line-height:1.75;margin-bottom:8px}
+      .truth-card .tc-text .highlight{background:rgba(139,157,106,.15);padding:1px 4px;border-radius:3px;color:var(--accent-bright)}
+      .truth-card .tc-verse{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);padding:8px 12px;background:rgba(139,157,106,.06);border:1px solid rgba(139,157,106,.15);border-radius:6px;line-height:1.7;margin-top:6px}
+      .truth-card .tc-link{display:inline-block;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);text-decoration:none;letter-spacing:.5px}
+      .truth-card .tc-link:hover{color:var(--accent-bright);text-decoration:underline}
+
+      /* AI Summary */
+      .truth-ai{background:linear-gradient(135deg,rgba(139,157,106,.06) 0%,rgba(139,157,106,.12) 100%);border:1px solid rgba(139,157,106,.2);border-radius:10px;padding:20px 24px;margin-bottom:16px}
+      .truth-ai .tai-header{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+      .truth-ai .tai-header .tai-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px rgba(139,157,106,.5);animation:tspin 3s linear infinite}
+      .truth-ai .tai-text{font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text);line-height:1.85}
+
+      /* Category Sections */
+      .truth-section{margin-top:16px}
+      .truth-section h4{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold);letter-spacing:1.5px;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+      /* Listen Button */
+      .truth-listen{margin-top:10px;text-align:center}
+      .truth-listen button{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;padding:8px 20px;border-radius:6px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);cursor:pointer;letter-spacing:1px}
+      .truth-listen button:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .truth-listen button.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>THE TRUTH</h1>
+        <p class="tag">Public Files &bull; The Death &amp; Resurrection of Jesus Christ &bull; Scripture &bull; Historical Evidence</p>
+      </div>
+      <nav class="top-nav">
+        <a href="/">Ops Center</a>
+        <a href="/cyber">Cyber Intel</a>
+        <a href="/ai">AI Recon</a>
+        <a href="/map">Tac Map</a>
+        <a href="/bible">Scripture</a>
+        <a href="/drone">Drone</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="truth-wrap">
+
+        <!-- Cross Icon -->
+        <svg class="truth-cross" width="48" height="64" viewBox="0 0 48 64" fill="none">
+          <rect x="18" y="0" width="12" height="64" rx="3" fill="rgba(139,157,106,.25)" stroke="#8B9D6A" stroke-width="1"/>
+          <rect x="0" y="16" width="48" height="12" rx="3" fill="rgba(139,157,106,.25)" stroke="#8B9D6A" stroke-width="1"/>
+        </svg>
+
+        <div class="truth-header">
+          <h2>&#x2720; PUBLIC FILES: THE DEATH &amp; RESURRECTION OF JESUS CHRIST</h2>
+          <p>Freely accessible historical files, primary source documents, and Scripture testimony documenting the crucifixion, death, burial, and resurrection of Jesus Christ — the most important event in human history.</p>
+        </div>
+
+        <!-- ===== PUBLIC FILES — STATIC HTML FOR SEARCH ENGINE INDEXING ===== -->
+        <article id="public-files">
+
+        <section class="truth-section">
+          <h4>FILE 01 — THE CRUCIFIXION: HOW JESUS DIED</h4>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — EYEWITNESS ACCOUNT</div>
+            <div class="tc-title">Luke 23:33-46 — The Crucifixion of Jesus</div>
+            <div class="tc-text">When they came to the place called The Skull, they crucified Him there, along with the criminals — one on His right and the other on His left. Jesus said, "Father, forgive them, for they do not know what they are doing." ... It was now about the sixth hour, and darkness came over the whole land until the ninth hour, for the sun stopped shining. And the curtain of the temple was torn in two. Jesus called out with a loud voice, "Father, into your hands I commit my spirit." When He had said this, He breathed His last.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — MESSIANIC PROPHECY</div>
+            <div class="tc-title">Isaiah 53:3-7 — Written ~700 Years Before the Crucifixion</div>
+            <div class="tc-text">He was despised and rejected by mankind, a man of suffering, and familiar with pain. Surely He took up our pain and bore our suffering, yet we considered Him punished by God, stricken by Him, and afflicted. But He was pierced for our transgressions, He was crushed for our iniquities; the punishment that brought us peace was on Him, and by His wounds we are healed. We all, like sheep, have gone astray, each of us has turned to our own way; and the LORD has laid on Him the iniquity of us all. He was oppressed and afflicted, yet He did not open His mouth; He was led like a lamb to the slaughter.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — PROPHECY FULFILLED</div>
+            <div class="tc-title">Psalm 22:16-18 — Written ~1000 Years Before Crucifixion Was Invented</div>
+            <div class="tc-text">Dogs surround me, a pack of villains encircles me; they pierce my hands and my feet. All my bones are on display; people stare and gloat over me. They divide my clothes among them and cast lots for my garment. — King David wrote this approximately 1,000 years before the Romans invented crucifixion. Every detail was fulfilled at the cross of Jesus.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — MEDICAL DETAIL</div>
+            <div class="tc-title">John 19:33-35 — Proof of Physical Death</div>
+            <div class="tc-text">But when they came to Jesus and found that He was already dead, they did not break His legs. Instead, one of the soldiers pierced Jesus' side with a spear, bringing a sudden flow of blood and water. The man who saw it has given testimony, and his testimony is true. — The separation of blood and water is medical evidence of death by cardiac rupture or pericardial effusion, confirming Jesus physically died on the cross.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HISTORICAL SOURCE — ROMAN RECORD</div>
+            <div class="tc-title">Tacitus, Annals 15.44 (~116 AD) — Roman Historian</div>
+            <div class="tc-text">"Christus, from whom the name had its origin, suffered the extreme penalty during the reign of Tiberius at the hands of one of our procurators, Pontius Pilatus, and a most mischievous superstition, thus checked for the moment, again broke out not only in Judaea, the first source of the evil, but even in Rome." — Cornelius Tacitus, Roman senator and historian. This is a non-Christian Roman source confirming Jesus was executed under Pontius Pilate.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HISTORICAL SOURCE — JEWISH RECORD</div>
+            <div class="tc-title">Babylonian Talmud, Sanhedrin 43a — Jewish Court Records</div>
+            <div class="tc-text">"On the eve of Passover Yeshu was hanged." — The Babylonian Talmud, written by Jesus' opponents, independently confirms His execution took place at Passover — exactly as the Gospels record. Even those who rejected Him never denied that He was killed.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HISTORICAL SOURCE — JEWISH HISTORIAN</div>
+            <div class="tc-title">Josephus, Antiquities 18.3.3 (~93 AD)</div>
+            <div class="tc-text">"About this time there lived Jesus, a wise man. For he was one who performed surprising deeds and was a teacher of such people as accept the truth gladly. He won over many Jews and many of the Greeks. And when, upon the accusation of the principal men among us, Pilate had condemned him to a cross, those who had first come to love him did not cease." — Flavius Josephus, Jewish historian writing for Rome.</div>
+          </div>
+        </section>
+
+        <section class="truth-section">
+          <h4>FILE 02 — THE BURIAL: JESUS IN THE TOMB</h4>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — EYEWITNESS ACCOUNT</div>
+            <div class="tc-title">Matthew 27:57-66 — The Secured Tomb</div>
+            <div class="tc-text">As evening approached, there came a rich man from Arimathea, named Joseph, who had himself become a disciple of Jesus. Going to Pilate, he asked for Jesus' body, and Pilate ordered that it be given to him. Joseph took the body, wrapped it in a clean linen cloth, and placed it in his own new tomb that he had cut out of the rock. He rolled a big stone in front of the entrance to the tomb and went away. The next day the chief priests and the Pharisees went to Pilate. "Sir," they said, "we remember that while He was still alive that deceiver said, 'After three days I will rise again.' So give the order for the tomb to be made secure." So they went and made the tomb secure by putting a seal on the stone and posting the guard.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — PROPHECY FULFILLED</div>
+            <div class="tc-title">Isaiah 53:9 — Written ~700 Years Before</div>
+            <div class="tc-text">"He was assigned a grave with the wicked, and with the rich in his death, though he had done no violence, nor was any deceit in his mouth." — Jesus was crucified alongside criminals (the wicked) but buried in the private tomb of the wealthy Joseph of Arimathea (the rich). Fulfilled to the letter.</div>
+          </div>
+        </section>
+
+        <section class="truth-section">
+          <h4>FILE 03 — THE RESURRECTION: HE IS RISEN</h4>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — EYEWITNESS ACCOUNT</div>
+            <div class="tc-title">Matthew 28:1-6 — The Empty Tomb</div>
+            <div class="tc-text">After the Sabbath, at dawn on the first day of the week, Mary Magdalene and the other Mary went to look at the tomb. There was a violent earthquake, for an angel of the Lord came down from heaven and, going to the tomb, rolled back the stone and sat on it. His appearance was like lightning, and his clothes were white as snow. The guards were so afraid of him that they shook and became like dead men. The angel said to the women, "Do not be afraid, for I know that you are looking for Jesus, who was crucified. He is not here; He has risen, just as He said. Come and see the place where He lay."</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — 500+ WITNESSES</div>
+            <div class="tc-title">1 Corinthians 15:3-8 — The Earliest Creed (~55 AD)</div>
+            <div class="tc-text">For what I received I passed on to you as of first importance: that Christ died for our sins according to the Scriptures, that He was buried, that He was raised on the third day according to the Scriptures, and that He appeared to Cephas (Peter), and then to the Twelve. After that, He appeared to more than five hundred of the brothers and sisters at the same time, most of whom are still living. Then He appeared to James, then to all the apostles, and last of all He appeared to me also. — The Apostle Paul, writing within 25 years of the resurrection, while most witnesses were still alive to confirm or deny it.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — JESUS' OWN WORDS</div>
+            <div class="tc-title">John 11:25-26 — "I Am the Resurrection"</div>
+            <div class="tc-text">Jesus said to her, "I am the resurrection and the life. The one who believes in me will live, even though they die; and whoever lives by believing in me will never die. Do you believe this?"</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — 40 DAYS OF PROOF</div>
+            <div class="tc-title">Acts 1:3 — Post-Resurrection Appearances</div>
+            <div class="tc-text">After His suffering, He presented Himself to them and gave many convincing proofs that He was alive. He appeared to them over a period of forty days and spoke about the kingdom of God. — Jesus did not appear once in a vision. He physically appeared to hundreds of people across 40 days, eating with them, talking with them, and showing them His wounds.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOLY SCRIPTURE — DEATH DEFEATED</div>
+            <div class="tc-title">Romans 6:9 — Death Has No Power Over Him</div>
+            <div class="tc-text">For we know that since Christ was raised from the dead, He cannot die again; death no longer has mastery over Him.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HISTORICAL SOURCE — ROMAN GOVERNOR</div>
+            <div class="tc-title">Pliny the Younger, Letters 10.96 (~112 AD)</div>
+            <div class="tc-text">"They were in the habit of meeting on a certain fixed day before it was light, when they sang in alternate verses a hymn to Christ, as to a god." — Pliny the Younger, Roman governor of Bithynia, writing to Emperor Trajan. Within 80 years of the resurrection, Christians across the Roman Empire were worshipping Jesus as God — many unto death. They did not die for a story they invented.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HISTORICAL SOURCE — GREEK WRITER</div>
+            <div class="tc-title">Lucian of Samosata, The Death of Peregrinus (~170 AD)</div>
+            <div class="tc-text">"The Christians, you know, worship a man to this day — the distinguished personage who introduced their novel rites, and was crucified on that account." — Even a Greek satirist who mocked Christianity confirmed the core claims: Jesus was a real historical person who was crucified, and His followers worshipped Him as divine.</div>
+          </div>
+        </section>
+
+        <section class="truth-section">
+          <h4>FILE 04 — THE EVIDENCE: WHY IT MATTERS</h4>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">The Empty Tomb — A Fact No One Denied</div>
+            <div class="tc-text">Both the Roman authorities and Jewish leaders had every reason to produce the body of Jesus and end Christianity on the spot. They never did. Instead, Matthew 28:11-15 records that the guards were bribed to say the disciples stole the body — an admission that the tomb was empty. The enemies of Jesus never claimed the tomb still held His body. They only tried to explain why it was empty.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">The Martyrdom of the Apostles — They Died for What They Saw</div>
+            <div class="tc-text">People will die for something they believe to be true. But people do not die for something they know to be a lie. Nearly every one of the apostles was executed for proclaiming that Jesus rose from the dead. Peter was crucified upside down. James was beheaded. Paul was beheaded. Thomas was speared. Not one of them recanted. If they had stolen the body or fabricated the resurrection, at least one would have confessed under threat of death. None did — because they had seen Him alive.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">The Transformation of James — Jesus' Own Brother</div>
+            <div class="tc-text">During Jesus' ministry, His own brother James did not believe in Him (John 7:5). After the resurrection, James became the leader of the Jerusalem church and was martyred for his faith. What could convince a man's own skeptical brother that he was the Son of God? James saw the risen Jesus (1 Corinthians 15:7).</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">The Conversion of Paul — From Persecutor to Apostle</div>
+            <div class="tc-text">Saul of Tarsus actively hunted and killed Christians. He had every motive to destroy the resurrection claim. Instead, he encountered the risen Jesus on the road to Damascus (Acts 9), became the Apostle Paul, wrote 13 books of the New Testament, and was eventually beheaded for his faith. No psychological explanation accounts for this transformation — only the resurrection does.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">Women as First Witnesses — Proof It Wasn't Fabricated</div>
+            <div class="tc-text">In the 1st-century Jewish and Roman world, the testimony of women was not accepted in court. If the disciples invented the resurrection story, they would never have chosen women as the first witnesses — it would have destroyed their credibility. The fact that all four Gospels name women as the first witnesses is powerful evidence that the authors were recording what actually happened, not crafting a believable lie.</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">EVIDENCE SUMMARY</div>
+            <div class="tc-title">The Explosion of the Church — From 12 to Billions</div>
+            <div class="tc-text">Within weeks of the resurrection, in the very city where Jesus was publicly executed, thousands believed. Within 300 years, the Roman Empire that crucified Jesus officially became Christian. Today, over 2.4 billion people follow Jesus Christ. This global movement was launched by a handful of terrified fishermen who claimed they saw a dead man walk out of His grave. Either they saw it, or history has no explanation for what happened next.</div>
+          </div>
+        </section>
+
+        <section class="truth-section">
+          <h4>FILE 05 — THE INVITATION: WHAT JESUS SAID TO YOU</h4>
+          <div class="truth-card">
+            <div class="tc-source">THE WORDS OF JESUS CHRIST</div>
+            <div class="tc-title">John 3:16-17 — Why He Came</div>
+            <div class="tc-text">"For God so loved the world that He gave His one and only Son, that whoever believes in Him shall not perish but have eternal life. For God did not send His Son into the world to condemn the world, but to save the world through Him."</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">THE WORDS OF JESUS CHRIST</div>
+            <div class="tc-title">John 14:6 — The Only Way</div>
+            <div class="tc-text">"I am the way and the truth and the life. No one comes to the Father except through me."</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">THE WORDS OF JESUS CHRIST</div>
+            <div class="tc-title">Revelation 3:20 — He Is Knocking</div>
+            <div class="tc-text">"Here I am! I stand at the door and knock. If anyone hears my voice and opens the door, I will come in and eat with that person, and they with me."</div>
+          </div>
+          <div class="truth-card">
+            <div class="tc-source">HOW TO BE SAVED</div>
+            <div class="tc-title">Romans 10:9-10,13 — The Promise</div>
+            <div class="tc-text">"If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised Him from the dead, you will be saved. For it is with your heart that you believe and are justified, and it is with your mouth that you profess your faith and are saved. For everyone who calls on the name of the Lord will be saved."</div>
+          </div>
+        </section>
+
+        </article>
+        <!-- ===== END PUBLIC FILES ===== -->
+
+        <hr style="border-color:var(--border);margin:30px 0 20px">
+
+        <div class="truth-header" style="margin-top:0">
+          <h2 style="font-size:1.1rem">&#x1F50D; ASK THE AI — SEARCH FOR MORE</h2>
+          <p>Search for any question about Jesus using AI and Scripture databases.</p>
+        </div>
+
+        <div class="truth-search">
+          <input type="text" id="truth-query" placeholder="Ask anything about Jesus: His death, resurrection, miracles, teachings...">
+          <button id="truth-search-btn">&#x1F50D; SEARCH</button>
+        </div>
+
+        <div class="truth-topics">
+          <span class="truth-topic" data-q="Why did Jesus die on the cross?">Why He Died</span>
+          <span class="truth-topic" data-q="Did Jesus rise from the dead? What is the evidence?">Resurrection Proof</span>
+          <span class="truth-topic" data-q="Historical evidence for the death of Jesus">Historical Evidence</span>
+          <span class="truth-topic" data-q="Prophecies about Jesus death and resurrection">Prophecies Fulfilled</span>
+          <span class="truth-topic" data-q="Who is Jesus Christ?">Who Is Jesus?</span>
+          <span class="truth-topic" data-q="Is Jesus God?">Is He God?</span>
+          <span class="truth-topic" data-q="What did Jesus teach about salvation?">Salvation</span>
+          <span class="truth-topic" data-q="What is the Gospel message?">The Gospel</span>
+          <span class="truth-topic" data-q="What miracles did Jesus perform?">Miracles</span>
+          <span class="truth-topic" data-q="Jesus teachings on love and forgiveness">Love &amp; Forgiveness</span>
+          <span class="truth-topic" data-q="What did Jesus say about Heaven and Hell?">Heaven &amp; Hell</span>
+          <span class="truth-topic" data-q="Who were the 12 apostles of Jesus?">The Apostles</span>
+        </div>
+
+        <div class="truth-results" id="truth-results">
+          <div class="truth-results-header">
+            <h3>&#x1F4D6; AI SEARCH RESULTS</h3>
+            <span class="tr-count" id="tr-count"></span>
+          </div>
+          <div class="truth-results-body" id="truth-results-body">
+            <div class="truth-empty">
+              <span class="icon">&#x2720;</span>
+              <strong>Search for More Truth</strong><br><br>
+              Use the AI search above to ask any question about Jesus Christ — His death, resurrection, and what it means for you.<br><br>
+              <span style="color:var(--accent);font-size:.82rem">Powered by AI + Bible API + historical sources</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-listen">
+          <button id="truth-listen-btn">&#x1F50A; LISTEN TO RESULTS</button>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+
+    <script>
+    (function(){
+      const resultsBody = document.getElementById('truth-results-body');
+      const countEl = document.getElementById('tr-count');
+      const queryInput = document.getElementById('truth-query');
+      const searchBtn = document.getElementById('truth-search-btn');
+      const listenBtn = document.getElementById('truth-listen-btn');
+
+      // Scripture knowledge base — key verses mapped to topics
+      const scriptureDB = {
+        'who is jesus': [
+          {ref:'John 1:1-4,14', text:'In the beginning was the Word, and the Word was with God, and the Word was God. He was in the beginning with God. All things were made through him, and without him was not any thing made that was made. In him was life, and the life was the light of men. And the Word became flesh and dwelt among us, and we have seen his glory, glory as of the only Son from the Father, full of grace and truth.'},
+          {ref:'Colossians 1:15-17', text:'He is the image of the invisible God, the firstborn of all creation. For by him all things were created, in heaven and on earth, visible and invisible, whether thrones or dominions or rulers or authorities — all things were created through him and for him. And he is before all things, and in him all things hold together.'},
+          {ref:'John 14:6', text:'Jesus said to him, "I am the way, and the truth, and the life. No one comes to the Father except through me."'},
+          {ref:'Hebrews 1:3', text:'He is the radiance of the glory of God and the exact imprint of his nature, and he upholds the universe by the word of his power.'},
+          {ref:'Isaiah 9:6', text:'For to us a child is born, to us a son is given; and the government shall be upon his shoulder, and his name shall be called Wonderful Counselor, Mighty God, Everlasting Father, Prince of Peace.'},
+        ],
+        'is jesus god': [
+          {ref:'John 10:30', text:'I and the Father are one.'},
+          {ref:'John 8:58', text:'Jesus said to them, "Truly, truly, I say to you, before Abraham was, I am."'},
+          {ref:'Titus 2:13', text:'Waiting for our blessed hope, the appearing of the glory of our great God and Savior Jesus Christ.'},
+          {ref:'John 20:28', text:'Thomas answered him, "My Lord and my God!"'},
+          {ref:'Philippians 2:5-8', text:'Have this mind among yourselves, which is yours in Christ Jesus, who, though he was in the form of God, did not count equality with God a thing to be grasped, but emptied himself, by taking the form of a servant, being born in the likeness of men. And being found in human form, he humbled himself by becoming obedient to the point of death, even death on a cross.'},
+          {ref:'Revelation 1:8', text:'"I am the Alpha and the Omega," says the Lord God, "who is and who was and who is to come, the Almighty."'},
+        ],
+        'miracles': [
+          {ref:'John 2:1-11', text:'Jesus turned water into wine at the wedding in Cana — His first public miracle, revealing His glory.'},
+          {ref:'Matthew 14:25-33', text:'Jesus walked on the sea and calmed the storm, and Peter walked on water toward Him.'},
+          {ref:'John 11:43-44', text:'He cried out with a loud voice, "Lazarus, come out." The man who had died came out, his hands and feet bound.'},
+          {ref:'Mark 5:25-34', text:'A woman who had suffered bleeding for 12 years touched His garment and was immediately healed.'},
+          {ref:'Matthew 14:13-21', text:'Jesus fed 5,000 men (plus women and children) with only 5 loaves and 2 fish.'},
+          {ref:'John 9:1-7', text:'Jesus healed a man blind from birth — "Since the world began it has been unheard of that anyone opened the eyes of one who was born blind."'},
+        ],
+        'the cross': [
+          {ref:'Isaiah 53:5', text:'But He was pierced for our transgressions, He was crushed for our iniquities; the punishment that brought us peace was on Him, and by His wounds we are healed.'},
+          {ref:'John 3:16', text:'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.'},
+          {ref:'Romans 5:8', text:'But God shows his love for us in that while we were still sinners, Christ died for us.'},
+          {ref:'1 Peter 2:24', text:'He himself bore our sins in his body on the tree, that we might die to sin and live to righteousness. By his wounds you have been healed.'},
+          {ref:'Galatians 2:20', text:'I have been crucified with Christ. It is no longer I who live, but Christ who lives in me.'},
+          {ref:'Luke 23:34', text:'And Jesus said, "Father, forgive them, for they know not what they do."'},
+        ],
+        'resurrection': [
+          {ref:'Matthew 28:5-6', text:'The angel said to the women, "Do not be afraid, for I know that you seek Jesus who was crucified. He is not here, for he has risen, as he said."'},
+          {ref:'1 Corinthians 15:3-6', text:'Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures, and that he appeared to Cephas, then to the twelve. Then he appeared to more than five hundred brothers at one time.'},
+          {ref:'Romans 6:9', text:'We know that Christ, being raised from the dead, will never die again; death no longer has dominion over him.'},
+          {ref:'John 11:25-26', text:'Jesus said to her, "I am the resurrection and the life. Whoever believes in me, though he die, yet shall he live, and everyone who lives and believes in me shall never die."'},
+          {ref:'Acts 1:3', text:'He presented himself alive to them after his suffering by many proofs, appearing to them during forty days and speaking about the kingdom of God.'},
+        ],
+        'salvation': [
+          {ref:'Ephesians 2:8-9', text:'For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast.'},
+          {ref:'Romans 10:9', text:'If you confess with your mouth that Jesus is Lord and believe in your heart that God raised him from the dead, you will be saved.'},
+          {ref:'Acts 4:12', text:'And there is salvation in no one else, for there is no other name under heaven given among men by which we must be saved.'},
+          {ref:'John 5:24', text:'Whoever hears my word and believes him who sent me has eternal life. He does not come into judgment, but has passed from death to life.'},
+          {ref:'Romans 6:23', text:'For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord.'},
+          {ref:'2 Corinthians 5:17', text:'Therefore, if anyone is in Christ, he is a new creation. The old has passed away; behold, the new has come.'},
+        ],
+        'historical evidence': [
+          {ref:'Josephus (Antiquities 18.3.3)', text:'About this time there lived Jesus, a wise man. For he was one who performed surprising deeds and was a teacher of such people as accept the truth gladly. He won over many Jews and many of the Greeks. And when, upon the accusation of the principal men among us, Pilate had condemned him to a cross, those who had first come to love him did not cease. — Flavius Josephus, Jewish historian, ~93 AD'},
+          {ref:'Tacitus (Annals 15.44)', text:'Christus, from whom the name had its origin, suffered the extreme penalty during the reign of Tiberius at the hands of one of our procurators, Pontius Pilatus. — Tacitus, Roman historian, ~116 AD'},
+          {ref:'Pliny the Younger (Letters 10.96)', text:'They were in the habit of meeting on a certain fixed day before it was light, when they sang in alternate verses a hymn to Christ, as to a god. — Pliny the Younger, Roman governor, ~112 AD'},
+          {ref:'The Talmud (Sanhedrin 43a)', text:'On the eve of Passover Yeshu was hanged. — Babylonian Talmud, acknowledging the execution of Jesus around the time of Passover, consistent with Gospel accounts.'},
+          {ref:'Lucian of Samosata (The Death of Peregrinus)', text:'The Christians, you know, worship a man to this day — the distinguished personage who introduced their novel rites, and was crucified on that account. — Lucian, Greek satirist, ~170 AD'},
+        ],
+        'prophecies': [
+          {ref:'Micah 5:2 → Matthew 2:1', text:'PROPHECY: "But you, Bethlehem Ephrathah, though you are small among the clans of Judah, out of you will come for me one who will be ruler over Israel, whose origins are from of old, from ancient times." FULFILLED: Jesus was born in Bethlehem.'},
+          {ref:'Isaiah 7:14 → Matthew 1:22-23', text:'PROPHECY: "The virgin will conceive and give birth to a son, and will call him Immanuel." FULFILLED: Jesus was born of the virgin Mary.'},
+          {ref:'Zechariah 9:9 → Matthew 21:1-11', text:'PROPHECY: "See, your king comes to you, righteous and victorious, lowly and riding on a donkey." FULFILLED: Jesus entered Jerusalem on a donkey on Palm Sunday.'},
+          {ref:'Psalm 22:16-18 → John 19:23-24', text:'PROPHECY: "They pierced my hands and my feet. They divide my garments among them, and for my clothing they cast lots." FULFILLED: Written ~1000 years before crucifixion was invented.'},
+          {ref:'Isaiah 53:9 → Matthew 27:57-60', text:'PROPHECY: "He was assigned a grave with the wicked, and with the rich in his death." FULFILLED: Jesus was crucified with criminals but buried in the tomb of the wealthy Joseph of Arimathea.'},
+          {ref:'Psalm 16:10 → Acts 2:31-32', text:'PROPHECY: "You will not abandon me to the realm of the dead, nor will you let your faithful one see decay." FULFILLED: Jesus rose from the dead on the third day.'},
+        ],
+        'heaven and hell': [
+          {ref:'John 14:2-3', text:'In my Father\'s house are many rooms. If it were not so, would I have told you that I go to prepare a place for you? And if I go and prepare a place for you, I will come again and will take you to myself, that where I am you may be also.'},
+          {ref:'Revelation 21:4', text:'He will wipe away every tear from their eyes, and death shall be no more, neither shall there be mourning, nor crying, nor pain anymore, for the former things have passed away.'},
+          {ref:'Matthew 25:46', text:'And these will go away into eternal punishment, but the righteous into eternal life.'},
+          {ref:'Luke 16:22-26', text:'Jesus told of the rich man in torment and Lazarus in Abraham\'s bosom — a real place of separation, making clear the eternal consequence of rejecting God.'},
+          {ref:'Revelation 20:15', text:'And if anyone\'s name was not found written in the book of life, he was thrown into the lake of fire.'},
+        ],
+        'love and forgiveness': [
+          {ref:'Matthew 22:37-39', text:'Jesus said, "You shall love the Lord your God with all your heart and with all your soul and with all your mind. This is the great and first commandment. And a second is like it: You shall love your neighbor as yourself."'},
+          {ref:'John 13:34-35', text:'A new commandment I give to you, that you love one another: just as I have loved you, you also are to love one another. By this all people will know that you are my disciples.'},
+          {ref:'Matthew 6:14-15', text:'For if you forgive others their trespasses, your heavenly Father will also forgive you, but if you do not forgive others their trespasses, neither will your Father forgive your trespasses.'},
+          {ref:'1 John 4:8-10', text:'Anyone who does not love does not know God, because God is love. In this the love of God was made manifest among us, that God sent his only Son into the world, so that we might live through him.'},
+          {ref:'Luke 6:27-28', text:'But I say to you who hear, love your enemies, do good to those who hate you, bless those who curse you, pray for those who abuse you.'},
+        ],
+        'apostles': [
+          {ref:'Matthew 10:2-4', text:'The twelve apostles: Simon Peter, Andrew (his brother), James son of Zebedee, John (his brother), Philip, Bartholomew (Nathanael), Matthew (the tax collector), Thomas, James son of Alphaeus, Thaddaeus (Judas son of James), Simon the Zealot, and Judas Iscariot (who betrayed Him, later replaced by Matthias).'},
+          {ref:'Acts 4:13', text:'Now when they saw the boldness of Peter and John, and perceived that they were uneducated, common men, they were astonished. And they recognized that they had been with Jesus.'},
+          {ref:'Matthew 28:19-20', text:'Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to observe all that I have commanded you. And behold, I am with you always, to the end of the age.'},
+        ],
+        'the gospel': [
+          {ref:'1 Corinthians 15:1-4', text:'The Gospel: Christ died for our sins in accordance with the Scriptures, He was buried, and He was raised on the third day in accordance with the Scriptures.'},
+          {ref:'Romans 3:23-24', text:'For all have sinned and fall short of the glory of God, and are justified by his grace as a gift, through the redemption that is in Christ Jesus.'},
+          {ref:'John 3:16-17', text:'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life. For God did not send his Son into the world to condemn the world, but in order that the world might be saved through him.'},
+          {ref:'Romans 10:13', text:'For everyone who calls on the name of the Lord will be saved.'},
+          {ref:'Mark 1:15', text:'The time is fulfilled, and the kingdom of God is at hand; repent and believe in the gospel.'},
+        ],
+      };
+
+      // Match query to topics
+      function findTopics(query){
+        const q = query.toLowerCase();
+        const matches = [];
+        const keys = Object.keys(scriptureDB);
+        // Score each topic by keyword match
+        keys.forEach(key => {
+          const words = key.split(/\s+/);
+          let score = 0;
+          words.forEach(w => { if(q.includes(w)) score++; });
+          // Also check query words against key
+          q.split(/\s+/).forEach(w => { if(w.length > 2 && key.includes(w)) score++; });
+          if(score > 0) matches.push({key, score});
+        });
+        matches.sort((a,b) => b.score - a.score);
+        // If no matches, return all topics (browse mode)
+        if(!matches.length) return keys;
+        return matches.map(m => m.key);
+      }
+
+      // AI Summary via Pollinations
+      async function getAISummary(query){
+        try {
+          const prompt = `You are a biblical scholar and historian. Answer this question about Jesus Christ in 3-4 paragraphs using scripture references and historical evidence. Be factual, reverent, and thorough. Question: ${query}`;
+          const resp = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt), {
+            method: 'GET'
+          });
+          if(!resp.ok) return null;
+          const text = await resp.text();
+          return text.trim();
+        } catch(e){ return null; }
+      }
+
+      // Bible API lookup
+      async function getBibleVerse(ref){
+        try {
+          const resp = await fetch('/api/bible?ref=' + encodeURIComponent(ref) + '&translation=web');
+          const data = await resp.json();
+          if(data.error) return null;
+          if(data.verses && data.verses.length){
+            return data.verses.map(v => v.text).join(' ');
+          }
+          return data.text || null;
+        } catch(e){ return null; }
+      }
+
+      async function doSearch(query){
+        if(!query.trim()) return;
+        searchBtn.disabled = true;
+        searchBtn.textContent = 'SEARCHING...';
+
+        resultsBody.innerHTML = '<div class="truth-loading"><span class="spinner"></span>Searching scriptures, historical records, and AI sources...</div>';
+        countEl.textContent = '';
+
+        // Find matching topics
+        const topics = findTopics(query);
+        let totalCards = 0;
+        let html = '';
+
+        // Get AI summary in parallel with building scripture results
+        const aiPromise = getAISummary(query);
+
+        // Build scripture & historical results
+        topics.forEach(topicKey => {
+          const entries = scriptureDB[topicKey];
+          if(!entries) return;
+          const sectionTitle = topicKey.replace(/\b\w/g, c => c.toUpperCase());
+          html += '<div class="truth-section"><h4>' + sectionTitle + '</h4>';
+          entries.forEach(entry => {
+            totalCards++;
+            const isHistorical = !entry.ref.match(/^\d?\s?[A-Z]/);
+            html += '<div class="truth-card">';
+            html += '<div class="tc-source">' + (isHistorical ? 'HISTORICAL SOURCE' : 'HOLY SCRIPTURE') + '</div>';
+            html += '<div class="tc-title">' + escapeHtml(entry.ref) + '</div>';
+            html += '<div class="tc-text">' + escapeHtml(entry.text) + '</div>';
+            html += '</div>';
+          });
+          html += '</div>';
+        });
+
+        // Wait for AI summary
+        const aiText = await aiPromise;
+        let aiHtml = '';
+        if(aiText){
+          aiHtml = '<div class="truth-ai">';
+          aiHtml += '<div class="tai-header"><div class="tai-dot"></div>AI RESEARCH SUMMARY</div>';
+          aiHtml += '<div class="tai-text">' + escapeHtml(aiText).replace(/\n/g, '<br>') + '</div>';
+          aiHtml += '</div>';
+        }
+
+        resultsBody.innerHTML = aiHtml + html;
+        countEl.textContent = totalCards + ' sources found';
+        searchBtn.disabled = false;
+        searchBtn.textContent = '\uD83D\uDD0D SEARCH';
+      }
+
+      function escapeHtml(t){
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+      }
+
+      // Wire up search
+      searchBtn.addEventListener('click', () => doSearch(queryInput.value));
+      queryInput.addEventListener('keydown', e => { if(e.key === 'Enter') doSearch(queryInput.value); });
+
+      // Quick topic clicks
+      document.querySelectorAll('.truth-topic').forEach(t => {
+        t.addEventListener('click', () => {
+          queryInput.value = t.dataset.q;
+          doSearch(t.dataset.q);
+        });
+      });
+
+      // TTS Listen button
+      let ttsActive = false;
+      listenBtn.addEventListener('click', () => {
+        const synth = window.speechSynthesis;
+        if(ttsActive){
+          synth.cancel();
+          ttsActive = false;
+          listenBtn.classList.remove('active');
+          listenBtn.textContent = '\uD83D\uDD0A LISTEN TO RESULTS';
+          return;
+        }
+        const text = resultsBody.textContent;
+        if(!text || text.length < 20) return;
+        synth.cancel();
+        const chunks = [];
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+        let cur = '';
+        sentences.forEach(s => {
+          if((cur + s).length > 250){if(cur) chunks.push(cur); cur = s;}
+          else cur += s;
+        });
+        if(cur) chunks.push(cur);
+        let idx = 0;
+        function next(){
+          if(idx >= chunks.length){ttsActive=false;listenBtn.classList.remove('active');listenBtn.textContent='\uD83D\uDD0A LISTEN TO RESULTS';return;}
+          const u = new SpeechSynthesisUtterance(chunks[idx]);
+          const voices = synth.getVoices().filter(v=>v.lang.startsWith('en'));
+          if(voices.length) u.voice = voices[0];
+          u.rate = 0.95;
+          u.onend = () => {idx++; next();};
+          u.onerror = () => {idx++; next();};
+          synth.speak(u);
+        }
+        ttsActive = true;
+        listenBtn.classList.add('active');
+        listenBtn.textContent = '\u25A0 STOP LISTENING';
+        next();
+      });
+    })();
+    </script>
+
+    <!-- RADIO FOOTER SCRIPT -->
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>
