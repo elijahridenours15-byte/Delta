@@ -582,4 +582,4 @@ def truth_page():
 if __name__ == '__main__':
     import webbrowser, threading
     threading.Timer(1.2, lambda: webbrowser.open('http://127.0.0.1:5000')).start()
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=5001)
