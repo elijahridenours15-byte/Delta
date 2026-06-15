@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Blueprint Gallery</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>BLUEPRINT GALLERY</h1>
+        <p class="tag">FREE PUBLIC-DOMAIN DRAWINGS &bull; 28 MILITARY PLATFORMS &bull; GROUND &bull; AIR &bull; NAVAL</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main>
+      <div class="bp-gallery-page">
+
+        <div class="bp-gallery-header">
+          <h2>Military Platform Blueprints</h2>
+          <p>Free 3-view drawings, orthographic diagrams, and official reference images for all indexed military platforms. Blueprint images are sourced from Wikimedia Commons under public domain or Creative Commons licenses. Each card links to the Wikipedia article and official manufacturer or DoD fact sheet.</p>
+        </div>
+
+        <div class="bp-gallery-actions">
+          <a class="primary" href="/mechanics/browser">Vehicle Browser</a>
+          <a href="/mechanics/blueprints">Service Reference</a>
+          <a href="/mechanics">Mechanics Hub</a>
+          <a href="/manuals">Manuals Library</a>
+        </div>
+
+        <section class="bp-stats-bar" aria-label="Gallery statistics">
+          <div class="bp-stat"><strong>{{ gallery_stats.total }}</strong><span>Platforms</span></div>
+          <div class="bp-stat"><strong>{{ gallery_stats.blueprints }}</strong><span>True Blueprints</span></div>
+          <div class="bp-stat"><strong>{{ gallery_stats.air }}</strong><span>Aviation</span></div>
+          <div class="bp-stat"><strong>{{ gallery_stats.ground + gallery_stats.naval }}</strong><span>Land + Naval</span></div>
+        </section>
+
+        <div class="bp-filter-bar" role="group" aria-label="Filter by category">
+          <button class="bp-filter-btn active" data-filter="all">All Platforms</button>
+          <button class="bp-filter-btn" data-filter="air">Aviation</button>
+          <button class="bp-filter-btn" data-filter="ground">Ground Combat</button>
+          <button class="bp-filter-btn" data-filter="naval">Naval</button>
+          <button class="bp-filter-btn" data-filter="blueprint">Blueprints Only</button>
+        </div>
+
+        <div class="bp-gallery-grid" id="bp-gallery-grid">
+          {% for bp in blueprints %}
+          <article class="bp-card" data-category="{{ bp.category }}" data-blueprint="{{ 'true' if bp.has_blueprint else 'false' }}">
+            <div class="bp-card-img-wrap">
+              <img class="bp-card-img"
+                   src="{{ bp.img }}"
+                   alt="{{ bp.platform }} — {{ bp.img_type }}"
+                   loading="lazy"
+                   onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'color:var(--muted);font:700 .7rem/1 JetBrains Mono,monospace;letter-spacing:1px;text-transform:uppercase\'>Image unavailable</span>'">
+            </div>
+            <div class="bp-card-body">
+              <div class="bp-card-top">
+                <span class="bp-card-cat bp-cat-{{ bp.category }}">{{ bp.category }}</span>
+                <span class="bp-card-img-badge{% if bp.has_blueprint %} is-blueprint{% endif %}">{{ bp.img_type }}</span>
+              </div>
+              <h3 class="bp-card-title">{{ bp.platform }}</h3>
+              <p class="bp-card-maker">{{ bp.maker }}</p>
+              <p class="bp-card-type-label">{{ bp.type }}</p>
+              <div class="bp-card-meta">
+                <span class="bp-card-license">{{ bp.license }}</span>
+                <span class="bp-card-tm" title="{{ bp.tm }}">{{ bp.tm }}</span>
+              </div>
+              <div class="bp-card-links">
+                <a href="{{ bp.wiki }}" target="_blank" rel="noopener noreferrer">Wikipedia</a>
+                <a href="{{ bp.official }}" target="_blank" rel="noopener noreferrer">Official</a>
+                <a href="{{ bp.img }}" target="_blank" rel="noopener noreferrer">Full Image</a>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        <div class="bp-no-results" id="bp-no-results">No platforms match the selected filter.</div>
+
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        const grid = document.getElementById('bp-gallery-grid');
+        const cards = Array.from(grid ? grid.querySelectorAll('.bp-card') : []);
+        const noResults = document.getElementById('bp-no-results');
+        const btns = Array.from(document.querySelectorAll('.bp-filter-btn'));
+
+        function applyFilter(filter) {
+          let visible = 0;
+          cards.forEach(function (card) {
+            const cat = card.dataset.category || '';
+            const isBp = card.dataset.blueprint === 'true';
+            let show = filter === 'all'
+              || filter === cat
+              || (filter === 'blueprint' && isBp);
+            card.classList.toggle('bp-hidden', !show);
+            if (show) visible += 1;
+          });
+          if (noResults) noResults.classList.toggle('show', visible === 0);
+        }
+
+        btns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            btns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            applyFilter(btn.dataset.filter || 'all');
+          });
+        });
+      })();
+    </script>
+
+    {%- include '_radio_footer.html' %}
+</body>
+</html>

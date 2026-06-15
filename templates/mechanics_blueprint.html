@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Blueprint — {{ brand }} {{ model }} {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <style>
+      .mechanics-blueprint-main{max-width:1120px;margin:0 auto;padding:24px 0}
+      .mechanics-blueprint-wrap{display:grid;gap:18px}
+      .blueprint-actions{display:flex;flex-wrap:wrap;gap:10px}
+      .blueprint-actions a{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:8px;border:1px solid var(--border2);background:var(--panel2);color:var(--accent-bright);font:700 .74rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .blueprint-actions a.primary{background:var(--accent);color:var(--bg);border-color:transparent}
+      .blueprint-stat-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+      .blueprint-stat-card{padding:14px;border-radius:10px;border:1px solid var(--border2);background:linear-gradient(180deg,var(--panel),var(--panel2));text-align:center}
+      .blueprint-stat-card strong{display:block;color:var(--accent-bright);font:800 1.3rem/1 'Inter',sans-serif;margin-bottom:8px}
+      .blueprint-stat-card span{display:block;color:var(--muted);font:700 .72rem/1.4 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .mechanics-blueprint-section{background:var(--panel);border-radius:12px;padding:24px;box-shadow:0 2px 12px #0002;display:grid;gap:32px}
+      .blueprint-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+      .blueprint-id-panel{margin-bottom:12px}
+      .blueprint-id-panel h2,.blueprint-gallery-scroll h3,.blueprint-manuals-scroll h3,.blueprint-brief h3,.blueprint-checklist h3{margin:0 0 10px;color:var(--accent-bright);font:700 .92rem/1.35 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .blueprint-img-wrap{position:relative;max-width:640px;margin:0 auto}
+      .blueprint-img{width:100%;max-width:640px;border:2px solid var(--accent2);border-radius:8px;box-shadow:0 2px 12px #0003}
+      .blueprint-labels{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+      .bp-label{position:absolute;background:rgba(20,26,16,.92);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:.92em;font-family:'JetBrains Mono',monospace;box-shadow:0 1px 4px #0005}
+      .blueprint-placeholder,.gallery-placeholder,.manuals-placeholder{color:var(--muted);font-style:italic;padding:24px;text-align:center;border:1px dashed var(--border2);border-radius:10px;background:rgba(15,20,12,.6)}
+      .blueprint-side{display:grid;gap:16px}
+      .blueprint-brief,.blueprint-checklist,.blueprint-manuals-scroll,.blueprint-gallery-scroll{padding:16px;border:1px solid var(--border2);border-radius:10px;background:var(--panel2)}
+      .blueprint-brief p{margin:0;color:var(--text);line-height:1.7}
+      .blueprint-gallery{display:flex;gap:12px;align-items:center;overflow-x:auto;padding-bottom:6px}
+      .gallery-img{height:160px;border:1.5px solid var(--border2);border-radius:6px;box-shadow:0 1px 6px #0002}
+      .bp-manual-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+      .bp-manual-list li{padding:12px;border-radius:8px;background:rgba(15,20,12,.55);border:1px solid rgba(255,255,255,.05)}
+      .bp-manual-list strong{display:block;color:var(--accent-bright);margin-bottom:6px}
+      .bp-manual-list p{margin:0;color:var(--text2);font-size:.86rem;line-height:1.6}
+      .bp-manual-list a{color:var(--sand);font:700 .72rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+      .blueprint-checklist ul{margin:0;padding-left:18px;display:grid;gap:8px;color:var(--text);line-height:1.6}
+      @media(max-width:920px){.blueprint-layout,.blueprint-stat-strip{grid-template-columns:1fr}}
+      @media(max-width:620px){.blueprint-actions{display:grid}.blueprint-actions a{width:100%}}
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="title">
+        <h1>MECHANICS BLUEPRINT</h1>
+        <p class="tag">{{ brand }} / {{ model }} / {{ year }}</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+    <main class="container mechanics-blueprint-main">
+      <div class="mechanics-blueprint-wrap">
+        <div class="blueprint-actions">
+          <a class="primary" href="/mechanics/browser">Back To Browser</a>
+          <a href="/mechanics/blueprints">Blueprint Feed</a>
+          <a href="/manuals">Manuals Library</a>
+        </div>
+
+        <section class="blueprint-stat-strip" aria-label="Vehicle document statistics">
+          <div class="blueprint-stat-card"><strong>{{ vehicle_stats.documents }}</strong><span>Documents Indexed</span></div>
+          <div class="blueprint-stat-card"><strong>{{ vehicle_stats.images }}</strong><span>Images Available</span></div>
+          <div class="blueprint-stat-card"><strong>{{ vehicle_stats.pdfs }}</strong><span>PDF Attachments</span></div>
+        </section>
+
+        <section class="mechanics-blueprint-section">
+          <div class="blueprint-layout">
+            <div class="blueprint-id-panel">
+              <h2>Blueprint &amp; Parts Identification</h2>
+              {% if blueprint_img %}
+                <div class="blueprint-img-wrap">
+                  <img src="{{ blueprint_img }}" alt="Blueprint for {{ brand }} {{ model }} {{ year }}" class="blueprint-img"/>
+                  <div class="blueprint-labels">
+                    <span class="bp-label" style="top:18%;left:32%">A: Engine</span>
+                    <span class="bp-label" style="top:42%;left:60%">B: Transmission</span>
+                    <span class="bp-label" style="top:70%;left:50%">C: Rear Axle</span>
+                    <span class="bp-label" style="top:30%;left:80%">D: Radiator</span>
+                  </div>
+                </div>
+              {% else %}
+                <div class="blueprint-placeholder">No blueprint image is indexed for this vehicle yet.</div>
+              {% endif %}
+            </div>
+
+            <div class="blueprint-side">
+              <section class="blueprint-brief">
+                <h3>Vehicle Brief</h3>
+                <p>This work surface groups the currently indexed manuals, blueprint imagery, and attached documents for {{ brand }} {{ model }} {{ year }} so you can move from route lookup to service reference in one step.</p>
+              </section>
+
+              <section class="blueprint-checklist">
+                <h3>Inspection Focus</h3>
+                <ul>
+                  <li>Confirm power, cooling, and fuel-air systems before part replacement.</li>
+                  <li>Cross-check each indexed document against the current failure symptom.</li>
+                  <li>Use the gallery for component orientation before disassembly.</li>
+                  <li>Open linked PDFs first when torque values or procedures are needed.</li>
+                </ul>
+              </section>
+            </div>
+          </div>
+
+          <div class="blueprint-gallery-scroll">
+            <h3>Gallery</h3>
+            {% if gallery_imgs %}
+              <div class="blueprint-gallery">
+                {% for img in gallery_imgs %}
+                  <img src="{{ img }}" alt="Gallery image for {{ brand }} {{ model }} {{ year }}" class="gallery-img"/>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="gallery-placeholder">No additional gallery images are indexed for this vehicle.</div>
+            {% endif %}
+          </div>
+
+          <div class="blueprint-manuals-scroll">
+            <h3>Manuals &amp; Docs</h3>
+            {% if items %}
+              <ul class="bp-manual-list">
+                {% for it in items %}
+                  <li>
+                    <strong>{{ it.title }}</strong>
+                    <p>{{ it.description or 'Indexed reference entry.' }}</p>
+                    {% if it.pdf_path %}
+                      <a href="{{ it.pdf_path }}">Open PDF</a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="manuals-placeholder">No manuals were found for this vehicle.</div>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+    </main>
+    {%- include '_radio_footer.html' %}
+</body>
+</html>

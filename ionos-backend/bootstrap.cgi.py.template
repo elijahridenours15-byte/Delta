@@ -1,0 +1,93 @@
+import os
+import shutil
+import stat
+import traceback
+import zipfile
+from pathlib import Path
+from urllib.parse import parse_qs
+
+
+TOKEN = '__BOOTSTRAP_TOKEN__'
+ROOT = Path(__file__).resolve().parent
+BUNDLE = ROOT / 'bundle.zip'
+LOCK = ROOT / '.bootstrapped'
+CLEANUP_PATHS = [
+    'workbench.html',
+    'deploy.html',
+    'assets/site.css',
+    'assets/site.js',
+    'assets/project-manifest.json',
+]
+
+
+def respond(status, body):
+    print(f'Status: {status}')
+    print('Content-Type: text/plain')
+    print()
+    print(body)
+
+
+def safe_extract(bundle_path, target_root):
+    with zipfile.ZipFile(bundle_path) as bundle:
+        for member in bundle.infolist():
+            destination = (target_root / member.filename).resolve()
+            if not str(destination).startswith(str(target_root.resolve())):
+                raise ValueError(f'Blocked path traversal entry: {member.filename}')
+        bundle.extractall(target_root)
+
+
+def make_executable(path):
+    current = path.stat().st_mode
+    path.chmod(current | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+
+def cleanup_wrapper_leftovers():
+    for relative in CLEANUP_PATHS:
+        path = ROOT / relative
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
+
+
+def main():
+    if LOCK.exists():
+        respond('409 Conflict', 'IONOS backend bootstrap already ran. Remove .bootstrapped to run it again intentionally.')
+        return
+
+    query = parse_qs(os.environ.get('QUERY_STRING', ''), keep_blank_values=True)
+    token = query.get('token', [''])[0]
+    if token != TOKEN:
+        respond('403 Forbidden', 'Missing or invalid deployment token.')
+        return
+
+    if not BUNDLE.exists():
+        respond('500 Internal Server Error', 'bundle.zip is missing from the webspace root.')
+        return
+
+    safe_extract(BUNDLE, ROOT)
+    cleanup_wrapper_leftovers()
+
+    for script_name in ('index.cgi', 'bootstrap.cgi'):
+        script_path = ROOT / script_name
+        if script_path.exists():
+            make_executable(script_path)
+
+    (ROOT / '.python-eggs').mkdir(exist_ok=True)
+    (ROOT / 'generated').mkdir(exist_ok=True)
+    LOCK.write_text('ok\n', encoding='utf-8')
+    BUNDLE.unlink()
+
+    respond(
+        '200 OK',
+        'Delta Coding backend extracted successfully. Next checks:\n'
+        '- https://futurecodedelta.org/healthz\n'
+        '- https://futurecodedelta.org/\n',
+    )
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception:
+        respond('500 Internal Server Error', traceback.format_exc())

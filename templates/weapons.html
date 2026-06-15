@@ -1,0 +1,2599 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Field Weapons Reference</title>
+    <meta name="description" content="Military small arms reference: rifles, machine guns, snipers, pistols, and launchers across US, Russian, Chinese, and Israeli platforms with specs and field notes.">
+    <meta name="keywords" content="military weapons reference, M4A1 specs, AK-74M, QBZ-95, Tavor, small arms blueprints, field manual reference">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Field Weapons Reference">
+    <meta property="og:description" content="Spec-sheet reference for military small arms. US, Russian, Chinese, and Israeli platforms with caliber, range, action, and field notes.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/weapons">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Field Weapons Reference">
+    <meta name="twitter:description" content="Military small arms reference with specs and field notes at FutureCodeDelta.org.">
+    <link rel="canonical" href="https://futurecodedelta.org/weapons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <style>
+      /* ── Weapons Page Layout ─────────────────────────────────────────── */
+      .weapons-page {
+        flex: 1;
+        width: 100%;
+        padding: 20px 22px 52px;
+      }
+
+      .weapons-wrap {
+        width: 100%;
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      @media (max-width: 780px) {
+        .weapons-page { padding: 16px 14px 40px; }
+      }
+
+      .weapons-hero {
+        background: var(--panel);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        padding: 28px 32px;
+        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: start;
+      }
+      @media (max-width: 800px) { .weapons-hero { grid-template-columns: 1fr; } }
+      @media (max-width: 780px) { .weapons-hero { padding: 22px 18px; gap: 18px; } }
+
+      .weapons-kicker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: .12em;
+        color: var(--muted);
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .weapons-hero h2 { font-size: 1.35rem; color: var(--sand); margin: 0 0 10px; }
+      .weapons-hero > div > p { color: var(--text2); font-size: .93rem; line-height: 1.6; margin: 0 0 16px; }
+
+      .weapons-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+      @media (max-width: 560px) { .weapons-stat-grid { grid-template-columns: 1fr 1fr; } }
+
+      .weapons-stat {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px 14px;
+      }
+      .weapons-stat strong {
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.4rem;
+        color: var(--accent-bright);
+      }
+      .weapons-stat span { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+      .weapons-action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .weapons-cta-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(196,162,101,.24);
+        background: linear-gradient(180deg, rgba(58,78,42,.94), rgba(38,53,29,.94));
+        color: #f1f6e5;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 0 16px rgba(139,157,106,.16);
+      }
+      .weapons-cta-link.secondary {
+        background: rgba(11,14,9,.68);
+        color: var(--sand);
+        border-color: rgba(164,184,122,.18);
+        box-shadow: none;
+      }
+
+      .weapons-classif {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .14em;
+        color: var(--muted);
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 6px 12px;
+        white-space: nowrap;
+      }
+
+      /* ── Weapons Loadout Planner ───────────────────────────────────── */
+      .weapons-loadout-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, .95fr);
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .weapons-briefing-card,
+      .weapons-status-card,
+      .weapons-rack-card,
+      .weapons-manifest-card {
+        background: linear-gradient(180deg, var(--panel), rgba(16,20,13,.92));
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 20px 38px rgba(0,0,0,.18);
+      }
+      .weapons-briefing-card {
+        padding: 22px 24px;
+        position: relative;
+        overflow: hidden;
+      }
+      .weapons-briefing-card::after {
+        content: '';
+        position: absolute;
+        inset: auto -8% -45% auto;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(164,184,122,.16), transparent 66%);
+        pointer-events: none;
+      }
+      .weapons-planner-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(164,184,122,.22);
+        background: rgba(18,24,15,.78);
+        color: var(--accent-bright);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+      }
+      .weapons-briefing-card h2 {
+        margin: 16px 0 10px;
+        color: var(--text);
+        font: 800 clamp(1.7rem, 2.7vw, 2.5rem)/1.05 'Inter', sans-serif;
+        max-width: 14ch;
+      }
+      .weapons-briefing-card p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 15px;
+        line-height: 1.7;
+        max-width: 68ch;
+      }
+      .weapons-briefing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .weapons-briefing-stat {
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(164,184,122,.16);
+        background: rgba(11,14,9,.58);
+      }
+      .weapons-briefing-stat strong {
+        display: block;
+        color: var(--accent-bright);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .weapons-briefing-stat span {
+        display: block;
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .weapons-status-card,
+      .weapons-rack-card,
+      .weapons-manifest-card {
+        padding: 18px;
+      }
+      .weapons-status-card h3,
+      .weapons-rack-card h3,
+      .weapons-manifest-card h3 {
+        margin: 0 0 12px;
+        color: var(--accent-bright);
+        font: 700 12px 'JetBrains Mono', monospace;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+      }
+      .weapons-status-label {
+        display: grid;
+        gap: 6px;
+        color: var(--text2);
+        font: 400 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-status-label select {
+        width: 100%;
+        margin-bottom: 10px;
+        background: rgba(12,17,10,.84);
+        color: var(--text);
+        border: 1px solid rgba(139,157,106,.2);
+        border-radius: 10px;
+        padding: 11px 12px;
+        font: 700 12px 'JetBrains Mono', monospace;
+        box-sizing: border-box;
+      }
+      .weapons-preset-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 14px;
+      }
+      .weapons-preset-btn {
+        background: rgba(12,17,10,.84);
+        color: var(--text2);
+        border: 1px solid rgba(139,157,106,.2);
+        padding: 9px 12px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .weapons-preset-btn.active {
+        background: linear-gradient(180deg, rgba(58,78,42,.98), rgba(38,53,29,.98));
+        color: #f1f6e5;
+        border-color: rgba(164,184,122,.46);
+        box-shadow: 0 0 14px rgba(139,157,106,.18);
+      }
+      .weapons-mission-copy {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: rgba(11,14,9,.58);
+        border: 1px solid rgba(164,184,122,.16);
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.65;
+        min-height: 98px;
+      }
+      .weapons-mission-copy strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--sand);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-load-status {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(139,157,106,.18);
+        background: rgba(11,14,9,.72);
+        color: var(--text2);
+        font: 400 12px/1.6 'JetBrains Mono', monospace;
+        min-height: 62px;
+      }
+      .weapons-load-status.alert {
+        border-color: rgba(204,68,68,.34);
+        color: #f0c1c1;
+      }
+      .weapons-loadout-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(340px, .95fr);
+        gap: 18px;
+        align-items: start;
+        margin-bottom: 22px;
+      }
+      .weapons-rack-card {
+        display: grid;
+        grid-template-rows: auto auto auto minmax(0, 1fr);
+        max-height: calc(100vh - 220px);
+        overflow: hidden;
+      }
+      .weapons-manifest-card {
+        position: sticky;
+        top: 18px;
+        max-height: calc(100vh - 220px);
+        overflow: auto;
+      }
+      .weapons-rack-summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: -4px 0 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(164,184,122,.16);
+        background: rgba(11,14,9,.52);
+        color: var(--text2);
+        font: 400 10px/1.6 'JetBrains Mono', monospace;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+      }
+      .weapons-rack-summary strong {
+        color: var(--accent-bright);
+        font-weight: 700;
+      }
+      .weapons-filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .weapons-filter-chip {
+        background: rgba(12,17,10,.84);
+        color: var(--muted);
+        border: 1px solid rgba(139,157,106,.18);
+        padding: 8px 10px;
+        border-radius: 999px;
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .weapons-filter-chip.active {
+        color: var(--accent-bright);
+        border-color: rgba(164,184,122,.4);
+        background: rgba(34,42,28,.92);
+      }
+      .weapons-item-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-content: start;
+        overflow: auto;
+        min-height: 0;
+        padding-right: 6px;
+        scrollbar-gutter: stable;
+      }
+      .weapons-item-card {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(139,157,106,.16);
+        background: rgba(11,14,9,.68);
+        display: grid;
+        gap: 10px;
+        transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+      }
+      .weapons-item-card:hover {
+        transform: translateY(-1px);
+        border-color: rgba(164,184,122,.28);
+        box-shadow: 0 14px 28px rgba(0,0,0,.14);
+      }
+      .weapons-item-card.loaded {
+        border-color: rgba(164,184,122,.42);
+        box-shadow: 0 0 0 1px rgba(164,184,122,.12), 0 16px 32px rgba(0,0,0,.16);
+      }
+      .weapons-item-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .weapons-item-name {
+        margin: 0;
+        color: var(--text);
+        font: 700 15px/1.4 'Inter', sans-serif;
+      }
+      .weapons-item-meta {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-item-tier {
+        flex: 0 0 auto;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: rgba(34,42,28,.92);
+        border: 1px solid rgba(164,184,122,.16);
+        color: var(--accent-bright);
+        font: 700 9px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-item-card p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+      .weapons-item-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .weapons-item-weight {
+        color: var(--sand);
+        font: 700 11px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-item-toggle {
+        padding: 9px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(139,157,106,.24);
+        background: rgba(12,17,10,.88);
+        color: var(--text2);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .weapons-item-toggle.loaded {
+        background: linear-gradient(180deg, rgba(58,78,42,.98), rgba(38,53,29,.98));
+        color: #f1f6e5;
+        border-color: rgba(164,184,122,.42);
+      }
+      .weapons-manifest-head {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .weapons-platform-card {
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.7);
+        border: 1px solid rgba(164,184,122,.18);
+        display: grid;
+        gap: 8px;
+      }
+      .weapons-platform-card h4 {
+        margin: 0;
+        color: var(--text);
+        font: 800 18px/1.25 'Inter', sans-serif;
+      }
+      .weapons-platform-card p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+      .weapons-platform-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .weapons-platform-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(34,42,28,.92);
+        border: 1px solid rgba(164,184,122,.18);
+        color: var(--accent-bright);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-meter-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .weapons-meter-card {
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(11,14,9,.64);
+        border: 1px solid rgba(139,157,106,.16);
+      }
+      .weapons-meter-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+        color: var(--text2);
+        font: 700 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-meter-bar {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(34,42,28,.84);
+        overflow: hidden;
+      }
+      .weapons-meter-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent2), var(--accent-bright));
+        transition: width .2s ease;
+      }
+      .weapons-meter-fill.warn { background: linear-gradient(90deg, #b38b45, #d0ae68); }
+      .weapons-meter-fill.alert { background: linear-gradient(90deg, #8f3131, #cf6969); }
+      .weapons-coverage-grid {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0;
+      }
+      .weapons-coverage-row {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        color: var(--text2);
+        font: 400 10px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-coverage-row .weapons-meter-bar { height: 8px; }
+      .weapons-manifest-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .weapons-manifest-actions button {
+        flex: 1 1 150px;
+      }
+      .weapons-manifest-list {
+        display: grid;
+        gap: 10px;
+        min-height: 0;
+      }
+      .weapons-manifest-empty {
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px dashed rgba(139,157,106,.22);
+        color: var(--muted);
+        font: 400 12px/1.6 'JetBrains Mono', monospace;
+        text-align: center;
+      }
+      .weapons-manifest-item {
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(11,14,9,.68);
+        border: 1px solid rgba(139,157,106,.16);
+        display: grid;
+        gap: 8px;
+      }
+      .weapons-manifest-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .weapons-manifest-top strong {
+        display: block;
+        color: var(--text);
+        font: 700 14px/1.4 'Inter', sans-serif;
+      }
+      .weapons-manifest-top span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font: 400 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .weapons-manifest-item p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .weapons-remove-chip {
+        padding: 6px 8px;
+        border-radius: 999px;
+        background: rgba(27,16,16,.92);
+        border: 1px solid rgba(204,68,68,.22);
+        color: #efb8b8;
+        font: 700 9px 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      @media (max-width: 1100px) {
+        .weapons-loadout-hero,
+        .weapons-loadout-grid { grid-template-columns: 1fr; }
+        .weapons-rack-card,
+        .weapons-manifest-card { max-height: min(78vh, 760px); }
+        .weapons-manifest-card { position: static; top: auto; }
+        .weapons-item-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 800px) {
+        .weapons-briefing-card,
+        .weapons-status-card,
+        .weapons-rack-card,
+        .weapons-manifest-card { padding: 16px; }
+        .weapons-briefing-grid { grid-template-columns: 1fr; }
+        .weapons-rack-card,
+        .weapons-manifest-card { max-height: min(74vh, 680px); }
+      }
+      @media (max-width: 600px) {
+        .weapons-briefing-card,
+        .weapons-status-card,
+        .weapons-rack-card,
+        .weapons-manifest-card { padding: 14px; }
+        .weapons-briefing-card h2 { max-width: none; font-size: clamp(1.55rem, 8vw, 2rem); }
+        .weapons-status-label select { min-height: 42px; font-size: 13px; }
+        .weapons-preset-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .weapons-preset-btn { width: 100%; min-height: 42px; display: flex; align-items: center; justify-content: center; padding: 10px 8px; line-height: 1.35; text-align: center; }
+        .weapons-rack-card,
+        .weapons-manifest-card { max-height: min(76vh, 620px); }
+        .weapons-rack-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 6px; }
+        .weapons-filter-row { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding: 0 2px 4px; margin: 0 -2px 12px; scrollbar-gutter: auto; }
+        .weapons-filter-chip { flex: 0 0 auto; white-space: nowrap; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; }
+        .weapons-item-card { padding: 12px; }
+        .weapons-item-footer { flex-direction: column; align-items: stretch; }
+        .weapons-item-toggle { width: 100%; min-height: 42px; }
+        .weapons-platform-meta { display: grid; grid-template-columns: 1fr; gap: 6px; }
+        .weapons-platform-pill { justify-content: flex-start; }
+        .weapons-coverage-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+        .weapons-coverage-row > span:first-child { grid-column: 1 / -1; }
+        .weapons-coverage-row .weapons-meter-bar { grid-column: 1 / 2; }
+        .weapons-coverage-row > span:last-child { justify-self: end; }
+        .weapons-manifest-actions { flex-direction: column; }
+        .weapons-manifest-actions button { width: 100%; flex: 1 1 auto; min-height: 42px; }
+        .weapons-manifest-top { flex-direction: column; }
+        .weapons-remove-chip { align-self: stretch; text-align: center; min-height: 40px; }
+      }
+      @media (max-width: 420px) {
+        .weapons-preset-row,
+        .weapons-rack-summary { grid-template-columns: 1fr; }
+        .weapons-preset-btn,
+        .weapons-filter-chip { font-size: 9px; letter-spacing: .8px; }
+        .weapons-item-name { font-size: 14px; }
+        .weapons-item-meta,
+        .weapons-manifest-top span,
+        .weapons-coverage-row { letter-spacing: .7px; }
+      }
+
+      /* ── Filter Bar ──────────────────────────────────────────────────── */
+      .weapons-filter-bar {
+        background: var(--panel);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        padding: 18px 22px;
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      @media (max-width: 780px) { .weapons-filter-bar { padding: 16px; } }
+
+      .filter-group { display: flex; flex-direction: column; gap: 8px; }
+      .filter-group-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .12em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+      .w-chip {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: .05em;
+        padding: 5px 13px;
+        border-radius: 14px;
+        border: 1px solid var(--border2);
+        background: var(--panel2);
+        color: var(--text2);
+        cursor: pointer;
+        transition: background .14s, border-color .14s, color .14s;
+      }
+      .w-chip:hover { background: var(--border2); color: var(--text); }
+      .w-chip.active { background: var(--accent2); border-color: var(--accent-bright); color: #fff; }
+      .w-chip.nation-us.active  { background: #2e4422; border-color: var(--accent-bright); color: var(--accent-bright); }
+      .w-chip.nation-rus.active { background: #3e1e1e; border-color: #b06060; color: #d08080; }
+      .w-chip.nation-chn.active { background: #3e2418; border-color: #c07050; color: #d08860; }
+      .w-chip.nation-isr.active { background: #1a2a48; border-color: #5080c0; color: #7090d0; }
+
+      .weapons-search-wrap { position: relative; width: min(100%, 440px); }
+      .weapons-search {
+        width: 100%;
+        background: var(--panel2);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        padding: 9px 14px 9px 36px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--text);
+        outline: none;
+        transition: border-color .2s;
+        box-sizing: border-box;
+      }
+      .weapons-search::placeholder { color: var(--muted); }
+      .weapons-search:focus { border-color: var(--accent2); }
+      .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 13px;
+        pointer-events: none;
+      }
+
+      /* ── Results Bar ─────────────────────────────────────────────────── */
+      .weapons-results-bar {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: .06em;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .weapons-results-bar strong { color: var(--text2); }
+
+      /* ── Weapon Grid ─────────────────────────────────────────────────── */
+      .weapons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+        gap: 15px;
+        align-items: stretch;
+      }
+      @media (max-width: 900px) { .weapons-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
+      @media (max-width: 500px) { .weapons-grid { grid-template-columns: 1fr; } }
+
+      /* ── Weapon Card ─────────────────────────────────────────────────── */
+      .weapon-card {
+        background: var(--panel);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: border-color .18s, box-shadow .18s;
+      }
+      .weapon-card:hover {
+        border-color: var(--accent2);
+        box-shadow: 0 3px 14px rgba(0,0,0,.45);
+      }
+      .weapon-card.nation-us  { border-left: 3px solid var(--accent-bright); }
+      .weapon-card.nation-rus { border-left: 3px solid #b06060; }
+      .weapon-card.nation-chn { border-left: 3px solid #c07050; }
+      .weapon-card.nation-isr { border-left: 3px solid #5080c0; }
+
+      .weapon-card-head {
+        padding: 14px 18px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .weapon-card-head-left { flex: 1; min-width: 0; }
+
+      .nation-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 3px;
+        display: inline-block;
+        margin-bottom: 7px;
+        font-weight: 700;
+      }
+      .nation-badge.us  { background: #22321a; color: var(--accent-bright); border: 1px solid #3a5028; }
+      .nation-badge.rus { background: #2e1818; color: #d07070; border: 1px solid #4a2828; }
+      .nation-badge.chn { background: #321e10; color: #d09060; border: 1px solid #4e3020; }
+      .nation-badge.isr { background: #14223a; color: #6090d0; border: 1px solid #22345a; }
+
+      .weapon-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.0rem;
+        color: var(--sand);
+        font-weight: 700;
+        letter-spacing: .02em;
+        margin: 0 0 4px;
+        line-height: 1.25;
+      }
+      .weapon-maker { font-size: .79rem; color: var(--muted); margin: 0; }
+
+      .cat-chip {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 3px;
+        border: 1px solid var(--border2);
+        background: var(--panel2);
+        color: var(--text2);
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: flex-start;
+      }
+      .cat-chip.rifle      { border-color: #364e28; color: var(--accent-bright); }
+      .cat-chip.machinegun { border-color: #503a18; color: #c08040; }
+      .cat-chip.sniper     { border-color: #3c2e52; color: #9070c0; }
+      .cat-chip.pistol     { border-color: #1c3448; color: #5090b0; }
+      .cat-chip.smg        { border-color: #223040; color: #6090a0; }
+      .cat-chip.launcher   { border-color: #4a1a1a; color: #c05040; }
+      .cat-chip.manpads    { border-color: #3a1010; color: #b03838; }
+
+      .weapon-card-body {
+        padding: 14px 18px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .spec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 14px;
+      }
+      .spec-item { display: flex; flex-direction: column; gap: 2px; }
+      .spec-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8.5px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .spec-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: .82rem;
+        color: var(--text);
+        font-weight: 500;
+        line-height: 1.3;
+      }
+      .spec-full { grid-column: 1 / -1; }
+
+      .weapon-notes {
+        font-size: .84rem;
+        color: var(--text2);
+        line-height: 1.58;
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        margin: 0;
+      }
+
+      .attachment-suite {
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        display: grid;
+        gap: 12px;
+      }
+      .suite-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .suite-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 5px;
+      }
+      .suite-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: .87rem;
+        color: var(--sand);
+        margin: 0 0 4px;
+      }
+      .suite-purpose {
+        margin: 0;
+        color: var(--text2);
+        font-size: .8rem;
+        line-height: 1.55;
+      }
+      .suite-summary-pills {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .suite-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border2);
+        background: rgba(34,42,28,.92);
+        color: var(--text2);
+      }
+
+      .package-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .package-tab {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        padding: 5px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border2);
+        background: rgba(11,14,9,.68);
+        color: var(--text2);
+        cursor: pointer;
+        transition: background .16s, border-color .16s, color .16s;
+      }
+      .package-tab:hover { background: rgba(34,42,28,.92); color: var(--text); }
+      .package-tab.active { background: rgba(58,78,42,.98); border-color: rgba(164,184,122,.38); color: #f1f6e5; }
+
+      .suite-layout {
+        display: grid;
+        grid-template-columns: 1.2fr .9fr;
+        gap: 12px;
+      }
+      @media (max-width: 900px) {
+        .suite-layout { grid-template-columns: 1fr; }
+      }
+
+      .attachment-list {
+        display: grid;
+        gap: 8px;
+      }
+      .attachment-row {
+        background: rgba(11,14,9,.66);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 9px 10px;
+        display: grid;
+        gap: 4px;
+      }
+      .attachment-row-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .attachment-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: .8rem;
+        color: var(--text);
+      }
+      .attachment-metric {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      .attachment-purpose {
+        margin: 0;
+        color: var(--text2);
+        font-size: .78rem;
+        line-height: 1.55;
+      }
+
+      .diagram-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .diagram-card {
+        background: rgba(11,14,9,.66);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+      }
+      .diagram-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .diagram-row {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .diagram-row-label,
+      .diagram-row-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: .05em;
+        color: var(--text2);
+      }
+      .diagram-bar {
+        height: 8px;
+        background: rgba(34,42,28,.92);
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(164,184,122,.14);
+      }
+      .diagram-fill {
+        height: 100%;
+        border-radius: 999px;
+      }
+      .diagram-fill.base { background: linear-gradient(90deg, rgba(107,127,78,.92), rgba(139,157,106,.92)); }
+      .diagram-fill.config { background: linear-gradient(90deg, rgba(196,162,101,.92), rgba(164,184,122,.92)); }
+
+      .carry-profile {
+        background: rgba(34,42,28,.76);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px;
+        display: grid;
+        gap: 4px;
+      }
+      .carry-profile strong {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: .78rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--accent-bright);
+      }
+      .carry-profile p {
+        margin: 0;
+        color: var(--text2);
+        font-size: .78rem;
+        line-height: 1.55;
+      }
+
+      .weapon-card-foot {
+        padding: 9px 18px;
+        border-top: 1px solid var(--border);
+        background: var(--panel2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .tm-ref {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .07em;
+        color: var(--muted);
+      }
+      .tm-ref strong { color: var(--text2); }
+
+      .blueprint-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        border: 1px solid #4a3a18;
+        background: #2a2010;
+        padding: 3px 8px;
+        border-radius: 3px;
+      }
+
+      /* ── Section Dividers ────────────────────────────────────────────── */
+      .nation-section-header {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 0 6px;
+      }
+      .nation-section-header .ns-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 4px;
+      }
+      .ns-badge.us  { background: #22321a; color: var(--accent-bright); border: 1px solid #3a5028; }
+      .ns-badge.rus { background: #2e1818; color: #d07070; border: 1px solid #4a2828; }
+      .ns-badge.chn { background: #321e10; color: #d09060; border: 1px solid #4e3020; }
+      .ns-badge.isr { background: #14223a; color: #6090d0; border: 1px solid #22345a; }
+
+      .nation-section-header .ns-line {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .nation-section-header .ns-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: .08em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      .weapons-empty {
+        grid-column: 1 / -1;
+        padding: 54px;
+        text-align: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: .9rem;
+        color: var(--muted);
+        letter-spacing: .06em;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/" class="delta-logo" aria-label="FutureCodeDelta home" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — FIELD WEAPONS REFERENCE</h1>
+        <p class="tag">SMALL ARMS &bull; US &bull; RUSSIAN &bull; CHINESE &bull; ISRAELI &bull; SPECS &bull; BLUEPRINTS</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="weapons-page">
+      <div class="weapons-wrap">
+
+        <section class="weapons-hero">
+          <div>
+            <span class="weapons-kicker">Field Reference — Public Domain Specifications</span>
+            <h2>Military Small Arms Compendium</h2>
+            <p>Spec-sheet reference for active and recently-retired military small arms platforms. Caliber, effective range, action type, service period, and field notes for each entry. Prioritizes US systems, followed by Russian, Chinese, and Israeli arms.</p>
+            <div class="weapons-stat-grid">
+              <div class="weapons-stat"><strong id="statTotal">—</strong><span>Platforms</span></div>
+              <div class="weapons-stat"><strong>4</strong><span>Nations</span></div>
+              <div class="weapons-stat"><strong id="statVisible">—</strong><span>Showing</span></div>
+            </div>
+            <div class="weapons-action-row">
+              <a class="weapons-cta-link" href="/weapons/armory">Open Armory Reference</a>
+              <a class="weapons-cta-link secondary" href="#weaponLoadoutSelect">Jump To Loadout Planner</a>
+            </div>
+          </div>
+          <div>
+            <span class="weapons-classif">&#9670;&nbsp;REF&nbsp;//&nbsp;PUBLIC&nbsp;DOMAIN</span>
+          </div>
+        </section>
+
+        <section class="weapons-loadout-hero">
+          <article class="weapons-briefing-card">
+            <span class="weapons-planner-kicker">Attachment Loadout Planner</span>
+            <h2>Weapon Setup Control</h2>
+            <p>Select a platform, load a preset package, and tune the attachment stack one piece at a time. Weight, stow volume, and capability coverage update live as optics, lasers, lights, slings, suppressors, and support hardware are added or removed.</p>
+            <div class="weapons-briefing-grid">
+              <div class="weapons-briefing-stat">
+                <strong>Platform Logic</strong>
+                <span>Every weapon pulls its loadout options from its category-specific package library so presets and custom stacks stay consistent.</span>
+              </div>
+              <div class="weapons-briefing-stat">
+                <strong>Attachment Control</strong>
+                <span>Start from a role package, then add or strip individual modules until the rifle, pistol, or launcher matches the mission window.</span>
+              </div>
+              <div class="weapons-briefing-stat">
+                <strong>Manifest Output</strong>
+                <span>Copy or export a plain-text attachment manifest for armory setup, range planning, or vehicle rack prep.</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="weapons-status-card">
+            <h3>Loadout Control</h3>
+            <label class="weapons-status-label" for="weaponLoadoutSelect">
+              Weapon Platform
+              <select id="weaponLoadoutSelect"></select>
+            </label>
+            <div class="weapons-preset-row" id="weaponPresetRow"></div>
+            <div class="weapons-mission-copy" id="weaponMissionCopy" aria-live="polite"></div>
+            <div class="weapons-load-status" id="weaponLoadStatus" aria-live="polite"></div>
+          </aside>
+        </section>
+
+        <section class="weapons-loadout-grid">
+          <article class="weapons-rack-card">
+            <h3>Attachment Rack</h3>
+            <div class="weapons-rack-summary" id="weaponRackSummary"></div>
+            <div class="weapons-filter-row" id="weaponAttachmentFilterRow"></div>
+            <div class="weapons-item-grid" id="weaponAttachmentGrid"></div>
+          </article>
+
+          <aside class="weapons-manifest-card">
+            <h3>Loadout Manifest</h3>
+            <div class="weapons-manifest-head">
+              <div class="weapons-platform-card" id="weaponPlatformCard"></div>
+              <div class="weapons-meter-grid" id="weaponMeterGrid"></div>
+            </div>
+            <div class="weapons-coverage-grid" id="weaponCoverageGrid"></div>
+            <div class="weapons-manifest-actions">
+              <button id="copyWeaponManifest">Copy Loadout</button>
+              <button id="exportWeaponManifest">Export Loadout</button>
+              <button id="resetWeaponLoadout">Clear Attachments</button>
+            </div>
+            <div class="weapons-manifest-list" id="weaponManifestList"></div>
+          </aside>
+        </section>
+
+        <section class="weapons-filter-bar">
+          <div class="filter-group">
+            <span class="filter-group-label">Nation</span>
+            <div class="filter-chips" id="nationChips">
+              <button class="w-chip active" data-nation="all">All Nations</button>
+              <button class="w-chip nation-us" data-nation="us">&#9733;&nbsp;United States</button>
+              <button class="w-chip nation-rus" data-nation="rus">Russia</button>
+              <button class="w-chip nation-chn" data-nation="chn">China</button>
+              <button class="w-chip nation-isr" data-nation="isr">Israel</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-group-label">Category</span>
+            <div class="filter-chips" id="catChips">
+              <button class="w-chip active" data-cat="all">All Categories</button>
+              <button class="w-chip" data-cat="rifle">Rifle / Carbine</button>
+              <button class="w-chip" data-cat="machinegun">Machine Gun</button>
+              <button class="w-chip" data-cat="sniper">Sniper / DMR</button>
+              <button class="w-chip" data-cat="pistol">Pistol / Sidearm</button>
+              <button class="w-chip" data-cat="smg">Submachine Gun</button>
+              <button class="w-chip" data-cat="launcher">Launcher / AT</button>
+              <button class="w-chip" data-cat="manpads">MANPADS</button>
+            </div>
+          </div>
+          <div class="weapons-search-wrap">
+            <span class="search-icon">&#x2315;</span>
+            <input type="text" class="weapons-search" id="weaponsSearch" placeholder="Search platform, caliber, manufacturer, TM..." aria-label="Search weapons">
+          </div>
+        </section>
+
+        <div class="weapons-results-bar">
+          <span id="resultsCount"></span>
+        </div>
+
+        <div class="weapons-grid" id="weaponsGrid"></div>
+
+      </div>
+    </main>
+
+    <script>
+    (function () {
+      'use strict';
+
+      const WEAPONS = [
+        // ── UNITED STATES ─────────────────────────────────────────────────────────
+        {
+          nation: 'us', name: 'M4A1 Carbine', maker: 'Colt Defense / FN America',
+          cat: 'rifle', caliber: '5.56×45mm NATO', range: '500 m',
+          action: 'Gas-operated, rotating bolt', weight: '6.43 lb empty',
+          service: 'US Army, USMC, SOCOM (1994–present)',
+          tm: 'TM 9-1005-319-10',
+          notes: 'Standard US infantry carbine. Full-auto capable (M4A1 vs. M4 burst). 14.5-inch cold-hammer-forged barrel. SOPMOD II accessory rail compatible. Issued with ACOG, EOTech, or PEQ laser.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M16A4 Rifle', maker: 'FN America',
+          cat: 'rifle', caliber: '5.56×45mm NATO', range: '550 m',
+          action: 'Gas-operated, rotating bolt', weight: '7.5 lb empty',
+          service: 'USMC primary service rifle (2002–2022)',
+          tm: 'TM 9-1005-319-23',
+          notes: 'Full-length 20-inch barrel variant. Three-round burst and semi only. Replaced in USMC front-line service by M27 IAR. Retained as designated marksman platform in many units.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M27 IAR (Infantry Automatic Rifle)', maker: 'Heckler & Koch (US)',
+          cat: 'rifle', caliber: '5.56×45mm NATO', range: '550 m',
+          action: 'Gas-operated, short-stroke piston', weight: '7.9 lb empty',
+          service: 'USMC (2011–present)',
+          tm: 'TM 1005-HK-IAR-10',
+          notes: 'HK416-derived platform selected to replace M249 SAW as USMC squad automatic. Piston-operated for cooler barrel and reduced fouling. Closed bolt semi-auto with automatic mode.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M249 SAW (Squad Automatic Weapon)', maker: 'FN America',
+          cat: 'machinegun', caliber: '5.56×45mm NATO', range: '800 m',
+          action: 'Gas-operated, open bolt', weight: '17.0 lb empty',
+          service: 'US Army, USMC (1984–present)',
+          tm: 'TM 9-1005-201-10',
+          notes: 'Belt-fed light machine gun at 700–1,000 rpm. Accepts STANAG magazines as emergency feed. Provides squad-level fire superiority and suppression at the fireteam level.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M240B GPMG', maker: 'FN America',
+          cat: 'machinegun', caliber: '7.62×51mm NATO', range: '1,100 m',
+          action: 'Gas-operated, open bolt', weight: '27.6 lb empty',
+          service: 'US Army, USMC, SOCOM (1977–present)',
+          tm: 'TM 9-1005-313-10',
+          notes: 'General purpose machine gun derived from FN MAG 58. Replaced M60. Sustained fire at 650–950 rpm. Vehicle, aircraft, and vessel mount variants. L3 Harris fire control available.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M2A1 HMG (.50 Cal)', maker: 'General Dynamics / U.S. Ordnance',
+          cat: 'machinegun', caliber: '.50 BMG (12.7×99mm)', range: '1,800 m',
+          action: 'Short-recoil, open bolt', weight: '84 lb (gun only)',
+          service: 'All US services, NATO (1933–present)',
+          tm: 'TM 9-1005-213-10',
+          notes: 'Longest-serving US heavy machine gun. Quick-change barrel variant (M2A1). Defeats light armor, low-flying aircraft, and crew-served positions. Standard on Humvees, MRAPs, and vessels.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M110 SASS', maker: "Knight's Armament Company",
+          cat: 'sniper', caliber: '7.62×51mm NATO', range: '800 m',
+          action: 'Gas-operated, semi-auto', weight: '15.4 lb (w/ suppressor)',
+          service: 'US Army, USMC (2007–present)',
+          tm: 'TM 9-1005-338-13&P',
+          notes: 'Semi-auto designated marksman system based on the SR-25. Standard issue with AAC suppressor. Bridges gap between M4 carbine and bolt-gun. M110A1 CSASS (HK G28) successor in service.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M24 SWS', maker: 'Remington Arms',
+          cat: 'sniper', caliber: '7.62×51mm NATO', range: '800 m',
+          action: 'Bolt-action, Remington 700 action', weight: '12.1 lb',
+          service: 'US Army, Rangers (1988–present)',
+          tm: 'TM 9-1005-306-10',
+          notes: 'Long-action Remington 700 bedded in H-S Precision stock. Leupold Ultra M3A 10× scope standard. M24E1 upgrade converts to .300 Win Mag for extended range.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M82A1 / M107 Anti-Materiel Rifle', maker: 'Barrett Firearms',
+          cat: 'sniper', caliber: '.50 BMG (12.7×99mm)', range: '1,800 m',
+          action: 'Short-recoil, semi-auto', weight: '30.9 lb',
+          service: 'US Army, USMC, SOCOM (1989–present)',
+          tm: 'TM 9-1005-326-23&P',
+          notes: 'Anti-materiel and long-range sniper platform. Defeats light vehicles, radar arrays, and aircraft on the ground. Effective for EOD standoff. Hearing protection mandatory—no exception.',
+          blueprint: true
+        },
+        {
+          nation: 'us', name: 'M17 / SIG Sauer P320-M17', maker: 'SIG Sauer USA',
+          cat: 'pistol', caliber: '9×19mm NATO', range: '50 m',
+          action: 'Short-recoil, striker-fired', weight: '1.9 lb',
+          service: 'US Army, Air Force, Navy (2017–present)',
+          tm: 'TM 9-1005-350-10',
+          notes: 'Winner of US Modular Handgun System program. Modular FCU design. M18 compact variant for aviation and support personnel. Replaced M9 as Army primary sidearm.',
+          blueprint: false
+        },
+        {
+          nation: 'us', name: 'M9A3 Beretta', maker: 'Beretta USA',
+          cat: 'pistol', caliber: '9×19mm NATO', range: '50 m',
+          action: 'Short-recoil, DA/SA hammer-fired', weight: '2.1 lb',
+          service: 'US Armed Forces, 50+ allies (1985–present)',
+          tm: 'TM 9-1005-317-10',
+          notes: 'Replaced M1911A1. 15-round magazine. M9A3 adds removable front sight, improved trigger guard, and picatinny rail. Widely still in service in allied nations.',
+          blueprint: false
+        },
+        {
+          nation: 'us', name: 'M320 GLM', maker: 'Heckler & Koch (US production)',
+          cat: 'launcher', caliber: '40×46mm Low Velocity', range: '350 m',
+          action: 'Break-action, single-shot', weight: '3.3 lb standalone',
+          service: 'US Army, USMC (2009–present)',
+          tm: 'TM 9-1010-223-10',
+          notes: 'Replaced M203. Side-loading for confined-space use. Can fire standalone or underbarrel on M4. Accepts optical and laser sighting systems. Fires HE, smoke, illum, and training rounds.',
+          blueprint: false
+        },
+        {
+          nation: 'us', name: 'AT4 Anti-Armor Launcher', maker: 'Saab / Alliant Techsystems',
+          cat: 'launcher', caliber: '84mm HEAT', range: '300 m',
+          action: 'Single-shot, disposable', weight: '14.8 lb',
+          service: 'US Army, USMC, 30+ nations (1987–present)',
+          tm: 'TM 9-1340-214-10',
+          notes: 'Disposable single-use launcher. Tandem warhead AT4-CS variant for confined spaces. Penetrates 420 mm RHA. Squad-level anti-armor primary when Javelin is not available.',
+          blueprint: false
+        },
+        {
+          nation: 'us', name: 'FIM-92 Stinger', maker: 'Raytheon Technologies',
+          cat: 'manpads', caliber: '70mm IR-guided missile', range: '4,800 m effective alt.',
+          action: 'Passive IR seeker, fire-and-forget', weight: '34.5 lb (ready)',
+          service: 'US Army, USMC, 30+ nations (1981–present)',
+          tm: 'TM 9-1440-473-12&P',
+          notes: 'Infrared-guided shoulder-fired SAM. Effective vs. helicopters, UAVs, and low-altitude fixed-wing. Extensively supplied to Ukraine. Has defeated Mi-17, Mi-8, and Ka-52 platforms.',
+          blueprint: false
+        },
+
+        // ── RUSSIA ────────────────────────────────────────────────────────────────
+        {
+          nation: 'rus', name: 'AK-74M', maker: 'Kalashnikov Concern',
+          cat: 'rifle', caliber: '5.45×39mm', range: '500 m',
+          action: 'Gas-operated, rotating bolt', weight: '7.5 lb empty',
+          service: 'Russian Armed Forces (1991–present)',
+          tm: 'НСД АК-74М',
+          notes: 'Standard Russian infantry rifle. Side-folding polymer stock. Side-rail optics mount. Accepts 6X4 bayonet. Baseline of all modern Kalashnikov variants. Battle-proven across multiple conflicts.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: 'AK-12 (6P70)', maker: 'Kalashnikov Concern',
+          cat: 'rifle', caliber: '5.45×39mm', range: '600 m',
+          action: 'Gas-operated, rotating bolt', weight: '7.9 lb empty',
+          service: 'Russian Ground Forces, VDV (2018–present)',
+          tm: 'НСД АК-12',
+          notes: 'Next-generation platform for Ratnik infantry program. Full Picatinny top rail. Last-round bolt hold-open. Three-round burst, semi, and full-auto. Folding, length-adjustable stock. Wide adoption ongoing.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: 'AK-103', maker: 'Kalashnikov Concern',
+          cat: 'rifle', caliber: '7.62×39mm', range: '500 m',
+          action: 'Gas-operated, rotating bolt', weight: '7.5 lb empty',
+          service: 'Russian security forces, 30+ export nations',
+          tm: 'НСД АК-103',
+          notes: 'Export variant of AK-74M chambered in 7.62×39mm for interoperability with local ammo stocks. Widely adopted in Africa, Middle East, and Latin America. Popular with irregular forces.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: 'PKM General Purpose Machine Gun', maker: 'Kalashnikov Concern',
+          cat: 'machinegun', caliber: '7.62×54mmR', range: '1,000 m',
+          action: 'Gas-operated, open bolt', weight: '19.8 lb empty',
+          service: 'Russia, former Soviet states, 60+ nations (1969–present)',
+          tm: 'НСД ПКМ',
+          notes: 'Highly reliable GPMG. Belt-fed from 100-round assault or 200/250-round standard boxes. Operates reliably at –50°C to +50°C. Widely copied and used in every major conflict since Vietnam.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: 'RPK-16 Light Machine Gun', maker: 'Kalashnikov Concern',
+          cat: 'machinegun', caliber: '5.45×39mm', range: '800 m',
+          action: 'Gas-operated, closed bolt', weight: '9.5 lb empty',
+          service: 'Russian special units (2017–present)',
+          tm: 'НСД РПК-16',
+          notes: 'Modernized RPK platform with interchangeable 16-inch and 20-inch barrels. Accepts 30-round STANAG-style and 96-round drum magazines. KORD optic rail. Ratnik system compatible.',
+          blueprint: false
+        },
+        {
+          nation: 'rus', name: 'SVD Dragunov', maker: 'Izhmash (Kalashnikov Concern)',
+          cat: 'sniper', caliber: '7.62×54mmR', range: '800 m',
+          action: 'Gas-operated, semi-auto', weight: '9.5 lb empty',
+          service: 'Russia, Warsaw Pact, 50+ nations (1963–present)',
+          tm: 'НСД СВД',
+          notes: 'Designated marksman rifle for squad-level reach. PSO-1 4×24 optic standard. Not a precision sniper system—designed for rapid follow-up shots at 600–800 m. Extremely widespread globally.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: 'SV-98 Precision Sniper Rifle', maker: 'Izhmash (Kalashnikov Concern)',
+          cat: 'sniper', caliber: '7.62×54mmR', range: '1,000 m',
+          action: 'Bolt-action', weight: '14.1 lb',
+          service: 'FSB, MVD, Spetsnaz (2000–present)',
+          tm: 'НСД СВ-98',
+          notes: 'Purpose-built precision platform for Russian law enforcement and special forces. Chassis system with adjustable LOP and cheek weld. Schmidt & Bender and domestic 1P69 optic compatible.',
+          blueprint: false
+        },
+        {
+          nation: 'rus', name: 'MP-443 Grach (PYa)', maker: 'Izhevsk Mechanical Plant',
+          cat: 'pistol', caliber: '9×19mm / 7N21 AP', range: '50 m',
+          action: 'Short-recoil, DA/SA', weight: '2.1 lb',
+          service: 'Russian Armed Forces, FSB, MVD (2003–present)',
+          tm: 'НСД МП-443',
+          notes: 'Standard Russian military sidearm since 2003. Capable of firing 7N21 armor-piercing rounds at higher velocity. 18-round magazine. Replaced Makarov PM in regular force service.',
+          blueprint: false
+        },
+        {
+          nation: 'rus', name: 'RPG-7V2 Anti-Tank Launcher', maker: 'Bazalt / FSUE Bazalt',
+          cat: 'launcher', caliber: '40–105mm (warhead dependent)', range: '300–700 m',
+          action: 'Single-shot, reloadable', weight: '15.0 lb (launcher)',
+          service: 'Russia, 40+ nations (1961–present)',
+          tm: 'НСД РПГ-7',
+          notes: 'Most widely produced anti-tank rocket launcher in history. Accepts PG-7V HEAT, OG-7V fragmentation, TBG-7V thermobaric, and RPG-43 warheads. Effective against light and medium armor.',
+          blueprint: true
+        },
+        {
+          nation: 'rus', name: '9K38 Igla-S (SA-24 Grinch)', maker: 'KBM Design Bureau',
+          cat: 'manpads', caliber: '72mm IR/UV guided missile', range: '6,000 m effective alt.',
+          action: 'Dual IR/UV seeker, fire-and-forget', weight: '38.0 lb (ready)',
+          service: 'Russia, export customers (2004–present)',
+          tm: 'НСД 9К38',
+          notes: 'Upgraded Igla with dual IR/UV seeker for improved flare countermeasure resistance. Effective vs. helicopters, UAVs, and cruise missiles. Exported to Iran, Venezuela, and multiple Asian customers.',
+          blueprint: false
+        },
+
+        // ── CHINA ─────────────────────────────────────────────────────────────────
+        {
+          nation: 'chn', name: 'QBZ-95-1 (Type 95-1)', maker: 'Norinco / CSGC',
+          cat: 'rifle', caliber: '5.8×42mm DBP87', range: '400 m',
+          action: 'Gas-operated, rotating bolt, bullpup', weight: '7.3 lb empty',
+          service: 'PLA, PAP (1997–present)',
+          tm: 'PLA Technical Manual QBZ-95',
+          notes: 'Standard PLA infantry rifle. Bullpup design for compact length with full barrel. Proprietary 5.8mm caliber. -1 variant adds improved trigger, rail, and sights. Non-STANAG magazine limits export adoption.',
+          blueprint: true
+        },
+        {
+          nation: 'chn', name: 'QBZ-191 (Type 191)', maker: 'Norinco / CSGC',
+          cat: 'rifle', caliber: '5.8×42mm DBP191', range: '600 m',
+          action: 'Gas-operated, rotating bolt', weight: '8.4 lb empty',
+          service: 'PLA (2021–present)',
+          tm: 'PLA Technical Manual QBZ-191',
+          notes: 'Next-generation PLA service rifle replacing QBZ-95 series. Conventional non-bullpup layout. Full Picatinny and M-LOK integration. Improved balance, ergonomics, and modular caliber options.',
+          blueprint: true
+        },
+        {
+          nation: 'chn', name: 'QBZ-03 (Type 03)', maker: 'Norinco',
+          cat: 'rifle', caliber: '5.8×42mm DBP87', range: '400 m',
+          action: 'Gas-operated, rotating bolt', weight: '7.3 lb empty',
+          service: 'PLA Reserve, militia, export (2003–present)',
+          tm: 'PLA Technical Manual QBZ-03',
+          notes: 'Conventional-layout alternative to QBZ-95 for units preferring traditional rifle form. Folding stock. Wider adoption in reserve and militia forces. Exported in 7.62×39mm as CS/LR2 variant.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'QJY-88 GPMG (Type 88)', maker: 'Norinco',
+          cat: 'machinegun', caliber: '5.8×42mm DBP87', range: '800 m',
+          action: 'Gas-operated, open bolt', weight: '22.9 lb (w/ bipod)',
+          service: 'PLA (1998–present)',
+          tm: 'PLA Technical Manual QJY-88',
+          notes: 'Light machine gun companion to QBZ-95 family for squad fire support. Belt-fed 200-round box. Sustained fire bipod mount. Chinese equivalent of NATO M249 role in PLA squad structure.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'CS/LR4 Sniper Rifle', maker: 'CSGC / China North Industries',
+          cat: 'sniper', caliber: '7.62×51mm NATO', range: '1,000 m',
+          action: 'Bolt-action, Mauser-controlled feed', weight: '13.4 lb',
+          service: 'PLA, PAP, export customers (2010–present)',
+          tm: 'CSGC Technical Specification LR4',
+          notes: 'Export-oriented precision rifle accepting NATO optics. Folding chassis with adjustable LOP and cheek. Fluted heavy barrel. Marketed and sold across Asian and Middle Eastern security markets.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'QSZ-92 Sidearm', maker: 'Norinco',
+          cat: 'pistol', caliber: '5.8×21mm DBP92 / 9×19mm', range: '50 m',
+          action: 'Short-recoil, DA/SA', weight: '1.7 lb',
+          service: 'PLA, PAP (1994–present)',
+          tm: 'PLA Technical Manual QSZ-92',
+          notes: 'Standard PLA sidearm. Dual variant—proprietary 5.8mm for officers, 9mm for export and naval forces. 20-round magazine in 5.8mm gives high capacity advantage. Integrated rail version fielded.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'QLZ-87 Automatic Grenade Launcher', maker: 'Norinco',
+          cat: 'launcher', caliber: '35×32mm', range: '1,750 m',
+          action: 'Gas-operated, semi/full-auto', weight: '42.5 lb (w/ tripod)',
+          service: 'PLA (1987–present)',
+          tm: 'PLA Technical Manual QLZ-87',
+          notes: 'Tripod or vehicle-mounted automatic grenade launcher. HE and fragmentation rounds. Semi-auto and full-auto modes. Two-man crew in standard infantry role. Vehicle-mount versions on PLA infantry fighting vehicles.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'HJ-12 (Red Arrow 12) ATGM', maker: 'NORINCO / CASIC',
+          cat: 'launcher', caliber: '152mm tandem HEAT', range: '4,000 m',
+          action: 'IIR fire-and-forget, top-attack capable', weight: '43.5 lb (launcher + round)',
+          service: 'PLA (2014–present)',
+          tm: 'CASIC Technical Specification HJ-12',
+          notes: 'Man-portable ATGM comparable to Javelin. Fire-and-forget IIR seeker. Top-attack mode defeats heavily armored MBTs with ERA. Exports limited—primarily PLA inventory. Suspected deployment in contested regions.',
+          blueprint: false
+        },
+        {
+          nation: 'chn', name: 'QW-18 MANPADS', maker: 'CASIC (9th Academy)',
+          cat: 'manpads', caliber: '72mm IR/UV guided missile', range: '6,000 m alt.',
+          action: 'Dual IR/UV seeker, single-shot', weight: '35.3 lb (ready)',
+          service: 'PLA Air Defense (2018–present)',
+          tm: 'CASIC Technical Specification QW-18',
+          notes: 'Latest Chinese MANPADS generation. Dual IR/UV seeker claimed to defeat standard flare countermeasures. Successor to QW-1 and QW-2 Vanguard series. Limited public data. Deployed in PLA AD units.',
+          blueprint: false
+        },
+
+        // ── ISRAEL ────────────────────────────────────────────────────────────────
+        {
+          nation: 'isr', name: 'Tavor TAR-21', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'rifle', caliber: '5.56×45mm NATO', range: '500 m',
+          action: 'Gas-operated, rotating bolt, bullpup', weight: '7.9 lb empty',
+          service: 'IDF, Israeli Border Police (2001–present)',
+          tm: 'IWI Tavor Operator Manual',
+          notes: 'Primary IDF service rifle since 2009. Bullpup layout provides M4 ballistic performance in shorter OAL. Integral trigger/barrel assembly. Accepts M16 STANAG magazines. Ambidextrous conversion.',
+          blueprint: true
+        },
+        {
+          nation: 'isr', name: 'X95 Micro Tavor (MTAR-21)', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'rifle', caliber: '5.56×45mm NATO / 9×19mm', range: '400 m',
+          action: 'Gas-operated, rotating bolt, bullpup', weight: '6.6 lb empty',
+          service: 'IDF, Sayeret units, civilian export (2009–present)',
+          tm: 'IWI X95 Operator Manual',
+          notes: 'Compact Tavor variant with 13-inch barrel for vehicle crews and special operations. Accepts 9mm conversion kit for clandestine operations. Widest-selling IWI platform on US civilian market.',
+          blueprint: true
+        },
+        {
+          nation: 'isr', name: 'Galil ACE 52', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'rifle', caliber: '7.62×51mm NATO', range: '600 m',
+          action: 'Gas-operated, rotating bolt (AK-derived)', weight: '8.4 lb empty',
+          service: 'IDF Paratroopers, 20+ export nations',
+          tm: 'IWI Galil ACE Operator Manual',
+          notes: 'Modern AK-derived platform updated for NATO calibers and rail compatibility. Cold-hammer-forged barrel. Widely exported to Latin America, Eastern Europe, and Southeast Asia. ACE 32 variant in 7.62×39mm.',
+          blueprint: true
+        },
+        {
+          nation: 'isr', name: 'Negev NG7 LMG', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'machinegun', caliber: '7.62×51mm NATO', range: '1,000 m',
+          action: 'Gas-operated, open bolt', weight: '17.2 lb empty',
+          service: 'IDF (2012–present), India, Colombia',
+          tm: 'IWI Negev NG7 Operator Manual',
+          notes: 'NATO caliber companion to Negev 5.56mm. Belt-fed 100/200-round box. Quick-change barrel. Lower weight than FN MAG. Top-feed design accepts disintegrating-link belts. Standard IDF vehicle mount.',
+          blueprint: true
+        },
+        {
+          nation: 'isr', name: 'Galatz (Galil Sniper)', maker: 'Israel Military Industries / IWI',
+          cat: 'sniper', caliber: '7.62×51mm NATO', range: '800 m',
+          action: 'Semi-auto (modified Galil action)', weight: '14.1 lb',
+          service: 'IDF snipers, Israeli Police, export',
+          tm: 'IMI Galatz Technical Manual',
+          notes: 'Dedicated sniper variant of Galil. Bipod and folding stock standard. 6×40 scope. Used by IDF sniper teams through 2000s, now supplemented by bolt-action platforms. Still in active use in specialist roles.',
+          blueprint: false
+        },
+        {
+          nation: 'isr', name: 'Jericho 941 F', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'pistol', caliber: '9×19mm / .40 S&W / .45 ACP', range: '50 m',
+          action: 'Short-recoil, DA/SA (CZ-75 derived)', weight: '2.6 lb',
+          service: 'IDF officers, Israeli Police, export agencies',
+          tm: 'IWI Jericho 941 Operator Manual',
+          notes: 'Steel-frame CZ-75 derivative with 16-round magazine in 9mm. Polymer-frame variant also available. High-accuracy target pistol with combat sidearm reliability. Standard IDF officer and SF sidearm.',
+          blueprint: false
+        },
+        {
+          nation: 'isr', name: 'Desert Eagle Mk XIX', maker: 'Magnum Research / IWI (original)',
+          cat: 'pistol', caliber: '.357 Mag / .44 Mag / .50 AE', range: '50 m',
+          action: 'Gas-operated, rotating bolt, SA', weight: '4.4 lb',
+          service: 'Israeli Police, special units, civilian market',
+          tm: 'Magnum Research Operator Manual',
+          notes: 'Originally co-developed with Israel Military Industries. Gas-operated rotating bolt in a pistol—unique design. .50 AE variant produces significant terminal effect at close range. Interchangeable barrel/caliber system.',
+          blueprint: false
+        },
+        {
+          nation: 'isr', name: 'Spike ATGM (Spike-MR/LR2)', maker: 'Rafael Advanced Defense Systems',
+          cat: 'launcher', caliber: '130mm tandem HEAT / EFP', range: '2,500–4,000 m',
+          action: 'IIR fire-and-forget, man-in-the-loop', weight: '56.5 lb (launcher + round)',
+          service: 'IDF, 40+ export nations (1997–present)',
+          tm: 'Rafael Spike System Operator Manual',
+          notes: 'Fiber-optic guided ATGM with Lock-On Before/After Launch modes. Tandem warhead defeats ERA-equipped MBTs. Top-attack and direct-attack modes. Exported to Germany, Poland, India, and 35+ others.',
+          blueprint: false
+        },
+        {
+          nation: 'isr', name: 'Uzi Pro SMG', maker: 'Israel Weapon Industries (IWI)',
+          cat: 'smg', caliber: '9×19mm', range: '100 m',
+          action: 'Open bolt, blowback', weight: '4.4 lb',
+          service: 'IDF VIP protection, export (2010–present)',
+          tm: 'IWI Uzi Pro Operator Manual',
+          notes: 'Modern Micro Uzi successor with Picatinny rail and side-folding stock. High cyclic rate at 1,250 rpm. Preferred for vehicle crew and VIP close-protection roles. US civilian semi-auto variants exported widely.',
+          blueprint: false
+        }
+      ];
+
+      // ── State ──────────────────────────────────────────────────────────────────
+      let filterNation = 'all';
+      let filterCat    = 'all';
+      let filterSearch = '';
+
+      const grid       = document.getElementById('weaponsGrid');
+      const nationWrap = document.getElementById('nationChips');
+      const catWrap    = document.getElementById('catChips');
+      const searchEl   = document.getElementById('weaponsSearch');
+      const countEl    = document.getElementById('resultsCount');
+      const loadoutWeaponSelect = document.getElementById('weaponLoadoutSelect');
+      const loadoutPresetRow = document.getElementById('weaponPresetRow');
+      const loadoutMissionCopy = document.getElementById('weaponMissionCopy');
+      const loadoutStatusEl = document.getElementById('weaponLoadStatus');
+      const loadoutRackSummary = document.getElementById('weaponRackSummary');
+      const loadoutFilterRow = document.getElementById('weaponAttachmentFilterRow');
+      const loadoutAttachmentGrid = document.getElementById('weaponAttachmentGrid');
+      const loadoutPlatformCard = document.getElementById('weaponPlatformCard');
+      const loadoutMeterGrid = document.getElementById('weaponMeterGrid');
+      const loadoutCoverageGrid = document.getElementById('weaponCoverageGrid');
+      const loadoutManifestList = document.getElementById('weaponManifestList');
+      const copyWeaponManifestBtn = document.getElementById('copyWeaponManifest');
+      const exportWeaponManifestBtn = document.getElementById('exportWeaponManifest');
+      const resetWeaponLoadoutBtn = document.getElementById('resetWeaponLoadout');
+
+      document.getElementById('statTotal').textContent = WEAPONS.length;
+
+      const NATION_LABELS = { us: 'USA', rus: 'RUS', chn: 'CHN', isr: 'ISR' };
+      const CAT_LABELS = {
+        rifle: 'Rifle/Carbine', machinegun: 'Machine Gun', sniper: 'Sniper/DMR',
+        pistol: 'Pistol', smg: 'SMG', launcher: 'Launcher/AT', manpads: 'MANPADS'
+      };
+      const NATION_ORDER = { us: 0, rus: 1, chn: 2, isr: 3 };
+      const NATION_FULL  = { us: 'United States', rus: 'Russia', chn: 'China', isr: 'Israel' };
+      const BASE_VOLUME_L = { rifle: 5.8, machinegun: 13.8, sniper: 8.9, pistol: 1.8, smg: 3.9, launcher: 15.5, manpads: 21.0 };
+      const WEIGHT_SCALE_MAX = { rifle: 16, machinegun: 45, sniper: 24, pistol: 6, smg: 10, launcher: 70, manpads: 85 };
+      const VOLUME_SCALE_MAX = { rifle: 10, machinegun: 22, sniper: 15, pistol: 4, smg: 7, launcher: 24, manpads: 32 };
+      const selectedPackages = Object.create(null);
+      const LOADOUT_STORAGE_KEY = 'deltaWeaponsLoadoutV1';
+      const LOADOUT_LIMITS = {
+        rifle: { attachments: 5, kitWeight: 5.5, volume: 2.4 },
+        machinegun: { attachments: 6, kitWeight: 18.0, volume: 5.4 },
+        sniper: { attachments: 5, kitWeight: 6.0, volume: 3.2 },
+        pistol: { attachments: 4, kitWeight: 2.0, volume: 1.2 },
+        smg: { attachments: 4, kitWeight: 3.4, volume: 1.8 },
+        launcher: { attachments: 4, kitWeight: 7.0, volume: 3.4 },
+        manpads: { attachments: 4, kitWeight: 9.0, volume: 4.6 }
+      };
+      const LOADOUT_COVERAGE_LABELS = {
+        optic: 'Optics',
+        aiming: 'Laser / Aiming',
+        light: 'Illumination',
+        support: 'Support',
+        carry: 'Carry',
+        signature: 'Signature',
+        observation: 'Observation'
+      };
+      const LOADOUT_COVERAGE_KEYS = ['optic', 'aiming', 'light', 'support', 'carry', 'signature', 'observation'];
+      const DEFAULT_LOADOUT_STATUS = 'Load a preset, then tune the attachment stack for the selected platform.';
+      const loadoutState = {
+        weaponId: '',
+        attachmentFilter: 'all',
+        selections: Object.create(null),
+        statusText: DEFAULT_LOADOUT_STATUS,
+        statusTone: 'ok'
+      };
+
+      const ATTACHMENT_LIBRARY = {
+        rifle: [
+          {
+            id: 'service',
+            label: 'Service',
+            purpose: 'Balanced line-issue package built around identification, aiming, illumination, and secure retention.',
+            carry: 'Best suited to general issue, routine perimeter duty, range qualification, and vehicle-to-ground carry.',
+            attachments: [
+              { name: 'Trijicon ACOG TA31 4x32', purpose: 'Fixed combat optic for faster target identification across mixed distances.', weight: 0.9, volume: 0.4 },
+              { name: 'AN/PEQ-15 ATPIAL', purpose: 'Visible and IR aiming unit for low-light alignment with night-vision gear.', weight: 0.5, volume: 0.2 },
+              { name: 'SureFire M640 Scout Light', purpose: 'Weapon light for positive identification in dark structures and low-light lanes.', weight: 0.4, volume: 0.2 },
+              { name: 'Blue Force Vickers Sling', purpose: 'Two-point sling for retention, transitions, and hands-free movement.', weight: 0.3, volume: 0.1 }
+            ]
+          },
+          {
+            id: 'observer',
+            label: 'Observer',
+            purpose: 'Longer-view package for open sight lines, supported positions, and slower deliberate movement.',
+            carry: 'Best suited to rural observation, open-ground security, and longer-lane coverage where compactness matters less.',
+            attachments: [
+              { name: 'Vortex Razor HD Gen III 1-10x', purpose: 'Low-power variable optic for near-to-mid-range observation and precise holds.', weight: 1.5, volume: 0.6 },
+              { name: 'Harris S-BRM Bipod', purpose: 'Forward support for steadier prone and supported firing positions.', weight: 0.8, volume: 0.4 },
+              { name: 'SureFire SOCOM556-RC2', purpose: 'Suppressor for flash reduction and improved communication around the muzzle.', weight: 1.0, volume: 0.5 },
+              { name: 'Steiner DBAL-A3', purpose: 'Visible and IR laser/illuminator package for day-night zero continuity.', weight: 0.5, volume: 0.2 }
+            ]
+          }
+        ],
+        machinegun: [
+          {
+            id: 'mobile-support',
+            label: 'Mobile Support',
+            purpose: 'Lean support-gun package that keeps the gun portable while improving observation and retention.',
+            carry: 'Best suited to dismounted support teams and short movement windows where bulk must stay manageable.',
+            attachments: [
+              { name: 'M145 Machine Gun Optic', purpose: 'Fixed optic for clearer observation and range reference on support guns.', weight: 1.4, volume: 0.6 },
+              { name: 'Padded Heavy Sling', purpose: 'Carry sling to control weapon weight during short movement phases.', weight: 0.5, volume: 0.2 },
+              { name: 'Rail-Mount White Light', purpose: 'Low-light positive identification for static security or support posts.', weight: 0.5, volume: 0.2 },
+              { name: 'Forward Heat Shield Grip', purpose: 'Improves handling around the front end during barrel changes and short moves.', weight: 0.6, volume: 0.3 }
+            ]
+          },
+          {
+            id: 'static-support',
+            label: 'Static Support',
+            purpose: 'Heavier optics and support hardware for deliberate observation and fixed or mounted positions.',
+            carry: 'Best suited to tripods, mounted guns, hardened posts, and positions where sustained setup is acceptable.',
+            attachments: [
+              { name: 'SIG TANGO6T 1-6x', purpose: 'Variable optic for observation, holdovers, and clearer fire direction.', weight: 1.2, volume: 0.5 },
+              { name: 'Thermal Clip-On Viewer', purpose: 'Clip-on thermal for low-light scanning and observation.', weight: 1.3, volume: 0.7 },
+              { name: 'M192 Lightweight Tripod', purpose: 'Stable firing support and improved control for fixed firing positions.', weight: 12.0, volume: 3.0 },
+              { name: 'Traverse and Elevation Unit', purpose: 'Fine mechanical adjustment for deliberate fixed-position control.', weight: 2.0, volume: 0.8 }
+            ]
+          }
+        ],
+        sniper: [
+          {
+            id: 'precision',
+            label: 'Precision',
+            purpose: 'Glass, support, and recoil-management package for deliberate observation and measured engagement.',
+            carry: 'Best suited to hide-site observation, range work, and deliberate precision roles with time to set up.',
+            attachments: [
+              { name: 'Nightforce ATACR 5-25x56', purpose: 'High-magnification optic for detailed observation and repeatable holds.', weight: 2.2, volume: 0.8 },
+              { name: 'Atlas BT46 Bipod', purpose: 'Stable prone support with finer cant and pan control.', weight: 0.8, volume: 0.4 },
+              { name: 'TBAC Ultra 7 Suppressor', purpose: 'Reduces flash and blast signature while moderating recoil impulse.', weight: 0.9, volume: 0.5 },
+              { name: 'Dope Card Rail Mount', purpose: 'Keeps elevation, wind, and range notes on the weapon for quick reference.', weight: 0.2, volume: 0.1 }
+            ]
+          },
+          {
+            id: 'mobile-dmr',
+            label: 'Mobile DMR',
+            purpose: 'Lighter optic and support mix for marksman-style carry where movement matters more than absolute magnification.',
+            carry: 'Best suited to designated-marksman carry, mixed terrain movement, and longer patrol days.',
+            attachments: [
+              { name: 'Leupold Mark 5HD 3.6-18x', purpose: 'Lower bulk variable optic that still supports detailed observation.', weight: 1.9, volume: 0.7 },
+              { name: 'Harris 6-9 Bipod', purpose: 'Compact front support for improvised field positions.', weight: 0.7, volume: 0.3 },
+              { name: 'QD Sling with Rear Cuff', purpose: 'Improves sling-supported stability and long-carry comfort.', weight: 0.4, volume: 0.2 },
+              { name: 'Compact Clip-On Rangefinder', purpose: 'Adds rapid distance confirmation without a full tripod spotting setup.', weight: 0.6, volume: 0.3 }
+            ]
+          }
+        ],
+        pistol: [
+          {
+            id: 'duty',
+            label: 'Duty',
+            purpose: 'Professional sidearm package centered on faster sighting, illumination, and secure belt carry.',
+            carry: 'Best suited to standard holster issue, gate duty, and backup sidearm roles.',
+            attachments: [
+              { name: 'Trijicon RMR Type 2', purpose: 'Miniature red-dot optic for faster sight tracking and lower-light clarity.', weight: 0.1, volume: 0.1 },
+              { name: 'SureFire X300U-A', purpose: 'White light for identification in low-light interiors and around vehicles.', weight: 0.3, volume: 0.2 },
+              { name: 'AmeriGlo Suppressor-Height Sights', purpose: 'Backup iron sights that remain visible through the optic window.', weight: 0.1, volume: 0.1 },
+              { name: 'Safariland ALS Duty Holster', purpose: 'Retention holster for clean presentation and secure belt carry.', weight: 0.8, volume: 0.5 }
+            ]
+          },
+          {
+            id: 'night-ready',
+            label: 'Night Ready',
+            purpose: 'Low-light pistol package with extra visibility and control at the cost of a slightly larger footprint.',
+            carry: 'Best suited to night shifts, guard rotation, and sidearm issue when white light is mandatory.',
+            attachments: [
+              { name: 'Aimpoint ACRO P-2', purpose: 'Enclosed red-dot optic with stronger weather sealing and duty durability.', weight: 0.1, volume: 0.1 },
+              { name: 'Streamlight TLR-1 HL', purpose: 'High-output pistol light for room and vehicle illumination.', weight: 0.3, volume: 0.2 },
+              { name: 'Threaded Barrel Compensator', purpose: 'Moderates muzzle rise and helps keep dot tracking flatter.', weight: 0.3, volume: 0.2 },
+              { name: 'Extended Magazine Well', purpose: 'Improves reload guidance with gloved hands and duty belts.', weight: 0.1, volume: 0.1 }
+            ]
+          }
+        ],
+        smg: [
+          {
+            id: 'detail',
+            label: 'Protective Detail',
+            purpose: 'Compact visibility and control package for short weapons carried in close spaces.',
+            carry: 'Best suited to vehicle crews, compact carry profiles, and protective detail roles where size matters.',
+            attachments: [
+              { name: 'Aimpoint CompM5', purpose: 'Low-profile optic for rapid acquisition on compact platforms.', weight: 0.4, volume: 0.2 },
+              { name: 'SureFire Mini Scout', purpose: 'Short weapon light sized for compact handguards and tight spaces.', weight: 0.3, volume: 0.2 },
+              { name: 'B&T QD Sling', purpose: 'Retention sling that keeps the platform close to the body in transit.', weight: 0.3, volume: 0.1 },
+              { name: 'Hand Stop Kit', purpose: 'Adds front-end index control on short-barrel platforms.', weight: 0.1, volume: 0.1 }
+            ]
+          },
+          {
+            id: 'night-pdw',
+            label: 'Night PDW',
+            purpose: 'Night-ready PDW package emphasizing sighting, illumination, and signature control.',
+            carry: 'Best suited to low-light vehicle operations, compact perimeter carry, and night qualification.',
+            attachments: [
+              { name: 'EOTech EXPS3', purpose: 'Heads-up holographic optic for fast acquisition at close range.', weight: 0.7, volume: 0.3 },
+              { name: 'DBAL-PL Mini', purpose: 'Compact visible and IR aiming unit for night-vision compatible indexing.', weight: 0.4, volume: 0.2 },
+              { name: 'B&T Compact Suppressor', purpose: 'Cuts flash and blast while keeping overall length more manageable.', weight: 0.7, volume: 0.4 },
+              { name: 'SureFire M340V', purpose: 'Dual-spectrum light for white-light and infrared illumination.', weight: 0.4, volume: 0.2 }
+            ]
+          }
+        ],
+        launcher: [
+          {
+            id: 'day-sight',
+            label: 'Day Sight',
+            purpose: 'Reference package for daylight observation, aiming stability, and basic transport hardware.',
+            carry: 'Best suited to daylight ranges, static team positions, and supported carry where spotting gear is available.',
+            attachments: [
+              { name: 'Day Optical Sight Unit', purpose: 'Primary sighting optic for daylight target identification and alignment.', weight: 1.3, volume: 0.7 },
+              { name: 'Padded Carry Sling', purpose: 'Spreads carried load and controls larger launch tubes in transit.', weight: 0.4, volume: 0.2 },
+              { name: 'Forward Grip / Brace Kit', purpose: 'Improves supported handling on heavier shoulder-fired systems.', weight: 0.6, volume: 0.3 },
+              { name: 'Range Card Sleeve', purpose: 'Keeps reference data with the launcher for controlled setup.', weight: 0.2, volume: 0.1 }
+            ]
+          },
+          {
+            id: 'low-light',
+            label: 'Low Light',
+            purpose: 'Thermal and observation package for reduced-visibility work with added stow bulk.',
+            carry: 'Best suited to fixed observation posts, low-light screening, and teams with support transport.',
+            attachments: [
+              { name: 'Thermal Sight Module', purpose: 'Adds heat-based observation in darkness, haze, or light obscuration.', weight: 2.0, volume: 0.9 },
+              { name: 'Clip-On Laser Pointer', purpose: 'Improves reference and coordination during supported setup.', weight: 0.4, volume: 0.2 },
+              { name: 'Shoulder Harness Kit', purpose: 'Distributes carried weight for short-distance movement between positions.', weight: 0.8, volume: 0.4 },
+              { name: 'Battery and Lens Case', purpose: 'Keeps power cells and optics protected during movement or staging.', weight: 0.9, volume: 0.5 }
+            ]
+          }
+        ],
+        manpads: [
+          {
+            id: 'shoulder-ready',
+            label: 'Shoulder Ready',
+            purpose: 'Minimal ready package for observation, identification, and transport of shoulder-fired air-defense systems.',
+            carry: 'Best suited to ready teams on alert status, air-watch coverage, and short moves between covered positions.',
+            attachments: [
+              { name: 'Identification Friend-or-Foe Unit', purpose: 'Supports aircraft identification and reduces misidentification risk.', weight: 1.7, volume: 0.8 },
+              { name: 'Gripstock Battery Pack', purpose: 'Provides power continuity for seeker and sighting electronics.', weight: 1.2, volume: 0.5 },
+              { name: 'Padded Launch Tube Harness', purpose: 'Improves transport control on larger shoulder-fired systems.', weight: 0.8, volume: 0.4 },
+              { name: 'Protective Sight Hood', purpose: 'Protects the optic head during staging, movement, and storage.', weight: 0.4, volume: 0.3 }
+            ]
+          },
+          {
+            id: 'air-watch',
+            label: 'Air Watch',
+            purpose: 'Observation-focused package for longer watch periods where extra sighting and power support are acceptable.',
+            carry: 'Best suited to fixed air-watch sites, prepared coverage positions, and vehicle-supported deployment.',
+            attachments: [
+              { name: 'Thermal Observation Sight', purpose: 'Adds night and degraded-visibility observation before shoulder-up sequence.', weight: 2.4, volume: 1.0 },
+              { name: 'Auxiliary Power Canister', purpose: 'Extends ready-state time for sight and seeker electronics.', weight: 1.8, volume: 0.7 },
+              { name: 'Observer Binocular Mount', purpose: 'Gives the team a stable scan aid for aircraft recognition and handoff.', weight: 1.0, volume: 0.5 },
+              { name: 'Weatherproof Transit Case', purpose: 'Protects the system during transport and staging in exposed conditions.', weight: 3.2, volume: 2.2 }
+            ]
+          }
+        ]
+      };
+
+      function slugToken(text) {
+        return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      }
+
+      function weaponKey(w) {
+        return `${w.nation}-${w.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+      }
+
+      function attachmentKey(attachment) {
+        return slugToken(attachment.name);
+      }
+
+      function baseWeightLb(w) {
+        const match = String(w.weight).match(/\d+(?:\.\d+)?/);
+        return match ? parseFloat(match[0]) : 0;
+      }
+
+      function baseVolumeL(w) {
+        return BASE_VOLUME_L[w.cat] ?? 5;
+      }
+
+      function packageOptions(w) {
+        return ATTACHMENT_LIBRARY[w.cat] || [];
+      }
+
+      function selectedPackage(w) {
+        const options = packageOptions(w);
+        const current = selectedPackages[weaponKey(w)] || options[0]?.id;
+        return options.find(option => option.id === current) || options[0] || { label: 'Base', purpose: '', carry: '', attachments: [] };
+      }
+
+      function packageTotals(option) {
+        return (option.attachments || []).reduce((totals, attachment) => ({
+          weight: totals.weight + attachment.weight,
+          volume: totals.volume + attachment.volume
+        }), { weight: 0, volume: 0 });
+      }
+
+      function loadoutLimit(w) {
+        return LOADOUT_LIMITS[w.cat] || { attachments: 4, kitWeight: 4, volume: 2 };
+      }
+
+      function inferAttachmentTags(attachment) {
+        const text = `${attachment.name} ${attachment.purpose}`.toLowerCase();
+        const tags = [];
+        if (/(optic|scope|acog|eotech|aimpoint|rmr|acro|sight|razor|leupold|nightforce|mark 5|compm5|viewer)/.test(text)) tags.push('optic');
+        if (/(laser|peq|dbal|atpial)/.test(text)) tags.push('aiming');
+        if (/(light|illum)/.test(text)) tags.push('light');
+        if (/(sling|holster|harness|cuff|case|hood)/.test(text)) tags.push('carry');
+        if (/(suppressor|compensator|flash)/.test(text)) tags.push('signature');
+        if (/(bipod|tripod|grip|brace|hand stop|elevation|mount|support)/.test(text)) tags.push('support');
+        if (/(thermal|rangefinder|binocular|observation|dope card|range card)/.test(text)) tags.push('observation');
+        return tags.length ? tags : ['support'];
+      }
+
+      function loadoutAttachments(w) {
+        const merged = new Map();
+        packageOptions(w).forEach(option => {
+          option.attachments.forEach(attachment => {
+            const id = attachmentKey(attachment);
+            if (!merged.has(id)) {
+              merged.set(id, {
+                id,
+                name: attachment.name,
+                purpose: attachment.purpose,
+                weight: attachment.weight,
+                volume: attachment.volume,
+                sources: [option.id],
+                sourceLabels: [option.label],
+                tags: inferAttachmentTags(attachment)
+              });
+            } else {
+              const current = merged.get(id);
+              if (!current.sources.includes(option.id)) current.sources.push(option.id);
+              if (!current.sourceLabels.includes(option.label)) current.sourceLabels.push(option.label);
+              current.tags = Array.from(new Set(current.tags.concat(inferAttachmentTags(attachment))));
+            }
+          });
+        });
+        return Array.from(merged.values());
+      }
+
+      function presetAttachmentIds(option) {
+        return (option.attachments || []).map(attachmentKey);
+      }
+
+      function currentLoadoutWeapon() {
+        return WEAPONS.find(weapon => weaponKey(weapon) === loadoutState.weaponId) || WEAPONS[0];
+      }
+
+      function selectedAttachmentIds(w = currentLoadoutWeapon()) {
+        return loadoutState.selections[weaponKey(w)] || [];
+      }
+
+      function selectedAttachments(w = currentLoadoutWeapon()) {
+        const selected = new Set(selectedAttachmentIds(w));
+        return loadoutAttachments(w).filter(attachment => selected.has(attachment.id));
+      }
+
+      function matchingPreset(w, ids = selectedAttachmentIds(w)) {
+        const normalized = Array.from(new Set(ids)).sort().join('|');
+        return packageOptions(w).find(option => presetAttachmentIds(option).slice().sort().join('|') === normalized) || null;
+      }
+
+      function ensureLoadoutSelection(w, preferredPresetId) {
+        const key = weaponKey(w);
+        const available = new Set(loadoutAttachments(w).map(attachment => attachment.id));
+        const current = (loadoutState.selections[key] || []).filter(id => available.has(id));
+        if (current.length) {
+          loadoutState.selections[key] = Array.from(new Set(current));
+          return;
+        }
+        const fallback = packageOptions(w).find(option => option.id === preferredPresetId) || packageOptions(w)[0];
+        loadoutState.selections[key] = fallback ? presetAttachmentIds(fallback) : [];
+        if (fallback) selectedPackages[key] = fallback.id;
+      }
+
+      function totalLoadoutMetrics(w = currentLoadoutWeapon()) {
+        const attachmentTotals = selectedAttachments(w).reduce((totals, attachment) => ({
+          weight: totals.weight + attachment.weight,
+          volume: totals.volume + attachment.volume
+        }), { weight: 0, volume: 0 });
+        const baseWeight = baseWeightLb(w);
+        const baseVolume = baseVolumeL(w);
+        return {
+          baseWeight,
+          configuredWeight: baseWeight + attachmentTotals.weight,
+          baseVolume,
+          configuredVolume: baseVolume + attachmentTotals.volume,
+          kitWeight: attachmentTotals.weight,
+          kitVolume: attachmentTotals.volume,
+          attachmentCount: selectedAttachmentIds(w).length
+        };
+      }
+
+      function meterTone(value, max) {
+        const ratio = max ? value / max : 0;
+        if (ratio >= 1) return 'alert';
+        if (ratio >= 0.78) return 'warn';
+        return '';
+      }
+
+      function setLoadoutStatus(text, tone = 'ok') {
+        loadoutState.statusText = text;
+        loadoutState.statusTone = tone;
+      }
+
+      function saveLoadoutState() {
+        try {
+          localStorage.setItem(LOADOUT_STORAGE_KEY, JSON.stringify({
+            weaponId: loadoutState.weaponId,
+            attachmentFilter: loadoutState.attachmentFilter,
+            selections: loadoutState.selections
+          }));
+        } catch (error) {}
+      }
+
+      function restoreLoadoutState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(LOADOUT_STORAGE_KEY) || '{}');
+          if (saved && typeof saved.weaponId === 'string' && WEAPONS.some(weapon => weaponKey(weapon) === saved.weaponId)) {
+            loadoutState.weaponId = saved.weaponId;
+          }
+          if (saved && saved.selections && typeof saved.selections === 'object') {
+            loadoutState.selections = Object.fromEntries(Object.entries(saved.selections).filter(([, ids]) => Array.isArray(ids)));
+          }
+          if (saved && typeof saved.attachmentFilter === 'string') {
+            loadoutState.attachmentFilter = saved.attachmentFilter;
+          }
+        } catch (error) {}
+      }
+
+      function selectLoadoutWeapon(weaponId) {
+        loadoutState.weaponId = weaponId;
+        loadoutState.attachmentFilter = 'all';
+        ensureLoadoutSelection(currentLoadoutWeapon());
+        setLoadoutStatus(`${currentLoadoutWeapon().name} selected. Load a preset or tune attachments individually.`, 'ok');
+        saveLoadoutState();
+        renderLoadout();
+      }
+
+      function applyLoadoutPreset(presetId, options = {}) {
+        const weapon = currentLoadoutWeapon();
+        const preset = packageOptions(weapon).find(option => option.id === presetId);
+        if (!preset) return;
+        loadoutState.selections[weaponKey(weapon)] = presetAttachmentIds(preset);
+        selectedPackages[weaponKey(weapon)] = preset.id;
+        if (!options.silent) {
+          setLoadoutStatus(`${preset.label} package loaded on ${weapon.name}. Fine-tune the stack if the mission changes.`, 'ok');
+        }
+        saveLoadoutState();
+        render();
+        renderLoadout();
+      }
+
+      function toggleLoadoutAttachment(attachmentId) {
+        const weapon = currentLoadoutWeapon();
+        const key = weaponKey(weapon);
+        const attachments = loadoutAttachments(weapon);
+        const target = attachments.find(attachment => attachment.id === attachmentId);
+        if (!target) return;
+        const next = new Set(selectedAttachmentIds(weapon));
+        if (next.has(attachmentId)) {
+          next.delete(attachmentId);
+          setLoadoutStatus(`${target.name} removed from ${weapon.name}.`, 'ok');
+        } else {
+          next.add(attachmentId);
+          setLoadoutStatus(`${target.name} added to ${weapon.name}.`, 'ok');
+        }
+        loadoutState.selections[key] = Array.from(next);
+        const preset = matchingPreset(weapon, loadoutState.selections[key]);
+        if (preset) selectedPackages[key] = preset.id;
+        saveLoadoutState();
+        render();
+        renderLoadout();
+      }
+
+      function removeLoadoutAttachment(attachmentId) {
+        const weapon = currentLoadoutWeapon();
+        if (!selectedAttachmentIds(weapon).includes(attachmentId)) return;
+        toggleLoadoutAttachment(attachmentId);
+      }
+
+      function resetLoadout() {
+        const weapon = currentLoadoutWeapon();
+        loadoutState.selections[weaponKey(weapon)] = [];
+        setLoadoutStatus(`${weapon.name} cleared. Load a preset or rebuild from the rack.`, 'ok');
+        saveLoadoutState();
+        renderLoadout();
+      }
+
+      function coverageCounts(w = currentLoadoutWeapon()) {
+        const counts = Object.fromEntries(LOADOUT_COVERAGE_KEYS.map(key => [key, 0]));
+        selectedAttachments(w).forEach(attachment => {
+          Array.from(new Set(attachment.tags)).forEach(tag => {
+            if (counts[tag] !== undefined) counts[tag] += 1;
+          });
+        });
+        return counts;
+      }
+
+      function loadoutManifestText(w = currentLoadoutWeapon()) {
+        const preset = matchingPreset(w);
+        const metrics = totalLoadoutMetrics(w);
+        const attachments = selectedAttachments(w);
+        return [
+          'DELTA WEAPON LOADOUT',
+          `Platform: ${w.name}`,
+          `Nation: ${NATION_FULL[w.nation]}`,
+          `Category: ${CAT_LABELS[w.cat]}`,
+          `Caliber: ${w.caliber}`,
+          `Package: ${preset ? preset.label : 'Custom'}`,
+          `Base Weight: ${metrics.baseWeight.toFixed(1)} lb`,
+          `Configured Weight: ${metrics.configuredWeight.toFixed(1)} lb`,
+          `Base Volume: ${metrics.baseVolume.toFixed(1)} L`,
+          `Configured Volume: ${metrics.configuredVolume.toFixed(1)} L`,
+          '',
+          'Attachments:',
+          attachments.length
+            ? attachments.map((attachment, index) => `${index + 1}. ${attachment.name} — ${attachment.weight.toFixed(1)} lb | ${attachment.volume.toFixed(1)} L | ${attachment.purpose}`).join('\n')
+            : '- None selected'
+        ].join('\n');
+      }
+
+      function exportLoadoutManifest() {
+        const weapon = currentLoadoutWeapon();
+        const blob = new Blob([loadoutManifestText(weapon)], { type: 'text/plain;charset=utf-8' });
+        const anchor = document.createElement('a');
+        anchor.href = URL.createObjectURL(blob);
+        anchor.download = `${weaponKey(weapon)}-loadout.txt`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(() => URL.revokeObjectURL(anchor.href), 5000);
+        setLoadoutStatus(`${weapon.name} loadout exported as a text manifest.`, 'ok');
+        renderLoadout();
+      }
+
+      function renderLoadout() {
+        if (!loadoutWeaponSelect) return;
+
+        const weapon = currentLoadoutWeapon();
+        ensureLoadoutSelection(weapon);
+        const attachments = loadoutAttachments(weapon);
+        const selected = selectedAttachments(weapon);
+        const selectedIds = new Set(selectedAttachmentIds(weapon));
+        const preset = matchingPreset(weapon);
+        const metrics = totalLoadoutMetrics(weapon);
+        const limit = loadoutLimit(weapon);
+        const counts = coverageCounts(weapon);
+        const visibleAttachments = attachments.filter(attachment => loadoutState.attachmentFilter === 'all' || attachment.sources.includes(loadoutState.attachmentFilter));
+
+        loadoutWeaponSelect.innerHTML = WEAPONS.map(current => `<option value="${weaponKey(current)}">${current.name} | ${CAT_LABELS[current.cat]} | ${current.weight}</option>`).join('');
+        loadoutWeaponSelect.value = weaponKey(weapon);
+
+        loadoutPresetRow.innerHTML = packageOptions(weapon).map(option => `
+          <button class="weapons-preset-btn ${preset && preset.id === option.id ? 'active' : ''}" data-loadout-preset="${option.id}">${option.label}</button>
+        `).join('');
+
+        loadoutMissionCopy.innerHTML = preset
+          ? `<strong>${preset.label} Package</strong>${preset.carry}<br>${preset.purpose}`
+          : `<strong>Custom Package</strong>Mixed attachment stack built from ${weapon.name}. Use the rack to add or strip optics, aiming units, lights, slings, suppressors, and support hardware as needed.`;
+
+        loadoutStatusEl.textContent = loadoutState.statusText;
+        loadoutStatusEl.className = `weapons-load-status${loadoutState.statusTone === 'alert' ? ' alert' : ''}`;
+
+        loadoutRackSummary.innerHTML = `
+          <span><strong>${selected.length}</strong> attachments loaded</span>
+          <span><strong>${attachments.length}</strong> options available</span>
+          <span><strong>${preset ? preset.label : 'Custom'}</strong> active package</span>
+        `;
+
+        loadoutFilterRow.innerHTML = [`
+          <button class="weapons-filter-chip ${loadoutState.attachmentFilter === 'all' ? 'active' : ''}" data-attachment-filter="all">All Modules</button>
+        `].concat(packageOptions(weapon).map(option => `
+          <button class="weapons-filter-chip ${loadoutState.attachmentFilter === option.id ? 'active' : ''}" data-attachment-filter="${option.id}">${option.label}</button>
+        `)).join('');
+
+        loadoutAttachmentGrid.innerHTML = visibleAttachments.map(attachment => `
+          <article class="weapons-item-card ${selectedIds.has(attachment.id) ? 'loaded' : ''}">
+            <div class="weapons-item-top">
+              <div>
+                <h4 class="weapons-item-name">${attachment.name}</h4>
+                <p class="weapons-item-meta">${attachment.sourceLabels.join(' + ')}</p>
+              </div>
+              <span class="weapons-item-tier">${attachment.tags[0]}</span>
+            </div>
+            <p>${attachment.purpose}</p>
+            <div class="weapons-item-footer">
+              <span class="weapons-item-weight">${attachment.weight.toFixed(1)} lb | ${attachment.volume.toFixed(1)} L</span>
+              <button class="weapons-item-toggle ${selectedIds.has(attachment.id) ? 'loaded' : ''}" data-attachment-toggle="${attachment.id}">${selectedIds.has(attachment.id) ? 'Loaded' : 'Add Module'}</button>
+            </div>
+          </article>
+        `).join('') || '<div class="weapons-manifest-empty">No attachments are visible for the current filter.</div>';
+
+        loadoutPlatformCard.innerHTML = `
+          <h4>${weapon.name}</h4>
+          <p>${weapon.notes}</p>
+          <div class="weapons-platform-meta">
+            <span class="weapons-platform-pill">${NATION_FULL[weapon.nation]}</span>
+            <span class="weapons-platform-pill">${CAT_LABELS[weapon.cat]}</span>
+            <span class="weapons-platform-pill">${weapon.caliber}</span>
+            <span class="weapons-platform-pill">${preset ? preset.label : 'Custom'} Package</span>
+          </div>
+        `;
+
+        loadoutMeterGrid.innerHTML = [
+          {
+            label: 'Attachment Weight',
+            value: `${metrics.kitWeight.toFixed(1)} lb`,
+            width: barWidth(metrics.kitWeight, limit.kitWeight),
+            tone: meterTone(metrics.kitWeight, limit.kitWeight)
+          },
+          {
+            label: 'Configured Weight',
+            value: `${metrics.configuredWeight.toFixed(1)} lb`,
+            width: barWidth(metrics.configuredWeight, metrics.baseWeight + limit.kitWeight),
+            tone: meterTone(metrics.configuredWeight, metrics.baseWeight + limit.kitWeight)
+          },
+          {
+            label: 'Stow Volume',
+            value: `${metrics.configuredVolume.toFixed(1)} L`,
+            width: barWidth(metrics.configuredVolume, metrics.baseVolume + limit.volume),
+            tone: meterTone(metrics.configuredVolume, metrics.baseVolume + limit.volume)
+          },
+          {
+            label: 'Mount Count',
+            value: `${metrics.attachmentCount} / ${limit.attachments}`,
+            width: barWidth(metrics.attachmentCount, limit.attachments),
+            tone: meterTone(metrics.attachmentCount, limit.attachments)
+          }
+        ].map(meter => `
+          <div class="weapons-meter-card">
+            <div class="weapons-meter-head"><span>${meter.label}</span><span>${meter.value}</span></div>
+            <div class="weapons-meter-bar"><div class="weapons-meter-fill ${meter.tone}" style="width:${meter.width}%"></div></div>
+          </div>
+        `).join('');
+
+        loadoutCoverageGrid.innerHTML = LOADOUT_COVERAGE_KEYS.map(key => `
+          <div class="weapons-coverage-row">
+            <span>${LOADOUT_COVERAGE_LABELS[key]}</span>
+            <div class="weapons-meter-bar"><div class="weapons-meter-fill" style="width:${Math.min((counts[key] / 2) * 100, 100).toFixed(1)}%"></div></div>
+            <span>${counts[key]}x</span>
+          </div>
+        `).join('');
+
+        loadoutManifestList.innerHTML = selected.length ? selected.map(attachment => `
+          <article class="weapons-manifest-item">
+            <div class="weapons-manifest-top">
+              <div>
+                <strong>${attachment.name}</strong>
+                <span>${attachment.weight.toFixed(1)} lb | ${attachment.volume.toFixed(1)} L | ${attachment.sourceLabels.join(' + ')}</span>
+              </div>
+              <button class="weapons-remove-chip" data-remove-attachment="${attachment.id}">Remove</button>
+            </div>
+            <p>${attachment.purpose}</p>
+          </article>
+        `).join('') : '<div class="weapons-manifest-empty">No attachments loaded. Start with a preset or add modules from the rack.</div>';
+      }
+
+      function barWidth(value, max) {
+        return Math.min((value / max) * 100, 100).toFixed(1);
+      }
+
+      function attachmentSearchText(w) {
+        return packageOptions(w).map(option => {
+          const attachmentText = option.attachments.map(attachment => `${attachment.name} ${attachment.purpose}`).join(' ');
+          return `${option.label} ${option.purpose} ${option.carry} ${attachmentText}`;
+        }).join(' ');
+      }
+
+      function filtered() {
+        const q = filterSearch.toLowerCase();
+        return WEAPONS.filter(w => {
+          if (filterNation !== 'all' && w.nation !== filterNation) return false;
+          if (filterCat !== 'all' && w.cat !== filterCat) return false;
+          if (q && !`${w.name} ${w.maker} ${w.caliber} ${w.service} ${w.notes} ${w.tm} ${attachmentSearchText(w)}`.toLowerCase().includes(q)) return false;
+          return true;
+        }).sort((a, b) => (NATION_ORDER[a.nation] ?? 9) - (NATION_ORDER[b.nation] ?? 9));
+      }
+
+      function card(w) {
+        const pkg = selectedPackage(w);
+        const pkgTotals = packageTotals(pkg);
+        const baseWeight = baseWeightLb(w);
+        const configuredWeight = baseWeight + pkgTotals.weight;
+        const baseVolume = baseVolumeL(w);
+        const configuredVolume = baseVolume + pkgTotals.volume;
+        const weightScale = WEIGHT_SCALE_MAX[w.cat] ?? (configuredWeight + 1);
+        const volumeScale = VOLUME_SCALE_MAX[w.cat] ?? (configuredVolume + 1);
+        const key = weaponKey(w);
+
+        return `
+          <article class="weapon-card nation-${w.nation}">
+            <div class="weapon-card-head">
+              <div class="weapon-card-head-left">
+                <span class="nation-badge ${w.nation}">${NATION_LABELS[w.nation]}</span>
+                <h3 class="weapon-name">${w.name}</h3>
+                <p class="weapon-maker">${w.maker}</p>
+              </div>
+              <span class="cat-chip ${w.cat}">${CAT_LABELS[w.cat]}</span>
+            </div>
+            <div class="weapon-card-body">
+              <div class="spec-grid">
+                <div class="spec-item">
+                  <span class="spec-label">Caliber</span>
+                  <span class="spec-value">${w.caliber}</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">Effective Range</span>
+                  <span class="spec-value">${w.range}</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">Action</span>
+                  <span class="spec-value">${w.action}</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">Weight</span>
+                  <span class="spec-value">${w.weight}</span>
+                </div>
+                <div class="spec-item spec-full">
+                  <span class="spec-label">Service / Operators</span>
+                  <span class="spec-value" style="font-size:.79rem;color:var(--text2)">${w.service}</span>
+                </div>
+              </div>
+              <p class="weapon-notes">${w.notes}</p>
+              <section class="attachment-suite">
+                <div class="suite-head">
+                  <div>
+                    <span class="suite-label">Attachment Suite</span>
+                    <h4 class="suite-name">${pkg.label} Package</h4>
+                    <p class="suite-purpose">${pkg.purpose}</p>
+                  </div>
+                  <div class="suite-summary-pills">
+                    <span class="suite-pill">+${pkgTotals.weight.toFixed(1)} lb kit</span>
+                    <span class="suite-pill">+${pkgTotals.volume.toFixed(1)} L bulk</span>
+                    <span class="suite-pill">${pkg.attachments.length} attachments</span>
+                  </div>
+                </div>
+
+                <div class="package-tabs">
+                  ${packageOptions(w).map(option => `
+                    <button class="package-tab ${option.id === pkg.id ? 'active' : ''}" data-weapon="${key}" data-package="${option.id}">${option.label}</button>
+                  `).join('')}
+                </div>
+
+                <div class="suite-layout">
+                  <div class="attachment-list">
+                    ${pkg.attachments.map(attachment => `
+                      <article class="attachment-row">
+                        <div class="attachment-row-head">
+                          <span class="attachment-name">${attachment.name}</span>
+                          <span class="attachment-metric">${attachment.weight.toFixed(1)} lb | ${attachment.volume.toFixed(1)} L</span>
+                        </div>
+                        <p class="attachment-purpose">${attachment.purpose}</p>
+                      </article>
+                    `).join('')}
+                  </div>
+
+                  <div class="diagram-grid">
+                    <div class="diagram-card">
+                      <span class="diagram-title">Weight Diagram</span>
+                      <div class="diagram-row">
+                        <span class="diagram-row-label">Base</span>
+                        <div class="diagram-bar"><div class="diagram-fill base" style="width:${barWidth(baseWeight, weightScale)}%"></div></div>
+                        <span class="diagram-row-value">${baseWeight.toFixed(1)} lb</span>
+                      </div>
+                      <div class="diagram-row">
+                        <span class="diagram-row-label">Config</span>
+                        <div class="diagram-bar"><div class="diagram-fill config" style="width:${barWidth(configuredWeight, weightScale)}%"></div></div>
+                        <span class="diagram-row-value">${configuredWeight.toFixed(1)} lb</span>
+                      </div>
+                    </div>
+
+                    <div class="diagram-card">
+                      <span class="diagram-title">Stow Volume</span>
+                      <div class="diagram-row">
+                        <span class="diagram-row-label">Base</span>
+                        <div class="diagram-bar"><div class="diagram-fill base" style="width:${barWidth(baseVolume, volumeScale)}%"></div></div>
+                        <span class="diagram-row-value">${baseVolume.toFixed(1)} L</span>
+                      </div>
+                      <div class="diagram-row">
+                        <span class="diagram-row-label">Config</span>
+                        <div class="diagram-bar"><div class="diagram-fill config" style="width:${barWidth(configuredVolume, volumeScale)}%"></div></div>
+                        <span class="diagram-row-value">${configuredVolume.toFixed(1)} L</span>
+                      </div>
+                    </div>
+
+                    <div class="carry-profile">
+                      <strong>Role Fit</strong>
+                      <p>${pkg.carry}</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="weapon-card-foot">
+              <span class="tm-ref"><strong>REF:</strong>&nbsp;${w.tm}</span>
+              ${w.blueprint ? '<span class="blueprint-tag">&#9635;&nbsp;Blueprint Filed</span>' : ''}
+            </div>
+          </article>`;
+      }
+
+      function sectionHeader(nation) {
+        return `
+          <div class="nation-section-header">
+            <span class="ns-badge ${nation}">${NATION_LABELS[nation]}</span>
+            <span class="ns-label">${NATION_FULL[nation]}</span>
+            <div class="ns-line"></div>
+          </div>`;
+      }
+
+      function render() {
+        const list = filtered();
+        document.getElementById('statVisible').textContent = list.length;
+        countEl.innerHTML = `<strong>${list.length}</strong> of <strong>${WEAPONS.length}</strong> platforms`;
+
+        if (!list.length) {
+          grid.innerHTML = '<div class="weapons-empty">// NO PLATFORMS MATCH CURRENT FILTERS //</div>';
+          return;
+        }
+
+        let html = '';
+        let lastNation = null;
+
+        // Only show section headers when "All Nations" view is active
+        for (const w of list) {
+          if (filterNation === 'all' && w.nation !== lastNation) {
+            html += sectionHeader(w.nation);
+            lastNation = w.nation;
+          }
+          html += card(w);
+        }
+        grid.innerHTML = html;
+      }
+
+      nationWrap.addEventListener('click', e => {
+        const chip = e.target.closest('[data-nation]');
+        if (!chip) return;
+        filterNation = chip.dataset.nation;
+        nationWrap.querySelectorAll('.w-chip').forEach(c => c.classList.toggle('active', c.dataset.nation === filterNation));
+        render();
+      });
+
+      catWrap.addEventListener('click', e => {
+        const chip = e.target.closest('[data-cat]');
+        if (!chip) return;
+        filterCat = chip.dataset.cat;
+        catWrap.querySelectorAll('.w-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === filterCat));
+        render();
+      });
+
+      grid.addEventListener('click', e => {
+        const button = e.target.closest('[data-package]');
+        if (!button) return;
+        selectedPackages[button.dataset.weapon] = button.dataset.package;
+        render();
+      });
+
+      if (loadoutWeaponSelect) {
+        loadoutWeaponSelect.addEventListener('change', () => {
+          selectLoadoutWeapon(loadoutWeaponSelect.value);
+        });
+      }
+
+      if (loadoutPresetRow) {
+        loadoutPresetRow.addEventListener('click', e => {
+          const button = e.target.closest('[data-loadout-preset]');
+          if (!button) return;
+          applyLoadoutPreset(button.dataset.loadoutPreset);
+        });
+      }
+
+      if (loadoutFilterRow) {
+        loadoutFilterRow.addEventListener('click', e => {
+          const button = e.target.closest('[data-attachment-filter]');
+          if (!button) return;
+          loadoutState.attachmentFilter = button.dataset.attachmentFilter;
+          saveLoadoutState();
+          renderLoadout();
+        });
+      }
+
+      if (loadoutAttachmentGrid) {
+        loadoutAttachmentGrid.addEventListener('click', e => {
+          const button = e.target.closest('[data-attachment-toggle]');
+          if (!button) return;
+          toggleLoadoutAttachment(button.dataset.attachmentToggle);
+        });
+      }
+
+      if (loadoutManifestList) {
+        loadoutManifestList.addEventListener('click', e => {
+          const button = e.target.closest('[data-remove-attachment]');
+          if (!button) return;
+          removeLoadoutAttachment(button.dataset.removeAttachment);
+        });
+      }
+
+      if (copyWeaponManifestBtn) {
+        copyWeaponManifestBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(loadoutManifestText(currentLoadoutWeapon()));
+            setLoadoutStatus(`${currentLoadoutWeapon().name} loadout copied to clipboard.`, 'ok');
+          } catch (error) {
+            setLoadoutStatus('Clipboard write failed. Use export to save the loadout as text.', 'alert');
+          }
+          renderLoadout();
+        });
+      }
+
+      if (exportWeaponManifestBtn) {
+        exportWeaponManifestBtn.addEventListener('click', () => {
+          exportLoadoutManifest();
+        });
+      }
+
+      if (resetWeaponLoadoutBtn) {
+        resetWeaponLoadoutBtn.addEventListener('click', () => {
+          resetLoadout();
+        });
+      }
+
+      searchEl.addEventListener('input', () => {
+        filterSearch = searchEl.value;
+        render();
+      });
+
+      restoreLoadoutState();
+      if (!loadoutState.weaponId) loadoutState.weaponId = weaponKey(WEAPONS[0]);
+      ensureLoadoutSelection(currentLoadoutWeapon());
+      const initialPreset = matchingPreset(currentLoadoutWeapon());
+      if (initialPreset) selectedPackages[weaponKey(currentLoadoutWeapon())] = initialPreset.id;
+
+      renderLoadout();
+      render();
+    })();
+    </script>
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

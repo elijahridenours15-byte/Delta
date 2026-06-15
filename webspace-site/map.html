@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Tactical Map</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/static-mode.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+      .map-wrap{display:flex;flex-direction:column;height:calc(100vh - 190px);padding:20px 28px;max-width:1400px;margin:0 auto;width:100%}
+      #map{flex:1;border-radius:8px;border:1px solid var(--border);z-index:1;min-height:300px}
+
+      /* Coordinate / info bar */
+      .map-hud{display:flex;gap:16px;align-items:center;padding:12px 18px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap}
+      .hud-item{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--text2)}
+      .hud-label{color:var(--accent);font-weight:700;margin-right:6px;text-transform:uppercase}
+      .hud-val{color:var(--sand)}
+      .hud-sep{color:var(--border2)}
+
+      /* Layer panel */
+      .map-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+      .map-btn{
+        background:var(--panel);color:var(--accent);
+        border:1px solid var(--border);padding:6px 14px;
+        border-radius:4px;cursor:pointer;font-size:11px;
+        font-family:'JetBrains Mono',monospace;
+        letter-spacing:1px;text-transform:uppercase;
+        transition:all .15s;
+      }
+      .map-btn:hover{border-color:var(--accent2);box-shadow:0 0 8px var(--accent-glow)}
+      .map-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent)}
+
+      /* Override Leaflet controls to match theme */
+      .leaflet-control-zoom a{
+        background:var(--panel)!important;color:var(--accent)!important;
+        border-color:var(--border)!important;font-weight:700!important;
+        width:32px!important;height:32px!important;line-height:32px!important;
+        font-size:16px!important;
+      }
+      .leaflet-control-zoom a:hover{background:var(--panel2)!important;color:var(--accent-bright)!important}
+      .leaflet-control-zoom{border:1px solid var(--border)!important;border-radius:4px!important;overflow:hidden}
+      .leaflet-control-scale-line{
+        background:rgba(26,31,22,.85)!important;color:var(--accent)!important;
+        border-color:var(--accent2)!important;font-family:'JetBrains Mono',monospace!important;
+        font-size:10px!important;letter-spacing:.5px!important;padding:2px 6px!important
+      }
+      .leaflet-control-attribution{
+        background:rgba(14,17,11,.8)!important;color:var(--muted)!important;
+        font-size:9px!important;font-family:'JetBrains Mono',monospace!important
+      }
+      .leaflet-control-attribution a{color:var(--accent)!important}
+      .leaflet-control-layers{
+        background:var(--panel)!important;color:var(--text2)!important;
+        border:1px solid var(--border)!important;border-radius:4px!important;
+        font-family:'JetBrains Mono',monospace!important;font-size:11px!important
+      }
+      .leaflet-control-layers-toggle{
+        width:32px!important;height:32px!important;
+        background-color:var(--panel)!important;
+        border:1px solid var(--border)!important;border-radius:4px!important
+      }
+      .leaflet-control-layers label{display:flex;align-items:center;gap:6px;padding:3px 0}
+      .leaflet-control-layers-separator{border-top:1px solid var(--border)!important}
+
+      /* Crosshair */
+      .crosshair{
+        position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        z-index:500;pointer-events:none;opacity:.6;
+      }
+      .crosshair svg{width:40px;height:40px}
+
+      /* Grid toggle marker */
+      .leaflet-grid-label{font-family:'JetBrains Mono',monospace!important;font-size:9px!important;color:var(--accent)!important}
+
+      /* Fullscreen btn */
+      .fs-btn{position:absolute;top:80px;right:10px;z-index:1000;
+        background:var(--panel);color:var(--accent);border:1px solid var(--border);
+        width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+        border-radius:4px;cursor:pointer;font-size:15px;
+      }
+      .fs-btn:hover{background:var(--panel2);color:var(--accent-bright)}
+
+      /* Measurement */
+      .measure-info{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:1000;
+        background:rgba(26,31,22,.92);border:1px solid var(--accent2);border-radius:4px;
+        padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;
+        color:var(--sand);letter-spacing:.5px;display:none;pointer-events:none;
+        backdrop-filter:blur(6px)
+      }
+
+      /* Goto panel */
+      .goto-panel{display:none;gap:6px;align-items:center}
+      .goto-panel.show{display:flex}
+      .goto-input{
+        width:110px;padding:5px 8px;border-radius:4px;
+        border:1px solid var(--border);background:var(--bg2);
+        color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;
+      }
+
+      /* Second toolbar row */
+      .map-hud-row2{display:flex;gap:6px;align-items:center;padding:8px 18px;background:var(--panel);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;margin-top:-8px;margin-bottom:12px;flex-wrap:wrap}
+      .map-btn.war{border-color:#8B2020;color:#C44}
+      .map-btn.war:hover{box-shadow:0 0 8px rgba(204,68,68,.3)}
+      .map-btn.war.active{background:#8B2020;color:#FFA0A0;border-color:#C44}
+      .map-btn.xray{border-color:#4A6FA5;color:#6B9FD4}
+      .map-btn.xray:hover{box-shadow:0 0 8px rgba(74,111,165,.3)}
+      .map-btn.xray.active{background:#2A4A7A;color:#A0C8F0;border-color:#6B9FD4}
+      .map-btn.print-btn{border-color:var(--gold);color:var(--gold)}
+      .map-btn.print-btn:hover{box-shadow:0 0 8px rgba(196,162,101,.3)}
+
+      /* Conflict popup */
+      .conflict-popup{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.5}
+      .conflict-popup b{color:#8B2020}
+      .conflict-popup .conf-type{display:inline-block;background:#8B2020;color:#FFA0A0;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+      .conflict-popup .conf-parties{color:#666;font-size:10px}
+
+      /* Legend panel */
+      .war-legend{position:absolute;bottom:50px;left:10px;z-index:1000;background:rgba(26,31,22,.92);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);display:none;backdrop-filter:blur(6px);max-width:200px}
+      .war-legend.show{display:block}
+      .war-legend h4{margin:0 0 6px;color:var(--accent);font-size:11px;letter-spacing:1px}
+      .legend-item{display:flex;align-items:center;gap:6px;margin:3px 0}
+      .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+      /* Print overlay */
+      @media print{
+        .hero,.map-hud,.map-hud-row2,.radio-footer,.crosshair,.fs-btn,.measure-info,.war-legend,.leaflet-control-zoom,.leaflet-control-layers{display:none!important}
+        .map-wrap{padding:0!important;height:100vh!important}
+        #map{border:none!important;border-radius:0!important}
+        body{padding-bottom:0!important;background:#fff!important}
+      }
+
+      /* Responsive */
+      @media(max-width:900px){
+        .map-wrap{padding:14px 16px}
+        .map-hud{padding:10px 14px;gap:10px}
+        .map-hud-row2{padding:6px 14px}
+      }
+      @media(max-width:600px){
+        .map-wrap{padding:10px;height:calc(100vh - 210px)}
+        .map-hud{flex-direction:column;gap:4px;padding:8px 10px}
+        .map-hud-row2{flex-direction:column;gap:4px;padding:6px 10px}
+        .map-toolbar{justify-content:center}
+        .map-btn{font-size:9px;padding:5px 8px}
+        .goto-input{width:80px;font-size:10px}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="truth.html" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — TACTICAL MAP</h1>
+        <p class="tag">TOPOGRAPHIC RECON &bull; SATELLITE IMAGERY &bull; GRID NAVIGATION &bull; HIGH-RES ZOOM</p>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html">Ops Center</a>
+        <a href="cyber.html">Cyber Intel</a>
+        <a href="ai.html">AI Recon</a>
+        <a href="map.html" class="active">Tac Map</a>
+        <a href="bible.html">Scripture</a>
+        <a href="drone.html">Drone</a>
+      </nav>
+    </header>
+
+    <div class="map-wrap">
+      <!-- HUD Bar -->
+      <div class="map-hud">
+        <div class="hud-item"><span class="hud-label">LAT</span><span class="hud-val" id="hud-lat">—</span></div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item"><span class="hud-label">LNG</span><span class="hud-val" id="hud-lng">—</span></div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item"><span class="hud-label">ZOOM</span><span class="hud-val" id="hud-zoom">—</span></div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item"><span class="hud-label">ALT</span><span class="hud-val" id="hud-alt">—</span></div>
+        <span class="hud-sep">|</span>
+        <div class="hud-item"><span class="hud-label">GRID</span><span class="hud-val" id="hud-grid">—</span></div>
+
+        <div class="map-toolbar" style="margin-left:auto">
+          <button class="map-btn" id="btn-measure" title="Measure distance">&#x1F4CF; MEASURE</button>
+          <button class="map-btn" id="btn-marker" title="Drop recon marker">&#x1F4CD; MARKER</button>
+          <button class="map-btn" id="btn-clear" title="Clear markers">&#x1F5D1; CLEAR</button>
+          <button class="map-btn" id="btn-locate" title="Your location">&#x1F4E1; LOCATE</button>
+          <button class="map-btn" id="btn-goto" title="Go to coordinates">&#x1F3AF; GOTO</button>
+          <div class="goto-panel" id="goto-panel">
+            <input class="goto-input" id="goto-lat" placeholder="Lat" type="number" step="any">
+            <input class="goto-input" id="goto-lng" placeholder="Lng" type="number" step="any">
+            <button class="map-btn" id="goto-go">GO</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div class="map-hud-row2">
+        <button class="map-btn xray" id="btn-xray" title="X-Ray building view">&#x1F3D7; X-RAY</button>
+        <button class="map-btn war" id="btn-conflicts" title="Live conflict zones">&#x1F4A5; CONFLICTS</button>
+        <button class="map-btn print-btn" id="btn-print" title="Print map">&#x1F5A8; PRINT</button>
+        <button class="map-btn print-btn" id="btn-download" title="Download map as image">&#x2B07; DOWNLOAD</button>
+      </div>
+
+      <div style="position:relative;flex:1;display:flex;flex-direction:column">
+        <div id="map"></div>
+        <!-- Center crosshair -->
+        <div class="crosshair" id="crosshair">
+          <svg viewBox="0 0 40 40">
+            <line x1="20" y1="0" x2="20" y2="16" stroke="#8B9D6A" stroke-width="1.5" opacity="0.7"/>
+            <line x1="20" y1="24" x2="20" y2="40" stroke="#8B9D6A" stroke-width="1.5" opacity="0.7"/>
+            <line x1="0" y1="20" x2="16" y2="20" stroke="#8B9D6A" stroke-width="1.5" opacity="0.7"/>
+            <line x1="24" y1="20" x2="40" y2="20" stroke="#8B9D6A" stroke-width="1.5" opacity="0.7"/>
+            <circle cx="20" cy="20" r="3" fill="none" stroke="#8B9D6A" stroke-width="1" opacity="0.5"/>
+          </svg>
+        </div>
+        <button class="fs-btn" id="btn-fs" title="Fullscreen">&#x26F6;</button>
+        <div class="measure-info" id="measure-info"></div>
+        <div class="war-legend" id="war-legend">
+          <h4>CONFLICT LEGEND</h4>
+          <div class="legend-item"><div class="legend-dot" style="background:#C44"></div> Active War Zone</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C4A265"></div> Armed Conflict</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8B4513"></div> Insurgency / Terror</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6B6020"></div> Tensions / Disputed</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      // ── Tile Layers ────────────────────────────────────────
+      const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+      });
+
+      const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: '&copy; Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      });
+
+      const osmStd = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      });
+
+      const darkTactical = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+      });
+
+      const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      });
+
+      const usgsImageryTopo = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16,
+        attribution: 'Tiles &copy; USGS'
+      });
+
+      // ── Init Map ───────────────────────────────────────────
+      const map = L.map('map', {
+        center: [38.8977, -77.0365],  // Washington DC — default AO
+        zoom: 6,
+        layers: [topoMap],
+        zoomControl: true,
+        maxZoom: 20,
+        minZoom: 2
+      });
+
+      // ── Layer Control ──────────────────────────────────────
+      const baseMaps = {
+        "&#x1F3D4; Topographic": topoMap,
+        "&#x1F6F0; Satellite Recon": satellite,
+        "&#x1F5FA; ESRI Topo": esriTopo,
+        "&#x1F30D; Street Map": osmStd,
+        "&#x1F311; Dark Tactical": darkTactical,
+        "&#x1F1FA;&#x1F1F8; USGS Imagery + Topo": usgsImageryTopo
+      };
+
+      // ── X-Ray / Building Overlay Layers ────────────────────
+      const buildingFootprints = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20, opacity: 0.8,
+        attribution: '&copy; CARTO'
+      });
+
+      const osmBuildingOverlay = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+        maxZoom: 18, opacity: 0.6,
+        attribution: '&copy; OpenSeaMap'
+      });
+
+      // Stamen Toner — shows building structures as black outlines
+      const tonerLite = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20, opacity: 0.0,
+        attribution: '&copy; Stadia Maps &copy; Stamen Design &copy; OpenMapTiles &copy; OpenStreetMap'
+      });
+
+      // Waymarked Trails — useful overlay for terrain
+      const trailsOverlay = L.tileLayer('https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png', {
+        maxZoom: 18, opacity: 0.5,
+        attribution: '&copy; Waymarked Trails'
+      });
+
+      const overlayMaps = {
+        "&#x1F3F7; Labels Overlay": buildingFootprints,
+        "&#x26F5; Sea Marks": osmBuildingOverlay,
+        "&#x1F6B6; Hiking Trails": trailsOverlay
+      };
+
+      const layerControl = L.control.layers(baseMaps, overlayMaps, {position: 'topright', collapsed: true}).addTo(map);
+      L.control.scale({metric: true, imperial: true, position: 'bottomleft'}).addTo(map);
+
+      // ── HUD Updates ────────────────────────────────────────
+      const hudLat = document.getElementById('hud-lat');
+      const hudLng = document.getElementById('hud-lng');
+      const hudZoom = document.getElementById('hud-zoom');
+      const hudAlt = document.getElementById('hud-alt');
+      const hudGrid = document.getElementById('hud-grid');
+
+      function toMGRS(lat, lng) {
+        // Simplified UTM zone + grid square reference
+        const zone = Math.floor((lng + 180) / 6) + 1;
+        const letter = 'CDEFGHJKLMNPQRSTUVWX'[Math.floor((lat + 80) / 8)] || '?';
+        const easting = Math.round(((lng + 180) % 6) / 6 * 100000);
+        const northing = Math.round((lat - Math.floor(lat)) * 100000);
+        return zone + letter + ' ' + String(easting).padStart(5,'0') + ' ' + String(Math.abs(northing)).padStart(5,'0');
+      }
+
+      function zoomToAlt(z) {
+        // Rough zoom-to-altitude mapping
+        const alts = {
+          2:'12,000 km',3:'6,000 km',4:'3,000 km',5:'1,500 km',6:'750 km',
+          7:'400 km',8:'190 km',9:'100 km',10:'50 km',11:'25 km',12:'12 km',
+          13:'6 km',14:'3 km',15:'1.5 km',16:'750 m',17:'380 m',18:'190 m',
+          19:'95 m',20:'45 m'
+        };
+        return alts[z] || '—';
+      }
+
+      function updateHUD(latlng) {
+        if (latlng) {
+          hudLat.textContent = latlng.lat.toFixed(6);
+          hudLng.textContent = latlng.lng.toFixed(6);
+          hudGrid.textContent = toMGRS(latlng.lat, latlng.lng);
+        }
+        const z = map.getZoom();
+        hudZoom.textContent = z;
+        hudAlt.textContent = zoomToAlt(z);
+      }
+
+      map.on('mousemove', e => updateHUD(e.latlng));
+      map.on('zoomend', () => updateHUD(map.getCenter()));
+      updateHUD(map.getCenter());
+
+      // ── Marker System ──────────────────────────────────────
+      const markers = [];
+      let markerMode = false;
+
+      const reconIcon = L.divIcon({
+        className: '',
+        html: `<svg width="24" height="36" viewBox="0 0 24 36">
+          <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="#8B9D6A" stroke="#3a4432" stroke-width="1.5"/>
+          <circle cx="12" cy="11" r="5" fill="#1a1f16"/>
+          <circle cx="12" cy="11" r="2" fill="#C8D5A3"/>
+        </svg>`,
+        iconSize: [24, 36],
+        iconAnchor: [12, 36],
+        popupAnchor: [0, -36]
+      });
+
+      document.getElementById('btn-marker').addEventListener('click', function(){
+        markerMode = !markerMode;
+        this.classList.toggle('active', markerMode);
+        map.getContainer().style.cursor = markerMode ? 'crosshair' : '';
+        if (markerMode && measuring) toggleMeasure();
+      });
+
+      map.on('click', function(e){
+        if (!markerMode) return;
+        const m = L.marker(e.latlng, {icon: reconIcon, draggable: true}).addTo(map);
+        m.bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#222">
+          <b>RECON POINT #${markers.length + 1}</b><br>
+          LAT: ${e.latlng.lat.toFixed(6)}<br>
+          LNG: ${e.latlng.lng.toFixed(6)}<br>
+          GRID: ${toMGRS(e.latlng.lat, e.latlng.lng)}
+        </div>`);
+        markers.push(m);
+      });
+
+      document.getElementById('btn-clear').addEventListener('click', function(){
+        markers.forEach(m => map.removeLayer(m));
+        markers.length = 0;
+        // Clear measurement too
+        if (measureLine) { map.removeLayer(measureLine); measureLine = null; }
+        measurePoints.length = 0;
+        measureInfo.style.display = 'none';
+      });
+
+      // ── Geolocation ────────────────────────────────────────
+      document.getElementById('btn-locate').addEventListener('click', function(){
+        if (!navigator.geolocation) return alert('Geolocation not available');
+        navigator.geolocation.getCurrentPosition(pos => {
+          const ll = [pos.coords.latitude, pos.coords.longitude];
+          map.setView(ll, 14);
+          L.circleMarker(ll, {radius:8, color:'#8B9D6A', fillColor:'#C8D5A3', fillOpacity:0.7, weight:2}).addTo(map)
+            .bindPopup(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#222">
+              <b>YOUR POSITION</b><br>
+              LAT: ${ll[0].toFixed(6)}<br>LNG: ${ll[1].toFixed(6)}<br>
+              ACC: ±${Math.round(pos.coords.accuracy)}m
+            </div>`).openPopup();
+        }, () => alert('Location access denied'));
+      });
+
+      // ── Go To Coordinates ──────────────────────────────────
+      const gotoPanel = document.getElementById('goto-panel');
+      document.getElementById('btn-goto').addEventListener('click', function(){
+        gotoPanel.classList.toggle('show');
+      });
+      document.getElementById('goto-go').addEventListener('click', function(){
+        const lat = parseFloat(document.getElementById('goto-lat').value);
+        const lng = parseFloat(document.getElementById('goto-lng').value);
+        if (isNaN(lat) || isNaN(lng)) return;
+        map.setView([lat, lng], 14);
+        gotoPanel.classList.remove('show');
+      });
+
+      // ── Measurement Tool ───────────────────────────────────
+      let measuring = false;
+      let measurePoints = [];
+      let measureLine = null;
+      const measureInfo = document.getElementById('measure-info');
+
+      function toggleMeasure() {
+        measuring = !measuring;
+        document.getElementById('btn-measure').classList.toggle('active', measuring);
+        map.getContainer().style.cursor = measuring ? 'crosshair' : '';
+        if (!measuring) {
+          measureInfo.style.display = 'none';
+        } else {
+          if (markerMode) {
+            markerMode = false;
+            document.getElementById('btn-marker').classList.remove('active');
+          }
+          measurePoints = [];
+          if (measureLine) { map.removeLayer(measureLine); measureLine = null; }
+        }
+      }
+
+      document.getElementById('btn-measure').addEventListener('click', toggleMeasure);
+
+      map.on('click', function(e){
+        if (!measuring) return;
+        measurePoints.push(e.latlng);
+        if (measurePoints.length >= 2) {
+          if (measureLine) map.removeLayer(measureLine);
+          measureLine = L.polyline(measurePoints, {color:'#C4A265', weight:2, dashArray:'6,6'}).addTo(map);
+          let totalDist = 0;
+          for (let i = 1; i < measurePoints.length; i++) {
+            totalDist += measurePoints[i-1].distanceTo(measurePoints[i]);
+          }
+          let display;
+          if (totalDist > 1000) display = (totalDist / 1000).toFixed(2) + ' km';
+          else display = Math.round(totalDist) + ' m';
+          measureInfo.textContent = 'DISTANCE: ' + display + '  |  POINTS: ' + measurePoints.length;
+          measureInfo.style.display = 'block';
+        }
+      });
+
+      // ── Fullscreen ─────────────────────────────────────────
+      document.getElementById('btn-fs').addEventListener('click', function(){
+        const el = document.getElementById('map');
+        if (!document.fullscreenElement) {
+          (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+        } else {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        }
+      });
+
+      // ══════════════════════════════════════════════════════
+      // X-RAY BUILDING VIEW
+      // ══════════════════════════════════════════════════════
+      let xrayActive = false;
+      let xrayLayer = null;
+
+      // High-contrast building-outline layer using Stadia Stamen Toner
+      const xrayToner = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20, opacity: 0.65,
+        attribution: '&copy; Stadia Maps &copy; Stamen Design'
+      });
+
+      // OpenMapTiles 3D building overlay (Versatiles - free)
+      const xrayLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20, opacity: 0.7
+      });
+
+      document.getElementById('btn-xray').addEventListener('click', function(){
+        xrayActive = !xrayActive;
+        this.classList.toggle('active', xrayActive);
+        if (xrayActive) {
+          xrayToner.addTo(map);
+          xrayLabels.addTo(map);
+          // Zoom in for building detail if too far out
+          if (map.getZoom() < 14) {
+            map.setZoom(16);
+          }
+        } else {
+          map.removeLayer(xrayToner);
+          map.removeLayer(xrayLabels);
+        }
+      });
+
+      // ══════════════════════════════════════════════════════
+      // LIVE CONFLICT ZONES
+      // Uses ACLED-style static data + live UCDP georeferenced data
+      // ══════════════════════════════════════════════════════
+      let conflictsActive = false;
+      let conflictLayer = L.layerGroup();
+      let conflictZones = L.layerGroup();
+      const warLegend = document.getElementById('war-legend');
+
+      // Known active conflict zones (2024-2026 data)
+      const CONFLICT_DATA = [
+        {name:'Ukraine — Eastern Front', lat:48.02, lng:37.80, type:'Active War', parties:'Russia vs Ukraine', radius:80000, color:'#C44', intensity:'HIGH'},
+        {name:'Ukraine — Southern Front', lat:46.63, lng:33.52, type:'Active War', parties:'Russia vs Ukraine', radius:60000, color:'#C44', intensity:'HIGH'},
+        {name:'Gaza Strip', lat:31.35, lng:34.31, type:'Active War', parties:'Israel vs Hamas', radius:20000, color:'#C44', intensity:'CRITICAL'},
+        {name:'West Bank', lat:31.95, lng:35.20, type:'Armed Conflict', parties:'Israel — Palestinian factions', radius:25000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Southern Lebanon', lat:33.27, lng:35.21, type:'Armed Conflict', parties:'Israel vs Hezbollah', radius:30000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Syria — NW Idlib', lat:35.93, lng:36.63, type:'Armed Conflict', parties:'Multiple factions', radius:40000, color:'#C4A265', intensity:'MEDIUM'},
+        {name:'Yemen — Houthi Areas', lat:15.35, lng:44.21, type:'Armed Conflict', parties:'Houthis vs Coalition', radius:80000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Sudan — Khartoum', lat:15.59, lng:32.53, type:'Active War', parties:'SAF vs RSF', radius:50000, color:'#C44', intensity:'CRITICAL'},
+        {name:'Sudan — Darfur', lat:13.45, lng:25.36, type:'Active War', parties:'SAF vs RSF / Militias', radius:100000, color:'#C44', intensity:'CRITICAL'},
+        {name:'Myanmar — Shan State', lat:20.78, lng:97.03, type:'Armed Conflict', parties:'Military vs Resistance', radius:80000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Myanmar — Rakhine', lat:20.15, lng:92.90, type:'Armed Conflict', parties:'Military vs Arakan Army', radius:60000, color:'#C4A265', intensity:'HIGH'},
+        {name:'DR Congo — North Kivu', lat:-1.41, lng:29.22, type:'Armed Conflict', parties:'FARDC vs M23 / Militias', radius:60000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Somalia — Al-Shabaab', lat:2.05, lng:45.32, type:'Insurgency', parties:'Govt / AMISOM vs Al-Shabaab', radius:90000, color:'#8B4513', intensity:'MEDIUM'},
+        {name:'Sahel — Mali / Burkina', lat:14.50, lng:-1.52, type:'Insurgency', parties:'Govts vs JNIM / ISGS', radius:120000, color:'#8B4513', intensity:'HIGH'},
+        {name:'Nigeria — NE Boko Haram', lat:11.85, lng:13.16, type:'Insurgency', parties:'Nigeria vs Boko Haram / ISWAP', radius:80000, color:'#8B4513', intensity:'MEDIUM'},
+        {name:'Ethiopia — Amhara', lat:11.60, lng:37.40, type:'Armed Conflict', parties:'ENDF vs Fano', radius:60000, color:'#C4A265', intensity:'MEDIUM'},
+        {name:'Pakistan — Balochistan', lat:29.50, lng:66.50, type:'Insurgency', parties:'Pakistan vs BLA / TTP', radius:80000, color:'#8B4513', intensity:'MEDIUM'},
+        {name:'Afghanistan — Taliban', lat:34.52, lng:69.17, type:'Insurgency', parties:'Taliban govt vs IS-K', radius:60000, color:'#8B4513', intensity:'MEDIUM'},
+        {name:'Haiti — Gang Violence', lat:18.54, lng:-72.34, type:'Armed Conflict', parties:'Gangs vs Security forces', radius:15000, color:'#C4A265', intensity:'HIGH'},
+        {name:'Colombia — FARC Remnants', lat:2.44, lng:-76.61, type:'Insurgency', parties:'Military vs FARC dissidents / ELN', radius:60000, color:'#8B4513', intensity:'LOW'},
+        {name:'Taiwan Strait — Tensions', lat:24.50, lng:119.50, type:'Tensions', parties:'China — Taiwan / US', radius:100000, color:'#6B6020', intensity:'WATCH'},
+        {name:'Korean DMZ', lat:38.00, lng:127.00, type:'Tensions', parties:'North Korea — South Korea / US', radius:40000, color:'#6B6020', intensity:'WATCH'},
+        {name:'South China Sea', lat:11.00, lng:114.00, type:'Tensions', parties:'China — Philippines / Vietnam', radius:150000, color:'#6B6020', intensity:'WATCH'},
+        {name:'Mozambique — Cabo Delgado', lat:-12.33, lng:40.35, type:'Insurgency', parties:'Military / SADC vs ISIS-Moz', radius:50000, color:'#8B4513', intensity:'MEDIUM'},
+      ];
+
+      function buildConflictIcon(type) {
+        const colors = {'Active War':'#C44','Armed Conflict':'#C4A265','Insurgency':'#8B4513','Tensions':'#6B6020'};
+        const c = colors[type] || '#C44';
+        return L.divIcon({
+          className: '',
+          html: `<div style="width:14px;height:14px;background:${c};border:2px solid rgba(255,255,255,.5);border-radius:50%;box-shadow:0 0 8px ${c};animation:conflictPulse 2s ease infinite"></div>`,
+          iconSize: [14,14],
+          iconAnchor: [7,7]
+        });
+      }
+
+      function loadConflicts(){
+        conflictLayer.clearLayers();
+        conflictZones.clearLayers();
+
+        CONFLICT_DATA.forEach(cf => {
+          // Zone circle
+          const zoneColors = {'Active War':'#C44','Armed Conflict':'#C4A265','Insurgency':'#8B4513','Tensions':'#6B6020'};
+          const zc = zoneColors[cf.type] || '#C44';
+          const circle = L.circle([cf.lat, cf.lng], {
+            radius: cf.radius,
+            color: zc,
+            fillColor: zc,
+            fillOpacity: 0.12,
+            weight: 1.5,
+            dashArray: cf.type === 'Tensions' ? '6,4' : null
+          });
+          conflictZones.addLayer(circle);
+
+          // Center marker
+          const marker = L.marker([cf.lat, cf.lng], {icon: buildConflictIcon(cf.type)});
+          marker.bindPopup(`<div class="conflict-popup">
+            <span class="conf-type">${cf.type.toUpperCase()}</span><br>
+            <b>${cf.name}</b><br>
+            <span class="conf-parties">${cf.parties}</span><br>
+            INTENSITY: <b>${cf.intensity}</b>
+          </div>`);
+          conflictLayer.addLayer(marker);
+        });
+      }
+
+      document.getElementById('btn-conflicts').addEventListener('click', function(){
+        conflictsActive = !conflictsActive;
+        this.classList.toggle('active', conflictsActive);
+        warLegend.classList.toggle('show', conflictsActive);
+        if (conflictsActive) {
+          loadConflicts();
+          conflictZones.addTo(map);
+          conflictLayer.addTo(map);
+          map.setView([25, 40], 3); // Center on conflict-heavy region
+        } else {
+          map.removeLayer(conflictLayer);
+          map.removeLayer(conflictZones);
+        }
+      });
+
+      // ══════════════════════════════════════════════════════
+      // PRINT & DOWNLOAD MAP
+      // ══════════════════════════════════════════════════════
+      document.getElementById('btn-print').addEventListener('click', function(){
+        window.print();
+      });
+
+      document.getElementById('btn-download').addEventListener('click', function(){
+        const mapEl = document.getElementById('map');
+        this.textContent = '⏳ CAPTURING...';
+        this.disabled = true;
+        const btn = this;
+
+        html2canvas(mapEl, {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+          backgroundColor: '#0e110b',
+          logging: false
+        }).then(canvas => {
+          // Add HUD info stamp on the image
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = 'rgba(14,17,11,0.85)';
+          ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+          ctx.font = '600 14px "JetBrains Mono", monospace';
+          ctx.fillStyle = '#8B9D6A';
+          const center = map.getCenter();
+          const stamp = `DELTA TACTICAL MAP | LAT: ${center.lat.toFixed(4)} | LNG: ${center.lng.toFixed(4)} | ZOOM: ${map.getZoom()} | ${new Date().toISOString().slice(0,19)}`;
+          ctx.fillText(stamp, 12, canvas.height - 20);
+
+          canvas.toBlob(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'delta_tactical_map_' + new Date().toISOString().slice(0,10) + '.png';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            btn.innerHTML = '&#x2B07; DOWNLOAD';
+            btn.disabled = false;
+          }, 'image/png');
+        }).catch(() => {
+          // Fallback: use leaflet canvas capture
+          const a = document.createElement('a');
+          const cv = mapEl.querySelector('canvas');
+          if (cv) {
+            a.href = cv.toDataURL('image/png');
+            a.download = 'delta_tactical_map_' + new Date().toISOString().slice(0,10) + '.png';
+            a.click();
+          } else {
+            alert('Map capture requires canvas renderer. Try the Print option.');
+          }
+          btn.innerHTML = '&#x2B07; DOWNLOAD';
+          btn.disabled = false;
+        });
+      });
+
+      // ── Keyboard shortcuts ─────────────────────────────────
+      document.addEventListener('keydown', function(e){
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        switch(e.key.toLowerCase()) {
+          case 'm': toggleMeasure(); break;
+          case 'p': document.getElementById('btn-marker').click(); break;
+          case 'c': document.getElementById('btn-clear').click(); break;
+          case 'l': document.getElementById('btn-locate').click(); break;
+          case 'g': document.getElementById('btn-goto').click(); break;
+          case 'f': document.getElementById('btn-fs').click(); break;
+          case 'x': document.getElementById('btn-xray').click(); break;
+          case 'w': document.getElementById('btn-conflicts').click(); break;
+          case 'd': document.getElementById('btn-download').click(); break;
+        }
+      });
+
+      // Inject conflict pulse animation
+      const animStyle = document.createElement('style');
+      animStyle.textContent = '@keyframes conflictPulse{0%,100%{box-shadow:0 0 4px currentColor;opacity:1}50%{box-shadow:0 0 16px currentColor;opacity:0.6}}';
+      document.head.appendChild(animStyle);
+
+    })();
+    </script>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="radio.html" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
+</html>

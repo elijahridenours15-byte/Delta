@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin — Manuals Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/" class="delta-logo" aria-hidden="true" title="">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>ADMIN — MANUALS</h1>
+        <p class="tag">Upload manuals, blueprints, and import public-domain images</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <section class="editor">
+        <div class="output">
+          <h2>Upload Manual</h2>
+          <form id="uploadForm" enctype="multipart/form-data">
+            <label>Brand <input name="brand" required /></label><br />
+            <label>Model <input name="model" /></label><br />
+            <label>Year <input name="year" /></label><br />
+            <label>Title <input name="title" /></label><br />
+            <label>Description <input name="description" /></label><br />
+            <label>License/Source <input name="license" /></label><br />
+            <label>Source URL <input name="source_url" /></label><br />
+            <label>PDF manual <input type="file" name="pdf" accept="application/pdf" /></label><br />
+            <label>Images (HD) <input type="file" name="images" accept="image/*" multiple /></label><br />
+            {% if not admin_token_set %}
+              <label>Admin token (env not set) <input name="admin_token" /></label><br />
+            {% endif %}
+            <button type="button" id="uploadBtn">Upload</button>
+          </form>
+
+          <hr />
+          <h3>Wikimedia Importer (public-domain / CC0 recommended)</h3>
+          <form id="importForm">
+            <label>Brand <input name="brand" /></label><br />
+            <label>Model <input name="model" /></label><br />
+            <label>Year <input name="year" /></label><br />
+            <label>Query <input name="query" placeholder="e.g. Toyota Corolla 1995" /></label><br />
+            <label>Limit <input name="limit" value="6" type="number" min="1" max="20" /></label><br />
+            <label><input type="checkbox" name="download" /> Download PD/CC0 images and create stub entry</label><br />
+            <button type="button" id="importBtn">Search / Import</button>
+          </form>
+
+          <div id="result" style="margin-top:12px;color:var(--text2)"></div>
+        </div>
+      </section>
+
+      <aside class="output">
+        <h2>Brands</h2>
+        {% if brands %}
+          <ul>
+            {% for b in brands %}
+              <li><a href="/manuals/{{ b }}">{{ b }}</a></li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="no-results">No brands indexed yet.</p>
+        {% endif %}
+      </aside>
+    </main>
+
+    <script>
+      document.getElementById('uploadBtn').addEventListener('click', async () => {
+        const f = document.getElementById('uploadForm');
+        const fd = new FormData(f);
+        try {
+          const res = await fetch('/api/manuals/upload', { method: 'POST', body: fd });
+          const data = await res.json();
+          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          document.getElementById('result').textContent = String(err);
+        }
+      });
+
+      document.getElementById('importBtn').addEventListener('click', async () => {
+        const form = document.getElementById('importForm');
+        const body = { brand: form.brand.value, model: form.model.value, year: form.year.value, query: form.query.value, limit: form.limit.value, download: form.download.checked };
+        try {
+          const res = await fetch('/api/manuals/import_wikimedia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const data = await res.json();
+          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          document.getElementById('result').textContent = String(err);
+        }
+      });
+    </script>
+    {%- include '_radio_footer.html' %}
+</body>
+  </html>

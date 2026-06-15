@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Future Code Delta | Workbench</title>
+    <meta
+      name="description"
+      content="Explore the folder tree, route inventory, and source surface behind the batcode-playground build."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+  </head>
+  <body data-page="workbench">
+    <div class="site-bg" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">FD</span>
+        <span class="brand-copy">
+          <strong>Future Code Delta</strong>
+          <small>BatCode Playground webspace edition</small>
+        </span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a class="active" href="workbench.html">Workbench</a>
+        <a href="deploy.html">Deploy Plan</a>
+      </nav>
+    </header>
+
+    <main class="page-shell">
+      <section class="hero hero-compact panel reveal">
+        <div class="hero-copy">
+          <p class="eyebrow">Project inventory</p>
+          <h1>The folder exposed as a readable product surface.</h1>
+          <p class="lede">
+            Browse the file groups, Flask routes, template pages, and deployment boundaries that make up
+            the current repository.
+          </p>
+        </div>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head split-head">
+          <div>
+            <p class="eyebrow">Source map</p>
+            <h2>File inventory</h2>
+          </div>
+          <div class="filter-row" id="file-filters"></div>
+        </div>
+        <div class="card-grid compact-grid" id="file-grid"></div>
+      </section>
+
+      <section class="section-block two-column reveal">
+        <article class="panel">
+          <div class="section-head">
+            <p class="eyebrow">Folder tree</p>
+            <h2>Current structure</h2>
+          </div>
+          <pre class="tree-view" id="tree-view"></pre>
+        </article>
+
+        <article class="panel">
+          <div class="section-head">
+            <p class="eyebrow">Page layer</p>
+            <h2>Template modules</h2>
+          </div>
+          <div class="stacked-cards" id="page-list"></div>
+        </article>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-head">
+          <p class="eyebrow">Backend surface</p>
+          <h2>Route table</h2>
+        </div>
+        <div class="table-wrap panel">
+          <table class="route-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Kind</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody id="route-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>This workbench is a browser-safe window into the real project folder.</p>
+      <p class="footer-meta">Use it as the public reference layer while the full runtime stays server-side.</p>
+    </footer>
+
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>

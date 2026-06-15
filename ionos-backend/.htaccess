@@ -1,0 +1,37 @@
+Options +ExecCGI -MultiViews
+AddHandler cgi-script .cgi
+DirectorySlash Off
+
+<IfModule mod_headers.c>
+Header always unset Strict-Transport-Security
+Header always unset Content-Security-Policy
+Header always unset X-Content-Type-Options
+Header always unset X-Frame-Options
+Header always unset X-XSS-Protection
+Header always unset Referrer-Policy
+Header always unset Permissions-Policy
+Header always unset Cross-Origin-Opener-Policy
+Header always unset Cross-Origin-Resource-Policy
+
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' https:; frame-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "accelerometer=(), autoplay=(self), browsing-topics=(), camera=(self), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()"
+Header always set Cross-Origin-Opener-Policy "same-origin"
+Header always set Cross-Origin-Resource-Policy "same-site"
+</IfModule>
+
+DirectoryIndex index.cgi index.html
+RewriteEngine On
+RewriteRule ^agent/?$ index.cgi/agent [QSA,L]
+RedirectMatch 302 ^/index\.html$ /
+RedirectMatch 302 ^/(ai|cyber|map|bible|drone|radio|truth)\.html$ /$1
+RedirectMatch 302 ^/(deploy|workbench)\.html$ /
+RedirectMatch gone ^/assets(?:/.*)?$
+RedirectMatch gone ^/bundle\.zip$
+RedirectMatch gone ^/probe-upload\.txt$
+RedirectMatch gone ^/(?:(?:bootstrap|diag|test|pycheck|importcheck|apply-live-fix|rm-probe)\.cgi(?:/.*)?|(?:bootstrap|pycheck|importcheck)\.cgi\.py)$
+FallbackResource /index.cgi

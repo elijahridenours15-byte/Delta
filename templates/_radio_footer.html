@@ -1,0 +1,238 @@
+<div class="rf-wrapper" id="rf-wrapper">
+  <button class="rf-tab" id="rf-tab" aria-label="Toggle radio bar">
+    <span class="rf-tab-arrow">&#x25BC;</span>
+    <span class="rf-tab-label">SIGINT</span>
+  </button>
+  <div class="radio-footer" id="radio-footer">
+    <div class="rf-left">
+      <button class="rf-btn" id="rf-play" title="Play/Pause" aria-label="Play or pause station">&#x25B6;</button>
+      <button class="rf-btn" id="rf-stop" title="Stop" aria-label="Stop station">&#x25A0;</button>
+      <select class="rf-select" id="rf-station" aria-label="Select radio station">
+        <option value="">-- SELECT FREQ --</option>
+        <option value="https://radio.weatherusa.net/NWR/KEC80.mp3" data-key="noaa">NOAA Weather</option>
+        <option value="https://broadcastify.cdnstream1.com/14747" data-key="scanner">Scanner Radio</option>
+        <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" data-key="bbc-world-service">BBC World Svc</option>
+        <option value="https://npr-ice.streamguys1.com/live.mp3" data-key="npr-news">NPR News</option>
+        <option value="https://stream.wqxr.org/js-stream.aac" data-key="classical-wqxr">Classical WQXR</option>
+        <option value="https://play.streamafrica.net/lofiradio" data-key="lofi-beats">Lofi Beats</option>
+        <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3" data-key="jazz-fm">Jazz FM</option>
+        <option value="https://stream.infowars.com/live" data-key="infowars-live">Infowars Live</option>
+        <option value="https://www.youtube.com/@EndtimeheadlinesOrg/live" data-key="end-time-headlines-live" data-mode="external">End Time Headlines Live</option>
+        <option value="https://streaming.radio.co/sa2953afc7/listen" data-key="prophecy-today-radio">Prophecy Today Radio</option>
+        <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3" data-key="bible-audio">Bible Audio</option>
+      </select>
+    </div>
+    <div class="rf-center">
+      <div class="rf-viz" id="rf-viz" aria-hidden="true"></div>
+      <span class="rf-now" id="rf-now">NO SIGNAL</span>
+    </div>
+    <div class="rf-right">
+      <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60" aria-label="Volume">
+      <a href="/radio" class="rf-settings" title="SIGINT Radio Lab" aria-label="Open SIGINT Radio Lab">&#x2699;</a>
+      <span class="rf-classif" aria-hidden="true">&#9670;&nbsp;CLASSIFIED&nbsp;//&nbsp;FOUO</span>
+    </div>
+    <audio id="rf-audio" preload="none"></audio>
+  </div>
+</div>
+<script>
+(function(){
+  if (window.__deltaRadioFooterInitialized) return;
+  window.__deltaRadioFooterInitialized = true;
+
+  // ── Toggle / collapse bar ──
+  const wrapper = document.getElementById('rf-wrapper');
+  const tabBtn  = document.getElementById('rf-tab');
+  if (wrapper && tabBtn) {
+    if (localStorage.getItem('deltaRadioHidden') === '1') {
+      wrapper.classList.add('collapsed');
+    }
+    tabBtn.addEventListener('click', () => {
+      wrapper.classList.toggle('collapsed');
+      localStorage.setItem('deltaRadioHidden', wrapper.classList.contains('collapsed') ? '1' : '0');
+    });
+  }
+
+  const root = document.getElementById('radio-footer');
+  if (!root) return;
+
+  const au = root.querySelector('#rf-audio');
+  const sel = root.querySelector('#rf-station');
+  const now = root.querySelector('#rf-now');
+  const viz = root.querySelector('#rf-viz');
+  const vol = root.querySelector('#rf-vol');
+  const playBtn = root.querySelector('#rf-play');
+  const stopBtn = root.querySelector('#rf-stop');
+
+  if (!au || !sel || !now || !viz || !vol || !playBtn || !stopBtn) return;
+
+  let vizInterval = null;
+  const bars = [];
+  let userPaused = false;
+
+  function getSelectedOption() {
+    return sel.options[sel.selectedIndex] || null;
+  }
+
+  function resolveSavedOption(savedStation, savedSrc) {
+    return Array.from(sel.options).find((option) => {
+      return option.dataset.key === savedStation || option.value === savedStation || (savedSrc && option.value === savedSrc);
+    }) || null;
+  }
+
+  function resetAudioSignal() {
+    au.pause();
+    au.removeAttribute('src');
+    au.load();
+    stopVisualizer();
+  }
+
+  function launchExternalFeed(option) {
+    userPaused = true;
+    resetAudioSignal();
+    now.textContent = option.text + ' // LIVE PAGE';
+    saveState();
+    window.open(option.value, '_blank', 'noopener,noreferrer');
+  }
+
+  for (let index = 0; index < 12; index += 1) {
+    const bar = document.createElement('div');
+    bar.className = 'rf-bar';
+    viz.appendChild(bar);
+    bars.push(bar);
+  }
+
+  au.volume = Number(vol.value) / 100;
+
+  function saveState() {
+    const selectedOption = getSelectedOption();
+    const isExternal = selectedOption && selectedOption.dataset.mode === 'external';
+    localStorage.setItem('deltaRadio', JSON.stringify({
+      src: isExternal ? '' : (au.src || selectedOption?.value || ''),
+      vol: vol.value,
+      playing: isExternal ? false : (!au.paused && !userPaused),
+      station: selectedOption ? (selectedOption.dataset.key || selectedOption.value) : '',
+      name: now.textContent,
+    }));
+  }
+
+  function startVisualizer() {
+    clearInterval(vizInterval);
+    vizInterval = setInterval(() => {
+      bars.forEach((bar) => {
+        bar.style.height = (2 + Math.random() * 14) + 'px';
+      });
+    }, 120);
+  }
+
+  function stopVisualizer() {
+    clearInterval(vizInterval);
+    bars.forEach((bar) => {
+      bar.style.height = '2px';
+    });
+  }
+
+  stopVisualizer();
+
+  au.addEventListener('pause', () => {
+    if (!userPaused && au.src) {
+      setTimeout(() => {
+        if (!userPaused && au.src) {
+          au.play().catch(() => {});
+        }
+      }, 100);
+    }
+  });
+
+  sel.addEventListener('change', () => {
+    const selectedOption = getSelectedOption();
+    if (!sel.value || !selectedOption) {
+      userPaused = true;
+      resetAudioSignal();
+      now.textContent = 'NO SIGNAL';
+      saveState();
+      return;
+    }
+    if (selectedOption.dataset.mode === 'external') {
+      launchExternalFeed(selectedOption);
+      return;
+    }
+    userPaused = false;
+    au.src = sel.value;
+    au.play().catch(() => {});
+    now.textContent = selectedOption.text;
+    startVisualizer();
+    saveState();
+  });
+
+  playBtn.addEventListener('click', () => {
+    const selectedOption = getSelectedOption();
+    if (selectedOption && selectedOption.dataset.mode === 'external') {
+      launchExternalFeed(selectedOption);
+      return;
+    }
+    if (!au.src) return;
+    if (au.paused) {
+      userPaused = false;
+      au.play().catch(() => {});
+      startVisualizer();
+    } else {
+      userPaused = true;
+      au.pause();
+      stopVisualizer();
+    }
+    saveState();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    userPaused = true;
+    resetAudioSignal();
+    sel.value = '';
+    now.textContent = 'NO SIGNAL';
+    saveState();
+  });
+
+  vol.addEventListener('input', () => {
+    au.volume = Number(vol.value) / 100;
+    saveState();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && au.src && !userPaused) {
+      au.play().catch(() => {});
+      startVisualizer();
+    }
+  });
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('deltaRadio'));
+    const savedOption = saved ? resolveSavedOption(saved.station, saved.src) : null;
+    if (savedOption) {
+      sel.value = savedOption.value;
+    }
+    if (saved && saved.src && saved.playing && savedOption && savedOption.dataset.mode !== 'external') {
+      vol.value = saved.vol || 60;
+      au.volume = (saved.vol || 60) / 100;
+      au.src = saved.src;
+      userPaused = false;
+      au.play().then(() => {
+        now.textContent = saved.name || savedOption.text || 'RECEIVING';
+        startVisualizer();
+      }).catch(() => {
+        now.textContent = saved.name || 'SIGNAL READY (tap play)';
+        sel.value = savedOption.value;
+      });
+    } else if (saved) {
+      vol.value = saved.vol || 60;
+      au.volume = (saved.vol || 60) / 100;
+      if (savedOption && savedOption.dataset.mode !== 'external' && saved.src) {
+        au.src = saved.src;
+      }
+      if (savedOption) {
+        now.textContent = saved.name || savedOption.text || 'PAUSED';
+        userPaused = true;
+      }
+    }
+  } catch (error) {}
+
+})();
+</script>
