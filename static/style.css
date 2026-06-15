@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap');
 
 :root{
-  --bg:#0e110b;
+  --bg:#4B5320;
   --bg2:#141912;
   --panel:#1a1f16;
   --panel2:#222a1c;
@@ -34,12 +34,9 @@ html,body{height:100%}
 body{
   margin:0;
   font-family:'Inter',system-ui,-apple-system,sans-serif;
-  background-color:var(--bg);
+  background-color:#4B5320;
   color:var(--text);
   padding-bottom:70px;
-  background-image:url('/static/camo.svg');
-  background-size:600px 600px;
-  background-repeat:repeat;
 }
 
 /* Selection */
