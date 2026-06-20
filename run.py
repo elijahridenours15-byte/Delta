@@ -1235,14 +1235,16 @@ TOPLINE_REQUEST_HEADERS = {
 }
 TOPLINE_SOURCE_SPECS = (
     {
-        'key': 'alex-jones-show',
-        'name': 'Real Alex Jones',
-        'label': 'REAL ALEX JONES',
-        'link': 'https://realalexjones.com/',
+        'key': 'alex-jones-network',
+        'name': 'Alex Jones Network',
+        'label': 'ALEX JONES NETWORK',
+        'link': 'https://www.alexjonesnetwork.com/',
         'urls': (
+            'https://www.alexjonesnetwork.com/feed/',
+            'https://alexjonesnetwork.com/feed/',
+            'https://www.infowars.com/feed/',
             'https://realalexjones.com/collections/new-releases/products.json?limit=6',
             'https://realalexjones.com/collections/best-sellers/products.json?limit=6',
-            'https://realalexjones.com/products.json?limit=12',
         ),
     },
     {

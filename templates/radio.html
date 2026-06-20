@@ -133,6 +133,24 @@
         border:1px solid var(--border);border-radius:4px;padding:8px;
         font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;box-sizing:border-box;
       }
+
+      /* AJN Live Video */
+      .ajn-video-panel{margin-bottom:18px}
+      .ajn-video-panel .radio-player-card h3{color:#C8D5A3}
+      .ajn-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:4px;border:1px solid var(--border2)}
+      .ajn-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+      .ajn-video-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin:8px 0 0;text-align:center}
+      .ajn-video-note a{color:var(--accent);text-decoration:none}
+      .ajn-video-note a:hover{text-decoration:underline}
+      .btn-video-toggle{
+        background:linear-gradient(135deg,#3B4218,#4B5320);color:#C8D5A3;
+        border:1px solid #5C6B2E;border-radius:4px;
+        padding:0 12px;height:40px;cursor:pointer;font-size:11px;
+        font-family:'JetBrains Mono',monospace;letter-spacing:1px;
+        text-transform:uppercase;transition:all .15s;white-space:nowrap;
+      }
+      .btn-video-toggle:hover{box-shadow:0 0 10px rgba(92,107,46,.4);border-color:#8B9D6A}
+      .btn-video-toggle.active{background:linear-gradient(135deg,#4B5320,#5C6B2E);box-shadow:0 0 12px rgba(92,107,46,.35)}
     </style>
   </head>
   <body>
@@ -184,9 +202,22 @@
               <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px">VOL</span>
               <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="70">
               <span class="vol-label" id="vol-label">70%</span>
+              <button class="btn-video-toggle" id="btn-video" title="Toggle Alex Jones Network live video" style="display:none">&#x1F4F9; VIDEO</button>
             </div>
 
             <audio id="radio-audio" crossorigin="anonymous" preload="none"></audio>
+          </div>
+
+          <!-- AJN Live Video Panel -->
+          <div class="ajn-video-panel radio-player-card" id="ajn-video-panel" style="display:none">
+            <h3>&#x1F4F9; ALEX JONES NETWORK &mdash; LIVE VIDEO</h3>
+            <div class="ajn-video-wrap">
+              <iframe id="ajn-iframe" src="" allowfullscreen allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
+            </div>
+            <p class="ajn-video-note">
+              &#x2139; If the feed does not load inside the player,
+              <a href="https://www.alexjonesnetwork.com/live" target="_blank" rel="noopener noreferrer">open directly &rarr;</a>
+            </p>
           </div>
 
           <!-- Record & Download -->
@@ -316,7 +347,7 @@
         {name:'Classical WQXR',  freq:'FM 105.9',    url:'https://stream.wqxr.org/js-stream.aac', genre:'Ambient'},
         {name:'Lofi Beats',      freq:'NET STREAM',  url:'https://play.streamafrica.net/lofiradio', genre:'Focus'},
         {name:'Jazz FM',         freq:'NET STREAM',  url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3', genre:'Jazz'},
-        {name:'Infowars Live',   freq:'NET STREAM',  url:'https://stream.infowars.com/live', genre:'Talk'},
+        {name:'Alex Jones Network', freq:'NET STREAM', url:'https://stream.infowars.com/live', genre:'Talk', video:'https://www.alexjonesnetwork.com/live'},
         {name:'Deep Space Radio', freq:'NET STREAM', url:'https://stream.deepspaceone.com/deepspaceone.aac', genre:'Ambient'},
         {name:'Bible Audio',     freq:'AM 1110',    url:'https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3', genre:'Scripture'},
       ];
@@ -361,6 +392,26 @@
         }));
       }
 
+      const btnVideo = document.getElementById('btn-video');
+      const ajnPanel = document.getElementById('ajn-video-panel');
+      const ajnIframe = document.getElementById('ajn-iframe');
+      let videoVisible = false;
+
+      btnVideo.addEventListener('click', () => {
+        videoVisible = !videoVisible;
+        btnVideo.classList.toggle('active', videoVisible);
+        btnVideo.textContent = videoVisible ? '\u274C HIDE VIDEO' : '\uD83D\uDCF9 VIDEO';
+        if(videoVisible){
+          ajnPanel.style.display = 'block';
+          if(!ajnIframe.src && currentStation && currentStation.video){
+            ajnIframe.src = currentStation.video;
+          }
+        } else {
+          ajnPanel.style.display = 'none';
+          ajnIframe.src = '';
+        }
+      });
+
       function tuneStation(idx){
         currentStation = STATIONS[idx];
         stationGrid.querySelectorAll('.station-btn').forEach((b,j) => b.classList.toggle('active', j===idx));
@@ -369,6 +420,17 @@
         audio.play().catch(()=>{});
         npStation.textContent = currentStation.name + ' — ' + currentStation.freq;
         document.getElementById('btn-play').innerHTML = '&#x23F8;';
+        // Show/hide video button
+        if(currentStation.video){
+          btnVideo.style.display = '';
+        } else {
+          btnVideo.style.display = 'none';
+          videoVisible = false;
+          btnVideo.classList.remove('active');
+          btnVideo.textContent = '\uD83D\uDCF9 VIDEO';
+          ajnPanel.style.display = 'none';
+          ajnIframe.src = '';
+        }
         startViz();
         saveState();
       }
