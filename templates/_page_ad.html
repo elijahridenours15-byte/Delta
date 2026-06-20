@@ -1,0 +1,84 @@
+{% if page_ad_config.show_slot %}
+<section class="page-ad-shell" data-ad-topic="{{ page_ad_config.slot_key }}" aria-label="Footer sponsor slot">
+  <style>
+    .page-ad-shell{max-width:1180px;margin:24px auto 94px;padding:0 16px}
+    .page-ad-rail{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:14px;align-items:stretch;border:1px solid rgba(164,184,122,.18);border-radius:16px;background:linear-gradient(180deg,rgba(14,18,12,.96),rgba(8,10,8,.98));box-shadow:0 18px 36px rgba(0,0,0,.2);overflow:hidden}
+    .page-ad-copy{position:relative;display:grid;gap:10px;padding:18px}
+    .page-ad-copy::after{content:'';position:absolute;right:-60px;bottom:-80px;width:220px;height:220px;background:radial-gradient(circle,rgba(164,184,122,.1),transparent 68%);pointer-events:none}
+    .page-ad-kicker{display:inline-flex;align-items:center;gap:8px;width:max-content;padding:6px 10px;border-radius:999px;border:1px solid rgba(164,184,122,.22);background:rgba(18,24,15,.78);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase}
+    .page-ad-copy h3{margin:0;color:var(--text);font:800 clamp(1rem,1.6vw,1.25rem)/1.15 'Inter',sans-serif}
+    .page-ad-copy p{margin:0;color:var(--text2);font-size:13px;line-height:1.6}
+    .page-ad-tags{display:flex;flex-wrap:wrap;gap:8px}
+    .page-ad-tag{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+    .page-ad-unit{padding:18px;border-left:1px solid rgba(164,184,122,.14);display:flex;align-items:center;background:linear-gradient(180deg,rgba(11,14,9,.72),rgba(11,14,9,.9))}
+    .page-ad-live,.page-ad-placeholder{width:100%;display:grid;gap:10px;padding:14px;border-radius:14px;min-height:118px}
+    .page-ad-live{border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.72)}
+    .page-ad-placeholder{border:1px dashed rgba(164,184,122,.22);background:linear-gradient(180deg,rgba(12,16,10,.88),rgba(7,9,7,.94))}
+    .page-ad-placeholder strong{display:block;color:var(--sand);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase}
+    .page-ad-note{color:var(--muted);font:400 12px/1.65 'JetBrains Mono',monospace}
+    .page-ad-status-list{display:grid;gap:8px;padding-left:18px;margin:0;color:var(--text2);font-size:13px;line-height:1.6}
+    .page-ad-status-list li strong{color:var(--accent-bright)}
+    @media (max-width: 840px){
+      .page-ad-shell{margin:20px auto 92px;padding:0 12px}
+      .page-ad-rail{grid-template-columns:1fr}
+      .page-ad-unit{border-left:none;border-top:1px solid rgba(164,184,122,.14);padding:16px}
+      .page-ad-copy{padding:16px}
+    }
+  </style>
+  <div class="page-ad-rail">
+    <div class="page-ad-copy">
+      <span class="page-ad-kicker">Footer sponsor slot</span>
+      <h3>{{ page_ad_config.title }}</h3>
+      <p>{{ page_ad_config.summary }}</p>
+      <div class="page-ad-tags">
+        {% for keyword in page_ad_config.keywords %}
+        <span class="page-ad-tag">{{ keyword }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="page-ad-unit">
+      {% if adsense_manual_enabled %}
+      <div class="page-ad-live">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{{ adsense_client_id }}"
+             data-ad-slot="{{ page_ad_slot }}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+      {% elif adsense_auto_enabled %}
+      <div class="page-ad-placeholder">
+        <div>
+          <strong>Google Auto Ads active</strong>
+          <p>Automatic contextual placements are enabled for this page and stay confined to the footer rail rather than a large themed content block.</p>
+        </div>
+        <ul class="page-ad-status-list">
+          <li><strong>Publisher:</strong> {{ adsense_client_id }}</li>
+          <li><strong>Mode:</strong> automatic contextual placements</li>
+          <li><strong>Topic:</strong> {{ page_ad_config.keywords|join(', ') }}</li>
+        </ul>
+      </div>
+      {% elif page_ad_config.network_supported %}
+      <div class="page-ad-placeholder">
+        <div>
+          <strong>Footer ad ready</strong>
+          <p>Set your AdSense client and slot in generated/monetization_config.json or the ADSENSE environment variables to activate this compact footer unit.</p>
+        </div>
+        <div class="page-ad-note">The ad stays in a single bottom rail so the page content remains clear above it.</div>
+      </div>
+      {% else %}
+      <div class="page-ad-placeholder">
+        <div>
+          <strong>Footer sponsor lane ready</strong>
+          <p>This page is better suited to a direct sponsor or affiliate placement than a generic network unit.</p>
+        </div>
+        <div class="page-ad-note">Use the media kit at <a href="/advertise">/advertise</a> to sell this slot without interrupting the main page content.</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Offline Army Survival Shelf</title>
+    <meta name="description" content="Download the Department of the Army survival shelf as curated offline bundles or as one full archive.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Offline Army Survival Shelf">
+    <meta property="og:description" content="Download the full Army survival shelf or targeted offline packs for medical, water, navigation, climate, and fieldcraft references.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/survival/army-library/offline">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <link rel="canonical" href="https://futurecodedelta.org/survival/army-library/offline">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <style>
+      .container{display:block;height:auto}
+      .army-offline-wrap{max-width:1320px;margin:0 auto;padding:22px 24px 28px}
+      .army-offline-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.85fr);gap:18px;margin-bottom:18px}
+      .army-panel{background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.92));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .army-brief,.army-status,.army-bundle-card{padding:20px}
+      .army-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(164,184,122,.22);background:rgba(18,24,15,.78);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+      .army-brief h2{margin:16px 0 10px;color:var(--text);font:800 clamp(1.9rem,3vw,2.8rem)/1.05 'Inter',sans-serif;max-width:12ch}
+      .army-brief p,.army-status p{margin:0;color:var(--text2);font-size:14px;line-height:1.75}
+      .army-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+      .army-stat{padding:12px 14px;border-radius:10px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.58)}
+      .army-stat strong{display:block;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+      .army-stat span{display:block;color:var(--text2);font-size:13px;line-height:1.55}
+      .army-status h3,.army-bundle-card h3{margin:0 0 12px;color:var(--accent-bright);font:700 12px 'JetBrains Mono',monospace;letter-spacing:1.8px;text-transform:uppercase}
+      .army-action-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .army-action-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid rgba(139,157,106,.2);background:rgba(12,17,10,.84);color:var(--text);text-decoration:none;font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:border-color .16s ease,background .16s ease,color .16s ease}
+      .army-action-link:hover{border-color:rgba(164,184,122,.38);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      .army-bundle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+      .army-bundle-card{display:grid;gap:12px}
+      .army-bundle-card p{margin:0;color:var(--text2);font-size:14px;line-height:1.75}
+      .army-topic-row{display:flex;flex-wrap:wrap;gap:8px}
+      .army-topic-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .army-bundle-list{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+      .army-bundle-list li{padding:10px 12px;border-radius:10px;border:1px solid rgba(139,157,106,.16);background:rgba(8,10,7,.86);color:var(--text2);font-size:13px;line-height:1.55}
+      .army-bundle-list strong{display:block;color:var(--text);font:700 13px/1.4 'Inter',sans-serif}
+      .army-bundle-list span{display:block;color:var(--muted);font:700 10px/1.5 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+      @media(max-width:1080px){
+        .army-offline-hero,.army-bundle-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:800px){
+        .army-offline-wrap{padding:18px 16px 24px}
+        .army-brief,.army-status,.army-bundle-card{padding:16px}
+        .army-stat-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:600px){
+        .army-offline-wrap{padding:14px 12px 20px}
+        .army-brief,.army-status,.army-bundle-card{padding:14px}
+        .army-action-row{display:grid;grid-template-columns:1fr}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — OFFLINE ARMY SURVIVAL SHELF</h1>
+        <p class="tag">FIELD ARCHIVE PACKS • FULL SHELF • PRINTABLE BINDER • MEDICAL • WATER • NAVIGATION • CLIMATE • FIELDCRAFT</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="army-offline-wrap">
+        <section class="army-offline-hero">
+          <article class="army-panel army-brief">
+            <span class="army-kicker">Offline field archive</span>
+            <h2>Download the Army shelf for offline use</h2>
+            <p>This page packages the public Army survival shelf into direct zip downloads. Pull the full shelf for local archiving or grab smaller packs grouped around medical response, water support, movement, navigation, climate, fieldcraft, and protection.</p>
+            <div class="army-stat-grid">
+              <div class="army-stat">
+                <strong>Total Manuals</strong>
+                <span>{{ total_manuals }} verified public manuals are staged for archive download.</span>
+              </div>
+              <div class="army-stat">
+                <strong>Category Spread</strong>
+                <span>{{ total_categories }} manual lanes cover survival, medical, water, recovery, navigation, climate, fieldcraft, protection, and mobility.</span>
+              </div>
+              <div class="army-stat">
+                <strong>Bundle Output</strong>
+                <span>Every pack downloads as a zip with the PDFs plus a README inventory file.</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="army-panel army-status">
+            <h3>Offline Package Controls</h3>
+            <p>Use the full-shelf archive if you want the entire public field library on disk. Use a smaller pack if you only need one lane of references for a vehicle kit, go-bag laptop, or local archive drive. Each pack also exposes a printable binder view for cleaner indexing.</p>
+            <div class="army-action-row">
+              <a class="army-action-link" href="{{ full_shelf_download_url }}">Download Entire Shelf</a>
+              <a class="army-action-link" href="{{ full_shelf_binder_url }}">Open Full Binder</a>
+              <a class="army-action-link" href="/survival/army-library">Open Army Reader</a>
+              <a class="army-action-link" href="/survival">Back to Survival Loadout</a>
+            </div>
+          </aside>
+        </section>
+
+        <section class="army-bundle-grid">
+          {% for bundle in bundles %}
+            <article class="army-panel army-bundle-card">
+              <div>
+                <span class="army-kicker">{{ bundle.manual_count }} manuals</span>
+                <h3>{{ bundle.title }}</h3>
+                <p>{{ bundle.summary }}</p>
+              </div>
+
+              <div class="army-topic-row">
+                {% if bundle.category_labels %}
+                  {% for label in bundle.category_labels %}
+                    <span class="army-topic-pill">{{ label }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="army-topic-pill">Full Shelf</span>
+                  <span class="army-topic-pill">All Categories</span>
+                {% endif %}
+              </div>
+
+              <div class="army-action-row">
+                <a class="army-action-link" href="{{ bundle.download_url }}">Download Pack</a>
+                <a class="army-action-link" href="{{ bundle.binder_url }}">Open Binder</a>
+                <a class="army-action-link" href="/survival/army-library">Open Reader</a>
+              </div>
+
+              <ul class="army-bundle-list">
+                {% for manual in bundle.manuals %}
+                  <li>
+                    <strong>{{ manual.title }}</strong>
+                    <span>{{ manual.edition }} • {{ manual.focus }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            </article>
+          {% endfor %}
+        </section>
+      </div>
+    </main>
+
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

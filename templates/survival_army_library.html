@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Department of the Army Survival Library</title>
+    <meta name="description" content="Read public Department of the Army survival manuals, SERE guides, land navigation books, and cold weather field references free on-site.">
+    <meta name="keywords" content="Department of the Army survival manual, FM 21-76, FM 3-05.70, Army land navigation, Army cold weather manual, SERE manual">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Department of the Army Survival Library">
+    <meta property="og:description" content="Read public U.S. Army survival manuals and field guides free on-site.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/survival/army-library">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Department of the Army Survival Library">
+    <meta name="twitter:description" content="Public U.S. Army survival manuals, land navigation books, and cold-weather field guides readable on-site.">
+    <link rel="canonical" href="https://futurecodedelta.org/survival/army-library">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <style>
+      .container{display:block;height:auto}
+      .army-library-wrap{max-width:1360px;margin:0 auto;padding:22px 24px 28px}
+      .army-library-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.9fr);gap:18px;margin-bottom:18px}
+      .army-brief-card,.army-status-card,.army-shelf-card,.army-reader-card{background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.92));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .army-brief-card{padding:22px 24px;position:relative;overflow:hidden}
+      .army-brief-card::after{content:'';position:absolute;inset:auto -8% -45% auto;width:280px;height:280px;background:radial-gradient(circle,rgba(164,184,122,.16),transparent 66%);pointer-events:none}
+      .army-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(164,184,122,.22);background:rgba(18,24,15,.78);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+      .army-brief-card h2{margin:16px 0 10px;color:var(--text);font:800 clamp(1.9rem,3vw,2.8rem)/1.05 'Inter',sans-serif;max-width:13ch}
+      .army-brief-card p{margin:0;color:var(--text2);font-size:15px;line-height:1.7;max-width:68ch}
+      .army-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+      .army-stat{padding:12px 14px;border-radius:10px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.58)}
+      .army-stat strong{display:block;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+      .army-stat span{display:block;color:var(--text2);font-size:13px;line-height:1.55}
+      .army-status-card,.army-shelf-card,.army-reader-card{padding:18px}
+      .army-status-card h3,.army-shelf-card h3,.army-reader-card h3{margin:0 0 12px;color:var(--accent-bright);font:700 12px 'JetBrains Mono',monospace;letter-spacing:1.8px;text-transform:uppercase}
+      .army-status-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.7}
+      .army-action-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .army-action-link,.army-action-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid rgba(139,157,106,.2);background:rgba(12,17,10,.84);color:var(--text);text-decoration:none;font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:border-color .16s ease,background .16s ease,color .16s ease}
+      .army-action-link:hover,.army-action-button:hover{border-color:rgba(164,184,122,.38);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      .army-action-button[disabled]{opacity:.45;cursor:not-allowed}
+      .army-action-button.active,.army-inline-action.active{border-color:rgba(164,184,122,.42);background:rgba(34,42,28,.96);color:var(--accent-bright)}
+      .army-library-grid{display:grid;grid-template-columns:minmax(320px,.78fr) minmax(0,1.22fr);gap:18px;align-items:start}
+      .army-shelf-card{display:grid;gap:12px;max-height:calc(100vh - 220px);overflow:auto}
+      .army-shelf-copy{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
+      .army-search-panel,.army-filter-panel,.army-selection-panel,.army-favorites-panel{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6)}
+      .army-search-panel{color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-search-panel input{width:100%;min-height:44px;border-radius:10px;border:1px solid rgba(139,157,106,.22);background:rgba(8,10,7,.92);color:var(--text);padding:0 14px;font:400 14px 'Inter',sans-serif}
+      .army-search-panel input::placeholder{color:var(--muted)}
+      .army-filter-panel span{color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-filter-row{display:flex;flex-wrap:wrap;gap:8px}
+      .army-filter-chip{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:999px;background:rgba(12,17,10,.84);color:var(--muted);border:1px solid rgba(139,157,106,.18);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-filter-chip.active{color:var(--accent-bright);border-color:rgba(164,184,122,.4);background:rgba(34,42,28,.92)}
+      .army-selection-summary{color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-selection-status{margin:0;color:var(--text2);font-size:13px;line-height:1.7}
+      .army-selection-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .army-favorites-list{display:grid;gap:10px}
+      .army-favorite-card{display:grid;gap:8px;padding:12px;border-radius:10px;border:1px solid rgba(139,157,106,.16);background:rgba(8,10,7,.86)}
+      .army-favorite-card strong{display:block;color:var(--text);font:700 14px/1.45 'Inter',sans-serif}
+      .army-favorite-card small{display:block;color:var(--muted);font:700 10px/1.5 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-favorite-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .army-manual-list{display:grid;gap:12px}
+      .army-manual-card{--army-cover:#5b6c42;display:grid;gap:12px;padding:16px;border-radius:14px;border:1px solid rgba(139,157,106,.16);background:linear-gradient(180deg,rgba(12,17,10,.92),rgba(11,14,9,.72));transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+      .army-manual-card[data-manual-category="survival"]{--army-cover:#6c7c47}
+      .army-manual-card[data-manual-category="recovery"]{--army-cover:#5f5170}
+      .army-manual-card[data-manual-category="medical"]{--army-cover:#6e4a37}
+      .army-manual-card[data-manual-category="water"]{--army-cover:#3b6a78}
+      .army-manual-card[data-manual-category="sustainment"]{--army-cover:#7a6a3f}
+      .army-manual-card[data-manual-category="navigation"]{--army-cover:#4f6974}
+      .army-manual-card[data-manual-category="climate"]{--army-cover:#556b7d}
+      .army-manual-card[data-manual-category="fieldcraft"]{--army-cover:#5b6c42}
+      .army-manual-card[data-manual-category="protection"]{--army-cover:#6d5c49}
+      .army-manual-card[data-manual-category="mobility"]{--army-cover:#596851}
+      .army-manual-card:hover{transform:translateY(-1px);border-color:rgba(164,184,122,.28);box-shadow:0 14px 28px rgba(0,0,0,.14)}
+      .army-manual-card.active{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      .army-manual-card[hidden]{display:none}
+      .army-manual-layout{display:grid;grid-template-columns:108px minmax(0,1fr);gap:14px;align-items:start}
+      .army-manual-main{display:grid;gap:10px}
+      .army-manual-cover{position:relative;display:grid;align-content:space-between;gap:12px;min-height:168px;padding:14px 12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 42%),linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.58)),var(--army-cover);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);overflow:hidden}
+      .army-manual-cover::after{content:'';position:absolute;inset:10px auto 10px 10px;width:2px;background:rgba(255,255,255,.16);border-radius:999px}
+      .army-manual-cover small{position:relative;padding-left:10px;color:rgba(247,246,239,.74);font:700 9px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-manual-cover strong{position:relative;display:-webkit-box;padding-left:10px;overflow:hidden;color:#f7f6ef;font:700 13px/1.35 'Inter',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.24);-webkit-box-orient:vertical;-webkit-line-clamp:5}
+      .army-manual-cover span{position:relative;display:-webkit-box;padding-left:10px;overflow:hidden;color:rgba(247,246,239,.74);font:700 10px/1.45 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+      .army-manual-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+      .army-manual-copy strong{display:block;color:var(--text);font:700 15px/1.45 'Inter',sans-serif}
+      .army-manual-copy span{display:block;color:var(--text2);font-size:13px;line-height:1.65;margin-top:6px}
+      .army-manual-copy small,.army-reader-meta{display:block;color:var(--muted);font:700 10px/1.5 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-manual-select{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid rgba(164,184,122,.18);background:rgba(34,42,28,.92);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+      .army-manual-select input{accent-color:var(--accent-bright)}
+      .army-manual-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .army-inline-action{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 14px;border-radius:10px;border:1px solid rgba(139,157,106,.18);background:rgba(12,17,10,.84);color:var(--text);text-decoration:none;font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-inline-action:hover{border-color:rgba(164,184,122,.32);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      .army-empty{padding:14px;border-radius:10px;border:1px dashed rgba(139,157,106,.22);color:var(--muted);font:400 12px/1.6 'JetBrains Mono',monospace;text-align:center}
+      .army-reader-card{position:sticky;top:18px;display:grid;gap:14px}
+      .army-reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+      .army-reader-body p{margin:8px 0 0;color:var(--text2);font-size:14px;line-height:1.7}
+      .army-topic-row{display:flex;flex-wrap:wrap;gap:8px}
+      .army-topic-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .army-topic-link{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(12,17,10,.84);border:1px solid rgba(139,157,106,.18);color:var(--text);text-decoration:none;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .army-topic-link:hover{border-color:rgba(164,184,122,.32);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      .army-reader-index{display:grid;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6)}
+      .army-reader-index h4,.army-detail-copy h4{margin:0;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase}
+      .army-reader-quick-links{display:flex;flex-wrap:wrap;gap:8px}
+      .army-reader-note{margin:0;color:var(--muted);font:400 12px/1.7 'JetBrains Mono',monospace}
+      .army-reader-frame{border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(8,10,7,.92);overflow:hidden;min-height:72vh}
+      .army-reader-frame iframe{display:block;width:100%;height:72vh;border:0;background:#111}
+      .army-dialog{width:min(780px,calc(100vw - 24px));border:0;padding:0;background:transparent;color:var(--text)}
+      .army-dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(6px)}
+      .army-dialog-shell{display:grid;gap:14px;padding:18px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.96));box-shadow:0 24px 48px rgba(0,0,0,.32)}
+      .army-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+      .army-dialog-close{min-width:120px}
+      .army-detail-grid{display:grid;grid-template-columns:124px minmax(0,1fr);gap:14px;align-items:start}
+      .army-detail-cover{--army-cover:#5b6c42;position:relative;display:grid;align-content:space-between;gap:10px;min-height:176px;padding:14px 12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 42%),linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,.58)),var(--army-cover);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);overflow:hidden}
+      .army-detail-cover::after{content:'';position:absolute;inset:10px auto 10px 10px;width:2px;background:rgba(255,255,255,.16);border-radius:999px}
+      .army-detail-cover small{position:relative;padding-left:10px;color:rgba(247,246,239,.74);font:700 9px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .army-detail-cover strong{position:relative;display:-webkit-box;padding-left:10px;overflow:hidden;color:#f7f6ef;font:700 13px/1.35 'Inter',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.24);-webkit-box-orient:vertical;-webkit-line-clamp:5}
+      .army-detail-cover span{position:relative;display:-webkit-box;padding-left:10px;overflow:hidden;color:rgba(247,246,239,.74);font:700 10px/1.45 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+      .army-detail-copy p{margin:0;color:var(--text2);font-size:14px;line-height:1.7}
+      @media(max-width:1100px){
+        .army-library-hero,.army-library-grid{grid-template-columns:1fr}
+        .army-shelf-card,.army-reader-card{max-height:none;position:static;top:auto}
+      }
+      @media(max-width:800px){
+        .army-library-wrap{padding:18px 16px 24px}
+        .army-brief-card,.army-status-card,.army-shelf-card,.army-reader-card{padding:16px}
+        .army-stat-grid{grid-template-columns:1fr}
+        .army-reader-head,.army-manual-top{flex-direction:column}
+        .army-manual-layout{grid-template-columns:1fr}
+        .army-manual-cover{min-height:132px}
+        .army-detail-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:600px){
+        .army-library-wrap{padding:14px 12px 20px}
+        .army-brief-card,.army-status-card,.army-shelf-card,.army-reader-card{padding:14px}
+        .army-reader-frame,.army-reader-frame iframe{min-height:62vh;height:62vh}
+        .army-action-row,.army-selection-actions,.army-favorite-actions,.army-manual-actions,.army-filter-row{display:grid;grid-template-columns:1fr}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — DEPARTMENT OF THE ARMY SURVIVAL LIBRARY</h1>
+        <p class="tag">PUBLIC FIELD MANUAL SHELF • SURVIVAL • SERE • LAND NAVIGATION • COLD WEATHER • SOLDIER SKILLS</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="army-library-wrap">
+        <section class="army-library-hero">
+          <article class="army-brief-card">
+            <span class="army-kicker">Department of the Army public-domain shelf</span>
+            <h2>Read U.S. Army survival manuals on-site</h2>
+            <p>This field shelf stages public Department of the Army survival manuals and adjacent field guides inside an on-site reader. Pick a manual from the shelf, save key references to a persistent favorites bar, and keep bundle downloads ready for offline use.</p>
+            <div class="army-stat-grid">
+              <div class="army-stat">
+                <strong>Library Scope</strong>
+                <span>Core survival, first aid, water support, land navigation, cold weather, and soldier fieldcraft references.</span>
+              </div>
+              <div class="army-stat">
+                <strong>Reader Mode</strong>
+                <span>PDFs are proxied through the site so they can be read on-page instead of only linking out.</span>
+              </div>
+              <div class="army-stat">
+                <strong>Offline Mode</strong>
+                <span>Full-shelf and curated pack downloads are staged under a dedicated offline bundle page.</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="army-status-card">
+            <h3>Field Shelf Status</h3>
+            <p>The shelf now includes first aid and water support references alongside the survival, climate, navigation, camouflage, and recovery manuals already staged. Search, filter, bookmark, and build bundles directly from this page.</p>
+            <div class="army-action-row">
+              <a class="army-action-link" href="/survival">Back to Survival Loadout</a>
+              <a class="army-action-link" href="/survival/army-library/offline">Offline Bundle Page</a>
+              <a class="army-action-link" href="{{ full_shelf_binder_url }}">Open Full Binder</a>
+              <a class="army-action-link" href="{{ active_manual.source_url }}" target="_blank" rel="noopener noreferrer">Open Source Mirror</a>
+            </div>
+          </aside>
+        </section>
+
+        <section class="army-library-grid">
+          <aside class="army-shelf-card">
+            <h3>Army Manual Shelf</h3>
+            <p class="army-shelf-copy">Select a manual to load it in the on-site reader. Search across titles and topics, filter the shelf by category, save favorites to this browser, and stage a selected bundle for download.</p>
+            <label class="army-search-panel" for="armyManualSearch">
+              Search Manuals
+              <input id="armyManualSearch" type="search" placeholder="Search by title, topic, category, or focus">
+            </label>
+            <div class="army-filter-panel">
+              <span>Manual Category</span>
+              <div class="army-filter-row" id="armyCategoryFilters">
+                <button class="army-filter-chip active" type="button" data-category="all">All Manuals</button>
+                {% for category in manual_categories %}
+                  <button class="army-filter-chip" type="button" data-category="{{ category.slug }}">{{ category.label }}</button>
+                {% endfor %}
+              </div>
+              <span>Shelf View</span>
+              <div class="army-filter-row">
+                <button class="army-filter-chip" id="armyFavoritesOnlyToggle" type="button" aria-pressed="false">Favorites Only</button>
+              </div>
+            </div>
+            <div class="army-selection-panel">
+              <div class="army-selection-summary" id="armySelectionSummary">0 selected // {{ manuals|length }} visible // {{ manuals|length }} total</div>
+              <p class="army-selection-status" id="armySelectionStatus">Select manuals to build a download bundle, then use the bulk download control to pull the selected PDFs in one archive.</p>
+              <div class="army-selection-actions">
+                <button class="army-action-button" id="armySelectVisible" type="button">Select Visible</button>
+                <button class="army-action-button" id="armyClearSelection" type="button">Clear Selection</button>
+                <button class="army-action-button" id="armyDownloadSelected" type="button" disabled>Download Selected Manuals</button>
+                <button class="army-action-button" id="armyOpenSelectionBinder" type="button" disabled>Open Selected Binder</button>
+              </div>
+            </div>
+            <div class="army-favorites-panel">
+              <div class="army-selection-summary" id="armyFavoritesSummary">0 saved favorites</div>
+              <p class="army-selection-status" id="armyFavoritesStatus">Save manuals to a persistent browser shelf so you can jump back to the same references later on this device.</p>
+              <div class="army-selection-actions">
+                <button class="army-action-button" id="armyDownloadFavorites" type="button" disabled>Download Favorites</button>
+                <button class="army-action-button" id="armyOpenFavoritesBinder" type="button" disabled>Open Favorites Binder</button>
+                <button class="army-action-button" id="armyPrintFavorites" type="button" disabled>Print Favorites</button>
+                <button class="army-action-button" id="armyExportFavorites" type="button" disabled>Export Favorites List</button>
+                <a class="army-action-link" href="/survival/army-library/offline">Open Offline Pack Page</a>
+              </div>
+              <div class="army-favorites-list" id="armyFavoritesShelf">
+                <div class="army-empty">No favorite manuals saved yet.</div>
+              </div>
+            </div>
+            <div class="army-manual-list">
+              {% for manual in manuals %}
+                <article
+                  class="army-manual-card{% if manual.slug == active_manual.slug %} active{% endif %}"
+                  data-manual-card
+                  data-manual-slug="{{ manual.slug }}"
+                  data-manual-category="{{ manual.category }}"
+                  data-manual-title="{{ manual.title }}"
+                  data-manual-edition="{{ manual.edition }}"
+                  data-manual-focus="{{ manual.focus }}"
+                  data-manual-summary="{{ manual.summary }}"
+                  data-manual-topics="{{ manual.topics|join('||') }}"
+                  data-manual-reader-url="{{ url_for('survival_army_library_page', manual=manual.slug) }}"
+                  data-manual-download-url="{{ url_for('survival_army_library_pdf', manual_slug=manual.slug, download=1) }}"
+                  data-manual-binder-url="{{ url_for('survival_army_library_binder', manual=manual.slug) }}"
+                  data-manual-mirror-url="{{ manual.source_url }}"
+                  data-manual-search="{{ (manual.title ~ ' ' ~ manual.summary ~ ' ' ~ manual.focus ~ ' ' ~ manual.category ~ ' ' ~ (manual.topics|join(' ')))|lower }}"
+                >
+                  <div class="army-manual-layout">
+                    <div class="army-manual-cover" aria-hidden="true">
+                      <small>{{ manual.category|replace('-', ' ') }}</small>
+                      <strong>{{ manual.title }}</strong>
+                      <span>{{ manual.focus }}</span>
+                    </div>
+                    <div class="army-manual-main">
+                      <div class="army-manual-top">
+                        <div class="army-manual-copy">
+                          <small>{{ manual.edition }}</small>
+                          <strong>{{ manual.title }}</strong>
+                          <span>{{ manual.summary }}</span>
+                          <small>{{ manual.focus }}</small>
+                        </div>
+                        <label class="army-manual-select">
+                          <input class="army-manual-checkbox" type="checkbox" value="{{ manual.slug }}">
+                          <span>Select</span>
+                        </label>
+                      </div>
+                      <div class="army-topic-row">
+                        {% for topic in manual.topics %}
+                          <span class="army-topic-pill">{{ topic }}</span>
+                        {% endfor %}
+                      </div>
+                      <div class="army-manual-actions">
+                        <a class="army-inline-action" href="{{ url_for('survival_army_library_page', manual=manual.slug) }}">Read Here</a>
+                        <a class="army-inline-action" href="{{ url_for('survival_army_library_pdf', manual_slug=manual.slug, download=1) }}">Download PDF</a>
+                        <button class="army-inline-action" type="button" data-detail-toggle>Manual Details</button>
+                        <button class="army-inline-action army-favorite-toggle" type="button" data-favorite-toggle>Save Favorite</button>
+                        <a class="army-inline-action" href="{{ manual.source_url }}" target="_blank" rel="noopener noreferrer">Mirror</a>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+            <div class="army-empty" id="armyManualEmpty" hidden>No manuals match the current search and category filter.</div>
+          </aside>
+
+          <article class="army-reader-card">
+            <div class="army-reader-head">
+              <div class="army-reader-body">
+                <span class="army-kicker">{{ active_manual.edition }}</span>
+                <h3>{{ active_manual.title }}</h3>
+                <span class="army-reader-meta">{{ active_manual.focus }}</span>
+                <p>{{ active_manual.summary }}</p>
+              </div>
+              <div class="army-action-row">
+                <a class="army-action-link" href="{{ url_for('survival_army_library_pdf', manual_slug=active_manual.slug) }}" target="_blank" rel="noopener noreferrer">Open Reader</a>
+                <a class="army-action-link" href="{{ url_for('survival_army_library_pdf', manual_slug=active_manual.slug, download=1) }}">Download Active PDF</a>
+                <button class="army-action-button" id="armyToggleActiveFavorite" type="button" data-manual-slug="{{ active_manual.slug }}">Save Active Favorite</button>
+                <a class="army-action-link" href="{{ active_manual_binder_url }}">Active Binder Card</a>
+                <a class="army-action-link" href="/survival/army-library/offline">Offline Bundles</a>
+                <a class="army-action-link" href="{{ active_manual.source_url }}" target="_blank" rel="noopener noreferrer">Open Mirror</a>
+              </div>
+            </div>
+
+            <div class="army-topic-row">
+              {% for topic in active_manual.topics %}
+                <span class="army-topic-pill">{{ topic }}</span>
+              {% endfor %}
+            </div>
+
+            <div class="army-reader-index" id="armyReader">
+              <h4>TOC Quick Links</h4>
+              <div class="army-reader-quick-links">
+                {% for topic in active_manual.topics %}
+                  <a class="army-topic-link" href="{{ url_for('survival_army_library_page', manual=active_manual.slug, topic=topic) }}#armyReader">{{ topic }}</a>
+                {% endfor %}
+              </div>
+              {% if active_topic %}
+                <p class="army-reader-note">Reader search primed for: {{ active_topic }}. Open the manual without a topic shortcut to reset the embedded search context.</p>
+              {% endif %}
+            </div>
+
+            <p class="army-reader-note">If the on-site reader is slow on mobile or a weak connection, use the mirror link. These titles are public Department of the Army field manuals routed through the site so they can be read free on-page, bookmarked locally, and bundled for offline use.</p>
+
+            <div class="army-reader-frame">
+              <iframe id="armyReaderFrame" src="{{ url_for('survival_army_library_pdf', manual_slug=active_manual.slug) }}" data-search-topic="{{ active_topic }}" title="{{ active_manual.title }} on-site reader" loading="lazy"></iframe>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <dialog class="army-dialog" id="armyManualDetailDialog">
+      <div class="army-dialog-shell">
+        <div class="army-dialog-head">
+          <div>
+            <span class="army-kicker" id="armyDetailEdition">Department of the Army</span>
+            <h3 id="armyDetailTitle">Manual details</h3>
+          </div>
+          <button class="army-action-button army-dialog-close" id="armyManualDetailClose" type="button">Close</button>
+        </div>
+        <div class="army-detail-grid">
+          <div class="army-detail-cover" id="armyDetailCover" aria-hidden="true">
+            <small id="armyDetailCategory"></small>
+            <strong id="armyDetailCoverTitle"></strong>
+            <span id="armyDetailFocus"></span>
+          </div>
+          <div class="army-detail-copy">
+            <p id="armyDetailSummary"></p>
+            <h4>TOC Quick Links</h4>
+            <div class="army-reader-quick-links" id="armyDetailTopicLinks"></div>
+            <div class="army-action-row">
+              <a class="army-action-link" id="armyDetailReadLink" href="#">Read Here</a>
+              <a class="army-action-link" id="armyDetailBinderLink" href="#">Open Binder Card</a>
+              <a class="army-action-link" id="armyDetailDownloadLink" href="#">Download PDF</a>
+              <a class="army-action-link" id="armyDetailMirrorLink" href="#" target="_blank" rel="noopener noreferrer">Mirror</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = 'deltaArmyLibraryStateV1';
+        const FAVORITES_KEY = 'deltaArmyLibraryFavoritesV1';
+        const searchInput = document.getElementById('armyManualSearch');
+        const filterRow = document.getElementById('armyCategoryFilters');
+        const favoritesOnlyBtn = document.getElementById('armyFavoritesOnlyToggle');
+        const selectionSummary = document.getElementById('armySelectionSummary');
+        const selectionStatus = document.getElementById('armySelectionStatus');
+        const selectVisibleBtn = document.getElementById('armySelectVisible');
+        const clearSelectionBtn = document.getElementById('armyClearSelection');
+        const downloadSelectedBtn = document.getElementById('armyDownloadSelected');
+        const selectionBinderBtn = document.getElementById('armyOpenSelectionBinder');
+        const emptyState = document.getElementById('armyManualEmpty');
+        const favoritesSummary = document.getElementById('armyFavoritesSummary');
+        const favoritesStatus = document.getElementById('armyFavoritesStatus');
+        const favoritesShelf = document.getElementById('armyFavoritesShelf');
+        const downloadFavoritesBtn = document.getElementById('armyDownloadFavorites');
+        const favoritesBinderBtn = document.getElementById('armyOpenFavoritesBinder');
+        const printFavoritesBtn = document.getElementById('armyPrintFavorites');
+        const exportFavoritesBtn = document.getElementById('armyExportFavorites');
+        const activeFavoriteBtn = document.getElementById('armyToggleActiveFavorite');
+        const activeReaderFrame = document.getElementById('armyReaderFrame');
+        const detailDialog = document.getElementById('armyManualDetailDialog');
+        const detailCloseBtn = document.getElementById('armyManualDetailClose');
+        const detailEdition = document.getElementById('armyDetailEdition');
+        const detailTitle = document.getElementById('armyDetailTitle');
+        const detailCategory = document.getElementById('armyDetailCategory');
+        const detailCover = document.getElementById('armyDetailCover');
+        const detailCoverTitle = document.getElementById('armyDetailCoverTitle');
+        const detailFocus = document.getElementById('armyDetailFocus');
+        const detailSummary = document.getElementById('armyDetailSummary');
+        const detailTopicLinks = document.getElementById('armyDetailTopicLinks');
+        const detailReadLink = document.getElementById('armyDetailReadLink');
+        const detailBinderLink = document.getElementById('armyDetailBinderLink');
+        const detailDownloadLink = document.getElementById('armyDetailDownloadLink');
+        const detailMirrorLink = document.getElementById('armyDetailMirrorLink');
+        const cards = Array.from(document.querySelectorAll('[data-manual-card]'));
+        const categoryCoverColors = {
+          survival: '#6c7c47',
+          recovery: '#5f5170',
+          medical: '#6e4a37',
+          water: '#3b6a78',
+          sustainment: '#7a6a3f',
+          navigation: '#4f6974',
+          climate: '#556b7d',
+          fieldcraft: '#5b6c42',
+          protection: '#6d5c49',
+          mobility: '#596851',
+        };
+
+        if (!searchInput || !filterRow || !selectionSummary || !selectionStatus || !selectVisibleBtn || !clearSelectionBtn || !downloadSelectedBtn || !emptyState || !cards.length) {
+          return;
+        }
+
+        if (activeReaderFrame && activeReaderFrame.dataset.searchTopic) {
+          activeReaderFrame.src = `${activeReaderFrame.src}#search=${encodeURIComponent(activeReaderFrame.dataset.searchTopic)}`;
+        }
+
+        const manualMap = new Map(cards.map(card => [
+          card.dataset.manualSlug,
+          {
+            slug: card.dataset.manualSlug,
+            title: card.dataset.manualTitle,
+            edition: card.dataset.manualEdition,
+            focus: card.dataset.manualFocus,
+            category: card.dataset.manualCategory,
+            summary: card.dataset.manualSummary,
+            topics: (card.dataset.manualTopics || '').split('||').filter(Boolean),
+            readerUrl: card.dataset.manualReaderUrl,
+            downloadUrl: card.dataset.manualDownloadUrl,
+            binderUrl: card.dataset.manualBinderUrl,
+            mirrorUrl: card.dataset.manualMirrorUrl,
+          },
+        ]));
+
+        const state = {
+          search: '',
+          category: 'all',
+          favoritesOnly: false,
+          selected: [],
+        };
+        let favorites = [];
+
+        function uniqueExisting(slugs) {
+          return Array.from(new Set(slugs)).filter(slug => manualMap.has(slug));
+        }
+
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY) || '{}');
+          if (typeof saved.search === 'string') state.search = saved.search;
+          if (typeof saved.category === 'string') state.category = saved.category;
+          if (typeof saved.favoritesOnly === 'boolean') state.favoritesOnly = saved.favoritesOnly;
+          if (Array.isArray(saved.selected)) {
+            state.selected = uniqueExisting(saved.selected);
+          }
+        } catch (_) {
+          state.search = '';
+          state.category = 'all';
+          state.favoritesOnly = false;
+          state.selected = [];
+        }
+
+        try {
+          favorites = uniqueExisting(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'));
+        } catch (_) {
+          favorites = [];
+        }
+
+        function saveState() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          sessionStorage.removeItem(STORAGE_KEY);
+        }
+
+        function saveFavorites() {
+          localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        }
+
+        function absoluteUrl(path) {
+          return new URL(path, window.location.origin).href;
+        }
+
+        function relativeUrl(path) {
+          const url = new URL(path, window.location.origin);
+          return `${url.pathname}${url.search}${url.hash}`;
+        }
+
+        function favoriteManuals() {
+          return favorites.map(slug => manualMap.get(slug)).filter(Boolean);
+        }
+
+        function labelizeCategory(category) {
+          return String(category || '').replace(/-/g, ' ');
+        }
+
+        function buildManualSelectionUrl(basePath, slugs) {
+          const uniqueSlugs = uniqueExisting(slugs);
+          const params = new URLSearchParams();
+          uniqueSlugs.forEach(slug => params.append('manual', slug));
+          return uniqueSlugs.length ? `${basePath}?${params.toString()}` : basePath;
+        }
+
+        function buildTopicShortcutUrl(manual, topic) {
+          const url = new URL(manual.readerUrl, window.location.origin);
+          url.searchParams.set('topic', topic);
+          url.hash = 'armyReader';
+          return `${url.pathname}${url.search}${url.hash}`;
+        }
+
+        function escapeHtml(value) {
+          return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        }
+
+        function buildManualListText(manuals, heading) {
+          const lines = [heading, ''];
+          manuals.forEach((manual, index) => {
+            lines.push(`${index + 1}. ${manual.title}`);
+            lines.push(`Edition: ${manual.edition}`);
+            lines.push(`Focus: ${manual.focus}`);
+            lines.push(`Category: ${manual.category}`);
+            lines.push(`Summary: ${manual.summary}`);
+            lines.push(`Reader: ${absoluteUrl(manual.readerUrl)}`);
+            lines.push(`Download: ${absoluteUrl(manual.downloadUrl)}`);
+            lines.push(`Mirror: ${manual.mirrorUrl}`);
+            lines.push('');
+          });
+          return `${lines.join('\n').trim()}\n`;
+        }
+
+        function exportManualList(manuals, filename, heading) {
+          if (!manuals.length) return;
+          const blob = new Blob([buildManualListText(manuals, heading)], { type: 'text/plain' });
+          const objectUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = objectUrl;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(objectUrl);
+        }
+
+        function printManualList(manuals, heading) {
+          if (!manuals.length) return;
+
+          const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=960,height=720');
+          if (!printWindow) return;
+
+          const rows = manuals.map((manual, index) => `
+            <article>
+              <h2>${index + 1}. ${escapeHtml(manual.title)}</h2>
+              <p><strong>Edition:</strong> ${escapeHtml(manual.edition)}</p>
+              <p><strong>Focus:</strong> ${escapeHtml(manual.focus)}</p>
+              <p><strong>Category:</strong> ${escapeHtml(manual.category)}</p>
+              <p>${escapeHtml(manual.summary)}</p>
+              <p><strong>Reader:</strong> ${escapeHtml(absoluteUrl(manual.readerUrl))}</p>
+              <p><strong>Download:</strong> ${escapeHtml(absoluteUrl(manual.downloadUrl))}</p>
+              <p><strong>Mirror:</strong> ${escapeHtml(manual.mirrorUrl)}</p>
+            </article>
+          `).join('');
+
+          printWindow.document.open();
+          printWindow.document.write(`<!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="utf-8" />
+                <title>${escapeHtml(heading)}</title>
+                <style>
+                  body{font:16px/1.6 Georgia,serif;color:#161914;margin:32px;background:#fff}
+                  h1{margin:0 0 18px;font:700 26px/1.2 Georgia,serif}
+                  article{page-break-inside:avoid;border-top:1px solid #d4d8cf;padding:18px 0}
+                  article:first-of-type{border-top:0;padding-top:0}
+                  h2{margin:0 0 10px;font:700 18px/1.35 Georgia,serif}
+                  p{margin:4px 0}
+                </style>
+              </head>
+              <body>
+                <h1>${escapeHtml(heading)}</h1>
+                ${rows}
+              </body>
+            </html>`);
+          printWindow.document.close();
+          printWindow.focus();
+          printWindow.print();
+        }
+
+        function syncCheckboxes() {
+          cards.forEach(card => {
+            const checkbox = card.querySelector('.army-manual-checkbox');
+            if (checkbox) {
+              checkbox.checked = state.selected.includes(card.dataset.manualSlug);
+            }
+          });
+        }
+
+        function syncFavoriteButtons() {
+          cards.forEach(card => {
+            const slug = card.dataset.manualSlug;
+            const button = card.querySelector('[data-favorite-toggle]');
+            if (!button) return;
+            const favorite = favorites.includes(slug);
+            button.textContent = favorite ? 'Saved Favorite' : 'Save Favorite';
+            button.classList.toggle('active', favorite);
+          });
+
+          if (activeFavoriteBtn) {
+            const favorite = favorites.includes(activeFavoriteBtn.dataset.manualSlug);
+            activeFavoriteBtn.textContent = favorite ? 'Saved to Favorites' : 'Save Active Favorite';
+            activeFavoriteBtn.classList.toggle('active', favorite);
+          }
+        }
+
+        function syncFavoritesOnlyButton() {
+          if (!favoritesOnlyBtn) return;
+          favoritesOnlyBtn.classList.toggle('active', state.favoritesOnly);
+          favoritesOnlyBtn.setAttribute('aria-pressed', state.favoritesOnly ? 'true' : 'false');
+        }
+
+        function visibleCards() {
+          return cards.filter(card => !card.hidden);
+        }
+
+        function updateSummary() {
+          const visible = visibleCards().length;
+          const total = cards.length;
+          const selected = state.selected.length;
+          selectionSummary.textContent = `${selected} selected // ${visible} visible // ${favorites.length} favorites // ${total} total`;
+          if (selected) {
+            selectionStatus.textContent = `${selected} manuals staged for bundle download.`;
+          } else if (state.favoritesOnly) {
+            selectionStatus.textContent = favorites.length
+              ? 'Favorites-only view active. Clear the toggle to restore the full shelf.'
+              : 'Favorites-only view active, but no saved favorites exist yet.';
+          } else {
+            selectionStatus.textContent = 'Select manuals to build a download bundle, then use the bulk download control to pull the selected PDFs in one archive.';
+          }
+          downloadSelectedBtn.disabled = selected === 0;
+          if (selectionBinderBtn) {
+            selectionBinderBtn.disabled = selected === 0;
+            if (selected) {
+              selectionBinderBtn.dataset.binderUrl = buildManualSelectionUrl('/survival/army-library/binder', state.selected);
+            } else {
+              delete selectionBinderBtn.dataset.binderUrl;
+            }
+          }
+          emptyState.hidden = visible !== 0;
+        }
+
+        function renderFavorites() {
+          favorites = uniqueExisting(favorites);
+          const manuals = favoriteManuals();
+
+          if (!favoritesSummary || !favoritesStatus || !favoritesShelf || !downloadFavoritesBtn) {
+            syncFavoriteButtons();
+            syncFavoritesOnlyButton();
+            saveFavorites();
+            return;
+          }
+
+          if (!manuals.length) {
+            favoritesSummary.textContent = '0 saved favorites';
+            favoritesStatus.textContent = 'Save manuals to a persistent browser shelf so you can jump back to the same references later on this device.';
+            favoritesShelf.innerHTML = '<div class="army-empty">No favorite manuals saved yet.</div>';
+            downloadFavoritesBtn.disabled = true;
+            delete downloadFavoritesBtn.dataset.downloadUrl;
+            if (favoritesBinderBtn) {
+              favoritesBinderBtn.disabled = true;
+              delete favoritesBinderBtn.dataset.binderUrl;
+            }
+            if (printFavoritesBtn) printFavoritesBtn.disabled = true;
+            if (exportFavoritesBtn) exportFavoritesBtn.disabled = true;
+            syncFavoriteButtons();
+            syncFavoritesOnlyButton();
+            saveFavorites();
+            return;
+          }
+
+          favoritesSummary.textContent = `${manuals.length} saved favorites`;
+          favoritesStatus.textContent = 'Favorites are stored in this browser so the same reference shelf is available when you come back on this device.';
+
+          const params = new URLSearchParams();
+          favorites.forEach(slug => params.append('manual', slug));
+          downloadFavoritesBtn.disabled = false;
+          downloadFavoritesBtn.dataset.downloadUrl = `/survival/army-library/download?${params.toString()}`;
+          if (favoritesBinderBtn) {
+            favoritesBinderBtn.disabled = false;
+            favoritesBinderBtn.dataset.binderUrl = `/survival/army-library/binder?${params.toString()}`;
+          }
+          if (printFavoritesBtn) printFavoritesBtn.disabled = false;
+          if (exportFavoritesBtn) exportFavoritesBtn.disabled = false;
+
+          favoritesShelf.innerHTML = manuals.map(manual => {
+            return `
+              <article class="army-favorite-card">
+                <div>
+                  <small>${manual.edition}</small>
+                  <strong>${manual.title}</strong>
+                  <small>${manual.focus}</small>
+                </div>
+                <div class="army-favorite-actions">
+                  <a class="army-inline-action" href="${manual.readerUrl}">Read</a>
+                  <a class="army-inline-action" href="${manual.downloadUrl}">Download</a>
+                  <button class="army-inline-action" type="button" data-favorite-remove="${manual.slug}">Remove</button>
+                </div>
+              </article>
+            `;
+          }).join('');
+
+          syncFavoriteButtons();
+          syncFavoritesOnlyButton();
+          saveFavorites();
+        }
+
+        function applyFilters() {
+          const search = state.search.trim().toLowerCase();
+          cards.forEach(card => {
+            const matchesCategory = state.category === 'all' || card.dataset.manualCategory === state.category;
+            const matchesSearch = !search || card.dataset.manualSearch.includes(search);
+            const matchesFavorites = !state.favoritesOnly || favorites.includes(card.dataset.manualSlug);
+            card.hidden = !(matchesCategory && matchesSearch && matchesFavorites);
+          });
+
+          Array.from(filterRow.querySelectorAll('[data-category]')).forEach(button => {
+            button.classList.toggle('active', button.dataset.category === state.category);
+          });
+
+          syncFavoritesOnlyButton();
+          updateSummary();
+          saveState();
+        }
+
+        function addSelected(slug) {
+          if (!state.selected.includes(slug)) {
+            state.selected.push(slug);
+          }
+        }
+
+        function removeSelected(slug) {
+          state.selected = state.selected.filter(entry => entry !== slug);
+        }
+
+        function toggleFavorite(slug) {
+          if (!manualMap.has(slug)) return;
+          if (favorites.includes(slug)) {
+            favorites = favorites.filter(entry => entry !== slug);
+          } else {
+            favorites = [...favorites, slug];
+          }
+          renderFavorites();
+          applyFilters();
+        }
+
+        function openManualDetail(slug) {
+          const manual = manualMap.get(slug);
+          if (!manual || !detailDialog) return;
+
+          if (detailEdition) detailEdition.textContent = manual.edition;
+          if (detailTitle) detailTitle.textContent = manual.title;
+          if (detailCategory) detailCategory.textContent = labelizeCategory(manual.category);
+          if (detailCoverTitle) detailCoverTitle.textContent = manual.title;
+          if (detailFocus) detailFocus.textContent = manual.focus;
+          if (detailSummary) detailSummary.textContent = manual.summary;
+          if (detailCover) {
+            detailCover.style.setProperty('--army-cover', categoryCoverColors[manual.category] || '#5b6c42');
+          }
+          if (detailTopicLinks) {
+            detailTopicLinks.innerHTML = manual.topics.map(topic => {
+              return `<a class="army-topic-link" href="${escapeHtml(relativeUrl(buildTopicShortcutUrl(manual, topic)))}">${escapeHtml(topic)}</a>`;
+            }).join('');
+          }
+          if (detailReadLink) detailReadLink.href = manual.readerUrl;
+          if (detailBinderLink) detailBinderLink.href = manual.binderUrl;
+          if (detailDownloadLink) detailDownloadLink.href = manual.downloadUrl;
+          if (detailMirrorLink) detailMirrorLink.href = manual.mirrorUrl;
+
+          if (typeof detailDialog.showModal === 'function') {
+            detailDialog.showModal();
+          } else {
+            detailDialog.setAttribute('open', 'open');
+          }
+        }
+
+        searchInput.value = state.search;
+        syncCheckboxes();
+        renderFavorites();
+        applyFilters();
+
+        searchInput.addEventListener('input', () => {
+          state.search = searchInput.value;
+          applyFilters();
+        });
+
+        filterRow.addEventListener('click', event => {
+          const button = event.target.closest('[data-category]');
+          if (!button) return;
+          state.category = button.dataset.category;
+          applyFilters();
+        });
+
+        favoritesOnlyBtn?.addEventListener('click', () => {
+          state.favoritesOnly = !state.favoritesOnly;
+          applyFilters();
+        });
+
+        cards.forEach(card => {
+          const slug = card.dataset.manualSlug;
+          const checkbox = card.querySelector('.army-manual-checkbox');
+          const favoriteToggle = card.querySelector('[data-favorite-toggle]');
+          const detailToggle = card.querySelector('[data-detail-toggle]');
+
+          if (checkbox) {
+            checkbox.addEventListener('change', () => {
+              if (checkbox.checked) {
+                addSelected(slug);
+              } else {
+                removeSelected(slug);
+              }
+              saveState();
+              updateSummary();
+            });
+          }
+
+          if (favoriteToggle) {
+            favoriteToggle.addEventListener('click', () => {
+              toggleFavorite(slug);
+            });
+          }
+
+          if (detailToggle) {
+            detailToggle.addEventListener('click', () => {
+              openManualDetail(slug);
+            });
+          }
+        });
+
+        favoritesShelf?.addEventListener('click', event => {
+          const removeButton = event.target.closest('[data-favorite-remove]');
+          if (!removeButton) return;
+          toggleFavorite(removeButton.dataset.favoriteRemove);
+        });
+
+        activeFavoriteBtn?.addEventListener('click', () => {
+          toggleFavorite(activeFavoriteBtn.dataset.manualSlug);
+        });
+
+        selectVisibleBtn.addEventListener('click', () => {
+          visibleCards().forEach(card => addSelected(card.dataset.manualSlug));
+          syncCheckboxes();
+          saveState();
+          updateSummary();
+        });
+
+        clearSelectionBtn.addEventListener('click', () => {
+          state.selected = [];
+          syncCheckboxes();
+          saveState();
+          updateSummary();
+        });
+
+        downloadSelectedBtn.addEventListener('click', () => {
+          if (!state.selected.length) {
+            updateSummary();
+            return;
+          }
+
+          const params = new URLSearchParams();
+          state.selected.forEach(slug => params.append('manual', slug));
+          selectionStatus.textContent = `Preparing a bundle for ${state.selected.length} selected manuals...`;
+          window.location.href = `/survival/army-library/download?${params.toString()}`;
+        });
+
+        selectionBinderBtn?.addEventListener('click', () => {
+          if (!selectionBinderBtn.dataset.binderUrl) {
+            updateSummary();
+            return;
+          }
+          window.location.href = selectionBinderBtn.dataset.binderUrl;
+        });
+
+        downloadFavoritesBtn?.addEventListener('click', () => {
+          if (!downloadFavoritesBtn.dataset.downloadUrl) {
+            renderFavorites();
+            applyFilters();
+            return;
+          }
+          favoritesStatus.textContent = `Preparing a favorites bundle for ${favorites.length} saved manuals...`;
+          window.location.href = downloadFavoritesBtn.dataset.downloadUrl;
+        });
+
+        favoritesBinderBtn?.addEventListener('click', () => {
+          if (!favoritesBinderBtn.dataset.binderUrl) {
+            renderFavorites();
+            applyFilters();
+            return;
+          }
+          window.location.href = favoritesBinderBtn.dataset.binderUrl;
+        });
+
+        printFavoritesBtn?.addEventListener('click', () => {
+          const manuals = favoriteManuals();
+          if (!manuals.length) {
+            renderFavorites();
+            applyFilters();
+            return;
+          }
+          printManualList(manuals, 'DELTA ARMY SURVIVAL FAVORITES');
+        });
+
+        exportFavoritesBtn?.addEventListener('click', () => {
+          const manuals = favoriteManuals();
+          if (!manuals.length) {
+            renderFavorites();
+            applyFilters();
+            return;
+          }
+          exportManualList(manuals, 'delta-army-survival-favorites.txt', 'DELTA ARMY SURVIVAL FAVORITES');
+        });
+
+        detailCloseBtn?.addEventListener('click', () => {
+          if (typeof detailDialog?.close === 'function') {
+            detailDialog.close();
+          } else {
+            detailDialog?.removeAttribute('open');
+          }
+        });
+
+        detailDialog?.addEventListener('click', event => {
+          if (event.target === detailDialog && typeof detailDialog.close === 'function') {
+            detailDialog.close();
+          }
+        });
+      })();
+    </script>
+
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

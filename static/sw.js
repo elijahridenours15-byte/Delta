@@ -1,6 +1,6 @@
-const SHELL_CACHE = 'delta-shell-v14';
-const RUNTIME_CACHE = 'delta-runtime-v14';
-const MAP_PACK_CACHE = 'delta-map-pack-v14';
+const SHELL_CACHE = 'delta-shell-v31';
+const RUNTIME_CACHE = 'delta-runtime-v29';
+const MAP_PACK_CACHE = 'delta-map-pack-v29';
 const OFFLINE_FALLBACK_URL = '/static/offline.html';
 
 const SAME_ORIGIN_SHELL = [
@@ -23,7 +23,12 @@ const SAME_ORIGIN_SHELL = [
   '/live',
   '/site.webmanifest',
   '/static/style.css',
+  '/static/auth.js',
+  '/static/map-layer-catalog.js',
+  '/static/scripture-hotspots.js',
   '/static/pwa-register.js',
+  '/static/survival_loadout.js',
+  '/static/survival_meal_bible.js',
   '/static/delta-icon.svg',
   '/static/vendor/leaflet/leaflet.css',
   '/static/vendor/leaflet/leaflet.js',
@@ -42,6 +47,7 @@ const REMOTE_ASSETS = [
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js',
+  'https://unpkg.com/milsymbol@3.0.4/dist/milsymbol.js',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap',
 ];
 

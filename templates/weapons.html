@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Delta Coding — Field Weapons Reference">
     <meta name="twitter:description" content="Military small arms reference with specs and field notes at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/weapons">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       /* ── Weapons Page Layout ─────────────────────────────────────────── */
       .weapons-page {
@@ -1276,6 +1276,51 @@
     (function () {
       'use strict';
 
+      const WEAPON_VELOCITIES = Object.freeze({
+        'M4A1 Carbine': '880 m/s',
+        'M16A4 Rifle': '948 m/s',
+        'M27 IAR (Infantry Automatic Rifle)': '900 m/s',
+        'M249 SAW (Squad Automatic Weapon)': '915 m/s',
+        'M240B GPMG': '853 m/s',
+        'M2A1 HMG (.50 Cal)': '890 m/s',
+        'M110 SASS': '783 m/s',
+        'M24 SWS': '790 m/s',
+        'M82A1 / M107 Anti-Materiel Rifle': '853 m/s',
+        'M17 / SIG Sauer P320-M17': '366 m/s',
+        'M9A3 Beretta': '381 m/s',
+        'M320 GLM': '76 m/s',
+        'AT4 Anti-Armor Launcher': '290 m/s',
+        'FIM-92 Stinger': '750 m/s',
+        'AK-74M': '900 m/s',
+        'AK-12 (6P70)': '900 m/s',
+        'AK-103': '715 m/s',
+        'PKM General Purpose Machine Gun': '825 m/s',
+        'RPK-16 Light Machine Gun': '900 m/s',
+        'SVD Dragunov': '830 m/s',
+        'SV-98 Precision Sniper Rifle': '820 m/s',
+        'MP-443 Grach (PYa)': '450 m/s',
+        'RPG-7V2 Anti-Tank Launcher': '115 m/s launch, 295 m/s flight',
+        '9K38 Igla-S (SA-24 Grinch)': '570 m/s peak',
+        'QBZ-95-1 (Type 95-1)': '930 m/s',
+        'QBZ-191 (Type 191)': '930 m/s',
+        'QBZ-03 (Type 03)': '930 m/s',
+        'QJY-88 GPMG (Type 88)': '895 m/s',
+        'CS/LR4 Sniper Rifle': '790 m/s',
+        'QSZ-92 Sidearm': '350 m/s (9mm)',
+        'QLZ-87 Automatic Grenade Launcher': '190 m/s',
+        'HJ-12 (Red Arrow 12) ATGM': '~200 m/s',
+        'QW-18 MANPADS': '~600 m/s',
+        'Tavor TAR-21': '910 m/s',
+        'X95 Micro Tavor (MTAR-21)': '890 m/s',
+        'Galil ACE 52': '800 m/s',
+        'Negev NG7 LMG': '850 m/s',
+        'Galatz (Galil Sniper)': '840 m/s',
+        'Jericho 941 F': '350 m/s (9mm)',
+        'Desert Eagle Mk XIX': '470 m/s (.50 AE)',
+        'Spike ATGM (Spike-MR/LR2)': '~180 m/s',
+        'Uzi Pro SMG': '350 m/s'
+      });
+
       const WEAPONS = [
         // ── UNITED STATES ─────────────────────────────────────────────────────────
         {
@@ -1662,7 +1707,10 @@
           notes: 'Modern Micro Uzi successor with Picatinny rail and side-folding stock. High cyclic rate at 1,250 rpm. Preferred for vehicle crew and VIP close-protection roles. US civilian semi-auto variants exported widely.',
           blueprint: false
         }
-      ];
+      ].map(weapon => ({
+        ...weapon,
+        velocity: WEAPON_VELOCITIES[weapon.name] || ''
+      }));
 
       // ── State ──────────────────────────────────────────────────────────────────
       let filterNation = 'all';
@@ -2332,7 +2380,7 @@
         return WEAPONS.filter(w => {
           if (filterNation !== 'all' && w.nation !== filterNation) return false;
           if (filterCat !== 'all' && w.cat !== filterCat) return false;
-          if (q && !`${w.name} ${w.maker} ${w.caliber} ${w.service} ${w.notes} ${w.tm} ${attachmentSearchText(w)}`.toLowerCase().includes(q)) return false;
+          if (q && !`${w.name} ${w.maker} ${w.caliber} ${w.velocity} ${w.service} ${w.notes} ${w.tm} ${attachmentSearchText(w)}`.toLowerCase().includes(q)) return false;
           return true;
         }).sort((a, b) => (NATION_ORDER[a.nation] ?? 9) - (NATION_ORDER[b.nation] ?? 9));
       }
@@ -2371,6 +2419,10 @@
                 <div class="spec-item">
                   <span class="spec-label">Action</span>
                   <span class="spec-value">${w.action}</span>
+                </div>
+                <div class="spec-item">
+                  <span class="spec-label">Muzzle / Flight Speed</span>
+                  <span class="spec-value">${w.velocity}</span>
                 </div>
                 <div class="spec-item">
                   <span class="spec-label">Weight</span>

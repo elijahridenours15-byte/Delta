@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Delta Coding — SIGINT Radio Lab">
     <meta name="twitter:description" content="SDR tools, frequency guides, and SIGINT resources for radio operators at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/radio">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       .radio-page{padding:18px 24px;max-width:1300px;margin:0 auto}
       .radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -151,9 +151,84 @@
         font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;box-sizing:border-box;
       }
 
+      .radio-link-panel{margin:0 0 16px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px}
+      .radio-link-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+      .radio-link-title strong{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+      .radio-link-title p{margin:6px 0 0;color:var(--text2);font-size:12px;line-height:1.7;max-width:760px}
+      .radio-link-status{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;background:var(--panel);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+      .radio-link-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .25s, box-shadow .25s}
+      .radio-link-dot.connected{background:#5a8f5a;box-shadow:0 0 8px rgba(90,143,90,.55)}
+      .radio-link-dot.scanning{background:#c9a14d;animation:radioLinkPulse 1s ease infinite}
+      .radio-link-dot.error{background:#c44;box-shadow:0 0 8px rgba(204,68,68,.35)}
+      @keyframes radioLinkPulse{0%,100%{opacity:1}50%{opacity:.35}}
+      .radio-link-note{margin:0 0 12px;padding:10px 12px;background:rgba(18,24,16,.8);border:1px solid rgba(139,157,106,.18);border-radius:4px;color:var(--muted);font-size:12px;line-height:1.7}
+      .radio-link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:12px}
+      .radio-link-field label{display:block;margin-bottom:5px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.7px;text-transform:uppercase}
+      .radio-link-input,.radio-link-select{width:100%;box-sizing:border-box;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:9px 10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+      .radio-link-input:focus,.radio-link-select:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 1px rgba(139,157,106,.24)}
+      .radio-link-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+      .radio-link-btn{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+      .radio-link-btn:hover{border-color:var(--accent2);color:var(--accent-bright)}
+      .radio-link-btn.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:var(--bg);border-color:var(--accent2);font-weight:700}
+      .radio-link-btn.primary:hover{box-shadow:0 0 10px var(--accent-glow)}
+      .radio-link-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;color:var(--muted)}
+      .radio-link-btn:disabled:hover{border-color:var(--border);color:var(--muted)}
+      .radio-link-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:12px}
+      .radio-link-chip{padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:4px}
+      .radio-link-chip-label{display:block;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:5px}
+      .radio-link-chip-value{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5;word-break:break-word}
+      .radio-link-services{min-height:64px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--sand);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+      .radio-link-log{margin-top:10px;max-height:140px;overflow:auto;padding:10px 12px;background:rgba(10,14,9,.92);border:1px solid var(--border);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;color:var(--muted)}
+      .radio-link-log-item{margin-bottom:4px}
+      .radio-link-log-item:last-child{margin-bottom:0}
+      .radio-link-log-item.ok{color:#c8d5a3}
+      .radio-link-log-item.warn{color:#d7bf7c}
+      .radio-link-log-item.err{color:#e69b9b}
+
+      .radio-gear-panel{margin:0 0 16px;padding:16px;background:linear-gradient(180deg,rgba(18,24,16,.9),rgba(10,14,9,.96));border:1px solid var(--border);border-radius:6px}
+      .radio-gear-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+      .radio-gear-title strong{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+      .radio-gear-title p{margin:6px 0 0;color:var(--text2);font-size:12px;line-height:1.7;max-width:780px}
+      .radio-gear-kicker{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(139,157,106,.22);border-radius:999px;background:rgba(12,18,10,.9);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase}
+      .radio-gear-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+      .radio-gear-card{padding:14px;border:1px solid rgba(139,157,106,.18);border-radius:6px;background:linear-gradient(180deg,rgba(16,22,14,.96),rgba(9,13,8,.98));box-shadow:0 12px 24px rgba(0,0,0,.18)}
+      .radio-gear-card h4{margin:0 0 8px;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+      .radio-gear-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+      .radio-gear-tag{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:rgba(139,157,106,.12);border:1px solid rgba(139,157,106,.18);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase}
+      .radio-gear-card p{margin:0 0 10px;color:var(--text2);font-size:12px;line-height:1.7}
+      .radio-gear-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+      .radio-gear-meta span{display:block;padding:8px 9px;border-radius:4px;background:rgba(12,17,10,.9);border:1px solid rgba(139,157,106,.14);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6}
+      .radio-gear-meta strong{display:block;color:var(--sand);font-size:11px;letter-spacing:.3px}
+      .radio-gear-actions{display:flex;gap:8px;flex-wrap:wrap}
+      .radio-gear-action{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--accent-bright);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
+      .radio-gear-action:hover{border-color:var(--accent2);box-shadow:0 0 10px var(--accent-glow)}
+      .radio-gear-action.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:var(--bg);border-color:var(--accent2);font-weight:700}
+      .radio-gear-action.disabled,.radio-gear-action[aria-disabled="true"]{opacity:.45;pointer-events:none;box-shadow:none;color:var(--muted)}
+      .radio-gear-status{margin-top:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;letter-spacing:.5px}
+
       .freq-card{margin-top:18px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:24px}
       .freq-card h3{color:var(--accent-bright);margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:2px;text-transform:uppercase}
       .freq-intro{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.7;max-width:980px}
+      .voice-procedure-panel{margin:0 0 16px;padding:16px;background:linear-gradient(180deg,rgba(18,24,16,.92),rgba(10,14,9,.98));border:1px solid var(--border);border-radius:6px}
+      .voice-procedure-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+      .voice-procedure-title strong{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+      .voice-procedure-title p{margin:6px 0 0;color:var(--text2);font-size:12px;line-height:1.7;max-width:760px}
+      .voice-procedure-kicker{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(139,157,106,.22);border-radius:999px;background:rgba(12,18,10,.9);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.4px;text-transform:uppercase}
+      .voice-procedure-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px}
+      .voice-procedure-card{padding:14px;border:1px solid rgba(139,157,106,.18);border-radius:6px;background:rgba(12,17,10,.9)}
+      .voice-procedure-card h4{margin:0 0 8px;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+      .voice-procedure-card p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.7}
+      .phonetic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+      .phonetic-item{padding:9px 10px;border-radius:4px;background:rgba(18,24,16,.86);border:1px solid rgba(139,157,106,.14);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);line-height:1.5}
+      .phonetic-item strong{display:block;color:var(--accent-bright);font-size:12px;margin-bottom:2px}
+      .procedure-list{margin:0;padding-left:18px;color:var(--text2);font-size:12px;line-height:1.75}
+      .procedure-list li + li{margin-top:6px}
+      .voice-procedure-callout{margin-top:10px;padding:10px 12px;border-radius:4px;background:rgba(18,24,16,.82);border:1px solid rgba(139,157,106,.18);color:var(--sand);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8}
+      .voice-procedure-callout strong{display:block;color:var(--accent-bright);margin-bottom:6px;letter-spacing:.6px}
+      .proword-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px}
+      .proword-item{padding:9px 10px;border-radius:4px;background:rgba(18,24,16,.86);border:1px solid rgba(139,157,106,.14)}
+      .proword-item strong{display:block;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+      .proword-item span{display:block;color:var(--muted);font-size:11px;line-height:1.6}
       .freq-briefs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
       .freq-brief{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px}
       .freq-brief-label{display:block;margin-bottom:6px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase}
@@ -181,6 +256,9 @@
         .radio-page{padding:14px 12px 22px}
         .radio-player-card,.morse-card,.lang-card{padding:16px}
         .freq-card{padding:16px}
+        .radio-link-panel{padding:14px}
+        .radio-gear-panel{padding:14px}
+        .voice-procedure-panel{padding:14px}
         .station-grid{grid-template-columns:1fr}
         .station-btn{min-height:46px}
         .now-playing{flex-direction:column;align-items:flex-start}
@@ -196,6 +274,12 @@
         .morse-mode-btn,.morse-btn{width:100%;min-height:42px}
         .lang-row{flex-direction:column;align-items:stretch}
         .lang-select{width:100%;min-width:0}
+        .radio-link-actions{flex-direction:column}
+        .radio-link-btn{width:100%;min-height:42px}
+        .radio-gear-actions{flex-direction:column}
+        .radio-gear-action{width:100%}
+        .radio-gear-meta{grid-template-columns:1fr}
+        .voice-procedure-grid{grid-template-columns:1fr}
         .freq-briefs{grid-template-columns:1fr}
         .freq-tabs{flex-direction:column}
         .freq-tab-btn{width:100%;min-height:42px}
@@ -376,6 +460,210 @@
         <h3>&#x2699; FREQUENCY SETTINGS &amp; BAND PLAN</h3>
         <p class="freq-intro">Use this desk as the radio bar settings page for quick reference. Ham bands cover licensed amateur nets and repeaters, VHF covers marine, weather, and short-range line-of-sight channels, CB covers citizen-band mobile traffic and skip, and HF windows show where long-haul utility, emergency, and skywave contacts usually come alive.</p>
 
+        <section class="voice-procedure-panel" aria-label="NATO radio voice procedure reference">
+          <div class="voice-procedure-head">
+            <div class="voice-procedure-title">
+              <span class="voice-procedure-kicker">Voice Discipline</span>
+              <strong>NATO Phonetic Alphabet &amp; Radio Transmit Flow</strong>
+              <p>Use the phonetic alphabet to spell call signs, names, and grids clearly, then follow a short transmit routine so the receiving station hears who you are, what you need, and whether you expect a reply.</p>
+            </div>
+          </div>
+
+          <div class="voice-procedure-grid">
+            <article class="voice-procedure-card">
+              <h4>NATO Phonetic Alphabet</h4>
+              <p>Spell hard-to-hear words one character at a time during weak signal, static, rotor noise, or crowded net traffic.</p>
+              <div class="phonetic-grid">
+                <div class="phonetic-item"><strong>A</strong>Alpha</div>
+                <div class="phonetic-item"><strong>B</strong>Bravo</div>
+                <div class="phonetic-item"><strong>C</strong>Charlie</div>
+                <div class="phonetic-item"><strong>D</strong>Delta</div>
+                <div class="phonetic-item"><strong>E</strong>Echo</div>
+                <div class="phonetic-item"><strong>F</strong>Foxtrot</div>
+                <div class="phonetic-item"><strong>G</strong>Golf</div>
+                <div class="phonetic-item"><strong>H</strong>Hotel</div>
+                <div class="phonetic-item"><strong>I</strong>India</div>
+                <div class="phonetic-item"><strong>J</strong>Juliett</div>
+                <div class="phonetic-item"><strong>K</strong>Kilo</div>
+                <div class="phonetic-item"><strong>L</strong>Lima</div>
+                <div class="phonetic-item"><strong>M</strong>Mike</div>
+                <div class="phonetic-item"><strong>N</strong>November</div>
+                <div class="phonetic-item"><strong>O</strong>Oscar</div>
+                <div class="phonetic-item"><strong>P</strong>Papa</div>
+                <div class="phonetic-item"><strong>Q</strong>Quebec</div>
+                <div class="phonetic-item"><strong>R</strong>Romeo</div>
+                <div class="phonetic-item"><strong>S</strong>Sierra</div>
+                <div class="phonetic-item"><strong>T</strong>Tango</div>
+                <div class="phonetic-item"><strong>U</strong>Uniform</div>
+                <div class="phonetic-item"><strong>V</strong>Victor</div>
+                <div class="phonetic-item"><strong>W</strong>Whiskey</div>
+                <div class="phonetic-item"><strong>X</strong>X-ray</div>
+                <div class="phonetic-item"><strong>Y</strong>Yankee</div>
+                <div class="phonetic-item"><strong>Z</strong>Zulu</div>
+              </div>
+            </article>
+
+            <article class="voice-procedure-card">
+              <h4>NATO Radio Transmit Flow</h4>
+              <p>Keep each transmission short and structured so another operator can copy it the first time.</p>
+              <ol class="procedure-list">
+                <li>Listen first. Make sure the net is clear and the target station is not already passing traffic.</li>
+                <li>Key the mic and pause a beat before speaking so your first word is not clipped.</li>
+                <li>Call the station first, then identify yourself: <strong>VIKING TWO-ONE, THIS IS DELTA SIX, OVER.</strong></li>
+                <li>Send the message in short blocks: who, where, what, and what you need next. Spell critical names, grids, and codes with the phonetic alphabet.</li>
+                <li>Close with the right proword: <strong>OVER</strong> when you expect a reply, <strong>OUT</strong> when the exchange is complete.</li>
+              </ol>
+
+              <div class="voice-procedure-callout">
+                <strong>Example Call</strong>
+                VIKING TWO-ONE, THIS IS DELTA SIX. REQUEST RADIO CHECK. GRID FOLLOWS. DELTA ROMEO 18 SIERRA UNIFORM JULIETT 23394 07395. OVER.
+              </div>
+
+              <div class="proword-grid">
+                <div class="proword-item"><strong>Roger</strong><span>Message received and understood.</span></div>
+                <div class="proword-item"><strong>Wilco</strong><span>Received and will comply.</span></div>
+                <div class="proword-item"><strong>Say Again</strong><span>Repeat all or part of the last transmission.</span></div>
+                <div class="proword-item"><strong>I Spell</strong><span>The next word will be spoken letter by letter using phonetics.</span></div>
+                <div class="proword-item"><strong>Correction</strong><span>An error was made; what follows is the corrected text.</span></div>
+                <div class="proword-item"><strong>Wait, Out</strong><span>Pause longer before replying; I will call you back.</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <div class="radio-link-panel">
+          <div class="radio-link-head">
+            <div class="radio-link-title">
+              <span class="freq-brief-label">Bluetooth</span>
+              <strong>Bluetooth Ham Radio Link</strong>
+              <p>Connect a ham radio, TNC, or programming bridge from this page using the browser path your hardware exposes. BLE radios stay on Web Bluetooth, while operating-system-paired Bluetooth CAT/PTT adapters can use Web Serial when the browser supports it.</p>
+            </div>
+            <div class="radio-link-status" aria-live="polite">
+              <span class="radio-link-dot" id="ham-bt-dot" aria-hidden="true"></span>
+              <span id="ham-bt-status">READY</span>
+            </div>
+          </div>
+
+          <p class="radio-link-note" id="ham-bt-note">Auto mode chooses the strongest browser radio path available. Switch to Bluetooth serial when your radio is already paired with the operating system as a CAT, PTT, or programming bridge.</p>
+
+          <div class="radio-link-grid">
+            <div class="radio-link-field">
+              <label for="ham-bt-profile">Transport profile</label>
+              <select class="radio-link-select" id="ham-bt-profile">
+                <option value="auto">Auto detect</option>
+                <option value="ble">BLE GATT</option>
+                <option value="serial">Bluetooth Serial (Web Serial)</option>
+              </select>
+            </div>
+            <div class="radio-link-field">
+              <label for="ham-bt-service">Preferred GATT service UUID (BLE only)</label>
+              <input class="radio-link-input" id="ham-bt-service" type="text" placeholder="0000ffe0-0000-1000-8000-00805f9b34fb" />
+            </div>
+            <div class="radio-link-field">
+              <label for="ham-bt-baud">Serial baud rate (serial only)</label>
+              <input class="radio-link-input" id="ham-bt-baud" type="number" min="300" max="921600" step="1" value="9600" placeholder="9600" />
+            </div>
+            <div class="radio-link-field">
+              <label for="ham-bt-device-list">Approved / paired radio</label>
+              <select class="radio-link-select" id="ham-bt-device-list">
+                <option value="">-- SCAN OR PAIR A RADIO --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="radio-link-actions">
+            <button class="radio-link-btn" id="ham-bt-scan" type="button">Scan / Pair</button>
+            <button class="radio-link-btn primary" id="ham-bt-connect" type="button" disabled>Connect</button>
+            <button class="radio-link-btn" id="ham-bt-reconnect" type="button">Reconnect Last</button>
+            <button class="radio-link-btn" id="ham-bt-disconnect" type="button" disabled>Disconnect</button>
+          </div>
+
+          <div class="radio-link-meta">
+            <div class="radio-link-chip">
+              <span class="radio-link-chip-label">Browser support</span>
+              <strong class="radio-link-chip-value" id="ham-bt-browser">Checking...</strong>
+            </div>
+            <div class="radio-link-chip">
+              <span class="radio-link-chip-label">Linked radio</span>
+              <strong class="radio-link-chip-value" id="ham-bt-name">None</strong>
+            </div>
+            <div class="radio-link-chip">
+              <span class="radio-link-chip-label">Battery / power</span>
+              <strong class="radio-link-chip-value" id="ham-bt-battery">Unknown</strong>
+            </div>
+            <div class="radio-link-chip">
+              <span class="radio-link-chip-label">Transport</span>
+              <strong class="radio-link-chip-value" id="ham-bt-transport">Auto detect</strong>
+            </div>
+          </div>
+
+          <div class="radio-link-services" id="ham-bt-services">No radio link yet. Connect a BLE device or paired Bluetooth serial bridge to inspect what the browser can use.</div>
+          <div class="radio-link-log" id="ham-bt-log" aria-live="polite"></div>
+        </div>
+
+        <div class="radio-gear-panel">
+          <div class="radio-gear-head">
+            <div class="radio-gear-title">
+              <span class="radio-gear-kicker">Field Locker</span>
+              <strong>Radio Programming Shelf</strong>
+              <p>Staging surface for the radios you named plus a Windows installer slot. The download card auto-checks for a staged `setup.exe` package under the site radio-upload path and lights up when that asset is present.</p>
+            </div>
+          </div>
+
+          <div class="radio-gear-grid">
+            <article class="radio-gear-card">
+              <h4>Baofeng AR-152 Pro</h4>
+              <div class="radio-gear-tags">
+                <span class="radio-gear-tag">Field handheld</span>
+                <span class="radio-gear-tag">User added</span>
+              </div>
+              <p>Mission card for the AR-152 Pro loadout you requested. Use it as the rugged field profile inside this page while keeping the vendor programming sheet and your licensed channel plan beside the radio.</p>
+              <div class="radio-gear-meta">
+                <span>Role<strong>Patrol / field comms</strong></span>
+                <span>Workflow<strong>Program, verify, then field-test</strong></span>
+              </div>
+              <div class="radio-gear-actions">
+                <a class="radio-gear-action" href="#ham-bt-service">Open BLE Link</a>
+                <a class="radio-gear-action" href="#ham-band-rows">Check Band Plan</a>
+              </div>
+            </article>
+
+            <article class="radio-gear-card">
+              <h4>Baofeng UV-5RM</h4>
+              <div class="radio-gear-tags">
+                <span class="radio-gear-tag">VHF / UHF handheld</span>
+                <span class="radio-gear-tag">User added</span>
+              </div>
+              <p>Mission card for the UV-5RM you requested. This slot stays tied to the live ham and VHF references below so you can move from radio profile to frequency planning without leaving the page.</p>
+              <div class="radio-gear-meta">
+                <span>Role<strong>Local repeater + simplex work</strong></span>
+                <span>Workflow<strong>Load channels, confirm offsets, test audio</strong></span>
+              </div>
+              <div class="radio-gear-actions">
+                <a class="radio-gear-action" href="#ham-call-rows">Open Call Frequencies</a>
+                <a class="radio-gear-action" href="#vhf-channel-rows">Open VHF Channels</a>
+              </div>
+            </article>
+
+            <article class="radio-gear-card">
+              <h4>Windows Setup Package</h4>
+              <div class="radio-gear-tags">
+                <span class="radio-gear-tag">Installer slot</span>
+                <span class="radio-gear-tag">setup.exe</span>
+              </div>
+              <p>Direct launch tile for the installer you attached. This card probes the staged site asset and flips from standby to live download the moment the EXE exists under the radio upload path.</p>
+              <div class="radio-gear-meta">
+                <span>Target path<strong id="radio-installer-path">/static/manuals/uploads/radio/setup.exe</strong></span>
+                <span>Status<strong id="radio-installer-mode">Staging bay</strong></span>
+              </div>
+              <div class="radio-gear-actions">
+                <a class="radio-gear-action primary disabled" id="radio-installer-link" href="#" aria-disabled="true">Installer Unavailable</a>
+              </div>
+              <div class="radio-gear-status" id="radio-installer-status">Waiting for a staged `setup.exe` file in the repo build.</div>
+            </article>
+          </div>
+        </div>
+
         <div class="freq-briefs">
           <div class="freq-brief">
             <span class="freq-brief-label">Ham</span>
@@ -505,13 +793,11 @@
       const STATIONS = [
         {key:'noaa', name:'NOAA Weather', freq:'162.400 MHz', url:'https://radio.weatherusa.net/NWR/KEC80.mp3', genre:'Weather'},
         {key:'scanner', name:'Scanner Radio', freq:'VHF/UHF', url:'https://broadcastify.cdnstream1.com/14747', genre:'Scanner'},
-        {key:'bbc-world-service', name:'BBC World Svc', freq:'SW 6.195 MHz', url:'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service', genre:'Intel'},
-        {key:'npr-news', name:'NPR News', freq:'FM 90.1', url:'https://npr-ice.streamguys1.com/live.mp3', genre:'News'},
         {key:'classical-wqxr', name:'Classical WQXR', freq:'FM 105.9', url:'https://stream.wqxr.org/js-stream.aac', genre:'Ambient'},
         {key:'lofi-beats', name:'Lofi Beats', freq:'NET STREAM', url:'https://play.streamafrica.net/lofiradio', genre:'Focus'},
         {key:'jazz-fm', name:'Jazz FM', freq:'NET STREAM', url:'https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3', genre:'Jazz'},
         {key:'infowars-live', name:'Infowars Live', freq:'NET STREAM', url:'https://stream.infowars.com/live', genre:'Talk'},
-        {key:'end-time-headlines-live', name:'End Time Headlines Live', freq:'LIVE DESK', url:'https://www.youtube.com/@EndtimeheadlinesOrg/live', genre:'External', mode:'external', detail:'Launches ETH live page'},
+        {key:'end-time-headlines-live', name:'End Time Headlines Live', freq:'LIVE DESK', url:'https://www.youtube.com/@EndtimeheadlinesOrg/live', genre:'External', mode:'external', detail:'Tap Play to launch live coverage'},
         {key:'prophecy-today-radio', name:'Prophecy Today Radio', freq:'NET STREAM', url:'https://streaming.radio.co/sa2953afc7/listen', genre:'Christian'},
         {key:'deep-space', name:'Deep Space Radio', freq:'NET STREAM', url:'https://stream.deepspaceone.com/deepspaceone.aac', genre:'Ambient'},
         {key:'bible-audio', name:'Bible Audio', freq:'AM 1110', url:'https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3', genre:'Scripture'},
@@ -678,6 +964,770 @@
         });
       });
 
+      // ══════════════════════════════════════════════════════════
+      // BLUETOOTH HAM RADIO LINK (Web Bluetooth + Web Serial)
+      // ══════════════════════════════════════════════════════════
+      const HAM_BT_KEY = 'deltaHamBluetooth';
+      const RADIO_LINK_DEFAULT_TEXT = 'No radio link yet. Connect a BLE device or paired Bluetooth serial bridge to inspect what the browser can use.';
+      const SERIAL_DEFAULT_BAUD = 9600;
+      const btDot = document.getElementById('ham-bt-dot');
+      const btStatus = document.getElementById('ham-bt-status');
+      const btNote = document.getElementById('ham-bt-note');
+      const btBrowser = document.getElementById('ham-bt-browser');
+      const btName = document.getElementById('ham-bt-name');
+      const btBattery = document.getElementById('ham-bt-battery');
+      const btTransport = document.getElementById('ham-bt-transport');
+      const btServices = document.getElementById('ham-bt-services');
+      const btLog = document.getElementById('ham-bt-log');
+      const btProfile = document.getElementById('ham-bt-profile');
+      const btServiceInput = document.getElementById('ham-bt-service');
+      const btBaud = document.getElementById('ham-bt-baud');
+      const btDeviceList = document.getElementById('ham-bt-device-list');
+      const btScan = document.getElementById('ham-bt-scan');
+      const btConnect = document.getElementById('ham-bt-connect');
+      const btReconnect = document.getElementById('ham-bt-reconnect');
+      const btDisconnect = document.getElementById('ham-bt-disconnect');
+      const installerUrl = '/static/manuals/uploads/radio/setup.exe';
+      const installerLink = document.getElementById('radio-installer-link');
+      const installerStatus = document.getElementById('radio-installer-status');
+      const installerMode = document.getElementById('radio-installer-mode');
+
+      let hamBtDevice = null;
+      let hamBtServer = null;
+      let hamSerialPort = null;
+
+      function setBtStatus(label, state = '') {
+        btStatus.textContent = label;
+        btDot.className = 'radio-link-dot' + (state ? ' ' + state : '');
+      }
+
+      function logBt(message, tone = 'ok') {
+        const row = document.createElement('div');
+        row.className = 'radio-link-log-item ' + tone;
+        const ts = new Date().toLocaleTimeString('en-US', {hour12:false});
+        row.textContent = '[' + ts + '] ' + message;
+        btLog.prepend(row);
+        while (btLog.childElementCount > 10) {
+          btLog.removeChild(btLog.lastElementChild);
+        }
+      }
+
+      function saveBtState(state) {
+        localStorage.setItem(HAM_BT_KEY, JSON.stringify(state));
+      }
+
+      function loadBtState() {
+        try {
+          return JSON.parse(localStorage.getItem(HAM_BT_KEY)) || {};
+        } catch (error) {
+          return {};
+        }
+      }
+
+      function hasBleSupport() {
+        return window.isSecureContext && ('bluetooth' in navigator);
+      }
+
+      function hasSerialSupport() {
+        return window.isSecureContext && ('serial' in navigator);
+      }
+
+      function formatHex(value, width = 4) {
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) {
+          return 'n/a';
+        }
+        return '0x' + numeric.toString(16).padStart(width, '0');
+      }
+
+      function formatBluetoothUuid(uuid) {
+        return String(uuid || '').replace(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i, '$1');
+      }
+
+      function defaultTransportLabel() {
+        const profileMode = btProfile.value || 'auto';
+        if (profileMode === 'serial') return 'Bluetooth serial / Web Serial';
+        if (profileMode === 'ble') return 'BLE GATT';
+        return 'Auto detect';
+      }
+
+      function displayTransportLabel(kind) {
+        if (kind === 'serial') return 'Bluetooth serial / Web Serial';
+        if (kind === 'ble') return 'BLE GATT';
+        return defaultTransportLabel();
+      }
+
+      function serialFingerprint(info = {}) {
+        if (info.bluetoothServiceClassId !== undefined) {
+          return 'bt-' + Number(info.bluetoothServiceClassId).toString(16);
+        }
+        if (info.usbVendorId !== undefined || info.usbProductId !== undefined) {
+          return 'usb-' + [info.usbVendorId ?? 0, info.usbProductId ?? 0]
+            .map((value) => Number(value).toString(16).padStart(4, '0'))
+            .join('-');
+        }
+        return 'generic';
+      }
+
+      function serialOptionValue(info = {}) {
+        return 'serial:' + serialFingerprint(info);
+      }
+
+      function bleOptionValue(device) {
+        return 'ble:' + (device.id || device.name || 'radio');
+      }
+
+      function describeSerialPort(info = {}) {
+        if (info.bluetoothServiceClassId !== undefined) {
+          return 'BT Serial ' + formatHex(info.bluetoothServiceClassId, 4);
+        }
+        if (info.usbVendorId !== undefined || info.usbProductId !== undefined) {
+          return 'Serial Bridge ' + formatHex(info.usbVendorId ?? 0, 4) + ' / ' + formatHex(info.usbProductId ?? 0, 4);
+        }
+        return 'Paired Serial Radio';
+      }
+
+      function describeSupportText() {
+        if (!window.isSecureContext) return 'HTTPS required';
+        if (hasBleSupport() && hasSerialSupport()) return 'BLE + serial ready';
+        if (hasBleSupport()) return 'BLE ready';
+        if (hasSerialSupport()) return 'Serial ready';
+        return 'No radio API';
+      }
+
+      function resolveRequestedTransport() {
+        const profileMode = btProfile.value || 'auto';
+        if (profileMode === 'ble') return hasBleSupport() ? 'ble' : null;
+        if (profileMode === 'serial') return hasSerialSupport() ? 'serial' : null;
+        if (hasBleSupport()) return 'ble';
+        if (hasSerialSupport()) return 'serial';
+        return null;
+      }
+
+      function resolveSelectedTransportKind() {
+        if (btDeviceList.value.startsWith('serial:')) return 'serial';
+        if (btDeviceList.value.startsWith('ble:')) return 'ble';
+        const cached = loadBtState();
+        return cached.transportKind || resolveRequestedTransport() || 'ble';
+      }
+
+      function describeServicesText(services) {
+        if (!Array.isArray(services) || !services.length) {
+          return 'Connected, but no permitted GATT services were available to inspect.';
+        }
+        return services.map((entry) => {
+          const chars = entry.characteristics && entry.characteristics.length
+            ? entry.characteristics.join(', ')
+            : 'no readable characteristics exposed';
+          return 'Service ' + entry.service + ' → ' + chars;
+        }).join('\n');
+      }
+
+      function updateTransportNote() {
+        const profileMode = btProfile.value || 'auto';
+        const bleSupport = hasBleSupport();
+        const serialSupport = hasSerialSupport();
+
+        if (!window.isSecureContext) {
+          btNote.textContent = 'Web hardware access requires HTTPS before this page can request a radio.';
+          return;
+        }
+
+        if (profileMode === 'ble') {
+          btNote.textContent = bleSupport
+            ? 'BLE mode scans Bluetooth Low Energy radios, TNCs, and accessories that expose GATT services directly to the browser.'
+            : 'BLE mode is unavailable in this browser. Switch to Bluetooth serial or use a Chromium-based browser that exposes Web Bluetooth.';
+          return;
+        }
+
+        if (profileMode === 'serial') {
+          btNote.textContent = serialSupport
+            ? 'Serial mode connects to an operating-system-paired Bluetooth CAT/PTT/programming adapter through Web Serial. Pair the radio in the OS first, then authorize its serial port here.'
+            : 'Bluetooth serial mode is unavailable in this browser. Use a Chromium-based browser with Web Serial or switch to BLE if your radio exposes GATT.';
+          return;
+        }
+
+        if (bleSupport && serialSupport) {
+          btNote.textContent = 'Auto mode prefers BLE when available. Switch to Bluetooth serial for radios paired in the operating system as CAT, PTT, or programming bridges.';
+          return;
+        }
+
+        if (bleSupport) {
+          btNote.textContent = 'Only BLE is available in this browser. Use scan to authorize a Bluetooth Low Energy radio or accessory.';
+          return;
+        }
+
+        if (serialSupport) {
+          btNote.textContent = 'Only Bluetooth serial is available in this browser. Pair the radio in the operating system first, then authorize the serial bridge from this panel.';
+          return;
+        }
+
+        btNote.textContent = 'This browser does not expose radio hardware APIs directly. Use a desktop Chromium-based browser for BLE or Bluetooth serial radio pairing.';
+      }
+
+      function updateModeControls() {
+        const profileMode = btProfile.value || 'auto';
+        btServiceInput.disabled = profileMode === 'serial';
+        btBaud.disabled = profileMode === 'ble';
+        btScan.textContent = profileMode === 'serial'
+          ? 'Authorize Serial'
+          : profileMode === 'ble'
+            ? 'Scan BLE'
+            : 'Scan / Pair';
+
+        const canReconnect = (hasBleSupport() && typeof navigator.bluetooth?.getDevices === 'function')
+          || (hasSerialSupport() && typeof navigator.serial?.getPorts === 'function');
+        btReconnect.disabled = !canReconnect;
+      }
+
+      function renderBtState(state = {}) {
+        const profileMode = state.profileMode || btProfile.value || 'auto';
+        const serialBaud = Number(state.serialBaud || btBaud.value || SERIAL_DEFAULT_BAUD) || SERIAL_DEFAULT_BAUD;
+
+        btProfile.value = profileMode;
+        btBaud.value = String(serialBaud);
+        btName.textContent = state.deviceName || 'None';
+        btBattery.textContent = state.batteryLevel === null || state.batteryLevel === undefined ? 'Unknown' : (state.batteryLevel + '%');
+        btTransport.textContent = state.transport || defaultTransportLabel();
+        btServices.textContent = state.servicesText || RADIO_LINK_DEFAULT_TEXT;
+        btServiceInput.value = state.serviceUuid || btServiceInput.value || '';
+        if (state.deviceName && state.deviceId) {
+          const existing = Array.from(btDeviceList.options).find((option) => option.value === state.deviceId);
+          if (!existing) {
+            const option = document.createElement('option');
+            option.value = state.deviceId;
+            option.textContent = state.deviceName;
+            btDeviceList.appendChild(option);
+          }
+          btDeviceList.value = state.deviceId;
+        }
+
+        updateTransportNote();
+        updateModeControls();
+      }
+
+      function updateBtControls(connected = false) {
+        btConnect.disabled = !btDeviceList.value;
+        btDisconnect.disabled = !connected;
+      }
+
+      function persistCurrentBtState(extra = {}) {
+        const cached = loadBtState();
+        saveBtState({
+          ...cached,
+          profileMode: extra.profileMode !== undefined ? extra.profileMode : (btProfile.value || cached.profileMode || 'auto'),
+          serviceUuid: btServiceInput.value.trim(),
+          serialBaud: extra.serialBaud !== undefined ? extra.serialBaud : (Number(btBaud.value) || cached.serialBaud || SERIAL_DEFAULT_BAUD),
+          transportKind: extra.transportKind !== undefined ? extra.transportKind : (cached.transportKind || resolveSelectedTransportKind()),
+          deviceId: extra.deviceId !== undefined ? extra.deviceId : cached.deviceId,
+          deviceName: extra.deviceName !== undefined ? extra.deviceName : cached.deviceName,
+          batteryLevel: extra.batteryLevel !== undefined ? extra.batteryLevel : cached.batteryLevel,
+          transport: extra.transport !== undefined ? extra.transport : (cached.transport || defaultTransportLabel()),
+          services: extra.services !== undefined ? extra.services : (cached.services || []),
+          servicesText: extra.servicesText !== undefined ? extra.servicesText : (cached.servicesText || btServices.textContent || RADIO_LINK_DEFAULT_TEXT),
+        });
+      }
+
+      async function getBatteryLevel(server) {
+        try {
+          const service = await server.getPrimaryService('battery_service');
+          const characteristic = await service.getCharacteristic('battery_level');
+          const value = await characteristic.readValue();
+          return value.getUint8(0);
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async function inspectBluetoothServices(server) {
+        try {
+          const services = await server.getPrimaryServices();
+          const summary = [];
+          for (const service of services) {
+            let characteristics = [];
+            try {
+              const chars = await service.getCharacteristics();
+              characteristics = chars.map((characteristic) => formatBluetoothUuid(characteristic.uuid));
+            } catch (error) {
+              characteristics = [];
+            }
+            summary.push({
+              service: formatBluetoothUuid(service.uuid),
+              characteristics,
+            });
+          }
+          return summary;
+        } catch (error) {
+          logBt('Service inspection unavailable: ' + error.message, 'warn');
+          return [];
+        }
+      }
+
+      function handleHamBtDisconnect() {
+        hamBtServer = null;
+        setBtStatus('DISCONNECTED');
+        btBattery.textContent = 'Unknown';
+        btTransport.textContent = displayTransportLabel('ble');
+        updateBtControls(false);
+        logBt('Bluetooth radio disconnected.', 'warn');
+        persistCurrentBtState({transportKind: 'ble', transport: displayTransportLabel('ble'), batteryLevel: null});
+      }
+
+      function bindHamBtDevice(device) {
+        hamBtDevice = device;
+        btDeviceList.innerHTML = '<option value="">-- SCAN OR PAIR A RADIO --</option>';
+        const option = document.createElement('option');
+        option.value = bleOptionValue(device);
+        option.textContent = device.name || ('BLE Radio ' + (device.id || '').slice(0, 8));
+        option.selected = true;
+        btDeviceList.appendChild(option);
+        updateBtControls(Boolean(device));
+      }
+
+      function bindHamSerialPort(port) {
+        hamSerialPort = port;
+        const info = typeof port.getInfo === 'function' ? port.getInfo() : {};
+        const optionValue = serialOptionValue(info);
+        const optionLabel = describeSerialPort(info);
+        btDeviceList.innerHTML = '<option value="">-- SCAN OR PAIR A RADIO --</option>';
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionLabel;
+        option.selected = true;
+        btDeviceList.appendChild(option);
+        updateBtControls(true);
+        return {info, optionValue, optionLabel};
+      }
+
+      async function connectHamBtDevice(device) {
+        const serviceUuid = btServiceInput.value.trim();
+        try {
+          setBtStatus('PAIRING...', 'scanning');
+          btTransport.textContent = serviceUuid ? 'BLE GATT + custom UUID' : displayTransportLabel('ble');
+          logBt('Opening BLE GATT session with ' + (device.name || device.id || 'radio') + '...', 'warn');
+          hamBtServer = device.gatt && device.gatt.connected ? device.gatt : await device.gatt.connect();
+          device.addEventListener('gattserverdisconnected', handleHamBtDisconnect, {once:true});
+
+          const [batteryLevel, services] = await Promise.all([
+            getBatteryLevel(hamBtServer),
+            inspectBluetoothServices(hamBtServer),
+          ]);
+
+          const servicesText = describeServicesText(services);
+          renderBtState({
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'ble',
+            deviceId: bleOptionValue(device),
+            deviceName: device.name || device.id || 'Unnamed BLE radio',
+            batteryLevel,
+            transport: serviceUuid ? 'BLE GATT + custom UUID' : displayTransportLabel('ble'),
+            services,
+            servicesText,
+            serviceUuid,
+            serialBaud: Number(btBaud.value) || SERIAL_DEFAULT_BAUD,
+          });
+          persistCurrentBtState({
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'ble',
+            deviceId: bleOptionValue(device),
+            deviceName: device.name || device.id || 'Unnamed BLE radio',
+            batteryLevel,
+            transport: serviceUuid ? 'BLE GATT + custom UUID' : displayTransportLabel('ble'),
+            services,
+            servicesText,
+            serialBaud: Number(btBaud.value) || SERIAL_DEFAULT_BAUD,
+          });
+          setBtStatus('LINKED', 'connected');
+          updateBtControls(true);
+          logBt('Linked radio ' + (device.name || device.id || 'BLE radio') + '.', 'ok');
+          if (batteryLevel !== null) {
+            logBt('Battery service reported ' + batteryLevel + '%.', 'ok');
+          }
+        } catch (error) {
+          hamBtServer = null;
+          setBtStatus('PAIR FAILED', 'error');
+          updateBtControls(false);
+          logBt('Bluetooth link failed: ' + error.message, 'err');
+        }
+      }
+
+      async function connectHamSerialPort(port) {
+        const baudRate = Math.max(300, Number(btBaud.value) || SERIAL_DEFAULT_BAUD);
+        const info = typeof port.getInfo === 'function' ? port.getInfo() : {};
+        const deviceName = describeSerialPort(info);
+        const deviceId = serialOptionValue(info);
+
+        try {
+          setBtStatus('OPENING...', 'scanning');
+          btTransport.textContent = displayTransportLabel('serial');
+          logBt('Opening Bluetooth serial bridge at ' + baudRate + ' baud...', 'warn');
+
+          if (!port.readable && !port.writable) {
+            await port.open({baudRate});
+          }
+
+          hamSerialPort = port;
+          const servicesText = [
+            'Serial bridge ready at ' + baudRate + ' baud.',
+            info.bluetoothServiceClassId !== undefined
+              ? 'Bluetooth service class: ' + formatHex(info.bluetoothServiceClassId, 4)
+              : 'Browser-authorized serial transport is available.',
+            'Use this mode for paired Bluetooth CAT/PTT/programming adapters that show up as serial ports in the operating system.'
+          ].join('\n');
+
+          renderBtState({
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'serial',
+            deviceId,
+            deviceName,
+            batteryLevel: null,
+            transport: displayTransportLabel('serial'),
+            servicesText,
+            serialBaud: baudRate,
+          });
+          persistCurrentBtState({
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'serial',
+            deviceId,
+            deviceName,
+            batteryLevel: null,
+            transport: displayTransportLabel('serial'),
+            servicesText,
+            serialBaud: baudRate,
+          });
+
+          setBtStatus('LINKED', 'connected');
+          updateBtControls(true);
+          logBt('Linked serial bridge ' + deviceName + '.', 'ok');
+        } catch (error) {
+          setBtStatus('PAIR FAILED', 'error');
+          updateBtControls(false);
+          logBt('Serial link failed: ' + error.message, 'err');
+        }
+      }
+
+      async function disconnectHamSerialPort(logMessage = true) {
+        if (hamSerialPort) {
+          try {
+            if (hamSerialPort.readable || hamSerialPort.writable) {
+              await hamSerialPort.close();
+            }
+          } catch (error) {
+            logBt('Serial close report: ' + error.message, 'warn');
+          }
+        }
+
+        hamSerialPort = null;
+        setBtStatus('DISCONNECTED');
+        btBattery.textContent = 'Unknown';
+        btTransport.textContent = displayTransportLabel('serial');
+        updateBtControls(false);
+        if (logMessage) {
+          logBt('Bluetooth serial bridge disconnected.', 'warn');
+        }
+        persistCurrentBtState({transportKind: 'serial', transport: displayTransportLabel('serial'), batteryLevel: null});
+      }
+
+      async function resolveSelectedBleDevice() {
+        if (!navigator.bluetooth || typeof navigator.bluetooth.getDevices !== 'function') {
+          return null;
+        }
+        const devices = await navigator.bluetooth.getDevices();
+        return devices.find((device) => bleOptionValue(device) === btDeviceList.value)
+          || devices.find((device) => (device.id || device.name) === btDeviceList.value.replace(/^ble:/, ''))
+          || null;
+      }
+
+      async function resolveSelectedSerialPort() {
+        if (!navigator.serial || typeof navigator.serial.getPorts !== 'function') {
+          return null;
+        }
+        const ports = await navigator.serial.getPorts();
+        return ports.find((port) => serialOptionValue(typeof port.getInfo === 'function' ? port.getInfo() : {}) === btDeviceList.value)
+          || ports.find((port) => serialFingerprint(typeof port.getInfo === 'function' ? port.getInfo() : {}) === btDeviceList.value.replace(/^serial:/, ''))
+          || null;
+      }
+
+      async function initializeBluetoothSupport() {
+        btBrowser.textContent = describeSupportText();
+        updateTransportNote();
+        updateModeControls();
+
+        if (!window.isSecureContext) {
+          setBtStatus('UNSUPPORTED', 'error');
+          btScan.disabled = true;
+          btReconnect.disabled = true;
+          updateBtControls(false);
+          logBt('Secure HTTPS context required for browser radio access.', 'err');
+          return;
+        }
+
+        if (!hasBleSupport() && !hasSerialSupport()) {
+          setBtStatus('UNSUPPORTED', 'error');
+          btScan.disabled = true;
+          btReconnect.disabled = true;
+          updateBtControls(false);
+          logBt('This browser does not expose Web Bluetooth or Web Serial.', 'err');
+          return;
+        }
+
+        if (hasSerialSupport() && typeof navigator.serial.addEventListener === 'function') {
+          navigator.serial.addEventListener('disconnect', async (event) => {
+            if (hamSerialPort && event.target === hamSerialPort) {
+              await disconnectHamSerialPort(false);
+              logBt('Bluetooth serial bridge disconnected by the browser.', 'warn');
+            }
+          });
+        }
+
+        if (hasBleSupport()) {
+          try {
+            const available = typeof navigator.bluetooth.getAvailability === 'function'
+              ? await navigator.bluetooth.getAvailability()
+              : true;
+            if (!available && !hasSerialSupport()) {
+              setBtStatus('RADIO OFF', 'error');
+              btNote.textContent = 'Bluetooth is present in the browser, but the host reports it as unavailable right now. Turn Bluetooth on and retry.';
+              return;
+            }
+            if (!available) {
+              logBt('Web Bluetooth is present but unavailable right now; serial mode can still be used.', 'warn');
+            }
+          } catch (error) {
+            btBrowser.textContent = describeSupportText();
+          }
+        }
+
+        setBtStatus('READY');
+      }
+
+      btDeviceList.addEventListener('change', () => {
+        btTransport.textContent = displayTransportLabel(resolveSelectedTransportKind());
+        updateBtControls(Boolean(btDeviceList.value));
+      });
+
+      btProfile.addEventListener('change', () => {
+        btTransport.textContent = defaultTransportLabel();
+        updateTransportNote();
+        updateModeControls();
+        persistCurrentBtState({profileMode: btProfile.value, transport: defaultTransportLabel()});
+      });
+
+      btServiceInput.addEventListener('change', () => {
+        persistCurrentBtState({serviceUuid: btServiceInput.value.trim()});
+      });
+
+      btBaud.addEventListener('change', () => {
+        const serialBaud = Math.max(300, Number(btBaud.value) || SERIAL_DEFAULT_BAUD);
+        btBaud.value = String(serialBaud);
+        persistCurrentBtState({serialBaud});
+      });
+
+      btScan.addEventListener('click', async () => {
+        const transportKind = resolveRequestedTransport();
+        if (!transportKind) {
+          setBtStatus('UNSUPPORTED', 'error');
+          logBt('No compatible browser radio transport is available here.', 'err');
+          return;
+        }
+
+        if (transportKind === 'serial') {
+          try {
+            setBtStatus('AUTHORIZING...', 'scanning');
+            logBt('Opening Bluetooth serial chooser...', 'warn');
+            const port = await navigator.serial.requestPort();
+            const binding = bindHamSerialPort(port);
+            const serialBaud = Math.max(300, Number(btBaud.value) || SERIAL_DEFAULT_BAUD);
+            const servicesText = 'Serial bridge selected. Press Connect to open it at ' + serialBaud + ' baud.';
+
+            renderBtState({
+              profileMode: btProfile.value || 'auto',
+              transportKind: 'serial',
+              deviceId: binding.optionValue,
+              deviceName: binding.optionLabel,
+              batteryLevel: null,
+              transport: displayTransportLabel('serial'),
+              servicesText,
+              serialBaud,
+            });
+            persistCurrentBtState({
+              profileMode: btProfile.value || 'auto',
+              transportKind: 'serial',
+              deviceId: binding.optionValue,
+              deviceName: binding.optionLabel,
+              batteryLevel: null,
+              transport: displayTransportLabel('serial'),
+              servicesText,
+              serialBaud,
+            });
+            setBtStatus('PORT SELECTED');
+            logBt('Selected ' + binding.optionLabel + '.', 'ok');
+          } catch (error) {
+            setBtStatus('SCAN CANCELLED');
+            logBt('Serial selection: ' + error.message, 'warn');
+          }
+          return;
+        }
+
+        const serviceUuid = btServiceInput.value.trim();
+        const optionalServices = ['battery_service', 'device_information', 'generic_access'];
+        if (serviceUuid) optionalServices.push(serviceUuid);
+
+        try {
+          setBtStatus('SCANNING...', 'scanning');
+          logBt('Opening BLE device chooser...', 'warn');
+          const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: Array.from(new Set(optionalServices)),
+          });
+          bindHamBtDevice(device);
+          renderBtState({
+            ...loadBtState(),
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'ble',
+            deviceId: bleOptionValue(device),
+            deviceName: device.name || device.id || 'Unnamed BLE radio',
+            transport: displayTransportLabel('ble'),
+            servicesText: RADIO_LINK_DEFAULT_TEXT,
+            serviceUuid,
+          });
+          persistCurrentBtState({
+            profileMode: btProfile.value || 'auto',
+            transportKind: 'ble',
+            deviceId: bleOptionValue(device),
+            deviceName: device.name || device.id || 'Unnamed BLE radio',
+            transport: displayTransportLabel('ble'),
+            servicesText: RADIO_LINK_DEFAULT_TEXT,
+          });
+          setBtStatus('DEVICE SELECTED');
+          logBt('Selected ' + (device.name || device.id || 'BLE radio') + '.', 'ok');
+        } catch (error) {
+          setBtStatus('SCAN CANCELLED');
+          logBt('Bluetooth scan: ' + error.message, 'warn');
+        }
+      });
+
+      btConnect.addEventListener('click', async () => {
+        const transportKind = resolveSelectedTransportKind();
+
+        if (transportKind === 'serial') {
+          if (!hamSerialPort) {
+            hamSerialPort = await resolveSelectedSerialPort();
+          }
+          if (!hamSerialPort) {
+            logBt('No approved Bluetooth serial bridge matched the selected port. Authorize Serial again.', 'warn');
+            return;
+          }
+          await connectHamSerialPort(hamSerialPort);
+          return;
+        }
+
+        if (!hamBtDevice) {
+          hamBtDevice = await resolveSelectedBleDevice();
+          if (!hamBtDevice) {
+            logBt('No approved BLE radio matched the selected device. Scan again.', 'warn');
+            return;
+          }
+        }
+        await connectHamBtDevice(hamBtDevice);
+      });
+
+      btReconnect.addEventListener('click', async () => {
+        const cached = loadBtState();
+
+        if (cached.transportKind === 'serial') {
+          if (!navigator.serial || typeof navigator.serial.getPorts !== 'function') {
+            logBt('Reconnect requires a browser that supports navigator.serial.getPorts().', 'warn');
+            return;
+          }
+
+          const ports = await navigator.serial.getPorts();
+          const port = ports.find((item) => serialOptionValue(typeof item.getInfo === 'function' ? item.getInfo() : {}) === cached.deviceId)
+            || ports.find((item) => serialFingerprint(typeof item.getInfo === 'function' ? item.getInfo() : {}) === String(cached.deviceId || '').replace(/^serial:/, ''));
+
+          if (!port) {
+            setBtStatus('NO APPROVED RADIO');
+            logBt('No previously approved Bluetooth serial bridge was available. Authorize Serial again.', 'warn');
+            return;
+          }
+
+          const binding = bindHamSerialPort(port);
+          renderBtState({
+            ...cached,
+            profileMode: cached.profileMode || btProfile.value || 'serial',
+            transportKind: 'serial',
+            deviceId: binding.optionValue,
+            deviceName: binding.optionLabel,
+            transport: displayTransportLabel('serial'),
+          });
+          await connectHamSerialPort(port);
+          return;
+        }
+
+        if (!navigator.bluetooth || typeof navigator.bluetooth.getDevices !== 'function') {
+          logBt('Reconnect requires a browser that supports navigator.bluetooth.getDevices().', 'warn');
+          return;
+        }
+
+        const devices = await navigator.bluetooth.getDevices();
+        const device = devices.find((item) => bleOptionValue(item) === cached.deviceId)
+          || devices.find((item) => item.id === String(cached.deviceId || '').replace(/^ble:/, ''))
+          || devices.find((item) => (item.name || '') === cached.deviceName);
+        if (!device) {
+          setBtStatus('NO APPROVED RADIO');
+          logBt('No previously approved BLE radio was available. Use Scan.', 'warn');
+          return;
+        }
+
+        bindHamBtDevice(device);
+        renderBtState({
+          ...cached,
+          transportKind: 'ble',
+          deviceId: bleOptionValue(device),
+          deviceName: device.name || cached.deviceName,
+          transport: displayTransportLabel('ble'),
+        });
+        await connectHamBtDevice(device);
+      });
+
+      btDisconnect.addEventListener('click', async () => {
+        if (hamSerialPort && resolveSelectedTransportKind() === 'serial') {
+          await disconnectHamSerialPort();
+          return;
+        }
+        if (hamBtDevice && hamBtDevice.gatt && hamBtDevice.gatt.connected) {
+          hamBtDevice.gatt.disconnect();
+        } else {
+          handleHamBtDisconnect();
+        }
+      });
+
+      async function initializeInstallerCard() {
+        if (!installerLink || !installerStatus || !installerMode) return;
+        try {
+          const response = await fetch(installerUrl, {method: 'HEAD', cache: 'no-store'});
+          if (!response.ok) throw new Error('not staged');
+          installerLink.href = installerUrl;
+          installerLink.classList.remove('disabled');
+          installerLink.removeAttribute('aria-disabled');
+          installerLink.textContent = 'Download setup.exe';
+          installerMode.textContent = 'Download live';
+          installerStatus.textContent = 'Windows installer detected and ready for download.';
+        } catch (error) {
+          installerLink.href = '#';
+          installerLink.classList.add('disabled');
+          installerLink.setAttribute('aria-disabled', 'true');
+          installerLink.textContent = 'Installer Unavailable';
+          installerMode.textContent = 'Staging bay';
+          installerStatus.textContent = 'The attached EXE is not yet staged under /static/manuals/uploads/radio/setup.exe in this build.';
+        }
+      }
+
+      renderBtState(loadBtState());
+      updateBtControls(false);
+      initializeBluetoothSupport();
+      initializeInstallerCard();
+
       function saveState(){
         localStorage.setItem('deltaRadio', JSON.stringify({
           src: currentStation && currentStation.mode === 'external' ? '' : (audio.src || currentStation?.url || ''),
@@ -695,11 +1745,10 @@
           audio.pause();
           audio.removeAttribute('src');
           audio.load();
-          npStation.textContent = currentStation.name + ' — launching live page';
+          npStation.textContent = currentStation.name + ' — tap play for live coverage';
           document.getElementById('btn-play').innerHTML = '&#x25B6;';
           stopViz();
           saveState();
-          window.open(currentStation.url, '_blank', 'noopener,noreferrer');
           return;
         }
         audio.src = currentStation.url;
@@ -714,7 +1763,7 @@
       document.getElementById('btn-play').addEventListener('click', () => {
         if(currentStation && currentStation.mode === 'external'){
           window.open(currentStation.url, '_blank', 'noopener,noreferrer');
-          npStation.textContent = currentStation.name + ' — launching live page';
+          npStation.textContent = currentStation.name + ' — live coverage opened';
           saveState();
           return;
         }
@@ -753,7 +1802,7 @@
             currentStation = STATIONS[savedIndex];
             stationGrid.querySelectorAll('.station-btn').forEach((b,j) => b.classList.toggle('active', j===savedIndex));
             if(currentStation.mode === 'external'){
-              npStation.textContent = currentStation.name + ' — tap play to launch live page';
+              npStation.textContent = currentStation.name + ' — tap play for live coverage';
             } else {
               audio.src = saved.src || currentStation.url;
               npStation.textContent = currentStation.name + ' — ' + currentStation.freq;
@@ -1064,7 +2113,7 @@
 
     })();
     </script>
-    <div style="position:fixed;bottom:0;left:0;right:0;z-index:9000;text-align:center;padding:4px 10px;background:var(--bg2);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.2px"><span style="color:var(--accent)">&copy;</span> DELTA CODING</div>
+    <div style="width:min(1180px,calc(100% - 20px));margin:18px auto 8px;text-align:center;padding:4px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.2px"><span style="color:var(--accent)">&copy;</span> DELTA CODING</div>
     {%- include '_radio_footer.html' %}
 </body>
 </html>

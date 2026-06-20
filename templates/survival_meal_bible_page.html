@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Tactical Meal Bible</title>
+    <meta name="description" content="1,000 tactical meal builds with prep plans, nutrition facts, and ingredient facts for survival and field operations. Perishable and nonperishable meals with print and export controls.">
+    <meta name="keywords" content="tactical meals, survival meals, field nutrition, meal prep, bug-out meals, emergency food, nutrition facts, meal planning">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Tactical Meal Bible">
+    <meta property="og:description" content="1,000 tactical meal builds with prep plans and nutrition facts for survival operations.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/survival/meal-bible">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Tactical Meal Bible">
+    <meta name="twitter:description" content="1,000 tactical meal builds with prep plans and nutrition facts for survival operations.">
+    <link rel="canonical" href="https://futurecodedelta.org/survival/meal-bible">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <style>
+      .container{display:block;height:auto}
+      .meal-bible-page-wrap{max-width:1280px;margin:0 auto;padding:22px 24px 28px}
+      .meal-bible-route-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.9fr);gap:18px;margin-bottom:18px}
+      .briefing-card,.status-card{background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.92));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .briefing-card{padding:22px 24px;position:relative;overflow:hidden}
+      .briefing-card::after{content:'';position:absolute;inset:auto -8% -45% auto;width:280px;height:280px;background:radial-gradient(circle,rgba(164,184,122,.16),transparent 66%);pointer-events:none}
+      .survival-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(164,184,122,.22);background:rgba(18,24,15,.78);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+      .briefing-card h2{margin:16px 0 10px;color:var(--text);font:800 clamp(1.8rem,3vw,2.7rem)/1.05 'Inter',sans-serif;max-width:14ch}
+      .briefing-card p{margin:0;color:var(--text2);font-size:15px;line-height:1.7;max-width:72ch}
+      .briefing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+      .briefing-stat{padding:12px 14px;border-radius:10px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.58)}
+      .briefing-stat strong{display:block;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+      .briefing-stat span{display:block;color:var(--text2);font-size:13px;line-height:1.55}
+      .status-card{padding:18px;display:grid;gap:12px;align-content:start}
+      .status-card h3{margin:0;color:var(--accent-bright);font:700 12px 'JetBrains Mono',monospace;letter-spacing:1.8px;text-transform:uppercase}
+      .status-note{padding:12px 14px;border-radius:10px;background:rgba(11,14,9,.58);border:1px solid rgba(164,184,122,.16);color:var(--text2);font-size:13px;line-height:1.65}
+      .status-note strong{display:block;margin-bottom:6px;color:var(--sand);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .survival-extra-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .meal-bible-back-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid rgba(139,157,106,.2);background:rgba(12,17,10,.84);color:var(--text);text-decoration:none;font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:border-color .16s ease,background .16s ease,color .16s ease}
+      .meal-bible-back-link:hover{border-color:rgba(164,184,122,.38);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      .meal-bible-card{padding:18px;background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.94));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .meal-bible-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+      .meal-bible-head h3{margin:14px 0 8px;color:var(--text);font:800 clamp(1.5rem,2.6vw,2.2rem)/1.05 'Inter',sans-serif}
+      .meal-bible-head p{margin:0;color:var(--text2);font-size:14px;line-height:1.7;max-width:72ch}
+      .meal-bible-summary{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;align-items:flex-start}
+      .meal-bible-route-summary{justify-content:flex-start}
+      .bag-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-bible-controls{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px;margin:16px 0}
+      .meal-filter-stack{display:grid;gap:14px}
+      .meal-bible-search{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-bible-search input{width:100%;min-height:44px;border-radius:10px;border:1px solid rgba(139,157,106,.22);background:rgba(8,10,7,.92);color:var(--text);padding:0 14px;font:400 14px 'Inter',sans-serif}
+      .meal-bible-search input::placeholder{color:var(--muted)}
+      .meal-filter-group{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-filter-row{display:flex;flex-wrap:wrap;gap:8px}
+      .meal-filter-chip{background:rgba(12,17,10,.84);color:var(--muted);border:1px solid rgba(139,157,106,.18);padding:8px 10px;border-radius:999px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-filter-chip.active{color:var(--accent-bright);border-color:rgba(164,184,122,.4);background:rgba(34,42,28,.92)}
+      .meal-bible-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
+      .meal-bible-actions button{min-height:42px}
+      .load-status{margin:12px 0;padding:10px 12px;border-radius:10px;border:1px solid rgba(139,157,106,.18);background:rgba(11,14,9,.72);color:var(--text2);font:400 12px/1.6 'JetBrains Mono',monospace;min-height:62px}
+      .load-status.alert{border-color:rgba(204,68,68,.34);color:#f0c1c1}
+      .meal-bible-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:18px;align-items:start}
+      .meal-list-card,.meal-detail-card{padding:16px;border-radius:12px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16)}
+      .meal-results-meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--text2);font:400 11px/1.6 'JetBrains Mono',monospace;letter-spacing:.9px;text-transform:uppercase}
+      .meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-height:720px;overflow:auto;padding-right:6px;scrollbar-gutter:stable}
+      .meal-card{padding:14px;border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(11,14,9,.74);display:grid;gap:10px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;text-align:left;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+      .meal-card:hover{transform:translateY(-1px);border-color:rgba(164,184,122,.28);box-shadow:0 14px 28px rgba(0,0,0,.14)}
+      .meal-card.active,.meal-card.selected{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      .meal-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .meal-class-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border-radius:999px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(164,184,122,.16)}
+      .meal-class-pill.perishable{background:rgba(80,116,74,.22);color:#d9ecd2;border-color:rgba(120,168,108,.38)}
+      .meal-class-pill.nonperishable{background:rgba(115,91,47,.26);color:#f1e2b4;border-color:rgba(192,154,78,.34)}
+      .meal-card-code{color:var(--muted);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-card h4{margin:0;color:var(--text);font:700 15px/1.45 'Inter',sans-serif}
+      .meal-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
+      .meal-card-meta{display:grid;gap:6px;color:var(--muted);font:400 10px/1.55 'JetBrains Mono',monospace;letter-spacing:.9px;text-transform:uppercase}
+      .meal-macro-row{display:flex;flex-wrap:wrap;gap:8px}
+      .meal-macro-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .meal-card small{display:block;color:var(--muted);font:400 10px/1.4 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+      .meal-pager{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:center;margin-top:14px}
+      .meal-pager span{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.54);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:0 8px}
+      .meal-pager button[disabled]{opacity:.45;cursor:not-allowed}
+      .meal-detail-card{position:sticky;top:18px;max-height:720px;overflow:auto}
+      .meal-detail-card h4{margin:12px 0 8px;color:var(--text);font:800 24px/1.15 'Inter',sans-serif}
+      .meal-empty{padding:14px;border-radius:10px;border:1px dashed rgba(139,157,106,.22);color:var(--muted);font:400 12px/1.6 'JetBrains Mono',monospace;text-align:center}
+      .meal-detail-pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 16px}
+      .meal-section{display:grid;gap:10px;margin-top:16px}
+      .meal-section h5{margin:0;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.1px;text-transform:uppercase}
+      .meal-section p{margin:0;color:var(--text2);font:400 13px/1.65 'Inter',sans-serif}
+      .meal-detail-head{display:grid;gap:8px}
+      .meal-detail-head strong{display:block;color:var(--text);font:700 16px/1.4 'Inter',sans-serif}
+      .meal-detail-head span{display:block;color:var(--muted);font:400 11px/1.5 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-prep-note{padding:10px 12px;border-radius:10px;background:rgba(8,10,7,.92);border:1px solid rgba(139,157,106,.12);color:var(--text2);font:400 12px/1.6 'Inter',sans-serif}
+      .meal-nutrition-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .meal-nutrition-stat{padding:10px 12px;border-radius:10px;background:rgba(11,14,9,.74);border:1px solid rgba(139,157,106,.16)}
+      .meal-nutrition-stat strong{display:block;color:var(--accent-bright);font:700 10px/1.3 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+      .meal-nutrition-stat span{display:block;color:var(--text);font:700 16px/1.3 'Inter',sans-serif}
+      .meal-nutrition-stat small{display:block;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+      .meal-plan-list,.meal-ingredients{display:grid;gap:10px}
+      .meal-plan-step,.meal-ingredient{padding:12px;border-radius:10px;background:rgba(11,14,9,.74);border:1px solid rgba(139,157,106,.16)}
+      .meal-plan-step strong{display:block;color:var(--accent-bright);font:700 10px/1.3 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .meal-plan-step p{margin:0;color:var(--text2);font:400 13px/1.65 'Inter',sans-serif}
+      .meal-ingredient-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+      .meal-ingredient-top strong{display:block;color:var(--text);font:700 14px/1.4 'Inter',sans-serif;margin-bottom:4px}
+      .meal-ingredient-top p{margin:0;color:var(--text2);font:400 12px/1.55 'Inter',sans-serif}
+      .meal-role-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-ingredient-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
+      .meal-ingredient-facts span{display:block;padding:8px 10px;border-radius:9px;background:rgba(8,10,7,.92);border:1px solid rgba(139,157,106,.12);color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:.7px;text-transform:uppercase}
+      .meal-ingredient-facts strong{display:block;color:var(--accent-bright);margin-bottom:4px;font-weight:700}
+      .meal-allergen-block,.meal-storage-block{padding:12px;border-radius:10px;border:1px solid rgba(139,157,106,.12);background:rgba(8,10,7,.92)}
+      .meal-allergen-block strong,.meal-storage-block strong{display:block;color:var(--accent-bright);font:700 10px/1.3 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .meal-allergen-block span,.meal-storage-block span{display:block;color:var(--text2);font:400 12px/1.6 'Inter',sans-serif}
+      .meal-ingredient-list{display:grid;gap:6px}
+      .meal-ingredient-item{padding:8px 10px;border-radius:8px;background:rgba(11,14,9,.72);border:1px solid rgba(139,157,106,.12);color:var(--text2);font:400 12px/1.5 'Inter',sans-serif}
+      button{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid rgba(139,157,106,.2);background:rgba(12,17,10,.84);color:var(--text);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:border-color .16s ease,background .16s ease,color .16s ease}
+      button:hover{border-color:rgba(164,184,122,.38);background:rgba(34,42,28,.92);color:var(--accent-bright)}
+      button:disabled{opacity:.45;cursor:not-allowed}
+      @media(max-width:1100px){
+        .meal-bible-route-hero,.meal-bible-controls,.meal-bible-layout{grid-template-columns:1fr}
+        .meal-bible-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .meal-detail-card{position:static;top:auto;max-height:none}
+      }
+      @media(max-width:800px){
+        .briefing-grid{grid-template-columns:1fr}
+        .meal-bible-head{flex-direction:column}
+        .meal-bible-summary{justify-content:flex-start}
+        .meal-grid,.meal-nutrition-grid,.meal-ingredient-facts{grid-template-columns:1fr}
+      }
+      @media(max-width:600px){
+        .meal-bible-page-wrap{padding:14px 12px 20px}
+        .briefing-card,.status-card,.meal-bible-card,.meal-list-card,.meal-detail-card{padding:14px}
+        .meal-bible-actions{grid-template-columns:1fr}
+        .meal-pager{grid-template-columns:1fr}
+        .meal-pager button{width:100%;min-height:42px}
+      }
+      @media(max-width:420px){
+        .meal-bible-page-wrap{padding:10px 8px 16px}
+        .briefing-card h2{font-size:clamp(1.4rem,6vw,1.8rem)}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — TACTICAL MEAL BIBLE</h1>
+        <p class="tag">1000 MEAL BUILDS &bull; PREP PLANS &bull; NUTRITION &bull; PERISHABLE &amp; NONPERISHABLE &bull; PRINT &amp; EXPORT</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="meal-bible-page-wrap">
+        <section class="meal-bible-route-hero">
+          <article class="briefing-card">
+            <span class="survival-kicker">Field Nutrition Planning Surface</span>
+            <h2>Tactical Meal Bible</h2>
+            <p>1,000 meal builds staged with 500 perishable meals and 500 nonperishable meals. The original split-view browser layout is restored on this dedicated route so the meal rack, filters, and full detail pane work the way the Meal Bible was first built.</p>
+            <div class="briefing-grid">
+              <div class="briefing-stat">
+                <strong>1000 Meal Builds</strong>
+                <span>Open all perishable and nonperishable combinations in one field reference surface.</span>
+              </div>
+              <div class="briefing-stat">
+                <strong>Original Split View</strong>
+                <span>Two-column meal cards and the full detail pane are back on the standalone route.</span>
+              </div>
+              <div class="briefing-stat">
+                <strong>Export + Print</strong>
+                <span>Selected meals or the filtered set can still be exported or printed from the control rail.</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="status-card">
+            <h3>Route Control</h3>
+            <div class="status-note">
+              <strong>Back on the first layout.</strong>
+              This page now uses the original Meal Bible browser structure instead of the later standalone variation, while keeping the same dedicated <span>/survival/meal-bible</span> route.
+            </div>
+            <div class="meal-bible-summary meal-bible-route-summary">
+              <span class="bag-pill">1000 total meals</span>
+              <span class="bag-pill">500 perishable meals</span>
+              <span class="bag-pill">500 nonperishable meals</span>
+              <span class="bag-pill">1, 2, or 3 servings</span>
+            </div>
+            <div class="survival-extra-actions">
+              <a href="/survival" class="meal-bible-back-link">← Back to Survival Loadout</a>
+              <a href="#mealBibleBrowser" class="meal-bible-back-link">Jump to Meal Browser</a>
+            </div>
+          </aside>
+        </section>
+
+        <section class="meal-bible-card" id="mealBibleBrowser">
+          <div class="meal-bible-head">
+            <div>
+              <h3>Field Nutrition Planning</h3>
+              <p>Access all 1,000 meal builds with full prep plans, nutrition data, and ingredient facts. Filter by storage class, meal focus, and serving count, then export or print individual meals or your entire filtered set.</p>
+            </div>
+            <div class="meal-bible-summary">
+              <span class="bag-pill">1000 total meals</span>
+              <span class="bag-pill">500 perishable meals</span>
+              <span class="bag-pill">500 nonperishable meals</span>
+              <span class="bag-pill">1, 2, or 3 servings</span>
+            </div>
+          </div>
+
+          <div class="meal-bible-controls">
+            <label class="meal-bible-search" for="mealSearch">
+              Search Meals
+              <input id="mealSearch" type="search" placeholder="Search by meal name, ingredient, storage class, or prep note">
+            </label>
+            <div class="meal-filter-stack">
+              <div class="meal-filter-group">
+                <span>Storage Class</span>
+                <div class="meal-filter-row" id="mealStorageFilters"></div>
+              </div>
+              <div class="meal-filter-group">
+                <span>Meal Focus</span>
+                <div class="meal-filter-row" id="mealCategoryFilters"></div>
+              </div>
+              <div class="meal-filter-group">
+                <span>Serving Count</span>
+                <div class="meal-filter-row" id="mealServingFilters"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="meal-bible-actions">
+            <button id="exportSelectedMeal" type="button">Export Selected Meal</button>
+            <button id="printSelectedMeal" type="button">Print Selected Meal</button>
+            <button id="exportFilteredMeals" type="button">Export Filtered Meals</button>
+            <button id="printFilteredMeals" type="button">Print Filtered Meals</button>
+          </div>
+          <div class="load-status meal-action-status" id="mealActionStatus" aria-live="polite">Actual meal cards ship in the page HTML now, and the live filters expand that opening pack into the full 1,000-meal library as soon as the page script is ready.</div>
+          <noscript>
+            <div class="load-status">JavaScript is currently off, so the opening meal pack below stays available as a static field reference. Enable JavaScript for the full 1,000-meal browser, live filters, and print/export actions.</div>
+          </noscript>
+
+          <div class="meal-bible-layout">
+            <article class="meal-list-card">
+              <div class="meal-results-meta" id="mealResultsMeta"><span><strong>1000</strong> filtered meals</span><span>Showing 1-18 of 1000</span><span>All Meals // All Focuses // All Sizes</span></div>
+              <div class="meal-grid" id="mealGrid">{% include '_meal_bible_initial_grid.html' %}</div>
+              <div class="meal-pager">
+                <button id="mealPrevPage" type="button" disabled>Previous Page</button>
+                <span id="mealPageLabel">Page 1 of 56</span>
+                <button id="mealNextPage" type="button" disabled>Next Page</button>
+              </div>
+            </article>
+
+            <aside class="meal-detail-card" id="mealDetailCard">
+              {% include '_meal_bible_initial_detail.html' %}
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='survival_meal_bible.js', v='20260515r1') }}"></script>
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

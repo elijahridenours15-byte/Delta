@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Scripture Intel — Free Bible Search">
     <meta name="twitter:description" content="Search the full Bible by verse, keyword, or passage. Free Scripture study tools at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/bible">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       .container{display:block;height:auto}
       .bible-wrap{max-width:960px;margin:0 auto;padding:20px}
@@ -25,106 +25,136 @@
       .bible-header h2{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.5rem;letter-spacing:2px;margin:0 0 4px}
       .bible-header p{color:var(--muted);font-size:.85rem;margin:0}
 
-      .bible-controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
-      .bible-controls select,.bible-controls button{
+      .bible-scripture-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;padding:0 0 14px;border-bottom:1px solid var(--border)}
+      .bible-scripture-controls select,.bible-scripture-controls button{
         font-family:'JetBrains Mono',monospace;font-size:.82rem;
         background:var(--panel2);color:var(--text);border:1px solid var(--border2);
         padding:8px 12px;border-radius:6px;cursor:pointer;
       }
-      .bible-controls select:focus,.bible-controls button:focus{outline:none;border-color:var(--accent)}
-      .bible-controls select{min-width:140px}
-      .bible-controls button{background:var(--accent2);color:#fff;font-weight:700;letter-spacing:1px;min-width:80px}
-      .bible-controls button:hover{background:var(--accent)}
-      .bible-controls button:disabled{opacity:.5;cursor:not-allowed}
+      .bible-scripture-controls select:focus,.bible-scripture-controls button:focus{outline:none;border-color:var(--accent)}
+      .bible-scripture-controls select{min-width:140px}
+      .bible-scripture-controls button{background:var(--accent2);color:#fff;font-weight:700;letter-spacing:1px;min-width:80px}
+      .bible-scripture-controls button:hover{background:var(--accent)}
+      .bible-scripture-controls button:disabled{opacity:.5;cursor:not-allowed}
+      .bible-scripture-box .bible-nav{margin-bottom:0}
 
       .bible-nav{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
       .bible-nav button{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--panel2);color:var(--text2);border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer}
       .bible-nav button:hover{border-color:var(--accent);color:var(--accent-bright)}
       .bible-nav button:disabled{opacity:.3;cursor:not-allowed}
 
+      .bible-display-tools{display:flex;align-items:stretch;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+      .bible-display-tool-group{display:grid;gap:6px;min-width:220px;flex:1 1 280px}
+      .bible-display-tools-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+      .bible-color-wheel-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+      .bible-color-wheel{width:46px;height:46px;padding:0;border:none;background:transparent;cursor:pointer}
+      .bible-color-wheel::-webkit-color-swatch-wrapper{padding:0}
+      .bible-color-wheel::-webkit-color-swatch{border:2px solid var(--border2);border-radius:50%}
+      .bible-color-wheel::-moz-color-swatch{border:2px solid var(--border2);border-radius:50%}
+      .bible-color-reset{font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:8px 12px;border-radius:999px;cursor:pointer;transition:all .15s}
+      .bible-color-reset:hover{border-color:var(--accent);color:var(--accent-bright)}
+      .bible-color-value{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.8px;color:var(--accent-bright);text-transform:uppercase}
+      .bible-color-hint{font-size:.78rem;color:var(--muted);line-height:1.5}
+
+      .bible-scripture-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px 20px;display:grid;gap:16px}
       .bible-text{
-        background:var(--panel);border:1px solid var(--border);border-radius:8px;
-        padding:24px 28px;min-height:350px;
-        font-family:'Inter',sans-serif;line-height:1.85;font-size:.95rem;color:var(--text);
+        min-height:350px;
+        font-family:'Inter',sans-serif;line-height:1.85;font-size:.95rem;color:var(--bible-scripture-color,var(--text));
       }
       .bible-text .verse{margin-bottom:8px}
+      .bible-text .verse.is-highlightable{margin:0 -6px 8px;padding:4px 6px;border-radius:6px;cursor:pointer;transition:background-color .15s ease, box-shadow .15s ease}
+      .bible-text .verse.is-highlightable:hover{box-shadow:inset 0 0 0 1px rgba(139,157,106,.2)}
+      .bible-text .verse.is-highlighted{background:var(--bible-verse-highlight-bg, rgba(244,236,115,.32));box-shadow:inset 0 0 0 1px var(--bible-verse-highlight-edge, rgba(244,236,115,.58))}
       .bible-text .verse-num{color:var(--accent);font-weight:700;font-size:.75rem;margin-right:6px;font-family:'JetBrains Mono',monospace;vertical-align:super}
       .bible-text .chapter-title{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;margin-bottom:16px;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:8px}
       .bible-text .loading{color:var(--muted);font-style:italic;text-align:center;padding:40px}
       .bible-text .error{color:var(--danger);text-align:center;padding:40px}
-
-      /* COMBINED SEARCH BAR */
-      .bible-search-combined{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px}
-      .bsc-divider{height:1px;background:var(--border);margin:2px 0}
-      .bsc-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
-      .bsc-row input{font-family:'JetBrains Mono',monospace;font-size:.82rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:7px 12px;border-radius:6px;flex:1;min-width:180px}
-      .bsc-row input::placeholder{color:var(--muted)}
-      .bsc-row input:focus{outline:none;border-color:var(--accent)}
-      .bsc-row select{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:7px 8px;border-radius:6px;cursor:pointer}
-      .bsc-row select:focus{outline:none;border-color:var(--accent)}
-      .bsc-lbl{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:1px;white-space:nowrap;padding:0 2px}
-      .bsc-lbl.ref{color:var(--accent)}
-      .bsc-lbl.find{color:var(--gold)}
-      .bsc-btn-ref{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--accent2);color:#fff;font-weight:700;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap}
-      .bsc-btn-ref:hover{background:var(--accent)}
-      .bsc-btn-find{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--gold);color:#1a1f16;font-weight:700;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;letter-spacing:1px;white-space:nowrap}
-      .bsc-btn-find:hover{filter:brightness(1.15)}
-      .ws-result{margin-bottom:18px;padding:12px 16px;background:var(--panel2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0}
-      .ws-ref{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:4px;letter-spacing:.5px}
-      .ws-ref a{color:var(--gold);text-decoration:none;cursor:pointer}
-      .ws-ref a:hover{text-decoration:underline}
-      .ws-text{font-size:.92rem;line-height:1.75;color:var(--text)}
-      .ws-text mark{background:rgba(var(--gold-rgb,200,170,80),.28);color:var(--gold, #c8b050);border-radius:2px;padding:0 2px}
-      .ws-count{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:14px;text-align:center}
-      .ws-page-btns{text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-      .ws-page-btns button{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:6px 14px;border-radius:5px;cursor:pointer}
-      .ws-page-btns button:hover{border-color:var(--gold);color:var(--gold)}
-      .ws-page-btns button.active{background:var(--gold);color:#1a1f16;border-color:var(--gold)}
 
       .bible-bookmarks{margin-bottom:16px;text-align:center}
       .bible-bookmarks button{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--gold);border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;margin:2px}
       .bible-bookmarks button:hover{border-color:var(--gold)}
       .bible-bookmarks .bm-title{color:var(--muted);font-size:.72rem;font-family:'JetBrains Mono',monospace;margin-right:6px}
 
-      /* BIBLE AUDIO PLAYER */
-      .bible-audio-bar{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:14px}
-      .bible-audio-bar button{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;padding:7px 16px;border-radius:6px;cursor:pointer;letter-spacing:1px;border:1px solid var(--border2);background:var(--panel2);color:var(--text)}
-      .bible-audio-bar button:hover{border-color:var(--accent);color:var(--accent-bright)}
-      .bible-audio-bar button.ba-active{background:var(--accent2);color:#fff;border-color:var(--accent)}
-      .bible-audio-bar button:disabled{opacity:.4;cursor:not-allowed}
-      .bible-audio-bar .ba-status{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:1px}
-      .bible-audio-bar .ba-status.speaking{color:var(--accent-bright)}
-      .bible-audio-bar select{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:6px 8px;border-radius:6px;cursor:pointer}
-      .bible-audio-bar select:focus{outline:none;border-color:var(--accent)}
-      .bible-audio-bar input[type=range]{width:80px;accent-color:var(--accent)}
+      .bible-journal-shell{margin-top:40px;padding:24px 28px;background:var(--panel2);border:1px solid var(--border);border-radius:8px}
+      .bible-journal-head{margin-bottom:16px}
+      .bible-journal-head h3{margin:0 0 6px;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:1.08rem;letter-spacing:1.4px;text-transform:uppercase}
+      .bible-journal-head p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.7}
+      .bible-journal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+      .journal-card{padding:18px;border:1px solid var(--border);border-radius:8px;background:var(--panel);display:grid;gap:12px;align-content:start}
+      .journal-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+      .journal-kicker{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid rgba(139,157,106,.22);background:rgba(18,24,16,.85);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:1.2px;text-transform:uppercase}
+      .journal-card h4{margin:8px 0 4px;color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:.92rem;letter-spacing:1px;text-transform:uppercase}
+      .journal-card p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.7}
+      .journal-chip{padding:5px 8px;border-radius:999px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:1px;text-transform:uppercase}
+      .journal-chip.is-live{border-color:rgba(139,157,106,.28);color:var(--accent-bright)}
+      .journal-focus{padding:9px 10px;border-radius:6px;background:rgba(18,24,16,.82);border:1px solid rgba(139,157,106,.16);color:var(--sand);font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.4px;line-height:1.6}
+      .journal-helper{padding:10px 12px;border-radius:6px;border:1px solid rgba(139,157,106,.16);background:rgba(18,24,16,.82);color:var(--muted);font-size:.8rem;line-height:1.65}
+      .journal-helper strong{color:var(--accent-bright)}
+      .journal-form{display:grid;gap:10px}
+      .journal-form input[type=password]{width:100%;box-sizing:border-box;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:11px 12px;font-family:'Inter',sans-serif;font-size:.94rem;line-height:1.5}
+      .journal-form input[type=password]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(139,157,106,.22)}
+      .journal-form textarea{width:100%;min-height:120px;box-sizing:border-box;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:11px 12px;font-family:'Inter',sans-serif;font-size:.96rem;line-height:1.6;resize:vertical}
+      .journal-form textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(139,157,106,.22)}
+      .journal-form textarea:disabled{opacity:.6;cursor:not-allowed}
+      .journal-moderation-shell{display:grid;gap:10px;padding:12px;border:1px solid rgba(139,157,106,.14);border-radius:6px;background:rgba(18,24,16,.68)}
+      .journal-moderation-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+      .journal-moderation-form{gap:8px}
+      .journal-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+      .journal-btn{font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:6px;padding:8px 14px;border:1px solid var(--accent2);cursor:pointer;transition:all .15s}
+      .journal-btn.primary{background:var(--accent2);color:#fff}
+      .journal-btn.primary:hover{background:var(--accent)}
+      .journal-btn.secondary{background:transparent;color:var(--accent-bright);border-color:var(--border2)}
+      .journal-btn.secondary:hover{border-color:var(--accent);color:var(--accent)}
+      .journal-btn:disabled{opacity:.45;cursor:not-allowed}
+      .journal-status{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+      .journal-status.is-success{color:var(--accent-bright)}
+      .journal-status.is-error{color:var(--danger)}
+      .journal-list{display:grid;gap:10px;max-height:480px;overflow:auto;padding-right:2px}
+      .journal-empty{padding:12px;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:.84rem;line-height:1.6;text-align:center}
+      .journal-item{padding:12px 14px;border:1px solid rgba(139,157,106,.14);border-radius:6px;background:rgba(18,24,16,.72);display:grid;gap:8px}
+      .journal-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+      .journal-item-author{color:var(--accent-bright);font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+      .journal-item-date{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.6px;text-transform:uppercase}
+      .journal-item-passage{display:inline-flex;align-items:center;max-width:100%;padding:4px 8px;border-radius:999px;background:rgba(139,157,106,.12);border:1px solid rgba(139,157,106,.14);color:var(--sand);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.5px;line-height:1.4;word-break:break-word}
+      .journal-item-body{color:var(--text);font-size:.92rem;line-height:1.75;white-space:pre-line;word-break:break-word}
+      .journal-item-delete{align-self:start;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:4px;padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer}
+      .journal-item-delete:hover{border-color:var(--accent);color:var(--accent-bright)}
 
       /* ── RESPONSIVE ── */
       @media(max-width:600px){
         .bible-wrap{padding:12px 10px 20px}
         .bible-header h2{font-size:1.15rem;letter-spacing:1.4px}
         .bible-header p{font-size:.78rem;line-height:1.6}
-        .bible-controls{padding:10px;gap:6px;flex-direction:column;align-items:stretch}
-        .bible-controls select{min-width:100%;width:100%}
-        .bible-controls button{width:100%}
+        .bible-scripture-controls{padding:0 0 12px;gap:6px;flex-direction:column;align-items:stretch}
+        .bible-scripture-controls select{min-width:100%;width:100%}
+        .bible-scripture-controls button{width:100%}
         .bible-nav{gap:6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
         .bible-nav button{font-size:.7rem;padding:8px 10px;min-height:38px;width:100%}
         .bsc-row{flex-direction:column !important;align-items:stretch !important}
         .bsc-row input{flex:none !important;width:100% !important;min-width:0 !important}
         .bsc-row button,.bsc-row select{width:100%;min-width:0}
         .bsc-lbl{display:none}
-        .bible-text{padding:14px 12px;font-size:.88rem;line-height:1.7}
+        .bible-scripture-box{padding:14px 12px}
+        .bible-text{font-size:.88rem;line-height:1.7}
         .ws-page-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
         .ws-page-btns button{width:100%;min-height:40px}
-        .bible-audio-bar{padding:8px;gap:6px;justify-content:stretch}
-        .bible-audio-bar button,.bible-audio-bar select{font-size:.68rem;padding:8px 10px;width:100%;min-height:40px}
-        .bible-audio-bar input[type=range]{width:100%}
         .bible-bookmarks button{font-size:.64rem;padding:3px 7px}
+        .bible-display-tools{padding:10px 12px}
+        .bible-display-tool-group{min-width:0;width:100%}
+        .bible-color-wheel-controls{width:100%;justify-content:space-between}
+        .bible-color-reset{flex:1 1 auto;text-align:center}
+        .bible-journal-shell{margin-top:28px;padding:16px 14px}
+        .bible-journal-grid{grid-template-columns:1fr}
+        .journal-card{padding:14px}
+        .journal-actions{flex-direction:column;align-items:stretch}
+        .journal-btn{width:100%;min-height:40px}
       }
       @media(max-width:400px){
         .bible-wrap{padding:8px 8px 18px}
         .bible-nav,.ws-page-btns{grid-template-columns:1fr}
-        .bible-text{padding:10px 8px;font-size:.84rem;line-height:1.65}
-        .bible-audio-bar{flex-direction:column}
+        .bible-scripture-box{padding:10px 8px}
+        .bible-text{font-size:.84rem;line-height:1.65}
+        .bible-journal-shell{padding:12px}
       }
     </style>
   </head>
@@ -153,162 +183,695 @@
           <p>Read the Word of God — multiple translations</p>
         </div>
 
-        <div class="bible-controls">
-          <select id="translation">
-            <option value="kjv">KJV — King James</option>
-            <option value="web" selected>WEB — World English</option>
-            <option value="bbe">BBE — Basic English</option>
-            <option value="asv">ASV — American Standard</option>
-            <option value="darby">DARBY — Darby</option>
-            <option value="ylt">YLT — Young's Literal</option>
-            <option value="oeb-us">OEB — Open English</option>
-            <option value="webbe">WEBBE — WEB British</option>
-            <option value="clementine">CLEMENTINE — Latin Vulgate</option>
-            <option value="almeida">ALMEIDA — Portuguese</option>
-          </select>
-          <select id="book"></select>
-          <select id="chapter"></select>
-          <button id="btn-load">LOAD</button>
-        </div>
-
-        <!-- COMBINED SEARCH BAR -->
-        <div class="bible-search-combined">
-          <!-- Row 1: Verse reference lookup -->
-          <div class="bsc-row">
-            <span class="bsc-lbl ref">&#x25B6; REF:</span>
-            <input type="text" id="verse-search" placeholder="e.g. John 3:16 or Romans 8:28-30">
-            <button class="bsc-btn-ref" id="btn-search">GO</button>
-          </div>
-          <div class="bsc-divider"></div>
-          <!-- Row 2: Full-text word/phrase search -->
-          <div class="bsc-row">
-            <span class="bsc-lbl find">&#x2315; FIND:</span>
-            <input type="text" id="ws-input" placeholder="e.g. love one another, fear not, Holy Spirit...">
-            <select id="ws-type" title="Match type">
-              <option value="phrase">Exact Phrase</option>
-              <option value="any">Any Word</option>
-              <option value="all">All Words</option>
-            </select>
-            <select id="ws-bible" title="Translation">
-              <option value="kjv" selected>KJV</option>
-              <option value="kjvs">KJV Strong's</option>
-              <option value="web">WEB</option>
-              <option value="asv">ASV</option>
-              <option value="darby">DARBY</option>
-              <option value="ylt">YLT</option>
-            </select>
-            <select id="ws-testament" title="Filter by testament">
-              <option value="all" selected>All Books</option>
-              <option value="ot">Old Testament</option>
-              <option value="nt">New Testament</option>
-            </select>
-            <button class="bsc-btn-find" id="ws-btn">&#x1F50D; SEARCH</button>
-          </div>
-        </div>
-        <div id="ws-results"></div>
-
         <div class="bible-bookmarks" id="bookmarks-bar">
           <span class="bm-title">&#x2605; BOOKMARKS:</span>
         </div>
 
-        <div class="bible-nav">
-          <button id="prev-ch" title="Previous Chapter">&#x25C0; PREV</button>
-          <button id="next-ch" title="Next Chapter">NEXT &#x25B6;</button>
-        </div>
-
-        <div class="bible-audio-bar" id="bible-audio-bar">
-          <button id="ba-listen" title="Listen to chapter">&#x1F50A; LISTEN</button>
-          <button id="ba-pause" title="Pause/Resume" disabled>&#x23F8; PAUSE</button>
-          <button id="ba-stop" title="Stop" disabled>&#x25A0; STOP</button>
-          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">VOL</label>
-          <input type="range" id="ba-vol" min="0" max="100" step="1" value="80" title="Volume" style="width:70px;accent-color:var(--accent)">
-          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">SPEED</label>
-          <select id="ba-speed" title="Playback Speed" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:4px 6px;border-radius:4px">
-            <option value="0.75">0.75x</option>
-            <option value="1" selected>1x</option>
-            <option value="1.25">1.25x</option>
-            <option value="1.5">1.5x</option>
-          </select>
-          <span class="ba-status" id="ba-status">REAL VOICE — KJV AUDIO</span>
-          <audio id="ba-audio" preload="none"></audio>
-        </div>
-
-        <div class="bible-text" id="bible-text">
-          <div class="loading">Select a book and chapter, then press LOAD...</div>
-        </div>
-
-        <!-- Journal Section -->
-        <div class="bible-journal" style="margin-top:40px;padding:24px 28px;background:var(--panel2);border:1px solid var(--border);border-radius:8px">
-          <h3 style="font-family:'JetBrains Mono',monospace;color:var(--accent-bright);margin-bottom:12px">Journal</h3>
-          <div id="journal-entries">
-            <!-- Journal entries will be loaded here -->
+        <div class="bible-display-tools" aria-label="Scripture text and highlight controls">
+          <div class="bible-display-tool-group">
+            <div>
+              <div class="bible-display-tools-label">Scripture Font Color</div>
+              <div class="bible-color-hint">Use the color wheel to choose any Scripture text color that gives you the best contrast.</div>
+            </div>
+            <div class="bible-color-wheel-controls" id="bible-color-wheel-controls">
+              <input class="bible-color-wheel" id="bible-text-color" type="color" value="#e7efe7" aria-label="Choose Scripture text color" title="Choose Scripture text color">
+              <button class="bible-color-reset" id="bible-text-color-reset" type="button">Reset</button>
+              <span class="bible-color-value" id="bible-text-color-value">#E7EFE7</span>
+            </div>
           </div>
-          {% if admin_token_set %}
-          <form id="journal-form" method="post" action="/api/journal/add" style="margin-top:18px">
-            <textarea name="entry" id="journal-entry" rows="4" style="width:100%;font-family:'Inter',sans-serif;font-size:1rem;padding:10px;border-radius:6px;border:1px solid var(--border2)" placeholder="Write a new journal entry..."></textarea>
-            <input type="hidden" name="admin_token" value="{{ admin_token }}">
-            <button type="submit" style="margin-top:8px;background:var(--accent2);color:#fff;font-weight:700;padding:8px 18px;border-radius:6px;border:none;cursor:pointer">Add Entry</button>
-          </form>
-          {% endif %}
+          <div class="bible-display-tool-group">
+            <div>
+              <div class="bible-display-tools-label">Verse Highlighter</div>
+              <div class="bible-color-hint">Pick a highlight color, then click any verse to toggle it on or off. Click the same highlighted verse again to clear it.</div>
+            </div>
+            <div class="bible-color-wheel-controls" id="bible-highlight-wheel-controls">
+              <input class="bible-color-wheel" id="bible-highlight-color" type="color" value="#f4ec73" aria-label="Choose verse highlight color" title="Choose verse highlight color">
+              <button class="bible-color-reset" id="bible-highlight-reset" type="button">Reset</button>
+              <button class="bible-color-reset" id="bible-highlight-clear" type="button">Clear Highlights</button>
+              <span class="bible-color-value" id="bible-highlight-color-value">#F4EC73</span>
+            </div>
+          </div>
         </div>
+
+        <div class="bible-scripture-box" id="bible-scripture-box">
+          <div class="bible-scripture-controls" aria-label="Scripture translation, book, chapter, and chapter navigation controls">
+            <select id="translation">
+              <option value="kjv">KJV — King James</option>
+              <option value="web" selected>WEB — World English</option>
+              <option value="bbe">BBE — Basic English</option>
+              <option value="asv">ASV — American Standard</option>
+              <option value="darby">DARBY — Darby</option>
+              <option value="ylt">YLT — Young's Literal</option>
+              <option value="oeb-us">OEB — Open English</option>
+              <option value="webbe">WEBBE — WEB British</option>
+              <option value="clementine">CLEMENTINE — Latin Vulgate</option>
+              <option value="almeida">ALMEIDA — Portuguese</option>
+            </select>
+            <select id="book"></select>
+            <select id="chapter"></select>
+            <button id="btn-load">LOAD</button>
+          </div>
+          <div class="bible-nav">
+            <button id="prev-ch" title="Previous Chapter">&#x25C0; PREV</button>
+            <button id="next-ch" title="Next Chapter">NEXT &#x25B6;</button>
+          </div>
+          <div class="bible-text" id="bible-text">
+            <div class="loading">Select a book and chapter, then press LOAD...</div>
+          </div>
+        </div>
+
+        <section class="bible-journal-shell" aria-label="Scripture journals">
+          <div class="bible-journal-head">
+            <h3>Scripture Journals</h3>
+            <p>Keep a public testimony feed for Scripture readers and a separate private journal that stays personal to your browser and account state.</p>
+          </div>
+
+          <div class="bible-journal-grid">
+            <article class="journal-card">
+              <div class="journal-card-head">
+                <div>
+                  <span class="journal-kicker">Community</span>
+                  <h4>Public Scripture Journal</h4>
+                  <p>Everyone can read these reflections. Posting is tied to the signed-in account shown in the top navigation.</p>
+                </div>
+                <span class="journal-chip" id="public-journal-auth-state">Read Only</span>
+              </div>
+              <div class="journal-focus" id="public-journal-focus">Current focus: preparing Scripture context...</div>
+              <div class="journal-helper" id="public-journal-helper"><strong>Sign in</strong> from the top navigation to add a public Scripture entry.</div>
+              <div class="journal-moderation-shell" id="journal-moderation-shell" data-initial-moderator="{{ 'true' if journal_moderation_enabled else 'false' }}">
+                <div class="journal-moderation-head">
+                  <span class="journal-chip" id="journal-moderation-badge">Moderator Locked</span>
+                  <button class="journal-btn secondary" id="journal-moderation-logout" type="button" hidden>End Moderation</button>
+                </div>
+                <form class="journal-form journal-moderation-form" id="journal-moderation-form" autocomplete="off">
+                  <input type="password" id="journal-moderation-password" placeholder="Moderator access password" autocomplete="new-password">
+                  <div class="journal-actions">
+                    <button class="journal-btn secondary" id="journal-moderation-submit" type="submit">Unlock Moderation</button>
+                    <span class="journal-status" id="journal-moderation-status"></span>
+                  </div>
+                </form>
+              </div>
+              <form class="journal-form" id="public-journal-form">
+                <textarea id="public-journal-entry" rows="4" placeholder="Share a public Scripture reflection tied to the current passage..." disabled></textarea>
+                <div class="journal-actions">
+                  <button class="journal-btn primary" id="public-journal-submit" type="submit" disabled>Post Public Entry</button>
+                  <span class="journal-status" id="public-journal-status"></span>
+                </div>
+              </form>
+              <div class="journal-list" id="public-journal-entries"></div>
+            </article>
+
+            <article class="journal-card">
+              <div class="journal-card-head">
+                <div>
+                  <span class="journal-kicker">Private</span>
+                  <h4>Personal Journal</h4>
+                  <p>Private notes stay on this device and sync to your signed-in account state when you are logged in.</p>
+                </div>
+                <span class="journal-chip is-live">Personal Only</span>
+              </div>
+              <div class="journal-focus" id="private-journal-focus">Current focus: preparing Scripture context...</div>
+              <div class="journal-helper">Use this space for private prayer notes, study outlines, or reflections you do not want added to the public feed.</div>
+              <form class="journal-form" id="private-journal-form">
+                <textarea id="private-journal-entry" rows="5" placeholder="Write a private Scripture note for your own study..."></textarea>
+                <div class="journal-actions">
+                  <button class="journal-btn primary" id="private-journal-submit" type="submit">Save Private Entry</button>
+                  <button class="journal-btn secondary" id="private-journal-clear" type="button">Clear All Private Notes</button>
+                  <span class="journal-status" id="private-journal-status"></span>
+                </div>
+              </form>
+              <div class="journal-list" id="private-journal-entries"></div>
+            </article>
+          </div>
+        </section>
         </div>
       </div>
 
     <script>
-    // Journal: Load entries
-    async function loadJournalEntries() {
-      const div = document.getElementById('journal-entries');
-      div.innerHTML = '<div class="loading">Loading journal entries...</div>';
-      try {
-        const resp = await fetch('/api/journal');
-        const data = await resp.json();
-        if (!data.ok) throw new Error(data.error || 'Failed to load');
-        if (!data.entries.length) {
-          div.innerHTML = '<div style="color:var(--muted);font-size:.95rem">No journal entries yet.</div>';
-          return;
-        }
-        div.innerHTML = data.entries.map(e =>
-          `<div style="margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border2)">
-            <div style="font-size:.98rem;white-space:pre-line">${escapeHtml(e.entry)}</div>
-            <div style="color:var(--muted);font-size:.78rem;margin-top:4px">${new Date(e.created).toLocaleString()}</div>
-          </div>`
-        ).join('');
-      } catch (err) {
-        div.innerHTML = '<div class="error">Failed to load journal: ' + err.message + '</div>';
+    const PRIVATE_JOURNAL_STORAGE_KEY = 'deltaBiblePersonalJournalV1';
+    const PRIVATE_JOURNAL_LIMIT = 60;
+    const BIBLE_TEXT_COLOR_STORAGE_KEY = 'deltaBibleTextToneV1';
+    const BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY = 'deltaBibleHighlightColorV1';
+    const BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY = 'deltaBibleVerseHighlightsV1';
+    const DEFAULT_BIBLE_TEXT_COLOR = '#e7efe7';
+    const DEFAULT_BIBLE_HIGHLIGHT_COLOR = '#f4ec73';
+    const bibleTextEl = document.getElementById('bible-text');
+    const bibleTextColorInput = document.getElementById('bible-text-color');
+    const bibleTextColorResetBtn = document.getElementById('bible-text-color-reset');
+    const bibleTextColorValueEl = document.getElementById('bible-text-color-value');
+    const bibleHighlightColorInput = document.getElementById('bible-highlight-color');
+    const bibleHighlightResetBtn = document.getElementById('bible-highlight-reset');
+    const bibleHighlightClearBtn = document.getElementById('bible-highlight-clear');
+    const bibleHighlightColorValueEl = document.getElementById('bible-highlight-color-value');
+    const publicJournalEntriesEl = document.getElementById('public-journal-entries');
+    const publicJournalForm = document.getElementById('public-journal-form');
+    const publicJournalEntryInput = document.getElementById('public-journal-entry');
+    const publicJournalSubmitBtn = document.getElementById('public-journal-submit');
+    const publicJournalStatusEl = document.getElementById('public-journal-status');
+    const publicJournalHelperEl = document.getElementById('public-journal-helper');
+    const publicJournalAuthStateEl = document.getElementById('public-journal-auth-state');
+    const publicJournalFocusEl = document.getElementById('public-journal-focus');
+    const journalModerationShellEl = document.getElementById('journal-moderation-shell');
+    const journalModerationForm = document.getElementById('journal-moderation-form');
+    const journalModerationPasswordInput = document.getElementById('journal-moderation-password');
+    const journalModerationStatusEl = document.getElementById('journal-moderation-status');
+    const journalModerationBadgeEl = document.getElementById('journal-moderation-badge');
+    const journalModerationLogoutBtn = document.getElementById('journal-moderation-logout');
+    const privateJournalEntriesEl = document.getElementById('private-journal-entries');
+    const privateJournalForm = document.getElementById('private-journal-form');
+    const privateJournalEntryInput = document.getElementById('private-journal-entry');
+    const privateJournalClearBtn = document.getElementById('private-journal-clear');
+    const privateJournalStatusEl = document.getElementById('private-journal-status');
+    const privateJournalFocusEl = document.getElementById('private-journal-focus');
+    let journalModeratorActive = journalModerationShellEl && journalModerationShellEl.dataset.initialModerator === 'true';
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value == null ? '' : String(value);
+      return div.innerHTML;
+    }
+
+    function setJournalStatus(element, message, tone) {
+      if (!element) return;
+      element.textContent = message || '';
+      element.classList.remove('is-success', 'is-error');
+      if (tone === 'success') element.classList.add('is-success');
+      if (tone === 'error') element.classList.add('is-error');
+    }
+
+    function formatJournalDate(value) {
+      if (!value) return '';
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return '';
+      return parsed.toLocaleString();
+    }
+
+    function normalizeBibleTextColor(value) {
+      const raw = value == null ? '' : String(value).trim();
+      if (!raw) return '';
+      if (raw === '1') return DEFAULT_BIBLE_TEXT_COLOR;
+      if (raw === '2') return '#f3e3b0';
+      if (raw === '3') return '#d8f0ff';
+      if (/^#[0-9a-f]{3}$/i.test(raw)) {
+        return '#' + raw.slice(1).split('').map((char) => char + char).join('').toLowerCase();
+      }
+      if (/^#[0-9a-f]{6}$/i.test(raw)) {
+        return raw.toLowerCase();
+      }
+      return '';
+    }
+
+    function loadBibleTextColor() {
+      return normalizeBibleTextColor(window.localStorage.getItem(BIBLE_TEXT_COLOR_STORAGE_KEY));
+    }
+
+    function loadBibleHighlightColor() {
+      return normalizeBibleTextColor(window.localStorage.getItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY));
+    }
+
+    function updateBibleTextColorUi(color) {
+      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_TEXT_COLOR;
+      if (bibleTextColorInput) bibleTextColorInput.value = normalized;
+      if (bibleTextColorValueEl) bibleTextColorValueEl.textContent = normalized.toUpperCase();
+    }
+
+    function applyBibleTextColor(color, options) {
+      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_TEXT_COLOR;
+      if (bibleTextEl) {
+        bibleTextEl.style.setProperty('--bible-scripture-color', normalized);
+      }
+      updateBibleTextColorUi(normalized);
+      if (!options || options.persist !== false) {
+        window.localStorage.setItem(BIBLE_TEXT_COLOR_STORAGE_KEY, normalized);
       }
     }
-    function escapeHtml(t){
-      const d = document.createElement('div');
-      d.textContent = t;
-      return d.innerHTML;
-    }
-    loadJournalEntries();
 
-    // Journal: Handle admin entry submission
-    const journalForm = document.getElementById('journal-form');
-    if (journalForm) {
-      journalForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const entry = document.getElementById('journal-entry').value.trim();
-        if (!entry) return;
-        const formData = new FormData(journalForm);
-        const btn = journalForm.querySelector('button[type=submit]');
-        btn.disabled = true;
-        btn.textContent = 'Saving...';
-        try {
-          const resp = await fetch('/api/journal/add', { method: 'POST', body: formData });
-          const data = await resp.json();
-          if (!data.ok) throw new Error(data.error || 'Failed to save');
-          document.getElementById('journal-entry').value = '';
-          loadJournalEntries();
-        } catch (err) {
-          alert('Failed to save: ' + err.message);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Add Entry';
-        }
+    function resetBibleTextColor(options) {
+      if (bibleTextEl) {
+        bibleTextEl.style.removeProperty('--bible-scripture-color');
+      }
+      updateBibleTextColorUi(DEFAULT_BIBLE_TEXT_COLOR);
+      if (!options || options.persist !== false) {
+        window.localStorage.removeItem(BIBLE_TEXT_COLOR_STORAGE_KEY);
+      }
+    }
+
+    function updateBibleHighlightColorUi(color) {
+      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
+      if (bibleHighlightColorInput) bibleHighlightColorInput.value = normalized;
+      if (bibleHighlightColorValueEl) bibleHighlightColorValueEl.textContent = normalized.toUpperCase();
+    }
+
+    function applyBibleHighlightColor(color, options) {
+      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
+      updateBibleHighlightColorUi(normalized);
+      if (!options || options.persist !== false) {
+        window.localStorage.setItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY, normalized);
+      }
+    }
+
+    function resetBibleHighlightColor(options) {
+      updateBibleHighlightColorUi(DEFAULT_BIBLE_HIGHLIGHT_COLOR);
+      if (!options || options.persist !== false) {
+        window.localStorage.removeItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY);
+      }
+    }
+
+    function loadBibleVerseHighlights() {
+      try {
+        const parsed = JSON.parse(window.localStorage.getItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY) || '{}');
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+        const normalized = {};
+        Object.keys(parsed).forEach((key) => {
+          const color = normalizeBibleTextColor(parsed[key]);
+          if (key && color) normalized[key] = color;
+        });
+        return normalized;
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveBibleVerseHighlights(highlights) {
+      window.localStorage.setItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY, JSON.stringify(highlights));
+    }
+
+    function hexColorToRgba(color, alpha) {
+      const normalized = normalizeBibleTextColor(color);
+      if (!normalized) return '';
+      const red = Number.parseInt(normalized.slice(1, 3), 16);
+      const green = Number.parseInt(normalized.slice(3, 5), 16);
+      const blue = Number.parseInt(normalized.slice(5, 7), 16);
+      return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    }
+
+    function applyBibleVerseHighlightVisual(verseEl, color) {
+      if (!verseEl) return;
+      const normalized = normalizeBibleTextColor(color);
+      if (!normalized) {
+        verseEl.classList.remove('is-highlighted');
+        verseEl.style.removeProperty('--bible-verse-highlight-bg');
+        verseEl.style.removeProperty('--bible-verse-highlight-edge');
+        return;
+      }
+      verseEl.classList.add('is-highlighted');
+      verseEl.style.setProperty('--bible-verse-highlight-bg', hexColorToRgba(normalized, 0.34));
+      verseEl.style.setProperty('--bible-verse-highlight-edge', hexColorToRgba(normalized, 0.62));
+    }
+
+    function refreshRenderedBibleHighlights(root) {
+      if (!root) return;
+      const highlights = loadBibleVerseHighlights();
+      root.querySelectorAll('[data-bible-highlight-key]').forEach((verseEl) => {
+        const key = verseEl.getAttribute('data-bible-highlight-key') || '';
+        applyBibleVerseHighlightVisual(verseEl, highlights[key]);
       });
     }
+
+    function toggleBibleVerseHighlight(key, root) {
+      if (!key) return;
+      const highlights = loadBibleVerseHighlights();
+      const nextColor = loadBibleHighlightColor() || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
+      const currentColor = normalizeBibleTextColor(highlights[key]);
+      if (currentColor && currentColor === nextColor) delete highlights[key];
+      else highlights[key] = nextColor;
+      saveBibleVerseHighlights(highlights);
+      refreshRenderedBibleHighlights(root);
+    }
+
+    function clearBibleVerseHighlights(root) {
+      window.localStorage.removeItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY);
+      refreshRenderedBibleHighlights(root || bibleTextEl);
+    }
+
+    function authBootstrapState() {
+      const el = document.getElementById('delta-auth-bootstrap');
+      if (!el) return { authenticated: false, user: null };
+      try {
+        const parsed = JSON.parse(el.textContent || '{}');
+        return parsed && typeof parsed === 'object' ? parsed : { authenticated: false, user: null };
+      } catch (_) {
+        return { authenticated: false, user: null };
+      }
+    }
+
+    function currentAuthUser() {
+      const bootstrap = authBootstrapState();
+      return bootstrap.authenticated && bootstrap.user ? bootstrap.user : null;
+    }
+
+    function currentPassageLabel() {
+      const translationSelect = document.getElementById('translation');
+      const bookSelect = document.getElementById('book');
+      const chapterSelect = document.getElementById('chapter');
+      const bookLabel = bookSelect && bookSelect.selectedOptions.length ? bookSelect.selectedOptions[0].textContent.trim() : '';
+      const chapterLabel = chapterSelect && chapterSelect.value ? chapterSelect.value : '';
+      const translationLabel = translationSelect && translationSelect.selectedOptions.length ? translationSelect.selectedOptions[0].textContent.split('—')[0].trim() : '';
+      if (!bookLabel || !chapterLabel) {
+        return 'No passage loaded yet';
+      }
+      return `${bookLabel} ${chapterLabel}${translationLabel ? ` • ${translationLabel}` : ''}`;
+    }
+
+    function updateJournalFocus() {
+      const label = `Current focus: ${currentPassageLabel()}`;
+      publicJournalFocusEl.textContent = label;
+      privateJournalFocusEl.textContent = label;
+    }
+
+    function syncJournalModerationUi() {
+      if (!journalModerationBadgeEl || !journalModerationForm || !journalModerationPasswordInput || !journalModerationLogoutBtn) return;
+      journalModerationBadgeEl.textContent = journalModeratorActive ? 'Moderator Active' : 'Moderator Locked';
+      journalModerationBadgeEl.classList.toggle('is-live', journalModeratorActive);
+      journalModerationPasswordInput.disabled = journalModeratorActive;
+      const submitButton = journalModerationForm.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = journalModeratorActive;
+      journalModerationLogoutBtn.hidden = !journalModeratorActive;
+    }
+
+    function renderPublicJournalEntries(entries) {
+      if (!publicJournalEntriesEl) return;
+      if (!Array.isArray(entries) || !entries.length) {
+        publicJournalEntriesEl.innerHTML = '<div class="journal-empty">No public Scripture entries yet. Sign in to post the first testimony or study reflection.</div>';
+        return;
+      }
+
+      publicJournalEntriesEl.innerHTML = entries.map((entry) => {
+        const author = escapeHtml(entry.author || 'Anonymous');
+        const created = escapeHtml(formatJournalDate(entry.created));
+        const passage = entry.passage ? `<div class="journal-item-passage">${escapeHtml(entry.passage)}</div>` : '';
+        const moderationAction = journalModeratorActive && entry.id
+          ? `<button class="journal-item-delete" type="button" data-public-entry-delete="${entry.id}">Delete</button>`
+          : '';
+        return `<article class="journal-item">
+          <div class="journal-item-head">
+            <div>
+              <div class="journal-item-author">${author}</div>
+              ${passage}
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
+              <div class="journal-item-date">${created}</div>
+              ${moderationAction}
+            </div>
+          </div>
+          <div class="journal-item-body">${escapeHtml(entry.entry || '')}</div>
+        </article>`;
+      }).join('');
+
+      publicJournalEntriesEl.querySelectorAll('[data-public-entry-delete]').forEach((button) => {
+        button.addEventListener('click', async function() {
+          const entryId = Number.parseInt(button.getAttribute('data-public-entry-delete') || '', 10);
+          if (!Number.isInteger(entryId)) return;
+          if (!window.confirm('Delete this public Scripture entry?')) return;
+          button.disabled = true;
+          setJournalStatus(journalModerationStatusEl, 'Removing public entry...', '');
+          try {
+            const response = await fetch('/api/journal/moderation/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'same-origin',
+              body: JSON.stringify({ id: entryId }),
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+              throw new Error(data.error || 'Failed to delete entry');
+            }
+            setJournalStatus(journalModerationStatusEl, 'Public entry removed.', 'success');
+            await loadJournalEntries();
+          } catch (error) {
+            setJournalStatus(journalModerationStatusEl, error.message || 'Failed to delete entry.', 'error');
+            button.disabled = false;
+          }
+        });
+      });
+    }
+
+    async function loadJournalEntries() {
+      if (!publicJournalEntriesEl) return;
+      publicJournalEntriesEl.innerHTML = '<div class="journal-empty">Loading public Scripture journal...</div>';
+      try {
+        const response = await fetch('/api/journal', { credentials: 'same-origin' });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Failed to load public journal');
+        }
+        journalModeratorActive = Boolean(data.moderation_enabled);
+        syncJournalModerationUi();
+        renderPublicJournalEntries(data.entries || []);
+      } catch (error) {
+        publicJournalEntriesEl.innerHTML = `<div class="journal-empty">Unable to load public journal: ${escapeHtml(error.message || 'Unknown error')}</div>`;
+      }
+    }
+
+    function syncPublicJournalComposer() {
+      const user = currentAuthUser();
+      const authenticated = Boolean(user && user.username);
+      publicJournalEntryInput.disabled = !authenticated;
+      publicJournalSubmitBtn.disabled = !authenticated;
+      publicJournalAuthStateEl.textContent = authenticated ? `Posting as ${user.username}` : 'Read Only';
+      publicJournalAuthStateEl.classList.toggle('is-live', authenticated);
+      publicJournalHelperEl.innerHTML = authenticated
+        ? `<strong>${escapeHtml(user.username)}</strong> can post publicly from this page. Every post is visible to everyone.`
+        : '<strong>Sign in</strong> from the top navigation to add a public Scripture entry.';
+    }
+
+    journalModerationForm.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const password = journalModerationPasswordInput.value;
+      if (!password) {
+        setJournalStatus(journalModerationStatusEl, 'Enter the moderation password.', 'error');
+        return;
+      }
+
+      setJournalStatus(journalModerationStatusEl, 'Unlocking moderation...', '');
+      try {
+        const response = await fetch('/api/journal/moderation/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ password }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Failed to unlock moderation');
+        }
+        journalModeratorActive = Boolean(data.moderation_enabled);
+        journalModerationPasswordInput.value = '';
+        setJournalStatus(journalModerationStatusEl, 'Moderation unlocked.', 'success');
+        syncJournalModerationUi();
+        await loadJournalEntries();
+      } catch (error) {
+        setJournalStatus(journalModerationStatusEl, error.message || 'Failed to unlock moderation.', 'error');
+      }
+    });
+
+    journalModerationLogoutBtn.addEventListener('click', async function() {
+      setJournalStatus(journalModerationStatusEl, 'Ending moderation access...', '');
+      try {
+        const response = await fetch('/api/journal/moderation/logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Failed to end moderation access');
+        }
+        journalModeratorActive = false;
+        journalModerationPasswordInput.value = '';
+        setJournalStatus(journalModerationStatusEl, 'Moderation locked.', 'success');
+        syncJournalModerationUi();
+        await loadJournalEntries();
+      } catch (error) {
+        setJournalStatus(journalModerationStatusEl, error.message || 'Failed to end moderation access.', 'error');
+      }
+    });
+
+    function loadPrivateJournalEntries() {
+      try {
+        const parsed = JSON.parse(window.localStorage.getItem(PRIVATE_JOURNAL_STORAGE_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed.filter((entry) => entry && typeof entry.entry === 'string') : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function savePrivateJournalEntries(entries) {
+      window.localStorage.setItem(PRIVATE_JOURNAL_STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function renderPrivateJournalEntries() {
+      if (!privateJournalEntriesEl) return;
+      const entries = loadPrivateJournalEntries();
+      if (!entries.length) {
+        privateJournalEntriesEl.innerHTML = '<div class="journal-empty">No private journal entries saved yet. Your notes here stay personal and local to your account state.</div>';
+        return;
+      }
+
+      privateJournalEntriesEl.innerHTML = entries.map((entry, index) => {
+        const passage = entry.passage ? `<div class="journal-item-passage">${escapeHtml(entry.passage)}</div>` : '';
+        return `<article class="journal-item">
+          <div class="journal-item-head">
+            <div>
+              <div class="journal-item-author">Private Entry</div>
+              ${passage}
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
+              <div class="journal-item-date">${escapeHtml(formatJournalDate(entry.created))}</div>
+              <button class="journal-item-delete" type="button" data-private-entry-delete="${index}">Delete</button>
+            </div>
+          </div>
+          <div class="journal-item-body">${escapeHtml(entry.entry || '')}</div>
+        </article>`;
+      }).join('');
+
+      privateJournalEntriesEl.querySelectorAll('[data-private-entry-delete]').forEach((button) => {
+        button.addEventListener('click', function() {
+          const index = Number.parseInt(button.getAttribute('data-private-entry-delete') || '', 10);
+          if (!Number.isInteger(index)) return;
+          const entries = loadPrivateJournalEntries();
+          entries.splice(index, 1);
+          savePrivateJournalEntries(entries);
+          renderPrivateJournalEntries();
+          setJournalStatus(privateJournalStatusEl, 'Private entry removed.', 'success');
+        });
+      });
+    }
+
+    publicJournalForm.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const user = currentAuthUser();
+      if (!user) {
+        syncPublicJournalComposer();
+        setJournalStatus(publicJournalStatusEl, 'Sign in to post to the public journal.', 'error');
+        return;
+      }
+
+      const entry = publicJournalEntryInput.value.trim();
+      if (!entry) {
+        setJournalStatus(publicJournalStatusEl, 'Write a reflection before posting.', 'error');
+        return;
+      }
+
+      publicJournalSubmitBtn.disabled = true;
+      setJournalStatus(publicJournalStatusEl, 'Posting public entry...', '');
+      try {
+        const response = await fetch('/api/journal/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            entry,
+            passage: currentPassageLabel(),
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Failed to post public entry');
+        }
+        publicJournalEntryInput.value = '';
+        setJournalStatus(publicJournalStatusEl, 'Public entry posted.', 'success');
+        await loadJournalEntries();
+      } catch (error) {
+        setJournalStatus(publicJournalStatusEl, error.message || 'Failed to post public entry.', 'error');
+      } finally {
+        syncPublicJournalComposer();
+      }
+    });
+
+    privateJournalForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const entry = privateJournalEntryInput.value.trim();
+      if (!entry) {
+        setJournalStatus(privateJournalStatusEl, 'Write a private note before saving.', 'error');
+        return;
+      }
+
+      const entries = loadPrivateJournalEntries();
+      entries.unshift({
+        entry,
+        passage: currentPassageLabel(),
+        created: new Date().toISOString(),
+      });
+      savePrivateJournalEntries(entries.slice(0, PRIVATE_JOURNAL_LIMIT));
+      privateJournalEntryInput.value = '';
+      renderPrivateJournalEntries();
+      setJournalStatus(privateJournalStatusEl, 'Private entry saved.', 'success');
+    });
+
+    privateJournalClearBtn.addEventListener('click', function() {
+      if (!window.confirm('Clear all private journal entries on this device?')) return;
+      window.localStorage.removeItem(PRIVATE_JOURNAL_STORAGE_KEY);
+      renderPrivateJournalEntries();
+      setJournalStatus(privateJournalStatusEl, 'Private journal cleared.', 'success');
+    });
+
+    window.addEventListener('storage', function(event) {
+      if (event.key === PRIVATE_JOURNAL_STORAGE_KEY) {
+        renderPrivateJournalEntries();
+      }
+      if (event.key === BIBLE_TEXT_COLOR_STORAGE_KEY) {
+        if (event.newValue) applyBibleTextColor(event.newValue, { persist: false });
+        else resetBibleTextColor({ persist: false });
+      }
+      if (event.key === BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY) {
+        if (event.newValue) applyBibleHighlightColor(event.newValue, { persist: false });
+        else resetBibleHighlightColor({ persist: false });
+      }
+      if (event.key === BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY) {
+        refreshRenderedBibleHighlights(bibleTextEl);
+      }
+    });
+
+    ['book', 'chapter', 'translation'].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', updateJournalFocus);
+      }
+    });
+
+    if (bibleTextColorInput) {
+      bibleTextColorInput.addEventListener('input', function() {
+        applyBibleTextColor(bibleTextColorInput.value);
+      });
+    }
+
+    if (bibleTextColorResetBtn) {
+      bibleTextColorResetBtn.addEventListener('click', function() {
+        resetBibleTextColor();
+      });
+    }
+
+    if (bibleHighlightColorInput) {
+      bibleHighlightColorInput.addEventListener('input', function() {
+        applyBibleHighlightColor(bibleHighlightColorInput.value);
+      });
+    }
+
+    if (bibleHighlightResetBtn) {
+      bibleHighlightResetBtn.addEventListener('click', function() {
+        resetBibleHighlightColor();
+      });
+    }
+
+    if (bibleHighlightClearBtn) {
+      bibleHighlightClearBtn.addEventListener('click', function() {
+        clearBibleVerseHighlights();
+      });
+    }
+
+    window.setTimeout(() => {
+      const storedBibleTextColor = loadBibleTextColor();
+      if (storedBibleTextColor) applyBibleTextColor(storedBibleTextColor, { persist: false });
+      else resetBibleTextColor({ persist: false });
+      const storedBibleHighlightColor = loadBibleHighlightColor();
+      if (storedBibleHighlightColor) applyBibleHighlightColor(storedBibleHighlightColor, { persist: false });
+      else resetBibleHighlightColor({ persist: false });
+      updateJournalFocus();
+      syncPublicJournalComposer();
+      syncJournalModerationUi();
+      renderPrivateJournalEntries();
+      void loadJournalEntries();
+    }, 0);
     </script>
     </main>
 
@@ -397,10 +960,15 @@
       }
 
       function renderVerses(data, title){
+        const translationId = (data.translation_id || transSel.value || '').toLowerCase();
         let html = '<div class="chapter-title">&#x2720; ' + title.toUpperCase() + ' [' + transSel.options[transSel.selectedIndex].text.split(' — ')[0] + ']</div>';
         if(data.verses && data.verses.length){
           data.verses.forEach(v => {
-            html += '<div class="verse"><span class="verse-num">' + v.verse + '</span>' + escapeHtml(v.text) + '</div>';
+            const verseKey = buildBibleVerseHighlightKey(v, translationId);
+            const highlightAttrs = verseKey
+              ? ' class="verse is-highlightable" data-bible-highlight-key="' + verseKey + '" title="Click to highlight this verse"'
+              : ' class="verse"';
+            html += '<div' + highlightAttrs + '><span class="verse-num">' + v.verse + '</span>' + escapeHtml(v.text) + '</div>';
           });
         } else if(data.text){
           html += '<div class="verse">' + escapeHtml(data.text) + '</div>';
@@ -409,6 +977,25 @@
         }
         textDiv.innerHTML = html;
         textDiv.scrollTop = 0;
+        bindBibleVerseHighlighting();
+        refreshRenderedBibleHighlights(textDiv);
+      }
+
+      function buildBibleVerseHighlightKey(verseRow, translationId){
+        const bookId = String(verseRow.book_id || verseRow.book_name || '').trim();
+        const chapter = verseRow.chapter || chapSel.value || '';
+        const verse = verseRow.verse || '';
+        const translation = String(translationId || transSel.value || '').trim().toLowerCase();
+        if(!bookId || !chapter || !verse || !translation) return '';
+        return translation + '|' + bookId + '|' + chapter + '|' + verse;
+      }
+
+      function bindBibleVerseHighlighting(){
+        textDiv.querySelectorAll('[data-bible-highlight-key]').forEach((verseEl) => {
+          verseEl.addEventListener('click', () => {
+            toggleBibleVerseHighlight(verseEl.getAttribute('data-bible-highlight-key') || '', textDiv);
+          });
+        });
       }
 
       function escapeHtml(t){
@@ -437,27 +1024,6 @@
         else return;
         loadChapter();
       });
-
-      // Search
-      document.getElementById('btn-search').addEventListener('click', doSearch);
-      document.getElementById('verse-search').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
-      async function doSearch(){
-        const q = document.getElementById('verse-search').value.trim();
-        if(!q) return;
-        const trans = transSel.value;
-        textDiv.innerHTML = '<div class="loading">SEARCHING: ' + q + '...</div>';
-        try {
-          const resp = await fetch('/api/bible?ref=' + encodeURIComponent(q) + '&translation=' + trans);
-          const data = await resp.json();
-          if(data.error){
-            textDiv.innerHTML = '<div class="error">&#x26A0; ' + data.error + '</div>';
-            return;
-          }
-          renderVerses(data, q);
-        } catch(e){
-          textDiv.innerHTML = '<div class="error">&#x26A0; COMMS FAILURE: ' + e.message + '</div>';
-        }
-      }
 
       // Bookmarks
       function loadBookmarks(){
@@ -499,260 +1065,6 @@
         bar.appendChild(addBtn);
       }
       renderBookmarks();
-
-      // ══════════════════════════════════════════════════════════
-      // WORD / PHRASE SEARCH — BibleSuperSearch free API (no key)
-      // https://www.biblesupersearch.com/api/
-      // ══════════════════════════════════════════════════════════
-      const wsInput      = document.getElementById('ws-input');
-      const wsBtn        = document.getElementById('ws-btn');
-      const wsType       = document.getElementById('ws-type');
-      const wsBible      = document.getElementById('ws-bible');
-      const wsTestament  = document.getElementById('ws-testament');
-      const wsDiv        = document.getElementById('ws-results');
-      const WS_PAGE      = 25;
-      // OT = BOOKS indices 0-38 (Genesis–Malachi), NT = indices 39-65 (Matthew–Revelation)
-      const OT_NAMES = new Set(BOOKS.slice(0,39).map(b=>b.name.toLowerCase()));
-      const NT_NAMES = new Set(BOOKS.slice(39).map(b=>b.name.toLowerCase()));
-      let wsLastQuery = '', wsLastType = '', wsLastBible = '', wsAllResults = [], wsFiltered = [], wsPage = 0;
-
-      wsBtn.addEventListener('click', runWordSearch);
-      wsInput.addEventListener('keydown', e => { if(e.key==='Enter') runWordSearch(); });
-      wsTestament.addEventListener('change', () => { if(wsAllResults.length){ wsPage=0; applyTestamentFilter(); renderWsPage(wsLastQuery); } });
-
-      async function runWordSearch(){
-        const q = wsInput.value.trim();
-        if(!q){ wsDiv.innerHTML=''; return; }
-        wsDiv.innerHTML = '<div class="loading">&#x2315; SCANNING SCRIPTURE FOR &ldquo;' + escHtml(q) + '&rdquo;...</div>';
-        const type  = wsType.value;
-        const bible = wsBible.value;
-        // BibleSuperSearch public API — free, no key required
-        const url = 'https://api.biblesupersearch.com/api?bible=' + encodeURIComponent(bible)
-                  + '&search=' + encodeURIComponent(q)
-                  + '&search_type=' + encodeURIComponent(type)
-                  + '&page=1&page_limit=500';
-        try {
-          const resp = await fetch(url);
-          const data = await resp.json();
-          if(!data || data.errors && data.errors.length){
-            const msg = (data.errors||[]).join(' ') || 'No results found.';
-            wsDiv.innerHTML = '<div class="error">&#x26A0; ' + escHtml(msg) + '</div>';
-            return;
-          }
-          // Flatten results from all returned bibles
-          let rows = [];
-          if(data.results){
-            Object.values(data.results).forEach(bObj => {
-              if(bObj && bObj.verses) rows = rows.concat(bObj.verses);
-              else if(Array.isArray(bObj)) rows = rows.concat(bObj);
-            });
-          }
-          if(!rows.length){
-            wsDiv.innerHTML = '<div class="loading" style="color:var(--muted)">No verses found for &ldquo;' + escHtml(q) + '&rdquo;</div>';
-            return;
-          }
-          wsAllResults = rows;
-          wsLastQuery  = q;
-          wsLastType   = type;
-          wsLastBible  = bible;
-          wsPage       = 0;
-          applyTestamentFilter();
-          renderWsPage(q);
-        } catch(err){
-          wsDiv.innerHTML = '<div class="error">&#x26A0; SEARCH FAILED: ' + escHtml(err.message) + '</div>';
-        }
-      }
-
-      function applyTestamentFilter(){
-        const t = wsTestament.value;
-        if(t === 'ot')       wsFiltered = wsAllResults.filter(v => OT_NAMES.has((v.book_name||'').toLowerCase()));
-        else if(t === 'nt')  wsFiltered = wsAllResults.filter(v => NT_NAMES.has((v.book_name||'').toLowerCase()));
-        else                 wsFiltered = wsAllResults;
-      }
-
-      function renderWsPage(q){
-        if(!wsFiltered.length && wsAllResults.length) applyTestamentFilter();
-        const total  = wsFiltered.length;
-        const start  = wsPage * WS_PAGE;
-        const end    = Math.min(start + WS_PAGE, total);
-        const pages  = Math.ceil(total / WS_PAGE);
-        const slice  = wsFiltered.slice(start, end);
-        const tLabel = wsTestament.value==='ot' ? ' (OT)' : wsTestament.value==='nt' ? ' (NT)' : '';
-        let html = '<div class="ws-count">' + total + ' verse' + (total===1?'':'s') + tLabel + ' matched &mdash; showing ' + (start+1) + '&ndash;' + end + '</div>';
-        slice.forEach(v => {
-          const ref   = v.book_name + ' ' + v.chapter + ':' + v.verse;
-          const text  = highlightWords(v.verse_text || v.text || '', q, wsLastType);
-          html += '<div class="ws-result">';
-          html += '<div class="ws-ref"><a onclick="wsLoadVerse(\''+escAttr(v.book_name)+'\','+v.chapter+',' + v.verse + ')">' + escHtml(ref) + '</a></div>';
-          html += '<div class="ws-text">' + text + '</div>';
-          html += '</div>';
-        });
-        // Pagination
-        if(pages > 1){
-          html += '<div class="ws-page-btns">';
-          for(let p=0;p<pages;p++){
-            html += '<button onclick="wsGoPage('+p+')"' + (p===wsPage?' class="active"':'') + '>' + (p+1) + '</button>';
-          }
-          html += '</div>';
-        }
-        wsDiv.innerHTML = html;
-        wsDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
-      }
-
-      window.wsGoPage = function(p){
-        wsPage = p;
-        renderWsPage(wsLastQuery);
-        wsDiv.scrollIntoView({behavior:'smooth',block:'start'});
-      };
-
-      // Click a result ref → load that chapter in the reader and jump to the verse
-      window.wsLoadVerse = function(bookName, chapter, verse){
-        const idx = BOOKS.findIndex(b => b.name.toLowerCase() === bookName.toLowerCase());
-        if(idx < 0) return;
-        bookSel.value = idx;
-        updateChapters();
-        chapSel.value = chapter;
-        // Map ws bible to a supported translation (approximate)
-        const bmap = {kjv:'kjv',kjvs:'kjv',web:'web',asv:'asv',darby:'darby',ylt:'ylt'};
-        transSel.value = bmap[wsLastBible] || 'web';
-        loadChapter().then(() => {
-          // Scroll to and highlight the verse
-          setTimeout(() => {
-            const vEls = textDiv.querySelectorAll('.verse');
-            vEls.forEach(el => {
-              const numEl = el.querySelector('.verse-num');
-              if(numEl && parseInt(numEl.textContent) === parseInt(verse)){
-                el.scrollIntoView({behavior:'smooth',block:'center'});
-                el.style.outline = '2px solid var(--gold)';
-                el.style.borderRadius = '4px';
-                setTimeout(()=>{ el.style.outline=''; }, 3000);
-              }
-            });
-          }, 600);
-        }).catch(()=>{});
-      };
-
-      function highlightWords(text, q, type){
-        const safe = escHtml(text);
-        if(type === 'phrase'){
-          const re = new RegExp(escRe(q), 'gi');
-          return safe.replace(re, m => '<mark>' + m + '</mark>');
-        }
-        const words = q.split(/\s+/).filter(Boolean);
-        let result = safe;
-        words.forEach(w => {
-          const re = new RegExp('\\b' + escRe(w) + '\\b', 'gi');
-          result = result.replace(re, m => '<mark>' + m + '</mark>');
-        });
-        return result;
-      }
-
-      function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-      function escAttr(s){ return String(s).replace(/'/g,'\\&#39;'); }
-      function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-
-      // ══════════════════════════════════════════════════════════
-      // BIBLE AUDIO — Real Human Voice (KJV from WordProject.org)
-      // Free public domain audio — professional narrator recordings
-      // ══════════════════════════════════════════════════════════
-      const baAudio = document.getElementById('ba-audio');
-      const baListen = document.getElementById('ba-listen');
-      const baPause = document.getElementById('ba-pause');
-      const baStop = document.getElementById('ba-stop');
-      const baVol = document.getElementById('ba-vol');
-      const baSpeed = document.getElementById('ba-speed');
-      const baStatus = document.getElementById('ba-status');
-      let audioPlaying = false;
-
-      function pad3(n){ return String(n).padStart(3,'0'); }
-
-      function getAudioUrl(){
-        // WordProject.org free KJV audio: /bibles/app/audio/1/b{book}_{chapter}.mp3
-        const bookIdx = parseInt(bookSel.value); // 0-based
-        const chapter = parseInt(chapSel.value);  // 1-based
-        const bookNum = pad3(bookIdx + 1); // 1-based, 3-digit
-        const chapNum = pad3(chapter);
-        return 'https://audio.wordproject.org/bibles/app/audio/1/b' + bookNum + '_' + chapNum + '.mp3';
-      }
-
-      baListen.addEventListener('click', () => {
-        if(audioPlaying && !baAudio.paused){return;}
-        if(audioPlaying && baAudio.paused){
-          baAudio.play().catch(()=>{});
-          baPause.textContent = '\u23F8 PAUSE';
-          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
-          baStatus.className = 'ba-status speaking';
-          return;
-        }
-        const url = getAudioUrl();
-        baStatus.textContent = 'LOADING AUDIO...';
-        baStatus.className = 'ba-status speaking';
-        baAudio.src = url;
-        baAudio.volume = baVol.value / 100;
-        baAudio.playbackRate = parseFloat(baSpeed.value);
-        baAudio.play().then(() => {
-          audioPlaying = true;
-          baListen.classList.add('ba-active');
-          baPause.disabled = false;
-          baStop.disabled = false;
-          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
-          baStatus.className = 'ba-status speaking';
-        }).catch(() => {
-          baStatus.textContent = 'AUDIO NOT AVAILABLE FOR THIS CHAPTER';
-          baStatus.className = 'ba-status';
-        });
-      });
-
-      baPause.addEventListener('click', () => {
-        if(!audioPlaying) return;
-        if(baAudio.paused){
-          baAudio.play().catch(()=>{});
-          baPause.textContent = '\u23F8 PAUSE';
-          baStatus.textContent = 'PLAYING — ' + BOOKS[bookSel.value].name + ' ' + chapSel.value;
-          baStatus.className = 'ba-status speaking';
-        } else {
-          baAudio.pause();
-          baPause.textContent = '\u25B6 RESUME';
-          baStatus.textContent = 'PAUSED';
-          baStatus.className = 'ba-status';
-        }
-      });
-
-      baStop.addEventListener('click', stopAudio);
-
-      baAudio.addEventListener('ended', () => {
-        // Auto-advance to next chapter
-        const nextBtn = document.getElementById('next-ch');
-        if(!nextBtn.disabled){
-          stopAudio();
-          nextBtn.click();
-          setTimeout(() => { baListen.click(); }, 1500);
-        } else {
-          stopAudio();
-        }
-      });
-
-      baAudio.addEventListener('error', () => {
-        baStatus.textContent = 'AUDIO NOT AVAILABLE';
-        baStatus.className = 'ba-status';
-        stopAudio();
-      });
-
-      baVol.addEventListener('input', () => { baAudio.volume = baVol.value / 100; });
-      baSpeed.addEventListener('change', () => { baAudio.playbackRate = parseFloat(baSpeed.value); });
-
-      function stopAudio(){
-        baAudio.pause();
-        baAudio.currentTime = 0;
-        baAudio.src = '';
-        audioPlaying = false;
-        baListen.classList.remove('ba-active');
-        baPause.disabled = true;
-        baStop.disabled = true;
-        baPause.textContent = '\u23F8 PAUSE';
-        baStatus.textContent = 'REAL VOICE — KJV AUDIO';
-        baStatus.className = 'ba-status';
-      }
 
       // Keyboard shortcuts
       document.addEventListener('keydown', e => {

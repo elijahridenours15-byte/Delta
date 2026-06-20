@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Advertise</title>
+    <meta name="description" content="Dedicated advertisement and sponsorship page for FutureCodeDelta with reserved ad slots and direct sponsor inventory.">
+    <meta name="keywords" content="advertise, sponsorships, ads, affiliate offers, sponsor inventory, FutureCodeDelta">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Delta Coding — Advertise">
+    <meta property="og:description" content="A separate page for sponsors, affiliate offers, and ad placements on FutureCodeDelta.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/advertise">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Delta Coding — Advertise">
+    <meta name="twitter:description" content="Dedicated ad and sponsor inventory page on FutureCodeDelta.">
+    <link rel="canonical" href="https://futurecodedelta.org/advertise">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <style>
+      .ads-wrap{max-width:1280px;margin:0 auto;padding:24px 24px 40px}
+      .ads-hero{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(320px,.84fr);gap:18px;align-items:stretch;margin-bottom:18px}
+      .ads-brief,.ads-side,.ads-card,.ads-table-card,.ads-slot-card,.ads-copy-card{background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.94));border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .ads-brief{padding:26px;position:relative;overflow:hidden}
+      .ads-brief::after{content:'';position:absolute;right:-8%;bottom:-40%;width:260px;height:260px;background:radial-gradient(circle,rgba(196,162,101,.18),transparent 68%);pointer-events:none}
+      .ads-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(196,162,101,.24);background:rgba(24,18,12,.84);color:#f2d9a6;font:700 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+      .ads-brief h2{margin:16px 0 10px;color:var(--text);font:800 clamp(2rem,3.4vw,3.15rem)/1.03 'Inter',sans-serif;max-width:11ch}
+      .ads-brief p,.ads-side p,.ads-card p,.ads-table-card p,.ads-copy-card p{margin:0;color:var(--text2);font-size:14px;line-height:1.72}
+      .ads-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+      .ads-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+      .ads-metric{padding:12px 14px;border-radius:12px;background:rgba(11,14,9,.58);border:1px solid rgba(196,162,101,.14)}
+      .ads-metric strong{display:block;color:#f2d9a6;font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.1px;text-transform:uppercase;margin-bottom:6px}
+      .ads-metric span{display:block;color:var(--text2);font-size:13px;line-height:1.55}
+      .ads-side{padding:22px;display:grid;gap:14px}
+      .ads-side h3,.ads-section-head h3{margin:0;color:var(--text);font:800 24px/1.15 'Inter',sans-serif}
+      .ads-side-list,.ads-copy-list{display:grid;gap:10px;padding:0;margin:0;list-style:none}
+      .ads-side-list li,.ads-copy-list li{padding:12px 14px;border-radius:12px;background:rgba(11,14,9,.58);border:1px solid rgba(139,157,106,.14);color:var(--text2);font-size:13px;line-height:1.65}
+      .ads-side-list strong,.ads-copy-list strong{display:block;margin-bottom:5px;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ads-section{display:grid;gap:16px;margin-top:18px}
+      .ads-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+      .ads-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .ads-card{padding:18px;display:grid;gap:10px}
+      .ads-pill{display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ads-card h4,.ads-slot-card h4,.ads-copy-card h4{margin:0;color:var(--text);font:700 18px/1.25 'Inter',sans-serif}
+      .ads-card ul{display:grid;gap:8px;padding-left:18px;margin:0;color:var(--text2);font-size:13px;line-height:1.6}
+      .ads-table-card{padding:18px;overflow:auto}
+      .ads-table{width:100%;border-collapse:collapse;min-width:700px}
+      .ads-table th,.ads-table td{padding:12px 10px;border-bottom:1px solid rgba(139,157,106,.14);vertical-align:top;text-align:left}
+      .ads-table th{color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ads-table td{color:var(--text2);font-size:13px;line-height:1.55}
+      .ads-slot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .ads-slot-card{padding:18px;display:grid;gap:12px;border:1px dashed rgba(196,162,101,.26);background:linear-gradient(180deg,rgba(23,18,12,.92),rgba(12,15,10,.92))}
+      .ads-slot{min-height:180px;border-radius:14px;border:1px dashed rgba(242,217,166,.32);background:linear-gradient(135deg,rgba(242,217,166,.08),transparent 48%),radial-gradient(circle at top left,rgba(164,184,122,.12),transparent 60%),rgba(8,10,7,.92);display:grid;place-items:center;color:#f2d9a6;font:700 12px 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;text-align:center;padding:14px}
+      .ads-package-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+      .ads-package-card{padding:18px;display:grid;gap:10px;background:linear-gradient(180deg,rgba(18,24,15,.94),rgba(10,14,9,.94));border:1px solid rgba(164,184,122,.2);border-radius:14px;box-shadow:0 20px 38px rgba(0,0,0,.16)}
+      .ads-package-card strong{display:block;color:#f2d9a6;font:800 28px/1 'Inter',sans-serif}
+      .ads-package-card ul{display:grid;gap:8px;padding-left:18px;margin:0;color:var(--text2);font-size:13px;line-height:1.6}
+      .ads-copy-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.86fr);gap:14px}
+      .ads-copy-card{padding:18px;display:grid;gap:12px}
+      .ads-copy-actions{display:flex;flex-wrap:wrap;gap:10px}
+      .ads-status{min-height:54px;padding:12px 14px;border-radius:12px;border:1px solid rgba(139,157,106,.18);background:rgba(11,14,9,.62);color:var(--text2);font:400 12px/1.6 'JetBrains Mono',monospace}
+      .ads-status.alert{border-color:rgba(204,68,68,.34);color:#efb8b8}
+      .ads-form-card{padding:18px;display:grid;gap:14px;background:linear-gradient(180deg,rgba(17,22,15,.94),rgba(10,14,9,.94));border:1px solid rgba(164,184,122,.16);border-radius:14px}
+      .ads-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .ads-form-field{display:grid;gap:8px;color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ads-form-field input,.ads-form-field select,.ads-form-field textarea{width:100%;min-height:44px;border-radius:10px;border:1px solid rgba(139,157,106,.22);background:rgba(8,10,7,.92);color:var(--text);padding:12px 14px;font:400 14px 'Inter',sans-serif}
+      .ads-form-field textarea{min-height:140px;resize:vertical}
+      .ads-form-field.full{grid-column:1 / -1}
+      .ads-form-actions{display:flex;flex-wrap:wrap;gap:10px}
+      @media(max-width:1080px){
+        .ads-hero,.ads-copy-grid{grid-template-columns:1fr}
+        .ads-grid,.ads-slot-grid,.ads-package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      }
+      @media(max-width:760px){
+        .ads-wrap{padding:18px 16px 28px}
+        .ads-metrics,.ads-grid,.ads-slot-grid,.ads-package-grid,.ads-form-grid{grid-template-columns:1fr}
+        .ads-section-head{display:grid;align-items:start}
+        .ads-brief,.ads-side,.ads-card,.ads-table-card,.ads-slot-card,.ads-copy-card{padding:16px}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/truth" class="delta-logo" aria-hidden="true" title="" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — ADVERTISE</h1>
+        <p class="tag">SPONSOR INVENTORY • AFFILIATE OFFERS • AD PLACEMENTS</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="ads-wrap">
+      <section class="ads-hero">
+        <article class="ads-brief">
+          <span class="ads-kicker">Dedicated Monetization Surface</span>
+          <h2>Advertise With Delta</h2>
+          <p>This is a separate page built specifically for ads, sponsors, affiliate offers, and promoted products. Use it as a standalone monetization surface so paid placements live in one place instead of getting mixed into the rest of the site.</p>
+          <div class="ads-actions">
+            <button id="copyAdPitch" type="button">Copy Ad Pitch</button>
+            <button id="copyPlacementSpecs" type="button">Copy Placement Specs</button>
+            <a href="#adSlots">View Ad Slots</a>
+          </div>
+          <div class="ads-metrics">
+            <div class="ads-metric">
+              <strong>Separate Page</strong>
+              <span>Ads and partner offers stay isolated from your core tools and content.</span>
+            </div>
+            <div class="ads-metric">
+              <strong>Direct Sponsor Ready</strong>
+              <span>Sell hero placements or offer cards directly without changing the rest of the site.</span>
+            </div>
+            <div class="ads-metric">
+              <strong>Payout Safe</strong>
+              <span>Bank payout gets connected inside your ad or affiliate provider dashboard, not in site code.</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="ads-side">
+          <h3>What This Page Does</h3>
+          <p>The page gives you a clean sponsor inventory sheet and reserved ad canvases. Once you have a real ad platform account, you can replace any slot with approved embed code.</p>
+          <ul class="ads-side-list">
+            <li><strong>Direct sponsors</strong>Pitch this page to brands, stores, or partners and sell dedicated placements directly.</li>
+            <li><strong>Affiliate offers</strong>Swap a slot with product cards, coupon offers, or partner links that pay per sale.</li>
+            <li><strong>Ad networks</strong>Add provider code later after your publisher account and bank payout are verified in that provider dashboard.</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="ads-section">
+        <div class="ads-section-head">
+          <div>
+            <h3>Direct Sponsorship Inventory</h3>
+            <p>These placements are already defined so you can sell the page as inventory right now.</p>
+          </div>
+        </div>
+        <div class="ads-grid">
+          <article class="ads-card">
+            <span class="ads-pill">Premium</span>
+            <h4>Hero Sponsor</h4>
+            <p>One primary above-the-fold placement for your best sponsor, launch offer, or top affiliate campaign.</p>
+            <ul>
+              <li>Large headline plus CTA.</li>
+              <li>Best for flat monthly sponsorships.</li>
+              <li>Highest visibility on the page.</li>
+            </ul>
+          </article>
+          <article class="ads-card">
+            <span class="ads-pill">Flexible</span>
+            <h4>Offer Grid Cards</h4>
+            <p>Three smaller placements for rotating offers, paid partner cards, or product drops.</p>
+            <ul>
+              <li>Good for multiple advertisers at once.</li>
+              <li>Good fit for affiliate cards.</li>
+              <li>Easy to refresh frequently.</li>
+            </ul>
+          </article>
+          <article class="ads-card">
+            <span class="ads-pill">Passive</span>
+            <h4>Network Embed</h4>
+            <p>A reserved unit where you can paste approved AdSense or other network code once your publisher account exists.</p>
+            <ul>
+              <li>Designed for passive CPC or RPM revenue.</li>
+              <li>Provider handles bank payout securely.</li>
+              <li>Can be swapped without redesigning the page.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="ads-section">
+        <div class="ads-section-head">
+          <div>
+            <h3>Placement Specs</h3>
+            <p>Use these as a simple media sheet when you pitch partners or affiliates.</p>
+          </div>
+        </div>
+        <article class="ads-table-card">
+          <table class="ads-table">
+            <thead>
+              <tr>
+                <th>Placement</th>
+                <th>Format</th>
+                <th>Best Use</th>
+                <th>Revenue Model</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Hero Sponsor</td>
+                <td>Large banner with copy and CTA</td>
+                <td>Premium sponsor or flagship affiliate offer</td>
+                <td>Flat monthly buy</td>
+              </tr>
+              <tr>
+                <td>Offer Grid Card</td>
+                <td>Small sponsored product block</td>
+                <td>Rotating partner deals or affiliate products</td>
+                <td>Monthly card rate or revenue share</td>
+              </tr>
+              <tr>
+                <td>Network Embed</td>
+                <td>Provider script inside a reserved slot</td>
+                <td>Passive monetization after account approval</td>
+                <td>CPC or RPM network payout</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="ads-section">
+        <div class="ads-section-head">
+          <div>
+            <h3>Starter Pricing</h3>
+            <p>These are affordable intro-rate package anchors you can start with immediately and raise later if demand supports it.</p>
+          </div>
+        </div>
+        <div class="ads-package-grid">
+          <article class="ads-package-card">
+            <span class="ads-pill">Starter</span>
+            <h4>Featured Card</h4>
+            <strong>$49</strong>
+            <p>One featured product or offer card on the ad page for a 30-day run.</p>
+            <ul>
+              <li>Best for small business promotions.</li>
+              <li>Good for affiliate-like partner deals.</li>
+              <li>Low-friction entry package.</li>
+            </ul>
+          </article>
+          <article class="ads-package-card">
+            <span class="ads-pill">Core</span>
+            <h4>Hero Sponsor</h4>
+            <strong>$129</strong>
+            <p>Main sponsor placement with top-page visibility for a 30-day run.</p>
+            <ul>
+              <li>Highest visibility on the page.</li>
+              <li>Best for brands that want headline placement.</li>
+              <li>Flat-rate direct deal.</li>
+            </ul>
+          </article>
+          <article class="ads-package-card">
+            <span class="ads-pill">Premium</span>
+            <h4>Full Page Bundle</h4>
+            <strong>$249</strong>
+            <p>Hero placement plus two supporting cards for a coordinated campaign.</p>
+            <ul>
+              <li>Best for launches and bundled offers.</li>
+              <li>Direct sponsor bundle for larger advertisers.</li>
+              <li>Simple monthly revenue package.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="ads-section" id="adSlots">
+        <div class="ads-section-head">
+          <div>
+            <h3>Reserved Ad Slots</h3>
+            <p>Replace these canvases with real creative or approved ad-network code later.</p>
+          </div>
+        </div>
+        <div class="ads-slot-grid">
+          <article class="ads-slot-card">
+            <span class="ads-pill">Slot A</span>
+            <h4>Hero Sponsor Canvas</h4>
+            <div class="ads-slot">Your Ad Here<br>Hero Sponsor Unit</div>
+            <p>Best placement for one premium sponsor or top affiliate offer.</p>
+          </article>
+          <article class="ads-slot-card">
+            <span class="ads-pill">Slot B</span>
+            <h4>Featured Deal Canvas</h4>
+            <div class="ads-slot">Your Ad Here<br>Featured Deal Card</div>
+            <p>Good for mid-page product cards, coupon offers, or partner promotions.</p>
+          </article>
+          <article class="ads-slot-card">
+            <span class="ads-pill">Slot C</span>
+            <h4>AdSense Or Network Embed</h4>
+            <div class="ads-slot">Your Ad Here<br>Network Embed Slot</div>
+            <p>Insert provider code here after your publisher profile and bank payout are approved.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="ads-section" id="bookAds">
+        <div class="ads-section-head">
+          <div>
+            <h3>Book Ad Space</h3>
+            <p>This form turns the page into a real lead capture surface. Advertisers can submit their details, budget, and preferred placement directly from the site.</p>
+          </div>
+        </div>
+        <article class="ads-form-card">
+          <div class="ads-form-grid">
+            <label class="ads-form-field">
+              Company
+              <input id="adCompany" type="text" placeholder="Brand or company name">
+            </label>
+            <label class="ads-form-field">
+              Contact Name
+              <input id="adContactName" type="text" placeholder="Your name">
+            </label>
+            <label class="ads-form-field">
+              Email
+              <input id="adEmail" type="email" placeholder="name@company.com">
+            </label>
+            <label class="ads-form-field">
+              Website
+              <input id="adWebsite" type="url" placeholder="https://example.com">
+            </label>
+            <label class="ads-form-field">
+              Placement
+              <select id="adPlacement">
+                <option value="">Select placement</option>
+                <option value="Hero Sponsor">Hero Sponsor</option>
+                <option value="Featured Card">Featured Card</option>
+                <option value="Full Page Bundle">Full Page Bundle</option>
+                <option value="Custom Campaign">Custom Campaign</option>
+              </select>
+            </label>
+            <label class="ads-form-field">
+              Budget
+              <input id="adBudget" type="text" placeholder="$49 - $249+">
+            </label>
+            <label class="ads-form-field full">
+              Preferred Start Window
+              <input id="adStartWindow" type="text" placeholder="Example: start next week or June 2026">
+            </label>
+            <label class="ads-form-field full">
+              Campaign Notes
+              <textarea id="adNotes" placeholder="Describe the product, offer, campaign goal, or landing page."></textarea>
+            </label>
+          </div>
+          <div class="ads-form-actions">
+            <button id="submitAdInquiry" type="button">Submit Ad Inquiry</button>
+          </div>
+          <div class="ads-status" id="adInquiryStatus" aria-live="polite">Submissions are stored on the site so you can collect real sponsor leads. If you later add an ad network, bank payout still stays inside that provider dashboard.</div>
+        </article>
+      </section>
+
+      <section class="ads-section">
+        <div class="ads-copy-grid">
+          <article class="ads-copy-card">
+            <span class="ads-pill">Pitch Copy</span>
+            <h4>Copy A Sponsor Pitch</h4>
+            <p>These buttons generate quick outreach text so you can pitch brands or partners without writing from scratch every time.</p>
+            <div class="ads-copy-actions">
+              <button id="copyAdPitchBottom" type="button">Copy Ad Pitch</button>
+              <button id="copyPlacementSpecsBottom" type="button">Copy Placement Specs</button>
+            </div>
+            <div class="ads-status" id="adCopyStatus" aria-live="polite">This ad page is ready. To send revenue directly to your bank, complete payout setup inside the ad provider or affiliate platform you choose, then paste that provider's approved embed into one of the reserved slots.</div>
+          </article>
+          <aside class="ads-copy-card">
+            <span class="ads-pill">Payout Note</span>
+            <h4>Bank Account Connection</h4>
+            <ul class="ads-copy-list">
+              <li><strong>Not in site code</strong>Your bank account should be linked inside Google AdSense, an affiliate platform, or another ad provider dashboard.</li>
+              <li><strong>More secure</strong>The provider handles verification, tax setup, and direct deposit safely.</li>
+              <li><strong>Next handoff</strong>Once you have a publisher ID or approved embed, this page is where the live ads go.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const adCopyStatus = document.getElementById('adCopyStatus');
+      const adInquiryStatus = document.getElementById('adInquiryStatus');
+      const adPitchText = [
+        'Advertise With FutureCodeDelta',
+        '',
+        'FutureCodeDelta now has a dedicated ad page for sponsor placements, affiliate offers, and promoted product blocks.',
+        'Inventory includes a hero sponsor unit, featured offer cards, and a reserved network-embed slot.',
+        'If you want a dedicated placement, reply with your creative, landing URL, and campaign window.'
+      ].join('\n');
+      const placementSpecsText = [
+        'FutureCodeDelta Ad Placements',
+        '',
+        'Hero Sponsor: large above-the-fold placement for one premium advertiser.',
+        'Offer Grid Card: featured product or offer block for rotating partners.',
+        'Network Embed Slot: reserved container for approved AdSense or other network code.',
+        'Bank payout is configured inside the ad provider or affiliate platform dashboard.'
+      ].join('\n');
+
+      function inquiryField(id) {
+        return document.getElementById(id);
+      }
+
+      function setInquiryStatus(message, tone) {
+        adInquiryStatus.textContent = message;
+        adInquiryStatus.classList.toggle('alert', tone === 'alert');
+      }
+
+      async function copyText(text, successMessage) {
+        try {
+          await navigator.clipboard.writeText(text);
+          adCopyStatus.textContent = successMessage;
+          adCopyStatus.classList.remove('alert');
+        } catch (_) {
+          adCopyStatus.textContent = 'Clipboard copy failed in this browser context. Copy the visible text manually.';
+          adCopyStatus.classList.add('alert');
+        }
+      }
+
+      document.getElementById('copyAdPitch').addEventListener('click', () => copyText(adPitchText, 'Advertising pitch copied.'));
+      document.getElementById('copyPlacementSpecs').addEventListener('click', () => copyText(placementSpecsText, 'Placement specs copied.'));
+      document.getElementById('copyAdPitchBottom').addEventListener('click', () => copyText(adPitchText, 'Advertising pitch copied.'));
+      document.getElementById('copyPlacementSpecsBottom').addEventListener('click', () => copyText(placementSpecsText, 'Placement specs copied.'));
+
+      document.getElementById('submitAdInquiry').addEventListener('click', async () => {
+        const payload = {
+          company: inquiryField('adCompany').value.trim(),
+          contact_name: inquiryField('adContactName').value.trim(),
+          email: inquiryField('adEmail').value.trim(),
+          website: inquiryField('adWebsite').value.trim(),
+          placement: inquiryField('adPlacement').value,
+          budget: inquiryField('adBudget').value.trim(),
+          start_window: inquiryField('adStartWindow').value.trim(),
+          notes: inquiryField('adNotes').value.trim(),
+        };
+
+        if (!payload.company || !payload.contact_name || !payload.email || !payload.placement) {
+          setInquiryStatus('Company, contact name, email, and placement are required before the inquiry can be submitted.', 'alert');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/advertise/inquiry', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+          if (!response.ok || !data.ok) {
+            setInquiryStatus(data.error || 'Ad inquiry failed. Try again in a minute.', 'alert');
+            return;
+          }
+
+          ['adCompany','adContactName','adEmail','adWebsite','adBudget','adStartWindow','adNotes'].forEach(id => { inquiryField(id).value = ''; });
+          inquiryField('adPlacement').value = '';
+          setInquiryStatus(`Ad inquiry #${data.id} stored. You now have a real advertiser lead captured from the site.`, 'ok');
+        } catch (_) {
+          setInquiryStatus('Network error while sending the ad inquiry. Try again shortly.', 'alert');
+        }
+      });
+    </script>
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>

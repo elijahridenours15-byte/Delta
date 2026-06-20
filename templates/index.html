@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Delta Coding — Tactical Dev Platform">
     <meta name="twitter:description" content="Free online code editor for Python, Java, HTML, CSS, and JS. Run code in your browser at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
   </head>
   <body>
     <header class="hero">
@@ -40,6 +40,9 @@
     <main>
       <div class="container">
         <section class="editor">
+        {% if execution_locked %}
+        <p class="backend-status-text" style="margin:0 0 10px">Run and Agent are locked on this deployment until an admin token is configured.</p>
+        {% endif %}
         <div class="controls">
           <label for="language">Language</label>
           <select id="language">
@@ -49,7 +52,10 @@
             <option value="css">CSS</option>
             <option value="web">Web (HTML+CSS+JS)</option>
           </select>
-          <button id="run">Run</button>
+          {% if admin_token_set %}
+          <input id="opsToken" type="password" class="share-link-input" placeholder="Admin token for Run + Agent" autocomplete="off" aria-label="Admin token for Run and Agent" style="width:auto;flex:1 1 240px;min-width:220px;margin-bottom:0" />
+          {% endif %}
+          <button id="run"{% if execution_locked %} disabled title="Execution locked on this deployment"{% endif %}>Run</button>
           <button id="reset">Reset</button>
         </div>
         <!-- Single editor (Python / Java / HTML-only / CSS-only) -->
@@ -76,7 +82,7 @@
               <label><input type="checkbox" id="agent_execute" /> Execute</label>
               <label><input type="checkbox" id="agent_confirm" /> Confirm</label>
               <label title="Use LLM to expand instruction"><input type="checkbox" id="use_llm" /> LLM</label>
-              <button id="askAgent">Ask Agent</button>
+              <button id="askAgent"{% if execution_locked %} disabled title="Execution locked on this deployment"{% endif %}>Ask Agent</button>
             </div>
             <div class="agent-row">
               <button id="downloadProject" disabled>Download Last</button>
@@ -162,6 +168,16 @@
             <strong>Review bug-out and sustainment resources</strong>
             <p>Check the survival page for carried gear, mission sustainment items, and readiness references.</p>
           </a>
+          <a class="home-ops-card" href="/survival/meal-bible">
+            <span class="home-ops-card-tag">Meal Bible</span>
+            <strong>Open all 1,000 field meal builds</strong>
+            <p>Jump directly into the Tactical Meal Bible with the full perishable and nonperishable meal library, filters, and export tools.</p>
+          </a>
+          <a class="home-ops-card" href="/culture">
+            <span class="home-ops-card-tag">Culture Build</span>
+            <strong>Open the five-country culture reference</strong>
+            <p>Move straight into the Iran, China, Russia, Mexico, and Israel culture guide from the main Ops Center surface.</p>
+          </a>
           <a class="home-ops-card" href="/bible">
             <span class="home-ops-card-tag">Scripture Intel</span>
             <strong>Move from the headline rail into the full scripture index</strong>
@@ -191,6 +207,16 @@
       const shareCodeBtn = document.getElementById('shareCode');
       const copyShareLinkBtn = document.getElementById('copyShareLink');
       const downloadOfflineSiteBtn = document.getElementById('downloadOfflineSite');
+      const opsTokenEl = document.getElementById('opsToken');
+
+      function buildJsonHeaders() {
+        const headers = {'Content-Type': 'application/json'};
+        const token = opsTokenEl ? opsTokenEl.value.trim() : '';
+        if (token) {
+          headers['X-Admin-Token'] = token;
+        }
+        return headers;
+      }
 
       // ─── Single-mode Ace editor ───
       const editor = ace.edit('editor');
@@ -365,10 +391,11 @@
           const h = editorHtml.getValue(), c = editorCss.getValue(), j = editorJs.getValue();
           try {
             const res = await fetch('/run', {
-              method: 'POST', headers: {'Content-Type': 'application/json'},
+              method: 'POST', headers: buildJsonHeaders(),
               body: JSON.stringify({language: 'html', code: h, css: c, js: j})
             });
             const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Run failed');
             if (data.html) { previewEl.style.display = 'block'; outEl.style.display = 'none'; previewEl.srcdoc = data.html; }
           } catch (err) { outEl.textContent = 'Error: ' + err.message; }
           return;
@@ -379,10 +406,11 @@
           const body = {language: lang, code: codeVal};
           // For CSS-only mode, also send current HTML if user has one
           const res = await fetch('/run', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
+            method: 'POST', headers: buildJsonHeaders(),
             body: JSON.stringify(body)
           });
           const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Run failed');
           if (data.html) {
             previewEl.style.display = 'block'; outEl.style.display = 'none';
             previewEl.srcdoc = data.html;
@@ -407,7 +435,7 @@
         try {
           const res = await fetch('/agent', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: buildJsonHeaders(),
             body: JSON.stringify({
               instruction: instrEl.value,
               project_name: document.getElementById('project_name').value,
@@ -417,6 +445,7 @@
             })
           });
           const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Agent request failed');
           agentOutEl.textContent = JSON.stringify(data, null, 2);
           if (data && data.project_name) {
             lastProject = data.project_name;

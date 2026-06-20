@@ -16,7 +16,7 @@
     <meta name="twitter:title" content="Delta Coding - Armory Reference Viewer">
     <meta name="twitter:description" content="Stock-image weapon inspection and attachment tuning surface at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/weapons/armory">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       .armory-page { padding: 20px 22px 44px; }
       .armory-wrap { max-width: 1480px; margin: 0 auto; }
@@ -228,6 +228,9 @@
         letter-spacing: .9px;
         text-transform: uppercase;
       }
+      .armory-roster-spec {
+        color: var(--text2);
+      }
       .armory-stage-head {
         display: flex;
         align-items: flex-start;
@@ -369,6 +372,47 @@
         text-decoration: none;
       }
       .armory-stage-source-note a:hover { text-decoration: underline; }
+      .armory-weapon-intel {
+        display: grid;
+        gap: 12px;
+      }
+      .armory-spec-grid,
+      .armory-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+      .armory-spec-card,
+      .armory-detail-card,
+      .armory-notes-card {
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(11,14,9,.7);
+        border: 1px solid rgba(164,184,122,.14);
+        display: grid;
+        gap: 8px;
+      }
+      .armory-spec-card strong,
+      .armory-detail-card strong,
+      .armory-notes-card strong {
+        display: block;
+        color: var(--muted);
+        font: 700 10px/1.45 'JetBrains Mono', monospace;
+        letter-spacing: .9px;
+        text-transform: uppercase;
+      }
+      .armory-spec-card span {
+        display: block;
+        color: var(--text);
+        font: 700 13px/1.45 'Inter', sans-serif;
+      }
+      .armory-detail-card p,
+      .armory-notes-card p {
+        margin: 0;
+        color: var(--text2);
+        font-size: 12px;
+        line-height: 1.65;
+      }
       .armory-reference-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -404,16 +448,17 @@
         aspect-ratio: 4 / 3;
         border-radius: 10px;
         border: 1px solid rgba(164,184,122,.12);
-        background: linear-gradient(180deg, rgba(17,21,14,.82), rgba(8,10,7,.92));
+        background: linear-gradient(180deg, rgba(17,21,14,.82), rgba(8,10,7,.96));
         display: grid;
         place-items: center;
         overflow: hidden;
-        padding: 12px;
+        padding: 0;
       }
       .armory-reference-figure img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        object-position: center;
         display: block;
       }
       .armory-reference-source {
@@ -711,11 +756,11 @@
               </div>
               <div class="armory-hero-brief">
                 <strong>Viewer Logic</strong>
-                <span>The center panel now loads stock weapon photos from the web when available and falls back to a local reference plate when a source image is missing.</span>
+                <span>The center panel now loads stock weapon photos from the web when available and falls back to a built-in bench illustration when a source image is missing.</span>
               </div>
               <div class="armory-hero-brief">
                 <strong>Attachment Bench</strong>
-                <span>Each category still exposes matching slots and quick presets, and selected attachments now get their own reference images below the main weapon image.</span>
+                <span>Each category still exposes matching slots and quick presets, and selected attachments now render real editorial reference photos with direct review links below the main weapon image.</span>
               </div>
             </div>
           </div>
@@ -728,7 +773,7 @@
         <section class="armory-layout">
           <aside class="armory-catalog-card armory-card">
             <h3>Weapon Index</h3>
-            <input class="armory-search" id="armorySearch" type="text" placeholder="Search weapon, maker, caliber..." aria-label="Search armory weapons">
+            <input class="armory-search" id="armorySearch" type="text" placeholder="Search weapon, maker, caliber, action, feed..." aria-label="Search armory weapons">
             <div class="armory-filter-group">
               <span class="armory-filter-label">Nation Filter</span>
               <div class="armory-filter-row" id="armoryNationFilters"></div>
@@ -766,6 +811,23 @@
               <span class="armory-stage-caption" id="armoryStageCaption">Stock weapon images and selected attachment references load from the web when available.</span>
             </div>
             <div class="armory-stage-source-note" id="armoryStageSourceNote"></div>
+            <div class="armory-weapon-intel">
+              <div class="armory-spec-grid" id="armoryWeaponSpecGrid"></div>
+              <div class="armory-detail-grid">
+                <article class="armory-detail-card">
+                  <strong>Service / Operators</strong>
+                  <p id="armoryWeaponService">-</p>
+                </article>
+                <article class="armory-detail-card">
+                  <strong>Technical Reference</strong>
+                  <p id="armoryWeaponManual">-</p>
+                </article>
+              </div>
+              <article class="armory-notes-card">
+                <strong>Platform Notes</strong>
+                <p id="armoryWeaponNotes">-</p>
+              </article>
+            </div>
             <div class="armory-reference-grid" id="armoryAttachmentReferenceGrid"></div>
 
             <div class="armory-metric-grid" id="armoryMetricGrid"></div>
@@ -886,6 +948,389 @@
         { id: 'spike-atgm', name: 'Spike ATGM (Spike-MR/LR2)', nation: 'isr', cat: 'launcher', caliber: '130mm tandem HEAT / EFP', weightLb: 56.5, range: '2500-4000 m', maker: 'Rafael Advanced Defense Systems' },
         { id: 'uzi-pro-smg', name: 'Uzi Pro SMG', nation: 'isr', cat: 'smg', caliber: '9x19mm', weightLb: 4.4, range: '100 m', maker: 'Israel Weapon Industries (IWI)' }
       ];
+      const ARMORY_WEAPON_DETAILS = Object.freeze({
+        'm4a1-carbine': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '6.43 lb empty',
+          velocity: '880 m/s',
+          service: 'US Army, USMC, SOCOM',
+          tm: 'TM 9-1005-319-10',
+          notes: 'Standard US infantry carbine with 14.5-inch barrel and SOPMOD rail support.'
+        },
+        'm16a4-rifle': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '7.5 lb empty',
+          velocity: '948 m/s',
+          service: 'USMC service rifle and training inventories',
+          tm: 'TM 9-1005-319-23',
+          notes: 'Full-length 20-inch rifle retained for marksmanship and training roles after front-line replacement by the M27.'
+        },
+        'm27-iar': {
+          action: 'Gas-operated, short-stroke piston',
+          weight: '7.9 lb empty',
+          velocity: '900 m/s',
+          service: 'USMC',
+          tm: 'TM 1005-HK-IAR-10',
+          notes: 'HK416-derived platform fielded as a rifle and automatic-rifle replacement for many Marine squads.'
+        },
+        'm249-saw': {
+          action: 'Gas-operated, open bolt',
+          weight: '17.0 lb empty',
+          velocity: '915 m/s',
+          service: 'US Army, USMC',
+          tm: 'TM 9-1005-201-10',
+          notes: 'Belt-fed squad automatic weapon that can accept STANAG magazines for emergency feed.'
+        },
+        'm240b-gpmg': {
+          action: 'Gas-operated, open bolt',
+          weight: '27.6 lb empty',
+          velocity: '853 m/s',
+          service: 'US Army, USMC, SOCOM',
+          tm: 'TM 9-1005-313-10',
+          notes: 'FN MAG-derived general purpose machine gun used dismounted and on vehicle mounts.'
+        },
+        'm2a1-hmg': {
+          action: 'Short-recoil, open bolt',
+          weight: '84 lb (gun only)',
+          velocity: '890 m/s',
+          service: 'All US services, NATO',
+          tm: 'TM 9-1005-213-10',
+          notes: 'Quick-change barrel heavy machine gun for vehicle, maritime, and fixed defensive positions.'
+        },
+        'm110-sass': {
+          action: 'Gas-operated, semi-auto',
+          weight: '15.4 lb (w/ suppressor)',
+          velocity: '783 m/s',
+          service: 'US Army, USMC',
+          tm: 'TM 9-1005-338-13&P',
+          notes: 'Semi-auto sniper system built on the SR-25 pattern for designated marksman and sniper support roles.'
+        },
+        'm24-sws': {
+          action: 'Bolt-action, Remington 700 action',
+          weight: '12.1 lb',
+          velocity: '790 m/s',
+          service: 'US Army, Rangers',
+          tm: 'TM 9-1005-306-10',
+          notes: 'Precision bolt gun with long-action receiver and Leupold long-range optics heritage.'
+        },
+        'm82a1-m107': {
+          action: 'Short-recoil, semi-auto',
+          weight: '30.9 lb',
+          velocity: '853 m/s',
+          service: 'US Army, USMC, SOCOM',
+          tm: 'TM 9-1005-326-23&P',
+          notes: '.50 caliber anti-materiel rifle for disabling vehicles, radar, and hard targets at standoff range.'
+        },
+        'm17-p320': {
+          action: 'Short-recoil, striker-fired',
+          weight: '1.9 lb',
+          velocity: '366 m/s',
+          service: 'US Army, Navy, Air Force',
+          tm: 'TM 9-1005-350-10',
+          notes: 'Modular handgun system sidearm with removable fire control unit and M18 compact variant.'
+        },
+        'm9a3-beretta': {
+          action: 'Short-recoil, DA/SA hammer-fired',
+          weight: '2.1 lb',
+          velocity: '381 m/s',
+          service: 'US Armed Forces and allied users',
+          tm: 'TM 9-1005-317-10',
+          notes: 'Updated Beretta service pistol with rail, improved sights, and threaded barrel options.'
+        },
+        'm320-glm': {
+          action: 'Break-action, single-shot',
+          weight: '3.3 lb standalone',
+          velocity: '76 m/s',
+          service: 'US Army, USMC',
+          tm: 'TM 9-1010-223-10',
+          notes: 'Side-loading 40mm launcher that can be used as a standalone or underbarrel system.'
+        },
+        'at4-launcher': {
+          action: 'Single-shot, disposable',
+          weight: '14.8 lb',
+          velocity: '290 m/s',
+          service: 'US Army, USMC, allied users',
+          tm: 'TM 9-1340-214-10',
+          notes: 'Disposable 84mm anti-armor launcher for squad-level bunker and vehicle defeat.'
+        },
+        'fim-92-stinger': {
+          action: 'Passive IR seeker, fire-and-forget',
+          weight: '34.5 lb (ready)',
+          velocity: '750 m/s',
+          service: 'US Army, USMC, allied users',
+          tm: 'TM 9-1440-473-12&P',
+          notes: 'Shoulder-fired air defense missile used against helicopters, UAVs, and low aircraft.'
+        },
+        'ak-74m': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '7.5 lb empty',
+          velocity: '900 m/s',
+          service: 'Russian Armed Forces',
+          tm: 'NSD AK-74M',
+          notes: 'Standard Russian service rifle with folding stock and side optics rail.'
+        },
+        'ak-12': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '7.9 lb empty',
+          velocity: '900 m/s',
+          service: 'Russian Ground Forces, VDV',
+          tm: 'NSD AK-12',
+          notes: 'Ratnik-era Kalashnikov with modern rail interface and updated stock and controls.'
+        },
+        'ak-103': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '7.5 lb empty',
+          velocity: '715 m/s',
+          service: 'Russian security forces and export users',
+          tm: 'NSD AK-103',
+          notes: '7.62x39mm Kalashnikov variant favored where legacy ammunition stocks remain common.'
+        },
+        'pkm-gpmg': {
+          action: 'Gas-operated, open bolt',
+          weight: '19.8 lb empty',
+          velocity: '825 m/s',
+          service: 'Russia, former Soviet states, export users',
+          tm: 'NSD PKM',
+          notes: 'Durable belt-fed general purpose machine gun renowned for reliability across harsh field conditions.'
+        },
+        'rpk-16': {
+          action: 'Gas-operated, closed bolt',
+          weight: '9.5 lb empty',
+          velocity: '900 m/s',
+          service: 'Russian special units',
+          tm: 'NSD RPK-16',
+          notes: 'Modern light machine gun with quick-change barrel options and drum compatibility.'
+        },
+        'svd-dragunov': {
+          action: 'Gas-operated, semi-auto',
+          weight: '9.5 lb empty',
+          velocity: '830 m/s',
+          service: 'Russia, former Warsaw Pact, export users',
+          tm: 'NSD SVD',
+          notes: 'Squad-level designated marksman rifle optimized for fast follow-up shots rather than benchrest precision.'
+        },
+        'sv-98': {
+          action: 'Bolt-action',
+          weight: '14.1 lb',
+          velocity: '820 m/s',
+          service: 'FSB, MVD, Spetsnaz',
+          tm: 'NSD SV-98',
+          notes: 'Precision rifle with adjustable stock geometry and heavy barrel for specialist marksmen.'
+        },
+        'mp-443-grach': {
+          action: 'Short-recoil, DA/SA',
+          weight: '2.1 lb',
+          velocity: '450 m/s',
+          service: 'Russian Armed Forces, FSB, MVD',
+          tm: 'NSD MP-443',
+          notes: 'Standard Russian service pistol built for 7N21 armor-piercing 9mm ammunition.'
+        },
+        'rpg-7v2': {
+          action: 'Single-shot, reloadable',
+          weight: '15.0 lb (launcher)',
+          velocity: '115 m/s launch, 295 m/s flight',
+          service: 'Russia and export users',
+          tm: 'NSD RPG-7',
+          notes: 'Reloadable anti-armor launcher with HEAT, fragmentation, and thermobaric warhead options.'
+        },
+        'igla-s': {
+          action: 'Dual IR/UV seeker, fire-and-forget',
+          weight: '38.0 lb (ready)',
+          velocity: '570 m/s peak',
+          service: 'Russia and export users',
+          tm: 'NSD 9K38',
+          notes: 'MANPADS upgrade with improved countermeasure resistance and low-altitude air-defense reach.'
+        },
+        'qbz-95-1': {
+          action: 'Gas-operated, rotating bolt, bullpup',
+          weight: '7.3 lb empty',
+          velocity: '930 m/s',
+          service: 'PLA, PAP',
+          tm: 'PLA Technical Manual QBZ-95',
+          notes: 'Compact bullpup service rifle firing 5.8x42mm ammunition.'
+        },
+        'qbz-191': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '8.4 lb empty',
+          velocity: '930 m/s',
+          service: 'PLA',
+          tm: 'PLA Technical Manual QBZ-191',
+          notes: 'Conventional-layout successor to the QBZ-95 family with improved rails and ergonomics.'
+        },
+        'qbz-03': {
+          action: 'Gas-operated, rotating bolt',
+          weight: '7.3 lb empty',
+          velocity: '930 m/s',
+          service: 'PLA reserve, militia, export users',
+          tm: 'PLA Technical Manual QBZ-03',
+          notes: 'Traditional-layout 5.8mm rifle used where bullpup ergonomics were not preferred.'
+        },
+        'qjy-88': {
+          action: 'Gas-operated, open bolt',
+          weight: '22.9 lb (w/ bipod)',
+          velocity: '895 m/s',
+          service: 'PLA',
+          tm: 'PLA Technical Manual QJY-88',
+          notes: 'Belt-fed squad support gun matched to PLA 5.8mm ammunition logistics.'
+        },
+        'cs-lr4': {
+          action: 'Bolt-action, Mauser-controlled feed',
+          weight: '13.4 lb',
+          velocity: '790 m/s',
+          service: 'PLA, PAP, export customers',
+          tm: 'CSGC Technical Specification LR4',
+          notes: 'Precision export-oriented sniper rifle with folding chassis and NATO optic compatibility.'
+        },
+        'qsz-92': {
+          action: 'Short-recoil, DA/SA',
+          weight: '1.7 lb',
+          velocity: '350 m/s (9mm)',
+          service: 'PLA, PAP',
+          tm: 'PLA Technical Manual QSZ-92',
+          notes: 'Standard PLA sidearm offered in proprietary 5.8mm and export-friendly 9mm variants.'
+        },
+        'qlz-87': {
+          action: 'Gas-operated, semi/full-auto',
+          weight: '42.5 lb (w/ tripod)',
+          velocity: '190 m/s',
+          service: 'PLA',
+          tm: 'PLA Technical Manual QLZ-87',
+          notes: 'Automatic grenade launcher for tripod or vehicle mounting with HE and fragmentation rounds.'
+        },
+        'hj-12': {
+          action: 'IIR fire-and-forget, top-attack capable',
+          weight: '43.5 lb (launcher + round)',
+          velocity: '~200 m/s',
+          service: 'PLA',
+          tm: 'CASIC Technical Specification HJ-12',
+          notes: 'Man-portable ATGM comparable in role to Western fire-and-forget top-attack missiles.'
+        },
+        'qw-18': {
+          action: 'Dual IR/UV seeker, single-shot',
+          weight: '35.3 lb (ready)',
+          velocity: '~600 m/s',
+          service: 'PLA Air Defense',
+          tm: 'CASIC Technical Specification QW-18',
+          notes: 'Chinese MANPADS generation built for low-altitude air-defense teams.'
+        },
+        'tavor-tar-21': {
+          action: 'Gas-operated, rotating bolt, bullpup',
+          weight: '7.9 lb empty',
+          velocity: '910 m/s',
+          service: 'IDF, Israeli Border Police',
+          tm: 'IWI Tavor Operator Manual',
+          notes: 'Main Israeli bullpup service rifle designed to keep carbine length short without sacrificing barrel.'
+        },
+        'x95-micro-tavor': {
+          action: 'Gas-operated, rotating bolt, bullpup',
+          weight: '6.6 lb empty',
+          velocity: '890 m/s',
+          service: 'IDF, Sayeret units, export users',
+          tm: 'IWI X95 Operator Manual',
+          notes: 'Compact Tavor variant with optional 9mm conversion kit for close protection and vehicle crews.'
+        },
+        'galil-ace-52': {
+          action: 'Gas-operated, rotating bolt (AK-derived)',
+          weight: '8.4 lb empty',
+          velocity: '800 m/s',
+          service: 'IDF paratroopers and export users',
+          tm: 'IWI Galil ACE Operator Manual',
+          notes: 'Modernized Galil family rifle with rails and NATO-caliber chambering.'
+        },
+        'negev-ng7': {
+          action: 'Gas-operated, open bolt',
+          weight: '17.2 lb empty',
+          velocity: '850 m/s',
+          service: 'IDF and export users',
+          tm: 'IWI Negev NG7 Operator Manual',
+          notes: '7.62 NATO belt-fed machine gun with quick-change barrel and lighter weight than many peers.'
+        },
+        galatz: {
+          action: 'Semi-auto (modified Galil action)',
+          weight: '14.1 lb',
+          velocity: '840 m/s',
+          service: 'IDF snipers, Israeli Police',
+          tm: 'IMI Galatz Technical Manual',
+          notes: 'Sniper-configured Galil with bipod, optics, and specialist marksman setup.'
+        },
+        'jericho-941-f': {
+          action: 'Short-recoil, DA/SA (CZ-75 derived)',
+          weight: '2.6 lb',
+          velocity: '350 m/s (9mm)',
+          service: 'IDF officers, Israeli Police, export agencies',
+          tm: 'IWI Jericho 941 Operator Manual',
+          notes: 'Steel-frame service pistol with strong reputation for durability and accuracy.'
+        },
+        'desert-eagle-mk-xix': {
+          action: 'Gas-operated, rotating bolt, SA',
+          weight: '4.4 lb',
+          velocity: '470 m/s (.50 AE)',
+          service: 'Israeli Police, special units, civilian market',
+          tm: 'Magnum Research Operator Manual',
+          notes: 'Large-frame gas-operated pistol with interchangeable barrels and calibers.'
+        },
+        'spike-atgm': {
+          action: 'IIR fire-and-forget, man-in-the-loop',
+          weight: '56.5 lb (launcher + round)',
+          velocity: '~180 m/s',
+          service: 'IDF, 40+ export nations',
+          tm: 'Rafael Spike System Operator Manual',
+          notes: 'Fiber-optic guided anti-tank missile system with top-attack and direct-attack modes.'
+        },
+        'uzi-pro-smg': {
+          action: 'Open bolt, blowback',
+          weight: '4.4 lb',
+          velocity: '350 m/s',
+          service: 'IDF VIP protection and export users',
+          tm: 'IWI Uzi Pro Operator Manual',
+          notes: 'Modern Micro Uzi successor built for compact close-protection and vehicle carry roles.'
+        }
+      });
+      const ARMORY_WEAPON_LOGISTICS = Object.freeze({
+        'm4a1-carbine': { capacity: '30-round STANAG magazine', feed: 'Detachable box magazine' },
+        'm16a4-rifle': { capacity: '30-round STANAG magazine', feed: 'Detachable box magazine' },
+        'm27-iar': { capacity: '30-round STANAG magazine', feed: 'Detachable box magazine' },
+        'm249-saw': { capacity: '200-round soft pack / 100-round belt', feed: 'Belt-fed, disintegrating link' },
+        'm240b-gpmg': { capacity: '100- or 200-round belt', feed: 'Belt-fed, disintegrating link' },
+        'm2a1-hmg': { capacity: '100-round linked belts', feed: 'Belt-fed, disintegrating link' },
+        'm110-sass': { capacity: '20-round SR-25 magazine', feed: 'Detachable box magazine' },
+        'm24-sws': { capacity: '5-round internal magazine', feed: 'Internal box magazine' },
+        'm82a1-m107': { capacity: '10-round magazine', feed: 'Detachable box magazine' },
+        'm17-p320': { capacity: '17-round magazine', feed: 'Detachable box magazine' },
+        'm9a3-beretta': { capacity: '17-round magazine', feed: 'Detachable box magazine' },
+        'm320-glm': { capacity: '1 round', feed: 'Single-shot breech load' },
+        'at4-launcher': { capacity: '1 rocket', feed: 'Disposable launch tube' },
+        'fim-92-stinger': { capacity: '1 missile', feed: 'Sealed launch tube' },
+        'ak-74m': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'ak-12': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'ak-103': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'pkm-gpmg': { capacity: '100-, 200-, or 250-round belt', feed: 'Belt-fed, non-disintegrating belt' },
+        'rpk-16': { capacity: '30-round magazine or 95-round drum', feed: 'Detachable box or drum magazine' },
+        'svd-dragunov': { capacity: '10-round magazine', feed: 'Detachable box magazine' },
+        'sv-98': { capacity: '10-round magazine', feed: 'Detachable box magazine' },
+        'mp-443-grach': { capacity: '18-round magazine', feed: 'Detachable box magazine' },
+        'rpg-7v2': { capacity: '1 rocket round', feed: 'Reloadable launch tube' },
+        'igla-s': { capacity: '1 missile', feed: 'Sealed launch tube' },
+        'qbz-95-1': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'qbz-191': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'qbz-03': { capacity: '30-round magazine', feed: 'Detachable box magazine' },
+        'qjy-88': { capacity: '200-round belt', feed: 'Belt-fed ammunition box' },
+        'cs-lr4': { capacity: '5-round magazine', feed: 'Detachable box magazine' },
+        'qsz-92': { capacity: '20-round (5.8mm) / 15-round (9mm)', feed: 'Detachable box magazine' },
+        'qlz-87': { capacity: '6- or 15-round drum', feed: 'Drum-fed launcher' },
+        'hj-12': { capacity: '1 missile', feed: 'Tube-launched round' },
+        'qw-18': { capacity: '1 missile', feed: 'Sealed launch tube' },
+        'tavor-tar-21': { capacity: '30-round STANAG magazine', feed: 'Detachable box magazine' },
+        'x95-micro-tavor': { capacity: '30-round STANAG magazine', feed: 'Detachable box magazine' },
+        'galil-ace-52': { capacity: '20-round magazine', feed: 'Detachable box magazine' },
+        'negev-ng7': { capacity: '100- or 125-round belt box', feed: 'Belt-fed, disintegrating link' },
+        galatz: { capacity: '20-round magazine', feed: 'Detachable box magazine' },
+        'jericho-941-f': { capacity: '16-round magazine (9mm)', feed: 'Detachable box magazine' },
+        'desert-eagle-mk-xix': { capacity: '7-round magazine (.50 AE)', feed: 'Detachable box magazine' },
+        'spike-atgm': { capacity: '1 missile', feed: 'Launch canister and CLU' },
+        'uzi-pro-smg': { capacity: '20-, 25-, or 32-round magazine', feed: 'Detachable box magazine' }
+      });
+      ARMORY_WEAPONS.forEach((weapon) => Object.assign(weapon, ARMORY_WEAPON_DETAILS[weapon.id] || {}, ARMORY_WEAPON_LOGISTICS[weapon.id] || {}));
       const SLOT_LIBRARY = {
         optic: [
           { id: 'optic-acog', label: 'ACOG 4x', categories: ['rifle'], weight: 0.9, volume: 0.4, style: 'optic-acog', description: 'Fixed combat optic for mixed-distance field work.', stats: { mobility: -2, control: 3, acquisition: 6 } },
@@ -1030,6 +1475,10 @@
       const armoryImageSource = document.getElementById('armoryImageSource');
       const armoryStageCaption = document.getElementById('armoryStageCaption');
       const armoryStageSourceNote = document.getElementById('armoryStageSourceNote');
+      const armoryWeaponSpecGrid = document.getElementById('armoryWeaponSpecGrid');
+      const armoryWeaponService = document.getElementById('armoryWeaponService');
+      const armoryWeaponManual = document.getElementById('armoryWeaponManual');
+      const armoryWeaponNotes = document.getElementById('armoryWeaponNotes');
       const armoryAttachmentReferenceGrid = document.getElementById('armoryAttachmentReferenceGrid');
       const armoryMetricGrid = document.getElementById('armoryMetricGrid');
       const armoryPresetRow = document.getElementById('armoryPresetRow');
@@ -1042,7 +1491,6 @@
 
       const mediaCache = new Map();
       let stageRenderToken = 0;
-      let attachmentRenderToken = 0;
       const WEAPON_IMAGE_SEARCH_OVERRIDES = {
         'm110-sass': 'M110 Semi-Automatic Sniper System',
         'm24-sws': 'M24 Sniper Weapon System',
@@ -1060,37 +1508,144 @@
         'negev-ng7': 'IWI Negev',
         'uzi-pro-smg': 'Uzi Pro'
       };
-      const ATTACHMENT_IMAGE_SEARCH = {
-        'optic-acog': 'Trijicon ACOG',
-        'optic-lpvo': 'low-power variable optic',
-        'optic-dot': 'red dot sight',
-        'optic-mini': 'pistol red dot sight',
-        'optic-scope': 'sniper riflescope',
-        'optic-launch': 'grenade launcher sight',
-        'optic-iff': 'FIM-92 Stinger sight unit',
-        'muzzle-flash': 'flash suppressor',
-        'muzzle-suppressor': 'firearm suppressor',
-        'muzzle-comp': 'pistol compensator',
-        'muzzle-brake': 'muzzle brake',
-        'aiming-peq': 'AN/PEQ-15',
-        'aiming-dbal': 'DBAL-A3',
-        'aiming-pistol': 'weapon-mounted laser sight',
-        'light-scout': 'weapon light flashlight',
-        'light-flood': 'tactical flashlight',
-        'light-pistol': 'pistol weapon light',
-        'light-compact': 'compact weapon light',
-        'support-handstop': 'hand stop firearm accessory',
-        'support-bipod': 'rifle bipod',
-        'support-tripod': 'machine gun tripod',
-        'support-brace': 'shoulder stock firearm',
-        'carry-sling': 'gun sling',
-        'carry-holster': 'pistol holster',
-        'carry-harness': 'load-bearing harness',
-        'carry-hardcase': 'gun case',
-        'obs-thermal': 'thermal imaging sight',
-        'obs-rangefinder': 'laser rangefinder',
-        'obs-binocular': 'binoculars',
-        'obs-power': 'battery pack'
+      const EDITORIAL_REFERENCE_SOURCES = {
+        acog: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2019/11/Trijicon-ACOG-648-GIGACOG-e1573536885296-1200x676.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-acog-scopes/',
+          linkLabel: 'Pew Pew Tactical ACOG guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        lpvo: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2018/05/Bunch-of-1-6x-Scopes.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-lpvo/',
+          linkLabel: 'Pew Pew Tactical LPVO guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        redDot: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2019/09/2.-Budget-Red-Dots-Front-e1635540884494-1200x680.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/red-dots-vs-holographic-sights/',
+          linkLabel: 'Pew Pew Tactical red-dot guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        pistolRedDot: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2025/10/Pistol-Red-Dots_PPT_2025.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-pistol-red-dot-sights/',
+          linkLabel: 'Pew Pew Tactical pistol-dot guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        suppressor: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2019/07/27.-SilencerCo-e1605487288827-1200x579.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-suppressor/',
+          linkLabel: 'Pew Pew Tactical suppressor guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        rifleLaser: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2018/11/1.-PWS-Diablo-with-Lots-of-Lasers-e1542753962382-1200x801.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-ar-15-lasers/',
+          linkLabel: 'Pew Pew Tactical laser guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        pistolLaser: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2021/10/5.-Crimson-Trace-RAD-Pro-Gunsite-Glock-G19-e1645050176780-1200x678.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/handgun-laser-sights/',
+          linkLabel: 'Pew Pew Tactical handgun-laser guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        rifleLight: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2026/01/AR-15-Flashlights_Lead_PPT.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-ar15-flashlights/',
+          linkLabel: 'Pew Pew Tactical rifle-light guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        pistolLight: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2025/12/Pistol-Lights_Lead.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-pistol-lights/',
+          linkLabel: 'Pew Pew Tactical pistol-light guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        bipod: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2018/03/USMC-using-AR15-with-Harris-bipod-1200x800.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/harris-bipod-review/',
+          linkLabel: 'Pew Pew Tactical bipod review',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        sling: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2026/03/Slings_PPT_1.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-rifle-slings/',
+          linkLabel: 'Pew Pew Tactical sling guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        holster: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2019/10/17.-Hidden-Hybrid-Holsters-Assortment-e1572223016959-1200x801.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-concealed-carry-holsters/',
+          linkLabel: 'Pew Pew Tactical holster guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        gunCase: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2022/07/2-Savior-Equipment-Specialist-Mini-Range-Bag-Pistol-Case.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-gun-cases/',
+          linkLabel: 'Pew Pew Tactical gun-case guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        thermal: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2024/10/ATN-THOR-5-right.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-thermal-optics/',
+          linkLabel: 'Pew Pew Tactical thermal guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        rangefinder: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2020/03/Rangefinders-10-1200x800.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-rangefinder/',
+          linkLabel: 'Pew Pew Tactical rangefinder guide',
+          sourceLabel: 'Pew Pew Tactical'
+        },
+        binoculars: {
+          imageUrl: 'https://www.pewpewtactical.com/wp-content/uploads/2020/12/Budget-Binos-Tested-3-scaled.jpg',
+          sourceUrl: 'https://www.pewpewtactical.com/best-binoculars/',
+          linkLabel: 'Pew Pew Tactical binocular guide',
+          sourceLabel: 'Pew Pew Tactical'
+        }
+      };
+      const ATTACHMENT_REFERENCE_MEDIA = {
+        'optic-acog': EDITORIAL_REFERENCE_SOURCES.acog,
+        'optic-lpvo': EDITORIAL_REFERENCE_SOURCES.lpvo,
+        'optic-dot': EDITORIAL_REFERENCE_SOURCES.redDot,
+        'optic-mini': EDITORIAL_REFERENCE_SOURCES.pistolRedDot,
+        'optic-scope': EDITORIAL_REFERENCE_SOURCES.lpvo,
+        'optic-launch': EDITORIAL_REFERENCE_SOURCES.lpvo,
+        'optic-iff': EDITORIAL_REFERENCE_SOURCES.binoculars,
+        'muzzle-flash': EDITORIAL_REFERENCE_SOURCES.suppressor,
+        'muzzle-suppressor': EDITORIAL_REFERENCE_SOURCES.suppressor,
+        'muzzle-comp': EDITORIAL_REFERENCE_SOURCES.suppressor,
+        'muzzle-brake': EDITORIAL_REFERENCE_SOURCES.suppressor,
+        'aiming-peq': EDITORIAL_REFERENCE_SOURCES.rifleLaser,
+        'aiming-dbal': EDITORIAL_REFERENCE_SOURCES.rifleLaser,
+        'aiming-pistol': EDITORIAL_REFERENCE_SOURCES.pistolLaser,
+        'light-scout': EDITORIAL_REFERENCE_SOURCES.rifleLight,
+        'light-flood': EDITORIAL_REFERENCE_SOURCES.rifleLight,
+        'light-pistol': EDITORIAL_REFERENCE_SOURCES.pistolLight,
+        'light-compact': EDITORIAL_REFERENCE_SOURCES.pistolLight,
+        'support-handstop': EDITORIAL_REFERENCE_SOURCES.rifleLaser,
+        'support-bipod': EDITORIAL_REFERENCE_SOURCES.bipod,
+        'support-tripod': EDITORIAL_REFERENCE_SOURCES.bipod,
+        'support-brace': EDITORIAL_REFERENCE_SOURCES.bipod,
+        'carry-sling': EDITORIAL_REFERENCE_SOURCES.sling,
+        'carry-holster': EDITORIAL_REFERENCE_SOURCES.holster,
+        'carry-harness': EDITORIAL_REFERENCE_SOURCES.sling,
+        'carry-hardcase': EDITORIAL_REFERENCE_SOURCES.gunCase,
+        'obs-thermal': EDITORIAL_REFERENCE_SOURCES.thermal,
+        'obs-rangefinder': EDITORIAL_REFERENCE_SOURCES.rangefinder,
+        'obs-binocular': EDITORIAL_REFERENCE_SOURCES.binoculars,
+        'obs-power': EDITORIAL_REFERENCE_SOURCES.thermal
+      };
+      const SLOT_REFERENCE_MEDIA = {
+        optic: EDITORIAL_REFERENCE_SOURCES.lpvo,
+        muzzle: EDITORIAL_REFERENCE_SOURCES.suppressor,
+        aiming: EDITORIAL_REFERENCE_SOURCES.rifleLaser,
+        light: EDITORIAL_REFERENCE_SOURCES.rifleLight,
+        support: EDITORIAL_REFERENCE_SOURCES.bipod,
+        carry: EDITORIAL_REFERENCE_SOURCES.sling,
+        observation: EDITORIAL_REFERENCE_SOURCES.thermal
       };
 
       const HARDPOINT_LAYOUTS = {
@@ -1276,6 +1831,18 @@
         state.tone = tone || 'ok';
       }
 
+      function weaponWeightLabel(weapon) {
+        return weapon.weight || `${weapon.weightLb.toFixed(1)} lb`;
+      }
+
+      function weaponCapacityLabel(weapon) {
+        return weapon.capacity || 'Capacity pending';
+      }
+
+      function weaponFeedLabel(weapon) {
+        return weapon.feed || 'Feed reference pending';
+      }
+
       function currentWeapon() {
         return ARMORY_WEAPONS.find((weapon) => weapon.id === state.weaponId) || ARMORY_WEAPONS[0];
       }
@@ -1286,7 +1853,7 @@
           if (state.nation !== 'all' && weapon.nation !== state.nation) return false;
           if (state.cat !== 'all' && weapon.cat !== state.cat) return false;
           if (!query) return true;
-          return `${weapon.name} ${weapon.maker} ${weapon.caliber} ${weapon.range}`.toLowerCase().includes(query);
+          return `${weapon.name} ${weapon.maker} ${weapon.caliber} ${weapon.range} ${weapon.action || ''} ${weapon.velocity || ''} ${weapon.capacity || ''} ${weapon.feed || ''} ${weapon.service || ''} ${weapon.tm || ''} ${weapon.notes || ''}`.toLowerCase().includes(query);
         });
       }
 
@@ -2039,13 +2606,22 @@
         return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(renderWeaponSvg(weapon, attachmentList))}`;
       }
 
-      function renderAttachmentReferenceSvgDataUrl(attachment) {
+      function renderAttachmentReferenceFallbackDataUrl(attachment) {
+        const slotLabel = String(SLOT_LABELS[attachment.slot] || attachment.slot || 'Attachment').toUpperCase();
         return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
-          <svg viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            ${weaponSvgStyleMarkup()}
-            <rect x="10" y="10" width="160" height="120" rx="16" fill="rgba(17,21,14,.86)" stroke="rgba(164,184,122,.16)" />
-            <ellipse class="weapon-floor-shadow" cx="90" cy="112" rx="44" ry="8"></ellipse>
-            ${moduleMarkup(attachment.style, [90, 72, 1.28])}
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="ref-fallback-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#11160f"></stop>
+                <stop offset="100%" stop-color="#0a0d08"></stop>
+              </linearGradient>
+            </defs>
+            <rect x="10" y="10" width="300" height="220" rx="18" fill="url(#ref-fallback-bg)" stroke="rgba(208,222,179,.16)" stroke-width="1.6"></rect>
+            <rect x="28" y="28" width="118" height="24" rx="12" fill="rgba(164,184,122,.14)" stroke="rgba(208,222,179,.18)" stroke-width="1"></rect>
+            <text x="87" y="44" fill="#e6efda" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle" letter-spacing="1">${escapeHtml(slotLabel)}</text>
+            <text x="28" y="92" fill="#eef3e5" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Reference Pending</text>
+            <text x="28" y="118" fill="#ced8bf" font-family="Inter, Arial, sans-serif" font-size="12">${escapeHtml(attachment.label)}</text>
+            <text x="28" y="142" fill="#9fb08f" font-family="Inter, Arial, sans-serif" font-size="11">No curated external photo is pinned for this item yet.</text>
           </svg>
         `)}`;
       }
@@ -2102,8 +2678,8 @@
         return WEAPON_IMAGE_SEARCH_OVERRIDES[weapon.id] || weapon.name.replace(/\s*\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' ');
       }
 
-      function attachmentImageQuery(attachment) {
-        return ATTACHMENT_IMAGE_SEARCH[attachment.style] || attachment.label;
+      function attachmentReferenceMedia(attachment) {
+        return ATTACHMENT_REFERENCE_MEDIA[attachment.style] || SLOT_REFERENCE_MEDIA[attachment.slot] || null;
       }
 
       async function resolveMediaAsset(key, query, width) {
@@ -2149,36 +2725,22 @@
           return;
         }
 
-        const token = ++attachmentRenderToken;
         armoryAttachmentReferenceGrid.innerHTML = attachments.map((attachment, index) => `
-          <article class="armory-reference-card">
+          ${(() => {
+            const media = attachmentReferenceMedia(attachment);
+            return `<article class="armory-reference-card">
             <div class="armory-reference-figure">
-              <img src="${renderAttachmentReferenceSvgDataUrl(attachment)}" alt="${escapeHtml(attachment.label)} reference image" data-attachment-image="${index}">
+              <img src="${escapeHtml(media ? media.imageUrl : renderAttachmentReferenceFallbackDataUrl(attachment))}" alt="${escapeHtml(attachment.label)} ${media ? `reference photo from ${media.sourceLabel}` : 'reference image placeholder'}" loading="lazy" referrerpolicy="no-referrer" data-attachment-image="${index}">
             </div>
             <div>
               <span>${escapeHtml(SLOT_LABELS[attachment.slot] || attachment.slot)}</span>
               <strong>${escapeHtml(attachment.label)}</strong>
             </div>
             <p>${escapeHtml(attachment.description)}</p>
-            <a class="armory-reference-source" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true" data-attachment-source="${index}">Web Source Pending</a>
-          </article>
+            <a class="armory-reference-source" href="${escapeHtml(media ? media.sourceUrl : '#')}" target="_blank" rel="noopener noreferrer" ${media ? '' : 'aria-disabled="true"'} data-attachment-source="${index}">${escapeHtml(media ? media.linkLabel : 'Editorial Source Pending')}</a>
+          </article>`;
+          })()}
         `).join('');
-
-        attachments.forEach(async (attachment, index) => {
-          const media = await resolveMediaAsset(`attachment:${attachment.id}`, attachmentImageQuery(attachment), 480);
-          if (token !== attachmentRenderToken || !media) return;
-          const image = armoryAttachmentReferenceGrid.querySelector(`[data-attachment-image="${index}"]`);
-          const source = armoryAttachmentReferenceGrid.querySelector(`[data-attachment-source="${index}"]`);
-          if (image) {
-            image.src = media.imageUrl;
-            image.alt = `${attachment.label} reference image from ${media.pageTitle}`;
-          }
-          if (source) {
-            source.href = media.sourceUrl;
-            source.textContent = 'Open Web Source';
-            source.removeAttribute('aria-disabled');
-          }
-        });
       }
 
       async function renderStageReference(weapon) {
@@ -2196,8 +2758,8 @@
         if (token !== stageRenderToken) return;
 
         if (!media) {
-          armoryStageCaption.textContent = `${weapon.name} // stock web image unavailable // showing local reference plate with web attachment lookups below`;
-          armoryStageSourceNote.textContent = 'No stock web image resolved for this platform. The local reference plate stays active while attachment images still load from the web.';
+          armoryStageCaption.textContent = `${weapon.name} // stock web image unavailable // showing built-in bench illustration with editorial attachment references below`;
+          armoryStageSourceNote.textContent = 'No stock web image resolved for this platform. The built-in bench illustration stays active while attachment images use curated external references.';
           return;
         }
 
@@ -2601,7 +3163,8 @@
           <button class="armory-roster-item${weapon.id === state.weaponId ? ' active' : ''}" data-armory-weapon="${weapon.id}">
             <strong>${weapon.name}</strong>
             <span>${NATION_FULL[weapon.nation]} | ${CAT_LABELS[weapon.cat]}</span>
-            <span>${weapon.caliber} | ${weapon.weightLb.toFixed(1)} lb</span>
+            <span class="armory-roster-spec">${weapon.caliber} | ${weapon.range} | ${weapon.velocity || weaponWeightLabel(weapon)}</span>
+            <span class="armory-roster-spec">${weaponCapacityLabel(weapon)} | ${weaponFeedLabel(weapon)}</span>
           </button>
         `).join('') || '<div class="armory-roster-meta">No weapons match the current filter.</div>';
       }
@@ -2672,6 +3235,30 @@
         `).join('');
       }
 
+      function renderWeaponIntel(weapon) {
+        const actionLabel = weapon.cat === 'launcher' || weapon.cat === 'manpads' ? 'Launch / Guidance' : 'Action';
+        const specEntries = [
+          { label: 'Platform Type', value: CAT_LABELS[weapon.cat] },
+          { label: 'Caliber', value: weapon.caliber },
+          { label: 'Effective Range', value: weapon.range },
+          { label: actionLabel, value: weapon.action || 'Reference dependent' },
+          { label: 'Muzzle / Flight Speed', value: weapon.velocity || 'Reference dependent' },
+          { label: 'Base Weight', value: weaponWeightLabel(weapon) },
+          { label: 'Capacity / Payload', value: weaponCapacityLabel(weapon) },
+          { label: 'Feed System', value: weaponFeedLabel(weapon) }
+        ];
+
+        armoryWeaponSpecGrid.innerHTML = specEntries.map((entry) => `
+          <article class="armory-spec-card">
+            <strong>${entry.label}</strong>
+            <span>${entry.value}</span>
+          </article>
+        `).join('');
+        armoryWeaponService.textContent = weapon.service || `${NATION_FULL[weapon.nation]} service platform.`;
+        armoryWeaponManual.textContent = weapon.tm || 'Technical reference not listed.';
+        armoryWeaponNotes.textContent = weapon.notes || 'Platform notes not listed yet.';
+      }
+
       function renderStageHeader(weapon) {
         const preset = currentPreset(weapon);
         armoryStageTags.innerHTML = [
@@ -2680,7 +3267,7 @@
           `<span class="armory-pill">${preset ? preset.label : 'Custom'}</span>`
         ].join('');
         armoryWeaponName.textContent = weapon.name;
-        armoryWeaponMeta.textContent = `${weapon.maker} | ${weapon.caliber} | Effective range ${weapon.range} | Base ${weapon.weightLb.toFixed(1)} lb`;
+        armoryWeaponMeta.textContent = `${weapon.maker} | ${weapon.caliber} | Effective range ${weapon.range} | Base ${weaponWeightLabel(weapon)}`;
       }
 
       function baseWeaponMarkup(cat) {
@@ -2879,6 +3466,7 @@
 
       function renderStage(weapon) {
         renderStageHeader(weapon);
+        renderWeaponIntel(weapon);
         renderAttachmentReferenceGrid(weapon);
         renderStageReference(weapon);
       }

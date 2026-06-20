@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Delta Coding — Drone Command">
     <meta name="twitter:description" content="Drone operations field manuals and tactical planning resources at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/drone">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       .container{display:block;height:auto}
       .drone-wrap{max-width:1200px;margin:0 auto;padding:16px}
@@ -582,59 +582,69 @@
 
         <!-- ═══ LIVE FEEDS — SATELLITE & AIRCRAFT ═══ -->
         <div class="feeds-section" id="feeds-section">
-          <h3>&#x1F6F0; LIVE FEEDS — SATELLITE &bull; AIRCRAFT &bull; CCTV CAMERAS</h3>
+          <h3>&#x1F5FA; LIVE FEEDS — TOPO &bull; AIRCRAFT &bull; PUBLIC CAMS</h3>
 
           <div class="feeds-tabs">
-            <button class="feeds-tab active" data-tab="satellite">&#x1F30D; SATELLITE</button>
+            <button class="feeds-tab active" data-tab="satellite">&#x1F5FA; TOPO + TRAINING</button>
             <button class="feeds-tab" data-tab="aircraft">&#x2708; AIRCRAFT</button>
             <button class="feeds-tab" data-tab="iss">&#x1F680; ISS LIVE</button>
             <button class="feeds-tab" data-tab="weather">&#x26C5; WEATHER SAT</button>
-            <button class="feeds-tab" data-tab="cctv">&#x1F4F9; CCTV WORLD</button>
-            <button class="feeds-tab" data-tab="milint">&#x1F3AF; MIL-OSINT</button>
+            <button class="feeds-tab" data-tab="cctv">&#x1F4F9; PUBLIC LIVE CAMS</button>
+            <button class="feeds-tab" data-tab="milint">&#x1F3D4; MIL TRAINING</button>
           </div>
 
-          <!-- SATELLITE TAB -->
+          <!-- TOPO + TRAINING TAB -->
           <div class="feed-tab-content" id="tab-satellite">
             <div class="sat-controls">
-              <button class="sat-btn active" data-layer="MODIS_Terra_CorrectedReflectance_TrueColor">MODIS TRUE COLOR</button>
-              <button class="sat-btn" data-layer="VIIRS_SNPP_CorrectedReflectance_TrueColor">VIIRS TRUE COLOR</button>
-              <button class="sat-btn" data-layer="MODIS_Terra_CorrectedReflectance_Bands721">MODIS BANDS 7-2-1</button>
-              <button class="sat-btn" data-layer="VIIRS_NOAA20_CorrectedReflectance_TrueColor">VIIRS NOAA-20</button>
-              <button class="sat-btn" data-layer="MODIS_Aqua_CorrectedReflectance_TrueColor">MODIS AQUA</button>
-              <button class="sat-btn" data-layer="Reference_Labels_15m">LABELS OVERLAY</button>
+              <button class="sat-btn active" data-layer="land-nav-grid">LAND NAV GRID</button>
+              <button class="sat-btn" data-layer="opentopo">OPEN TOPO</button>
+              <button class="sat-btn" data-layer="esri-topo">ESRI TOPO</button>
+              <button class="sat-btn" data-layer="usgs-topo">USGS TOPO</button>
+              <button class="sat-btn" data-layer="training-ranges">TRAINING RANGES</button>
             </div>
             <div class="sat-map-wrap" id="sat-map"></div>
             <div class="feeds-grid">
-              <div class="feed-card" data-feed="nasa-gibs">
+              <div class="feed-card" data-feed="land-nav-grid">
                 <div class="feed-thumb">
-                  <img src="https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-04-18/250m/3/2/4.jpg" alt="NASA GIBS" loading="lazy">
+                  <img src="https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/4/5/4" alt="USGS topo land navigation preview" loading="lazy">
                   <span class="feed-live">LIVE</span>
-                  <span class="feed-type">SATELLITE</span>
+                  <span class="feed-type">LAND NAV</span>
                 </div>
                 <div class="feed-info">
-                  <div class="feed-name">NASA GIBS — Earth Imagery</div>
-                  <div class="feed-desc">Global satellite imagery from MODIS/VIIRS. Updated daily, near real-time.</div>
+                  <div class="feed-name">USGS Topo — Land Navigation Grid</div>
+                  <div class="feed-desc">Topo terrain with a live coordinate grid for route study, bearings, and training overlays.</div>
                 </div>
               </div>
-              <div class="feed-card" data-feed="sentinel">
+              <div class="feed-card" data-feed="opentopo-preview">
                 <div class="feed-thumb">
-                  <img src="https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/GoogleMapsCompatible/3/3/4.jpg" alt="Sentinel" loading="lazy">
+                  <img src="https://a.tile.opentopomap.org/4/4/5.png" alt="OpenTopoMap preview" loading="lazy">
                   <span class="feed-live">LIVE</span>
-                  <span class="feed-type">SENTINEL-2</span>
+                  <span class="feed-type">TOPO</span>
                 </div>
                 <div class="feed-info">
-                  <div class="feed-name">Sentinel-2 Cloudless</div>
-                  <div class="feed-desc">ESA Copernicus Sentinel-2 cloudless mosaic. High-resolution optical imagery.</div>
+                  <div class="feed-name">OpenTopoMap — Relief Stack</div>
+                  <div class="feed-desc">Global contour-focused terrain basemap for elevation, ridgeline, and trail reading.</div>
                 </div>
               </div>
-              <div class="feed-card" data-feed="esri-sat">
+              <div class="feed-card" data-feed="esri-topo-preview">
                 <div class="feed-thumb">
-                  <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/4" alt="Esri Satellite" loading="lazy">
-                  <span class="feed-type">ESRI SAT</span>
+                  <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/4/5/4" alt="Esri topo preview" loading="lazy">
+                  <span class="feed-type">ESRI TOPO</span>
                 </div>
                 <div class="feed-info">
-                  <div class="feed-name">Esri World Imagery</div>
-                  <div class="feed-desc">High-resolution global satellite &amp; aerial imagery composite.</div>
+                  <div class="feed-name">Esri World Topo</div>
+                  <div class="feed-desc">Detailed roads, elevation labels, and terrain context for mission rehearsal and route planning.</div>
+                </div>
+              </div>
+              <div class="feed-card" data-feed="training-ranges-preview">
+                <div class="feed-thumb">
+                  <img src="https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/4/5/4" alt="Public training range preview" loading="lazy">
+                  <span class="feed-live">LIVE</span>
+                  <span class="feed-type">TRAINING</span>
+                </div>
+                <div class="feed-info">
+                  <div class="feed-name">Public Training Ranges</div>
+                  <div class="feed-desc">Publicly documented maneuver areas and training centers plotted on a topo-ready terrain stack.</div>
                 </div>
               </div>
             </div>
@@ -799,7 +809,7 @@
             </div>
           </div>
 
-          <!-- CCTV WORLD TAB -->
+          <!-- PUBLIC LIVE CAMS TAB -->
           <div class="feed-tab-content" id="tab-cctv" style="display:none">
             <div class="cctv-filters">
               <button class="cctv-filter active" data-region="all">ALL REGIONS</button>
@@ -811,7 +821,8 @@
               <button class="cctv-filter" data-region="city">&#x1F3D9; CITY</button>
               <button class="cctv-filter" data-region="port">&#x26F5; PORT/BEACH</button>
             </div>
-            <div class="cctv-count" id="cctv-count">— cameras loaded —</div>
+            <div class="cctv-count">PUBLIC / AUTHORIZED STREAMS ONLY</div>
+            <div class="cctv-count" id="cctv-count">— public cameras loading —</div>
             <div class="cctv-map-wrap" id="cctv-map"></div>
             <div class="cctv-viewer" id="cctv-viewer">
               <div class="cctv-viewer-hud">
@@ -823,25 +834,25 @@
             <div class="cctv-cam-grid" id="cctv-cam-grid"></div>
           </div>
 
-          <!-- MILITARY OSINT TAB -->
+          <!-- MILITARY TRAINING TAB -->
           <div class="feed-tab-content" id="tab-milint" style="display:none">
             <div class="mil-secure-bar">
               <div class="sec-dot"></div>
-              <span>SECURE CHANNEL &bull; ENCRYPTED OSINT FEED &bull; AES-256</span>
+              <span>PUBLIC TRAINING MAPS &bull; LAND NAV REFERENCE &bull; OPEN OSINT LINKS</span>
               <div class="sec-dot"></div>
             </div>
             <div class="mil-status" id="mil-status">
+              <div class="ms-item"><div class="ms-dot"></div>PUBLIC TRAINING RANGES</div>
+              <div class="ms-item"><div class="ms-dot"></div>LAND NAV TOPO STACK</div>
               <div class="ms-item"><div class="ms-dot"></div>ADS-B MILITARY FILTER</div>
               <div class="ms-item"><div class="ms-dot"></div>NAVAL VESSEL TRACKING</div>
-              <div class="ms-item"><div class="ms-dot"></div>SATELLITE RECON</div>
-              <div class="ms-item"><div class="ms-dot"></div>SIGINT ACTIVE</div>
             </div>
             <div class="mil-source-tabs">
-              <button class="mil-src active" data-msrc="map">&#x1F5FA; LIVE MAP</button>
+              <button class="mil-src active" data-msrc="map">&#x1F5FA; STRATEGIC MAP</button>
+              <button class="mil-src" data-msrc="training">&#x1F3D4; TRAINING MAPS</button>
               <button class="mil-src" data-msrc="aircraft">&#x2708; AIRCRAFT</button>
               <button class="mil-src" data-msrc="naval">&#x1F6A2; NAVAL</button>
               <button class="mil-src" data-msrc="bases">&#x1F3D7; BASES</button>
-              <button class="mil-src" data-msrc="satellite">&#x1F6F0; SAT RECON</button>
             </div>
             <div class="mil-map-wrap" id="mil-map"></div>
             <div class="mil-viewer" id="mil-viewer" style="display:none">
@@ -2821,7 +2832,7 @@
           tab.classList.add('active');
           const target = document.getElementById('tab-' + tab.dataset.tab);
           if(target) target.style.display = '';
-          log('Feed tab: ' + tab.dataset.tab.toUpperCase(), 'ok');
+          log('Feed tab: ' + (tab.textContent || tab.dataset.tab).trim(), 'ok');
           // Init satellite map on first open
           if(tab.dataset.tab === 'satellite' && !satMapInit) initSatMap();
           if(tab.dataset.tab === 'cctv' && !cctvMapInit) initCctvMap();
@@ -2829,7 +2840,18 @@
         });
       });
 
-      // Satellite Map (Leaflet + NASA GIBS WMTS tiles)
+      const publicTrainingRanges = [
+        {name:'Fort Irwin NTC',lat:35.2667,lng:-116.6846,radiusKm:34,country:'USA',desc:'National Training Center desert maneuver complex.'},
+        {name:'Fort Johnson JRTC',lat:31.0522,lng:-93.2050,radiusKm:26,country:'USA',desc:'Joint Readiness Training Center woodland rotation area.'},
+        {name:'Twentynine Palms',lat:34.2963,lng:-116.1622,radiusKm:30,country:'USA',desc:'Marine Corps Air Ground Combat Center training corridors.'},
+        {name:'Yakima Training Center',lat:46.7469,lng:-120.2815,radiusKm:28,country:'USA',desc:'Army maneuver and live-fire training grounds.'},
+        {name:'Grafenwoehr',lat:49.6986,lng:11.9409,radiusKm:24,country:'Germany',desc:'US Army Europe combined arms training area.'},
+        {name:'Hohenfels',lat:49.2071,lng:11.8408,radiusKm:18,country:'Germany',desc:'JMRC combat training center and rehearsal range.'},
+        {name:'Salisbury Plain',lat:51.1858,lng:-1.8845,radiusKm:25,country:'UK',desc:'Major UK armored and artillery training estate.'},
+        {name:'Pohakuloa',lat:19.7465,lng:-155.5483,radiusKm:22,country:'USA',desc:'Hawaii joint training area for high-altitude field work.'},
+      ];
+
+      // Topo and training map stack
       let satMapInit = false;
       let satMap = null;
       let satLayers = {};
@@ -2855,58 +2877,79 @@
       }
 
       function buildSatMap(){
-        satMap = L.map('sat-map', {zoomControl:true, attributionControl:false}).setView([20, 0], 3);
+        satMap = L.map('sat-map', {zoomControl:true, attributionControl:false}).setView([36, -35], 3);
 
-        // Today's date for GIBS
-        const today = new Date();
-        today.setDate(today.getDate() - 1); // yesterday for full coverage
-        const dateStr = today.toISOString().split('T')[0];
+        function trainingPopup(range){
+          return `<div style="font-family:JetBrains Mono,monospace;font-size:11px;min-width:210px">
+            <div style="color:#8B9D6A;font-weight:700;margin-bottom:3px">&#x1F3D4; ${range.name}</div>
+            <div style="color:#aaa;font-size:10px;margin-bottom:3px">${range.country} &mdash; ${range.radiusKm} km training envelope</div>
+            <div style="color:#888;font-size:9px">${range.desc}</div>
+          </div>`;
+        }
 
-        // NASA GIBS WMTS layers
-        const gibsLayers = {
-          'MODIS_Terra_CorrectedReflectance_TrueColor': 'MODIS Terra True Color',
-          'VIIRS_SNPP_CorrectedReflectance_TrueColor': 'VIIRS SNPP True Color',
-          'MODIS_Terra_CorrectedReflectance_Bands721': 'MODIS Bands 7-2-1',
-          'VIIRS_NOAA20_CorrectedReflectance_TrueColor': 'VIIRS NOAA-20',
-          'MODIS_Aqua_CorrectedReflectance_TrueColor': 'MODIS Aqua True Color',
-          'Reference_Labels_15m': 'Reference Labels'
-        };
+        function buildCoordGrid(step){
+          const group = L.layerGroup();
+          for(let lat = -80; lat <= 80; lat += step){
+            group.addLayer(L.polyline([[lat, -180], [lat, 180]], {
+              color:'#C4A265',
+              weight:1,
+              opacity:0.28,
+              dashArray:'4 6',
+              interactive:false,
+            }));
+          }
+          for(let lng = -180; lng <= 180; lng += step){
+            group.addLayer(L.polyline([[-80, lng], [80, lng]], {
+              color:'#C4A265',
+              weight:1,
+              opacity:0.28,
+              dashArray:'4 6',
+              interactive:false,
+            }));
+          }
+          return group;
+        }
 
-        Object.keys(gibsLayers).forEach(layerId => {
-          const isLabels = layerId.includes('Reference_Labels');
-          const tileMatrix = isLabels ? 'GoogleMapsCompatible_Level9' : 'EPSG4326_250m';
-          const url = `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/${layerId}/default/${dateStr}/250m/{z}/{y}/{x}.jpg`;
-          // Use simpler XYZ approach for GIBS
-          satLayers[layerId] = L.tileLayer(
-            isLabels
-              ? `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerId}/default/${dateStr}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`
-              : `https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/${layerId}/default/${dateStr}/250m/{z}/{y}/{x}.jpg`,
-            { maxZoom: isLabels ? 9 : 8, tileSize: 256, noWrap: true, bounds: [[-90,-180],[90,180]] }
-          );
-        });
+        function buildTrainingOverlay(){
+          const group = L.layerGroup();
+          publicTrainingRanges.forEach(range => {
+            const popup = trainingPopup(range);
+            group.addLayer(L.circle([range.lat, range.lng], {
+              radius: range.radiusKm * 1000,
+              color:'#8B9D6A',
+              weight:1.5,
+              opacity:0.75,
+              fillColor:'#8B9D6A',
+              fillOpacity:0.08,
+            }).bindPopup(popup, {className:'dark-popup'}));
+            group.addLayer(L.circleMarker([range.lat, range.lng], {
+              radius:6,
+              color:'#fff',
+              weight:1.5,
+              fillColor:'#8B9D6A',
+              fillOpacity:0.95,
+            }).bindPopup(popup, {className:'dark-popup'}));
+          });
+          return group;
+        }
 
-        // Additional free satellite tile layers
-        satLayers['esri-world'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-        satLayers['sentinel-2'] = L.tileLayer('https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2021_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg', { maxZoom: 14 });
-        satLayers['osm-topo'] = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+        satLayers['land-nav-grid'] = L.layerGroup([
+          L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }),
+          buildCoordGrid(5),
+        ]);
+        satLayers['opentopo'] = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+        satLayers['esri-topo'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+        satLayers['usgs-topo'] = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 });
+        satLayers['training-ranges'] = L.layerGroup([
+          L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 }),
+          buildTrainingOverlay(),
+        ]);
 
-        // Default: Esri for reliability
-        satLayers['esri-world'].addTo(satMap);
-        activeSatLayer = 'esri-world';
+        satLayers['land-nav-grid'].addTo(satMap);
+        activeSatLayer = 'land-nav-grid';
 
-        // Add layer control buttons
-        const extraBtns = document.createElement('div');
-        extraBtns.className = 'sat-controls';
-        extraBtns.style.marginTop = '8px';
-        extraBtns.innerHTML = `
-          <button class="sat-btn active" data-layer="esri-world">ESRI SATELLITE</button>
-          <button class="sat-btn" data-layer="sentinel-2">SENTINEL-2</button>
-          <button class="sat-btn" data-layer="osm-topo">TOPO MAP</button>
-        `;
-        document.getElementById('sat-map').parentElement.appendChild(extraBtns);
-
-        // Wire up all sat-btn clicks
-        document.querySelectorAll('.sat-btn').forEach(btn => {
+        // Wire up visible map-layer buttons in the topo/training tab.
+        document.querySelectorAll('#tab-satellite .sat-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             const layer = btn.dataset.layer;
             if(!satLayers[layer]) return;
@@ -2917,15 +2960,15 @@
             // Toggle active state within same parent
             btn.parentElement.querySelectorAll('.sat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            log('Satellite layer: ' + (btn.textContent || layer), 'ok');
+            log('Map layer: ' + (btn.textContent || layer), 'ok');
           });
         });
 
         // Attribution
         L.control.attribution({prefix:false}).addTo(satMap);
-        satMap.attributionControl.addAttribution('NASA GIBS | Esri | EOX | OpenTopoMap');
+        satMap.attributionControl.addAttribution('USGS | Esri | OpenTopoMap');
 
-        log('Satellite map initialized — NASA GIBS + Esri + Sentinel-2 imagery loaded', 'ok');
+        log('Topo and training maps initialized — public terrain layers loaded', 'ok');
       }
 
       // Initialize sat map on page load since it's the default tab
@@ -2979,9 +3022,9 @@
             }
             mainImg.src = img.src;
             mainImg.style.display = 'block';
-            camRes.textContent = 'IMAGERY';
+            camRes.textContent = 'IMAGE FEED';
             camFps.textContent = name.split('—')[0].trim();
-            log('Satellite imagery loaded: ' + name, 'ok');
+            log('Map card loaded: ' + name, 'ok');
           }
         });
       });
@@ -2995,7 +3038,7 @@
         });
       }, 300000);
 
-      /* ═══════════ CCTV WORLD CAMERAS ═══════════ */
+      /* ═══════════ PUBLIC LIVE CAMERAS ═══════════ */
       let cctvMapInit = false;
       const cctvCams = [
         // USA
@@ -3032,7 +3075,7 @@
       function initCctvMap(){
         if(cctvMapInit) return;
         cctvMapInit = true;
-        log('Initializing CCTV world camera map...');
+        log('Initializing public live camera map...');
 
         function build(){
           const map = L.map('cctv-map').setView([25, 10], 2);
@@ -3084,8 +3127,8 @@
           // Close viewer
           document.getElementById('cctv-viewer-close').addEventListener('click', closeCctvViewer);
 
-          document.getElementById('cctv-count').textContent = cctvCams.length + ' CAMERAS WORLDWIDE';
-          log('CCTV map loaded — ' + cctvCams.length + ' cameras plotted');
+          document.getElementById('cctv-count').textContent = cctvCams.length + ' PUBLIC CAMERAS WORLDWIDE';
+          log('Public camera map loaded — ' + cctvCams.length + ' cameras plotted');
           setTimeout(() => map.invalidateSize(), 200);
         }
 
@@ -3126,7 +3169,7 @@
         frame.src = c.url;
         viewer.style.display = 'block';
         viewer.scrollIntoView({behavior:'smooth', block:'center'});
-        log('CCTV feed opened: ' + c.name + ' [' + c.city + ']');
+        log('Public camera feed opened: ' + c.name + ' [' + c.city + ']');
       };
 
       function closeCctvViewer(){
@@ -3134,11 +3177,13 @@
         const frame = document.getElementById('cctv-viewer-frame');
         frame.src = '';
         viewer.style.display = 'none';
-        log('CCTV viewer closed');
+        log('Public camera viewer closed');
       }
 
-      /* ═══════════ MILITARY OSINT ═══════════ */
+      /* ═══════════ MILITARY TRAINING ═══════════ */
       let milMapInit = false;
+      let milShowStrategicMap = null;
+      let milShowTrainingMap = null;
       const milBases = [
         {name:'Pentagon',lat:38.8719,lng:-77.0563,type:'HQ',country:'USA',desc:'US Dept of Defense HQ'},
         {name:'Ramstein AFB',lat:49.4369,lng:7.6003,type:'AFB',country:'Germany',desc:'USAFE-AFAFRICA HQ'},
@@ -3166,8 +3211,9 @@
         {name:'ADS-B Exchange — Military',type:'AIRCRAFT',desc:'Real-time military aircraft transponder tracking worldwide',url:'https://globe.adsbexchange.com/?mil=1&filtera=1',tags:['ADS-B','REAL-TIME','MIL-ONLY']},
         {name:'MarineTraffic — Warships',type:'NAVAL',desc:'Live naval vessel positions — warships, carriers, submarines (surfaced)',url:'https://www.marinetraffic.com/en/ais/home/centerx:-30/centery:20/zoom:3',tags:['AIS','REAL-TIME','NAVAL']},
         {name:'FlightRadar24 — Military',type:'AIRCRAFT',desc:'Military & government aircraft filter with flight paths',url:'https://www.flightradar24.com/',tags:['ADS-B','FLIGHT-PATH','GOV']},
-        {name:'Sentinel Hub — SAR Imagery',type:'SATELLITE',desc:'Synthetic Aperture Radar imagery — sees through clouds/night',url:'https://apps.sentinel-hub.com/eo-browser/',tags:['SAR','SENTINEL','RECON']},
-        {name:'NASA Worldview — FIRMS',type:'SATELLITE',desc:'Fires & thermal anomalies — detects explosions & heavy equipment',url:'https://worldview.earthdata.nasa.gov/?l=VIIRS_SNPP_Thermal_Anomalies_375m_All',tags:['THERMAL','NASA','ANOMALY']},
+        {name:'Training Overlay — Global View',type:'TRAINING',desc:'Public training areas over a topo terrain stack for large-scale planning drills.',action:'training-map',tags:['TRAINING','TOPO','PUBLIC']},
+        {name:'Fort Irwin NTC — Desert Rotation',type:'TRAINING',desc:'Jump to the National Training Center overlay on the training map.',action:'training-map',focus:'Fort Irwin NTC',tags:['DESERT','NTC','PUBLIC']},
+        {name:'Fort Johnson JRTC — Woodland Rotation',type:'TRAINING',desc:'Jump to the Joint Readiness Training Center overlay on the training map.',action:'training-map',focus:'Fort Johnson JRTC',tags:['WOODLAND','JRTC','PUBLIC']},
         {name:'Liveuamap — Global Conflicts',type:'CONFLICT',desc:'Real-time conflict map — military operations & incidents worldwide',url:'https://liveuamap.com/',tags:['OSINT','CONFLICT','REAL-TIME']},
         {name:'NATO NCIA — AWACS',type:'AIRCRAFT',desc:'NATO Air Command AWACS tracking & air policing zones',url:'https://www.nato.int/cps/en/natohq/topics_48904.htm',tags:['NATO','AWACS','C2']},
         {name:'VesselFinder — Military',type:'NAVAL',desc:'Global vessel tracking with military ship identification',url:'https://www.vesselfinder.com/',tags:['AIS','REAL-TIME','GLOBAL']},
@@ -3176,16 +3222,23 @@
       function initMilMap(){
         if(milMapInit) return;
         milMapInit = true;
-        log('[MIL-OSINT] Initializing secure military tracking channel...');
+        log('[MIL-TRAINING] Initializing public training and OSINT map stack...');
 
         function buildMil(){
           const map = L.map('mil-map',{zoomControl:true}).setView([25, 10], 2);
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+          const strategicBasemap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
             attribution:'OSINT MAP',maxZoom:19
-          }).addTo(map);
+          });
+          const trainingBasemap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{
+            attribution:'Training map',maxZoom:19
+          });
+          strategicBasemap.addTo(map);
 
           // Type -> icon colors
           const typeColors = {HQ:'#ff4444',AFB:'#ff8800',Army:'#44cc44',Naval:'#4488ff',SIGINT:'#cc44ff'};
+          const baseMarkers = L.layerGroup().addTo(map);
+          const trainingMarkers = L.layerGroup();
+          const trainingFocus = new Map();
 
           milBases.forEach(b => {
             const col = typeColors[b.type] || '#8B9D6A';
@@ -3194,7 +3247,7 @@
               html:`<div style="position:relative"><div style="background:${col};width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 10px ${col}80"></div><div style="position:absolute;top:-2px;left:-2px;width:16px;height:16px;border-radius:50%;border:1px solid ${col}60;animation:secPulse 2s infinite"></div></div>`,
               iconSize:[12,12],iconAnchor:[6,6]
             });
-            const m = L.marker([b.lat, b.lng],{icon}).addTo(map);
+            const m = L.marker([b.lat, b.lng],{icon}).addTo(baseMarkers);
             m.bindPopup(`<div style="font-family:JetBrains Mono,monospace;font-size:11px;min-width:200px">
               <div style="color:${col};font-weight:700;margin-bottom:3px">&#x1F3AF; ${b.name}</div>
               <div style="color:#aaa;font-size:10px;margin-bottom:2px">${b.type} — ${b.country}</div>
@@ -3202,6 +3255,68 @@
               <div style="color:#666;font-size:9px">LAT ${b.lat.toFixed(4)} / LNG ${b.lng.toFixed(4)}</div>
             </div>`,{className:'dark-popup'});
           });
+
+          publicTrainingRanges.forEach(range => {
+            const popup = `<div style="font-family:JetBrains Mono,monospace;font-size:11px;min-width:210px">
+              <div style="color:#8B9D6A;font-weight:700;margin-bottom:3px">&#x1F3D4; ${range.name}</div>
+              <div style="color:#aaa;font-size:10px;margin-bottom:2px">${range.country} &mdash; ${range.radiusKm} km training envelope</div>
+              <div style="color:#888;font-size:9px;margin-bottom:4px">${range.desc}</div>
+              <div style="color:#666;font-size:9px">LAT ${range.lat.toFixed(4)} / LNG ${range.lng.toFixed(4)}</div>
+            </div>`;
+            const center = L.circleMarker([range.lat, range.lng], {
+              radius:6,
+              color:'#fff',
+              weight:1.5,
+              fillColor:'#8B9D6A',
+              fillOpacity:0.95,
+            }).bindPopup(popup, {className:'dark-popup'});
+            const radius = L.circle([range.lat, range.lng], {
+              radius: range.radiusKm * 1000,
+              color:'#8B9D6A',
+              weight:1.5,
+              opacity:0.75,
+              fillColor:'#8B9D6A',
+              fillOpacity:0.08,
+            }).bindPopup(popup, {className:'dark-popup'});
+            trainingMarkers.addLayer(radius);
+            trainingMarkers.addLayer(center);
+            trainingFocus.set(range.name, center);
+          });
+
+          function resetMilSurface(){
+            [strategicBasemap, trainingBasemap, baseMarkers, trainingMarkers].forEach(layer => {
+              if(map.hasLayer(layer)) map.removeLayer(layer);
+            });
+          }
+
+          function showStrategicMap(){
+            document.getElementById('mil-map').style.display = '';
+            document.getElementById('mil-viewer').style.display = 'none';
+            resetMilSurface();
+            strategicBasemap.addTo(map);
+            baseMarkers.addTo(map);
+            map.setView([25,10],2);
+            setTimeout(() => map.invalidateSize(), 100);
+          }
+
+          function showTrainingMap(focusName){
+            document.getElementById('mil-map').style.display = '';
+            document.getElementById('mil-viewer').style.display = 'none';
+            resetMilSurface();
+            trainingBasemap.addTo(map);
+            trainingMarkers.addTo(map);
+            const focusMarker = focusName ? trainingFocus.get(focusName) : null;
+            if(focusMarker){
+              map.setView(focusMarker.getLatLng(), 8);
+              focusMarker.openPopup();
+            } else {
+              map.fitBounds(L.latLngBounds(publicTrainingRanges.map(range => [range.lat, range.lng])).pad(0.18));
+            }
+            setTimeout(() => map.invalidateSize(), 100);
+          }
+
+          milShowStrategicMap = showStrategicMap;
+          milShowTrainingMap = showTrainingMap;
 
           // Render feed cards
           renderMilFeeds('all');
@@ -3213,10 +3328,11 @@
               btn.classList.add('active');
               const src = btn.dataset.msrc;
               if(src === 'map'){
-                document.getElementById('mil-map').style.display = '';
-                document.getElementById('mil-viewer').style.display = 'none';
+                showStrategicMap();
                 renderMilFeeds('all');
-                setTimeout(() => map.invalidateSize(), 100);
+              } else if(src === 'training'){
+                showTrainingMap();
+                renderMilFeeds('TRAINING');
               } else if(src === 'aircraft'){
                 loadMilViewer('https://globe.adsbexchange.com/?mil=1&filtera=1','ADS-B Military Aircraft');
                 renderMilFeeds('AIRCRAFT');
@@ -3224,20 +3340,14 @@
                 loadMilViewer('https://www.marinetraffic.com/en/ais/home/centerx:-30/centery:20/zoom:3','Naval Vessel Tracker');
                 renderMilFeeds('NAVAL');
               } else if(src === 'bases'){
-                document.getElementById('mil-map').style.display = '';
-                document.getElementById('mil-viewer').style.display = 'none';
+                showStrategicMap();
                 renderMilFeeds('all');
-                map.setView([25,10],2);
-                setTimeout(() => map.invalidateSize(), 100);
-              } else if(src === 'satellite'){
-                loadMilViewer('https://worldview.earthdata.nasa.gov/?l=VIIRS_SNPP_Thermal_Anomalies_375m_All','NASA FIRMS Thermal Anomalies');
-                renderMilFeeds('SATELLITE');
               }
             });
           });
 
-          log('[MIL-OSINT] Secure channel active — ' + milBases.length + ' installations mapped');
-          log('[MIL-OSINT] ADS-B + AIS + SAR feeds online');
+          log('[MIL-TRAINING] Strategic map active — ' + milBases.length + ' installations mapped');
+          log('[MIL-TRAINING] ADS-B + AIS + public training overlays online');
           setTimeout(() => map.invalidateSize(), 200);
         }
 
@@ -3257,7 +3367,7 @@
         const viewer = document.getElementById('mil-viewer');
         document.getElementById('mil-viewer-frame').src = url;
         viewer.style.display = '';
-        log('[MIL-OSINT] Feed loaded: ' + label);
+        log('[MIL-TRAINING] Feed loaded: ' + label);
       }
 
       function renderMilFeeds(filter){
@@ -3272,6 +3382,14 @@
             <div class="mf-desc">${f.desc}</div>
             <div class="mf-tags">${f.tags.map(t=>'<span class="mf-tag">'+t+'</span>').join('')}</div>`;
           card.addEventListener('click', () => {
+            if(f.action === 'training-map' && milShowTrainingMap){
+              milShowTrainingMap(f.focus);
+              renderMilFeeds('TRAINING');
+              document.querySelectorAll('.mil-src').forEach(b => b.classList.remove('active'));
+              const trainingBtn = document.querySelector('.mil-src[data-msrc="training"]');
+              if(trainingBtn) trainingBtn.classList.add('active');
+              return;
+            }
             loadMilViewer(f.url, f.name);
             document.querySelectorAll('.mil-src').forEach(b => b.classList.remove('active'));
           });

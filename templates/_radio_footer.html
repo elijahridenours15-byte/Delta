@@ -1,5 +1,5 @@
 <div class="rf-wrapper" id="rf-wrapper">
-  <button class="rf-tab" id="rf-tab" aria-label="Toggle radio bar">
+  <button class="rf-tab" id="rf-tab" type="button" aria-label="Toggle radio bar" aria-expanded="true">
     <span class="rf-tab-arrow">&#x25BC;</span>
     <span class="rf-tab-label">SIGINT</span>
   </button>
@@ -11,8 +11,6 @@
         <option value="">-- SELECT FREQ --</option>
         <option value="https://radio.weatherusa.net/NWR/KEC80.mp3" data-key="noaa">NOAA Weather</option>
         <option value="https://broadcastify.cdnstream1.com/14747" data-key="scanner">Scanner Radio</option>
-        <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service" data-key="bbc-world-service">BBC World Svc</option>
-        <option value="https://npr-ice.streamguys1.com/live.mp3" data-key="npr-news">NPR News</option>
         <option value="https://stream.wqxr.org/js-stream.aac" data-key="classical-wqxr">Classical WQXR</option>
         <option value="https://play.streamafrica.net/lofiradio" data-key="lofi-beats">Lofi Beats</option>
         <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3" data-key="jazz-fm">Jazz FM</option>
@@ -43,12 +41,21 @@
   const wrapper = document.getElementById('rf-wrapper');
   const tabBtn  = document.getElementById('rf-tab');
   if (wrapper && tabBtn) {
+    const syncExpandedState = () => {
+      const expanded = !wrapper.classList.contains('collapsed');
+      tabBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    };
+
     if (localStorage.getItem('deltaRadioHidden') === '1') {
       wrapper.classList.add('collapsed');
     }
+
+    syncExpandedState();
+
     tabBtn.addEventListener('click', () => {
       wrapper.classList.toggle('collapsed');
       localStorage.setItem('deltaRadioHidden', wrapper.classList.contains('collapsed') ? '1' : '0');
+      syncExpandedState();
     });
   }
 
@@ -86,11 +93,15 @@
     stopVisualizer();
   }
 
-  function launchExternalFeed(option) {
+  function prepareExternalFeed(option) {
     userPaused = true;
     resetAudioSignal();
-    now.textContent = option.text + ' // LIVE PAGE';
+    now.textContent = option.text + ' // TAP PLAY FOR LIVE COVERAGE';
     saveState();
+  }
+
+  function launchExternalFeed(option) {
+    prepareExternalFeed(option);
     window.open(option.value, '_blank', 'noopener,noreferrer');
   }
 
@@ -153,7 +164,7 @@
       return;
     }
     if (selectedOption.dataset.mode === 'external') {
-      launchExternalFeed(selectedOption);
+      prepareExternalFeed(selectedOption);
       return;
     }
     userPaused = false;
@@ -228,7 +239,9 @@
         au.src = saved.src;
       }
       if (savedOption) {
-        now.textContent = saved.name || savedOption.text || 'PAUSED';
+        now.textContent = savedOption.dataset.mode === 'external'
+          ? (savedOption.text + ' // TAP PLAY FOR LIVE COVERAGE')
+          : (saved.name || savedOption.text || 'PAUSED');
         userPaused = true;
       }
     }

@@ -2,7 +2,11 @@
 {% set ops_active = path == '/' or path.startswith('/share/') %}
 {% set mechanics_active = path.startswith('/mechanics') %}
 {% set weapons_active = path == '/weapons' %}
-{% set dropdown_active = path in ['/cyber', '/drone', '/survival', '/weapons'] or mechanics_active %}
+{% set survival_active = path.startswith('/survival') %}
+{% set culture_active = path.startswith('/culture') %}
+{% set schooling_active = path.startswith('/schooling') %}
+{% set advertise_active = path in ['/advertise', '/ads'] %}
+{% set dropdown_active = path in ['/', '/ai', '/map', '/bible', '/cyber', '/drone', '/weapons', '/advertise', '/ads', '/download/offline-site'] or mechanics_active or survival_active or culture_active or schooling_active %}
 <div class="topline-strip" id="topline-strip">
   <div class="topline-kicker-wrap">
     <span class="topline-live-dot" aria-hidden="true"></span>
@@ -23,19 +27,97 @@
   </div>
 </div>
 <nav class="top-nav">
-  <a href="/" class="{% if ops_active %}active{% endif %}">Ops Center</a>
-  <a href="/ai" class="{% if path == '/ai' %}active{% endif %}">AI Recon</a>
-  <a href="/map" class="{% if path == '/map' %}active{% endif %}">Tac Map</a>
-  <a href="/bible" class="{% if path == '/bible' %}active{% endif %}">Scripture</a>
   <details class="nav-dropdown{% if dropdown_active %} active{% endif %}">
     <summary class="nav-dropdown-trigger">Stealth</summary>
     <div class="nav-dropdown-menu">
+      <a href="/" class="{% if ops_active %}active{% endif %}">Ops Center</a>
+      <a href="/ai" class="{% if path == '/ai' %}active{% endif %}">AI Recon</a>
+      <a href="/map" class="{% if path == '/map' %}active{% endif %}">Tac Map</a>
+      <a href="/bible" class="{% if path == '/bible' %}active{% endif %}">Scripture</a>
+      <a href="/advertise" class="{% if advertise_active %}active{% endif %}">Advertise</a>
       <a href="/cyber" class="{% if path == '/cyber' %}active{% endif %}">Cyber Intel</a>
       <a href="/drone" class="{% if path == '/drone' %}active{% endif %}">Drone</a>
-      <a href="/survival" class="{% if path == '/survival' %}active{% endif %}">Survival</a>
+      <a href="/survival" class="{% if survival_active %}active{% endif %}">Survival</a>
+      <a href="/survival/meal-bible" class="{% if path == '/survival/meal-bible' %}active{% endif %}">Meal Bible</a>
+      <a href="/culture" class="{% if culture_active %}active{% endif %}">Culture Build</a>
+      <a href="/schooling" class="{% if schooling_active %}active{% endif %}">Schooling</a>
       <a href="/mechanics" class="{% if mechanics_active %}active{% endif %}">Mechanics</a>
-      <a href="/weapons" class="{% if weapons_active %}active{% endif %}">Weapons</a>
       <a href="/download/offline-site" class="nav-download">Offline App</a>
+      <a href="/weapons" class="{% if weapons_active %}active{% endif %}">Weapons</a>
+    </div>
+  </details>
+  <details class="nav-dropdown nav-auth{% if auth_user %} active{% endif %}" id="nav-auth">
+    <summary class="nav-dropdown-trigger">
+      <span class="nav-auth-summary-label" id="nav-auth-summary-label">{{ auth_user.username if auth_user else 'Log In' }}</span>
+    </summary>
+    <div class="nav-dropdown-menu nav-auth-menu">
+      <div class="nav-auth-panel" id="nav-auth-logged-out"{% if auth_user %} hidden{% endif %}>
+        <p class="nav-auth-copy">Save site progression, map planning, and loadout work to your account.</p>
+        <div class="nav-auth-fields">
+          <label class="nav-auth-field" for="nav-auth-username">
+            <span>Login ID</span>
+            <input id="nav-auth-username" name="username" type="text" autocomplete="username" spellcheck="false">
+          </label>
+          <label class="nav-auth-field" for="nav-auth-password">
+            <span>Passcode</span>
+            <input id="nav-auth-password" name="password" type="password" autocomplete="current-password">
+          </label>
+        </div>
+        <label class="nav-auth-remember" for="nav-auth-remember">
+          <input id="nav-auth-remember" type="checkbox" checked>
+          <span>Keep this device signed in and remember the login ID.</span>
+        </label>
+        <p class="nav-auth-copy nav-auth-copy-secondary">Passcodes stay hashed on the server. Browser password autofill can remember them securely.</p>
+        <div class="nav-auth-actions">
+          <button type="button" class="nav-auth-button" id="nav-auth-login-button">Log In</button>
+          <button type="button" class="nav-auth-button nav-auth-button-secondary" id="nav-auth-register-button">Create Account</button>
+        </div>
+        <div class="nav-auth-links">
+          <button type="button" class="nav-auth-link" id="nav-auth-reset-toggle">Reset Passcode</button>
+        </div>
+        <div class="nav-auth-reset-panel" id="nav-auth-reset-panel" hidden>
+          <p class="nav-auth-copy">Use the login ID above plus your recovery key to set a new passcode.</p>
+          <div class="nav-auth-fields">
+            <label class="nav-auth-field" for="nav-auth-recovery-key">
+              <span>Recovery Key</span>
+              <input id="nav-auth-recovery-key" name="recovery_key" type="text" autocomplete="one-time-code" spellcheck="false">
+            </label>
+            <label class="nav-auth-field" for="nav-auth-reset-password">
+              <span>New Passcode</span>
+              <input id="nav-auth-reset-password" name="new_password" type="password" autocomplete="new-password">
+            </label>
+          </div>
+          <div class="nav-auth-actions">
+            <button type="button" class="nav-auth-button nav-auth-button-secondary" id="nav-auth-reset-cancel-button">Back</button>
+            <button type="button" class="nav-auth-button" id="nav-auth-reset-button">Set New Passcode</button>
+          </div>
+        </div>
+        <div class="nav-auth-status" id="nav-auth-status" aria-live="polite"></div>
+      </div>
+      <div class="nav-auth-panel" id="nav-auth-logged-in"{% if not auth_user %} hidden{% endif %}>
+        <div class="nav-auth-user">
+          <span class="nav-auth-badge">Account Sync</span>
+          <strong id="nav-auth-user-label">{{ auth_user.username if auth_user else '' }}</strong>
+        </div>
+        <p class="nav-auth-copy">This account owns the saved site state on this browser while signed in.</p>
+        <p class="nav-auth-copy nav-auth-copy-secondary" id="nav-auth-recovery-meta">Recovery key not loaded.</p>
+        <div class="nav-auth-recovery-card" id="nav-auth-recovery-display" hidden>
+          <span class="nav-auth-badge">Recovery Key</span>
+          <code class="nav-auth-recovery-code" id="nav-auth-recovery-code"></code>
+          <p class="nav-auth-copy nav-auth-copy-secondary">Save this offline. It can reset the passcode without email.</p>
+          <div class="nav-auth-actions">
+            <button type="button" class="nav-auth-button nav-auth-button-secondary" id="nav-auth-recovery-copy-button">Copy Key</button>
+            <button type="button" class="nav-auth-button nav-auth-button-secondary" id="nav-auth-recovery-clear-button">Hide Key</button>
+          </div>
+        </div>
+        <div class="nav-auth-status nav-auth-recovery-status" id="nav-auth-recovery-status" aria-live="polite"></div>
+        <div class="nav-auth-status nav-auth-sync-status" id="nav-auth-sync-status" aria-live="polite"></div>
+        <div class="nav-auth-actions">
+          <button type="button" class="nav-auth-button" id="nav-auth-recovery-button">New Recovery Key</button>
+          <button type="button" class="nav-auth-button nav-auth-button-secondary" id="nav-auth-refresh-button">Sync Now</button>
+          <button type="button" class="nav-auth-button nav-auth-button-danger" id="nav-auth-logout-button">Log Out</button>
+        </div>
+      </div>
     </div>
   </details>
   <a class="online-indicator" id="online-indicator" href="/live" title="Live visitor map" aria-label="Operators online — view world map">
@@ -44,6 +126,8 @@
     <span class="online-label">ONLINE</span>
   </a>
 </nav>
+<script id="delta-auth-bootstrap" type="application/json">{{ auth_bootstrap|tojson }}</script>
+<script src="{{ url_for('static', filename='auth.js', v='20260527r4') }}"></script>
 <script>
 (function(){
   if (window.__deltaOnlineInitialized) return;

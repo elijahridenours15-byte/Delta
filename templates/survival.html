@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Delta Coding — Survival Loadout">
     <meta name="twitter:description" content="Survival gear lists, bug-out bag guides, and off-grid loadout planning at FutureCodeDelta.org.">
     <link rel="canonical" href="https://futurecodedelta.org/survival">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260508r18') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
     <style>
       .container{display:block;height:auto}
       .survival-wrap{max-width:1280px;margin:0 auto;padding:22px 24px 28px}
@@ -43,6 +43,10 @@
       .mission-copy strong{display:block;margin-bottom:6px;color:var(--sand);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
       .load-status{margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid rgba(139,157,106,.18);background:rgba(11,14,9,.72);color:var(--text2);font:400 12px/1.6 'JetBrains Mono',monospace;min-height:62px}
       .load-status.alert{border-color:rgba(204,68,68,.34);color:#f0c1c1}
+      .survival-extra-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+      .meal-bible-launch,.meal-bible-close{min-height:42px}
+      .survival-link-action{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid rgba(139,157,106,.2);background:rgba(12,17,10,.84);color:var(--text);text-decoration:none;font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:border-color .16s ease,background .16s ease,color .16s ease}
+      .survival-link-action:hover{border-color:rgba(164,184,122,.38);background:rgba(34,42,28,.92);color:var(--accent-bright)}
       .survival-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.95fr);gap:18px;align-items:start}
       .inventory-card,.manifest-card{padding:18px;min-height:0}
       .inventory-card{display:grid;grid-template-rows:auto auto auto minmax(0,1fr);max-height:calc(100vh - 220px);overflow:hidden}
@@ -66,6 +70,8 @@
       .item-tier{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.16);color:var(--accent-bright);font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
       .item-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
       .item-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .item-action-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+      .item-qty{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
       .item-weight{color:var(--sand);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
       .item-toggle.loaded{background:linear-gradient(180deg,rgba(58,78,42,.98),rgba(38,53,29,.98));color:#f1f6e5;border-color:rgba(164,184,122,.42)}
       .manifest-head{display:grid;gap:12px;margin-bottom:14px}
@@ -91,10 +97,142 @@
       .manifest-empty{padding:14px;border-radius:10px;border:1px dashed rgba(139,157,106,.22);color:var(--muted);font:400 12px/1.6 'JetBrains Mono',monospace;text-align:center}
       .manifest-item{padding:12px;border-radius:10px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16);display:grid;gap:8px}
       .manifest-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+      .manifest-action-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
       .manifest-top strong{display:block;color:var(--text);font:700 14px/1.4 'Inter',sans-serif}
       .manifest-top span{display:block;margin-top:4px;color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
       .manifest-item p{margin:0;color:var(--text2);font-size:12px;line-height:1.6}
       .remove-chip{padding:6px 8px;border-radius:999px;background:rgba(27,16,16,.92);border:1px solid rgba(204,68,68,.22);color:#efb8b8;font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .remove-chip[disabled]{opacity:.45;cursor:not-allowed}
+      .meal-bible-card{margin-top:18px;padding:18px;background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.94));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18)}
+      .meal-bible-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+      .meal-bible-head h3{margin:14px 0 8px;color:var(--text);font:800 clamp(1.5rem,2.6vw,2.2rem)/1.05 'Inter',sans-serif}
+      .meal-bible-head p{margin:0;color:var(--text2);font-size:14px;line-height:1.7;max-width:72ch}
+      .meal-bible-summary{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;align-items:flex-start}
+      .meal-bible-controls{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px;margin:16px 0}
+      .meal-filter-stack{display:grid;gap:14px}
+      .meal-bible-search{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-bible-search input{width:100%;min-height:44px;border-radius:10px;border:1px solid rgba(139,157,106,.22);background:rgba(8,10,7,.92);color:var(--text);padding:0 14px;font:400 14px 'Inter',sans-serif}
+      .meal-bible-search input::placeholder{color:var(--muted)}
+      .meal-filter-group{display:grid;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-filter-row{display:flex;flex-wrap:wrap;gap:8px}
+      .meal-filter-chip{background:rgba(12,17,10,.84);color:var(--muted);border:1px solid rgba(139,157,106,.18);padding:8px 10px;border-radius:999px;font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-filter-chip.active{color:var(--accent-bright);border-color:rgba(164,184,122,.4);background:rgba(34,42,28,.92)}
+      .meal-bible-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
+      .meal-action-status{margin:0 0 16px}
+      .meal-bible-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:18px;align-items:start}
+      .meal-list-card,.meal-detail-card{padding:16px;border-radius:12px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16)}
+      .meal-results-meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--text2);font:400 11px/1.6 'JetBrains Mono',monospace;letter-spacing:.9px;text-transform:uppercase}
+      .meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-height:720px;overflow:auto;padding-right:6px;scrollbar-gutter:stable}
+      .meal-card{padding:14px;border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(11,14,9,.74);display:grid;gap:10px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;text-align:left;cursor:pointer}
+      .meal-card:hover{transform:translateY(-1px);border-color:rgba(164,184,122,.28);box-shadow:0 14px 28px rgba(0,0,0,.14)}
+      .meal-card.active{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      .meal-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .meal-class-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border-radius:999px;font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(164,184,122,.16)}
+      .meal-class-pill.perishable{background:rgba(80,116,74,.22);color:#d9ecd2;border-color:rgba(120,168,108,.38)}
+      .meal-class-pill.nonperishable{background:rgba(115,91,47,.26);color:#f1e2b4;border-color:rgba(192,154,78,.34)}
+      .meal-card-code{color:var(--muted);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-card h4{margin:0;color:var(--text);font:700 15px/1.45 'Inter',sans-serif}
+      .meal-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
+      .meal-card-meta{display:grid;gap:6px;color:var(--muted);font:400 10px/1.55 'JetBrains Mono',monospace;letter-spacing:.9px;text-transform:uppercase}
+      .meal-macro-row{display:flex;flex-wrap:wrap;gap:8px}
+      .meal-macro-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase}
+      .meal-pager{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:center;margin-top:14px}
+      .meal-pager span{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.54);color:var(--text2);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:0 8px}
+      .meal-pager button[disabled]{opacity:.45;cursor:not-allowed}
+      .meal-detail-card{position:sticky;top:18px;max-height:720px;overflow:auto}
+      .meal-detail-card h4{margin:12px 0 8px;color:var(--text);font:800 24px/1.15 'Inter',sans-serif}
+      .meal-detail-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.68}
+      .meal-detail-pills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 16px}
+      .meal-section{display:grid;gap:10px;margin-top:16px}
+      .meal-section h5{margin:0;color:var(--accent-bright);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1.4px;text-transform:uppercase}
+      .meal-nutrition-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .meal-nutrition-stat{padding:10px 12px;border-radius:10px;background:rgba(11,14,9,.74);border:1px solid rgba(139,157,106,.16)}
+      .meal-nutrition-stat strong{display:block;color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .meal-nutrition-stat span{display:block;color:var(--text);font:700 16px/1.3 'Inter',sans-serif}
+      .meal-nutrition-stat small{display:block;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+      .meal-ingredients,.meal-plan-list{display:grid;gap:10px}
+      .meal-ingredient,.meal-plan-step{padding:12px;border-radius:10px;background:rgba(11,14,9,.74);border:1px solid rgba(139,157,106,.16)}
+      .meal-ingredient-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+      .meal-ingredient-top strong{display:block;color:var(--text);font:700 14px/1.4 'Inter',sans-serif}
+      .meal-role-pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 8px;border-radius:999px;background:rgba(34,42,28,.92);border:1px solid rgba(164,184,122,.18);color:var(--accent-bright);font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .meal-ingredient-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
+      .meal-ingredient-facts span{display:block;padding:8px 10px;border-radius:9px;background:rgba(8,10,7,.92);border:1px solid rgba(139,157,106,.12);color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:.7px;text-transform:uppercase}
+      .meal-ingredient-facts strong{display:block;color:var(--accent-bright);margin-bottom:4px;font-weight:700}
+      .meal-empty{padding:14px;border-radius:10px;border:1px dashed rgba(139,157,106,.22);color:var(--muted);font:400 12px/1.6 'JetBrains Mono',monospace;text-align:center}
+      .overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .overview-stat{padding:10px 12px;border-radius:10px;background:rgba(11,14,9,.64);border:1px solid rgba(139,157,106,.16)}
+      .overview-stat strong{display:block;color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .overview-stat span{display:block;color:var(--text);font:700 16px/1.3 'Inter',sans-serif}
+      .overview-stat small{display:block;color:var(--muted);font:400 10px/1.55 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+      .support-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+      .support-card{padding:18px;background:linear-gradient(180deg,var(--panel),rgba(16,20,13,.92));border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 38px rgba(0,0,0,.18);display:grid;gap:14px}
+      .support-card h3{margin:0;color:var(--accent-bright);font:700 12px 'JetBrains Mono',monospace;letter-spacing:1.8px;text-transform:uppercase}
+      .support-head{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .support-summary-card{padding:12px 14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);display:grid;gap:8px}
+      .support-summary-card h4{margin:0;color:var(--text);font:800 18px/1.25 'Inter',sans-serif}
+      .support-summary-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.7}
+      .support-copy{margin:0;color:var(--text2);font-size:13px;line-height:1.7}
+      .support-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .support-item-card{padding:14px;border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(11,14,9,.68);display:grid;gap:10px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+      .support-item-card.loaded{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      .support-item-card.disabled{opacity:.66}
+      .support-item-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
+      .support-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+      .support-item-head strong{display:block;color:var(--text);font:700 15px/1.4 'Inter',sans-serif}
+      .support-item-head span{display:block;margin-top:4px;color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .support-item-meta{display:flex;flex-wrap:wrap;gap:8px}
+      .support-list{display:grid;gap:10px}
+      .support-list-item{padding:12px;border-radius:10px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16);display:grid;gap:8px}
+      .support-list-item p{margin:0;color:var(--text2);font-size:12px;line-height:1.6}
+      .support-list-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+      .support-list-top strong{display:block;color:var(--text);font:700 14px/1.4 'Inter',sans-serif}
+      .support-list-top span{display:block;margin-top:4px;color:var(--muted);font:400 10px/1.45 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .support-remove{padding:6px 8px;border-radius:999px;background:rgba(27,16,16,.92);border:1px solid rgba(204,68,68,.22);color:#efb8b8;font:700 9px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ammo-config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .ammo-block{padding:14px;border-radius:12px;border:1px solid rgba(164,184,122,.16);background:rgba(11,14,9,.6);display:grid;gap:10px}
+      .ammo-block h4{margin:0;color:var(--text);font:800 18px/1.25 'Inter',sans-serif}
+      .ammo-label{display:grid;gap:6px;color:var(--text2);font:400 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .ammo-label select,.ammo-label input{width:100%;min-height:42px}
+      .ammo-label input{background:rgba(12,17,10,.84);color:var(--text);border:1px solid rgba(139,157,106,.2);border-radius:10px;padding:0 12px;font:700 12px 'JetBrains Mono',monospace;box-sizing:border-box;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease,color .16s ease}
+      .ammo-label input:hover{border-color:rgba(164,184,122,.36)}
+      .ammo-label input:focus{outline:none;border-color:rgba(196,162,101,.5);box-shadow:0 0 0 1px rgba(196,162,101,.16),0 0 16px rgba(196,162,101,.18)}
+      .ammo-label input[type='number']{-moz-appearance:textfield;appearance:textfield}
+      .ammo-label input[type='number']::-webkit-outer-spin-button,.ammo-label input[type='number']::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+      .ammo-field-highlight{padding:12px;border-radius:12px;border:1px solid rgba(196,162,101,.2);background:linear-gradient(180deg,rgba(43,31,14,.58),rgba(16,14,9,.72));box-shadow:inset 0 0 0 1px rgba(196,162,101,.06)}
+      .ammo-field-highlight .ammo-input-highlight{background:linear-gradient(180deg,rgba(69,50,20,.94),rgba(24,18,10,.94));border-color:rgba(196,162,101,.34);color:#f6edc8;box-shadow:inset 0 0 0 1px rgba(196,162,101,.08),0 0 0 1px rgba(196,162,101,.05)}
+      .ammo-field-highlight .ammo-input-highlight:hover,.ammo-field-highlight .ammo-input-highlight:focus{border-color:rgba(196,162,101,.62);box-shadow:0 0 0 1px rgba(196,162,101,.18),0 0 20px rgba(196,162,101,.2)}
+      .ammo-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+      .ammo-stat{padding:12px;border-radius:10px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16)}
+      .ammo-stat strong{display:block;color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .ammo-stat span{display:block;color:var(--text);font:700 16px/1.3 'Inter',sans-serif}
+      .ammo-stat small{display:block;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+      .knife-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+      .knife-card{padding:14px;border-radius:12px;border:1px solid rgba(139,157,106,.16);background:rgba(11,14,9,.68);display:grid;gap:10px}
+      .knife-card.active{border-color:rgba(164,184,122,.42);box-shadow:0 0 0 1px rgba(164,184,122,.12),0 16px 32px rgba(0,0,0,.16)}
+      .knife-card p{margin:0;color:var(--text2);font-size:13px;line-height:1.65}
+      .knife-detail{padding:16px;border-radius:12px;background:rgba(11,14,9,.68);border:1px solid rgba(139,157,106,.16);display:grid;gap:12px}
+      .knife-detail-empty{padding:14px;border-radius:10px;border:1px dashed rgba(139,157,106,.22);color:var(--muted);font:400 12px/1.6 'JetBrains Mono',monospace;text-align:center}
+      .knife-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .knife-detail-stat{padding:10px 12px;border-radius:10px;background:rgba(8,10,7,.92);border:1px solid rgba(139,157,106,.12)}
+      .knife-detail-stat strong{display:block;color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+      .knife-detail-stat span{display:block;color:var(--text);font:700 14px/1.4 'Inter',sans-serif}
+      @media(max-width:1100px){
+        .meal-bible-controls,.meal-bible-layout{grid-template-columns:1fr}
+        .meal-bible-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .meal-detail-card{position:static;top:auto;max-height:none}
+        .support-grid,.support-head,.ammo-config-grid,.ammo-summary-grid,.knife-grid,.knife-detail-grid{grid-template-columns:1fr}
+      }
+      @media(max-width:800px){
+        .meal-bible-head{flex-direction:column}
+        .meal-bible-summary{justify-content:flex-start}
+        .meal-grid,.meal-nutrition-grid,.meal-ingredient-facts{grid-template-columns:1fr}
+      }
+      @media(max-width:600px){
+        .meal-bible-card,.meal-list-card,.meal-detail-card{padding:14px}
+        .meal-bible-actions{grid-template-columns:1fr}
+        .meal-pager{grid-template-columns:1fr}
+        .meal-pager button{width:100%;min-height:42px}
+      }
       @media(max-width:1100px){
         .survival-hero,.survival-grid{grid-template-columns:1fr}
         .inventory-card,.manifest-card{max-height:min(78vh,760px)}
@@ -106,6 +244,7 @@
         .briefing-card,.status-card,.inventory-card,.manifest-card{padding:16px}
         .briefing-grid{grid-template-columns:1fr}
         .inventory-card,.manifest-card{max-height:min(74vh,680px)}
+        .support-card{padding:16px}
       }
       @media(max-width:600px){
         .survival-wrap{padding:14px 12px 20px}
@@ -120,6 +259,9 @@
         .filter-chip{flex:0 0 auto;white-space:nowrap;min-height:38px;display:inline-flex;align-items:center;justify-content:center}
         .item-card{padding:12px}
         .item-footer{flex-direction:column;align-items:stretch}
+        .item-action-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+        .item-qty{grid-column:1 / -1;justify-content:center}
+        .item-action-row .remove-chip{display:flex;align-items:center;justify-content:center;min-height:42px;width:100%}
         .item-toggle{width:100%;min-height:42px}
         .bag-meta{display:grid;grid-template-columns:1fr;gap:6px}
         .bag-pill{justify-content:flex-start}
@@ -131,6 +273,8 @@
         .manifest-actions button{width:100%;flex:1 1 auto;min-height:42px}
         .manifest-top{flex-direction:column}
         .remove-chip{align-self:stretch;text-align:center;min-height:40px}
+        .support-card{padding:14px}
+        .support-card-grid,.knife-grid{grid-template-columns:1fr}
       }
       @media(max-width:420px){
         .survival-wrap{padding:12px 10px 18px}
@@ -166,7 +310,7 @@
           <article class="briefing-card">
             <span class="survival-kicker">Civilian Evac Planning Surface</span>
             <h2>Realistic Bugout Bag Options</h2>
-            <p>Pick a bag platform, apply a preset, and tune the loadout for power loss, storm movement, vehicle displacement, or a short hike-out. Capacity bars, category coverage, and exportable checklists update live as modules are added or removed.</p>
+            <p>Pick a bag platform, apply a preset, and tune the loadout for power loss, storm movement, vehicle displacement, or a short hike-out. Infantry, recon, and sniper role keys now unlock current military bags, carriers, helmets, and module-rack gear while capacity bars, category coverage, and exportable checklists keep the load honest.</p>
             <div class="briefing-grid">
               <div class="briefing-stat">
                 <strong>Mission Focus</strong>
@@ -189,9 +333,26 @@
               Bag Platform
               <select id="bagSelect"></select>
             </label>
+            <label class="status-label" for="vestSelect">
+              Vest / Chest Rig
+              <select id="vestSelect"></select>
+            </label>
+            <label class="status-label" for="helmetSelect">
+              Helmet Platform
+              <select id="helmetSelect"></select>
+            </label>
+            <div class="status-label">
+              Team Role Key
+              <div class="preset-row" id="roleKeyRow"></div>
+            </div>
             <div class="preset-row" id="presetRow"></div>
             <div class="mission-copy" id="missionCopy" aria-live="polite"></div>
             <div class="load-status" id="loadStatus" aria-live="polite"></div>
+            <div class="survival-extra-actions">
+              <a href="/survival/meal-bible" class="meal-bible-launch survival-link-action">Tactical Meal Bible</a>
+              <a class="survival-link-action" href="/survival/army-library">Department of the Army Survival Library</a>
+              <a class="survival-link-action" href="/survival/army-library/offline">Offline Army Shelf Packs</a>
+            </div>
           </aside>
         </section>
 
@@ -207,6 +368,7 @@
             <h3>Pack Manifest</h3>
             <div class="manifest-head">
               <div class="bag-card" id="bagCard"></div>
+              <div class="overview-grid" id="loadoutOverview"></div>
               <div class="meter-grid" id="meterGrid"></div>
             </div>
             <div class="manifest-body" id="manifestBody">
@@ -214,540 +376,91 @@
               <div class="manifest-actions">
                 <button id="copyManifest">Copy Checklist</button>
                 <button id="exportManifest">Export Manifest</button>
-                <button id="resetLoadout">Clear Bag</button>
+                <button id="resetLoadout">Clear Full Loadout</button>
               </div>
               <div class="manifest-list" id="manifestList"></div>
             </div>
           </aside>
         </section>
+
+        <section class="support-grid">
+          <article class="support-card">
+            <h3>Vest / Chest Rig Setup</h3>
+            <div class="support-head">
+              <div class="support-summary-card" id="vestCard"></div>
+              <div class="support-summary-card" id="vestCapacityCard"></div>
+            </div>
+            <p class="support-copy" id="vestRestrictionNote"></p>
+            <div class="support-card-grid" id="vestItemGrid"></div>
+            <div class="support-list" id="vestLoadoutList"></div>
+          </article>
+
+          <article class="support-card">
+            <h3>Helmet Setup</h3>
+            <div class="support-head">
+              <div class="support-summary-card" id="helmetCard"></div>
+              <div class="support-summary-card" id="helmetCapacityCard"></div>
+            </div>
+            <div class="support-card-grid" id="helmetItemGrid"></div>
+            <div class="support-list" id="helmetLoadoutList"></div>
+          </article>
+        </section>
+
+        <section class="support-grid">
+          <article class="support-card">
+            <h3>Ammo &amp; Magazine Table</h3>
+            <div class="ammo-config-grid">
+              <div class="ammo-block">
+                <h4>Primary Ammo</h4>
+                <label class="ammo-label" for="primaryAmmoSelect">
+                  Ammo Profile
+                  <select id="primaryAmmoSelect"></select>
+                </label>
+                <label class="ammo-label ammo-field-highlight" for="primaryMagCount">
+                  Magazine Count
+                  <input class="ammo-input-highlight" id="primaryMagCount" type="number" min="0" max="20" step="1">
+                </label>
+                <label class="ammo-label ammo-field-highlight" for="primaryLooseRounds">
+                  Loose Rounds
+                  <input class="ammo-input-highlight" id="primaryLooseRounds" type="number" min="0" max="999" step="1">
+                </label>
+              </div>
+
+              <div class="ammo-block">
+                <h4>Secondary Ammo</h4>
+                <label class="ammo-label" for="secondaryAmmoSelect">
+                  Ammo Profile
+                  <select id="secondaryAmmoSelect"></select>
+                </label>
+                <label class="ammo-label ammo-field-highlight" for="secondaryMagCount">
+                  Magazine Count
+                  <input class="ammo-input-highlight" id="secondaryMagCount" type="number" min="0" max="20" step="1">
+                </label>
+                <label class="ammo-label ammo-field-highlight" for="secondaryLooseRounds">
+                  Loose Rounds
+                  <input class="ammo-input-highlight" id="secondaryLooseRounds" type="number" min="0" max="999" step="1">
+                </label>
+              </div>
+            </div>
+            <div class="ammo-summary-grid" id="ammoSummaryGrid"></div>
+            <p class="support-copy" id="ammoCarryNote"></p>
+          </article>
+
+          <article class="support-card">
+            <h3>Field Knife Library</h3>
+            <p class="support-copy">Choose one popular survival knife and inspect steel, grind, weight, tradeoffs, and the professional truth behind that blade pattern.</p>
+            <div class="knife-grid" id="knifeGrid"></div>
+            <div class="knife-detail" id="knifeDetail"></div>
+          </article>
+        </section>
+
+        <!-- Meal Bible content moved to /survival/meal-bible -->
+
+        <!-- Meal Bible content moved to /survival/meal-bible -->
       </div>
     </main>
 
-    <script>
-      (function () {
-        const STORAGE_KEY = 'deltaSurvivalLoadoutV1';
-        const CATEGORY_LABELS = {
-          all: 'All Modules',
-          water: 'Water',
-          medical: 'Medical',
-          shelter: 'Shelter',
-          food: 'Food',
-          power: 'Power',
-          navigation: 'Navigation',
-          comms: 'Comms',
-          tools: 'Tools',
-          armor: 'Body Armor'
-        };
-
-        const BAGS = [
-          {id: 'brief', name: 'Executive Brief Sling', capacity: 10, slots: 6, desc: 'Slim office-safe platform for documents, chargers, medication, and a compact light layer.'},
-          {id: 'seatback', name: 'Seat-Back Admin Kit', capacity: 12, slots: 7, desc: 'Compact vehicle organizer for IDs, med essentials, cables, and a fast exit pouch.'},
-          {id: 'sling', name: 'Urban Sling', capacity: 14, slots: 8, desc: 'Low-profile carry for transit, office, or apartment exit.'},
-          {id: 'panel', name: 'Commuter Panel Loader', capacity: 18, slots: 10, desc: 'Clean daily-carry pack with enough room for water, PPE, power, and a document module.'},
-          {id: 'daypack', name: '24H Day Pack', capacity: 22, slots: 12, desc: 'Balanced short-displacement bag for outages and weather evacuation.'},
-          {id: 'rolltop', name: 'Weatherproof Rolltop', capacity: 26, slots: 13, desc: 'Storm-forward platform that protects layers, paper maps, and electronics in wet movement.'},
-          {id: 'ruck', name: '72H Ruck', capacity: 34, slots: 18, desc: 'Longer-foot movement carry with room for shelter, food, and backup power.'},
-          {id: 'trail', name: 'Trail 36 Pack', capacity: 36, slots: 19, desc: 'Suspension-first hiking platform for longer carry windows and better shelter distribution.'},
-          {id: 'vehicle', name: 'Vehicle Tote', capacity: 48, slots: 22, desc: 'Heavier module stack when the car handles most of the movement load.'},
-          {id: 'duffel', name: 'Family Evac Duffel', capacity: 55, slots: 26, desc: 'Vehicle-first family cache with room for duplicate water, hygiene, kid support, and shelter layers.'}
-        ];
-
-        const ITEMS = [
-          {id: 'water-bladder', name: '2L Water Bladder', category: 'water', weight: 4.6, slots: 2, tier: 'critical', reason: 'Primary hydration carry that keeps water on-body instead of buried in the bag.'},
-          {id: 'collapsible-pouch', name: 'Collapsible Water Pouch', category: 'water', weight: 0.2, slots: 1, tier: 'support', reason: 'Adds spare water-carry capacity after refill points without permanently eating pack space.'},
-          {id: 'filter-straw', name: 'Filter Straw', category: 'water', weight: 0.3, slots: 1, tier: 'critical', reason: 'Fallback purification option when bottled water is gone or unreliable.'},
-          {id: 'purification-drops', name: 'Purification Drops', category: 'water', weight: 0.2, slots: 1, tier: 'support', reason: 'Secondary treatment option when sediment, runoff, or uncertain sources make redundancy worthwhile.'},
-          {id: 'electrolyte-tabs', name: 'Electrolyte Tabs', category: 'water', weight: 0.2, slots: 1, tier: 'support', reason: 'Helps keep hydration usable during heat, smoke exposure, or long walks.'},
-          {id: 'med-pouch', name: 'Compact Med Pouch', category: 'medical', weight: 1.5, slots: 1, tier: 'critical', reason: 'Covers cuts, sprains, blister control, and common over-the-counter needs.'},
-          {id: 'blister-burn-roll', name: 'Blister + Burn Roll', category: 'medical', weight: 0.4, slots: 1, tier: 'support', reason: 'Targets friction injuries, minor burns, and hot-spot care before they slow movement.'},
-          {id: 'otc-med-sleeve', name: 'OTC Med Sleeve', category: 'medical', weight: 0.3, slots: 1, tier: 'support', reason: 'Keeps pain relief, allergy support, and stomach meds in one quick-access strip.'},
-          {id: 'hygiene-kit', name: 'Hygiene Kit', category: 'medical', weight: 0.7, slots: 1, tier: 'support', reason: 'Keeps sanitation manageable during shelter stays or motel resets.'},
-          {id: 'tarp-bivy', name: 'Tarp + Bivy Layer', category: 'shelter', weight: 2.4, slots: 2, tier: 'critical', reason: 'Adds fast weather cover if a vehicle, building, or room is not available.'},
-          {id: 'rain-shell', name: 'Rain Shell', category: 'shelter', weight: 1.1, slots: 1, tier: 'critical', reason: 'Keeps heat loss down and doubles as a wind layer during movement.'},
-          {id: 'emergency-blanket', name: 'Emergency Blanket', category: 'shelter', weight: 0.3, slots: 1, tier: 'support', reason: 'Adds low-bulk thermal protection for roadside waits, shelter overflow, or wet night transitions.'},
-          {id: 'utility-cord', name: 'Utility Cord 50 ft', category: 'shelter', weight: 0.6, slots: 1, tier: 'support', reason: 'Supports tarp setup, improvised repairs, drying lines, and securing loose gear in bad weather.'},
-          {id: 'ration-bars', name: 'High-Calorie Ration Bars', category: 'food', weight: 1.8, slots: 1, tier: 'critical', reason: 'Simple calories that survive heat and do not need a cooking stop.'},
-          {id: 'meal-pouch', name: 'Ready Meal Pouch', category: 'food', weight: 1.2, slots: 1, tier: 'extended', reason: 'Adds a morale and recovery meal when displacement stretches beyond a few hours.'},
-          {id: 'metal-cup', name: 'Metal Cup', category: 'food', weight: 0.6, slots: 1, tier: 'support', reason: 'Gives one container for hot drinks, simple meals, and water handling.'},
-          {id: 'utensil-kit', name: 'Utensil Kit', category: 'food', weight: 0.2, slots: 1, tier: 'support', reason: 'Keeps meal prep, ration sharing, and hot-food handling cleaner in improvised shelter conditions.'},
-          {id: 'power-bank', name: '20k Power Bank', category: 'power', weight: 0.9, slots: 1, tier: 'critical', reason: 'Keeps phone, light, and map apps alive during the first day of disruption.'},
-          {id: 'folding-solar-panel', name: 'Folding Solar Panel', category: 'power', weight: 1.4, slots: 2, tier: 'extended', reason: 'Extends charging endurance during long outages, trail movement, or vehicle downtime.'},
-          {id: 'battery-caddy', name: 'AA/AAA Battery Caddy', category: 'power', weight: 0.5, slots: 1, tier: 'support', reason: 'Keeps common light and radio cells organized instead of loose at the bottom of the bag.'},
-          {id: 'headlamp', name: 'Headlamp', category: 'power', weight: 0.4, slots: 1, tier: 'critical', reason: 'Hands-free light for stairwells, night movement, and shelter setup.'},
-          {id: 'charger-kit', name: 'Cable + Wall Block Kit', category: 'power', weight: 0.3, slots: 1, tier: 'support', reason: 'Lets the bag exploit any working outlet, USB point, or car adapter.'},
-          {id: 'paper-map', name: 'Paper Map Pack', category: 'navigation', weight: 0.5, slots: 1, tier: 'critical', reason: 'Offline area reference if the phone dies or cell service drops out.'},
-          {id: 'rite-notebook', name: 'Rite-in-Rain Notebook', category: 'navigation', weight: 0.4, slots: 1, tier: 'support', reason: 'Captures routes, hotel info, fuel notes, and contact updates when phone batteries get thin.'},
-          {id: 'waypoint-tabs', name: 'Waypoint Marker Tabs', category: 'navigation', weight: 0.2, slots: 1, tier: 'support', reason: 'Marks paper routes, regroup points, and supply stops without cluttering the main map.'},
-          {id: 'doc-wallet', name: 'Document Wallet', category: 'navigation', weight: 0.4, slots: 1, tier: 'critical', reason: 'Keeps IDs, contacts, insurance, and cash sealed in one fast-grab module.'},
-          {id: 'hand-crank-radio', name: 'Hand-Crank Radio', category: 'comms', weight: 0.9, slots: 1, tier: 'critical', reason: 'Receives public safety updates when data service and power are unstable.'},
-          {id: 'frs-handset', name: 'FRS Handset', category: 'comms', weight: 0.8, slots: 1, tier: 'extended', reason: 'Gives short-range family or convoy coordination when cell coverage is delayed or overloaded.'},
-          {id: 'whistle-light', name: 'Whistle + Chem Light', category: 'comms', weight: 0.2, slots: 1, tier: 'support', reason: 'Simple signaling tools for group movement, dark parking lots, or low visibility.'},
-          {id: 'signal-mirror', name: 'Signal Mirror Panel', category: 'comms', weight: 0.2, slots: 1, tier: 'support', reason: 'Adds daylight signaling without drawing battery, fuel, or radio runtime.'},
-          {id: 'multitool', name: 'Compact Multitool', category: 'tools', weight: 0.6, slots: 1, tier: 'support', reason: 'Handles broken zippers, loose screws, food packaging, and small repairs.'},
-          {id: 'repair-tape', name: 'Repair Tape Wrap', category: 'tools', weight: 0.4, slots: 1, tier: 'support', reason: 'Patches tarps, labels cables, reinforces handles, and keeps leaking containers serviceable.'},
-          {id: 'zip-cord-bundle', name: 'Zip Tie + Cord Bundle', category: 'tools', weight: 0.5, slots: 1, tier: 'support', reason: 'Fastens loose panels, bundles kit, and helps turn improvised shelter into something stable.'},
-          {id: 'gloves-mask', name: 'Work Gloves + Dust Mask', category: 'tools', weight: 0.8, slots: 1, tier: 'critical', reason: 'Protects hands and breathing during debris cleanup, smoke, or glass-heavy exits.'},
-
-          // ── BODY ARMOR ──────────────────────────────────────────────────────────
-          // Plate Carriers — worn weight, not packed inside bag
-          {id: 'jpc-2', name: 'Crye Precision JPC 2.0', category: 'armor', weight: 1.9, slots: 2, tier: 'critical', reason: 'Minimalist plate carrier for SAPI/ESAPI front and rear plate integration. Industry baseline for lightweight civilian protection setups. MOLLE-compatible.'},
-          {id: 'tactec', name: '5.11 TacTec Plate Carrier', category: 'armor', weight: 2.0, slots: 2, tier: 'critical', reason: 'Civilian-grade plate carrier accepting Level III/IV hard plates. Hydration bladder compatible, full MOLLE cummerbund, drag handle included.'},
-          {id: 'banshee', name: 'Shellback Banshee Elite 2.0', category: 'armor', weight: 1.8, slots: 2, tier: 'critical', reason: 'Lightweight budget-accessible carrier for 10×12 SAPI plates. Integrated cummerbund, D-ring, and low-profile design for concealment under jackets.'},
-          {id: 'iotv-gen4', name: 'IOTV Gen IV (US Army surplus)', category: 'armor', weight: 4.1, slots: 3, tier: 'critical', reason: 'Full Improved Outer Tactical Vest. Accepts front, rear, side, groin, and collar soft/hard armor inserts. Complete wrap-around protection when fully configured.'},
-          {id: 'ciras', name: 'CIRAS Maritime Vest', category: 'armor', weight: 2.8, slots: 3, tier: 'support', reason: 'Full-coverage carrier with integrated cummerbund for side plate use. Preferred SOCOM baseline platform. Accepts drag handle and MOLLE pouches on all surfaces.'},
-          {id: 'spiritus-micro', name: 'Spiritus Systems Micro Fight', category: 'armor', weight: 1.4, slots: 1, tier: 'support', reason: 'Ultralight skeletal carrier for single front plate. Minimum footprint for fast movement, vehicle use, or concealment. No rear plate capability.'},
-
-          // Ballistic Plates
-          {id: 'lvl4-ceramic', name: 'Level IV Ceramic Plates (pair)', category: 'armor', weight: 14.2, slots: 2, tier: 'critical', reason: 'NIJ Level IV rated. Stops .30-06 AP M2 and below including 7.62×51mm M993. Single-curve 10×12 SAPI cut. Requires compatible carrier. Multi-hit rated per NIJ 0101.06.'},
-          {id: 'lvl3plus-steel', name: 'Level III+ AR500 Steel Plates (pair)', category: 'armor', weight: 16.0, slots: 2, tier: 'support', reason: 'Multi-hit capable steel construction. Defeats 5.56 M855A1, 7.62×39mm, and M80 ball. Heavier than ceramic. Spall liner coating required. Budget-accessible entry.'},
-          {id: 'lvl3-pe', name: 'Level III PE/UHMWPE Plates (pair)', category: 'armor', weight: 5.8, slots: 2, tier: 'support', reason: 'Lightweight polyethylene plates rated NIJ Level III. Buoyant in water. Defeats standard rifle rounds at velocity. Preferred for extended foot movement and water operations.'},
-          {id: 'side-plates', name: 'Side Plate Set (6×6, Level III+)', category: 'armor', weight: 3.8, slots: 1, tier: 'support', reason: 'Lateral torso protection for IOTV, CIRAS, and cummerbund carriers. Required for full 360-degree fragment and rifle coverage. Left/right pair.'},
-
-          // Helmets
-          {id: 'ach-helmet', name: 'ACH / ECH Ballistic Helmet (surplus)', category: 'armor', weight: 3.3, slots: 2, tier: 'critical', reason: 'Advanced Combat Helmet. NIJ IIIA ballistic protection standard. Stops handgun rounds and fragmentation. Accepts rails, NVG mount, and helmet covers. Most common US military surplus helmet.'},
-          {id: 'mich-2000', name: 'MICH 2000 Helmet', category: 'armor', weight: 3.0, slots: 2, tier: 'critical', reason: 'Modular Integrated Communications Helmet. Full ballistic shell with side rails for lighting, cameras, and accessories. SOCOM baseline. Offers clear ear coverage for hearing protection integration.'},
-          {id: 'opscore-fast', name: 'Ops-Core FAST Carbon Helmet', category: 'armor', weight: 2.4, slots: 2, tier: 'support', reason: 'High-cut carbon fiber helmet. Lower weight than MICH for improved mobility and hearing. NVG mount, Shroud rail system, ARC side rails. Premium civilian and SOF market platform.'},
-
-          // Protective Add-Ons
-          {id: 'collar-throat', name: 'Throat & Collar Protector', category: 'armor', weight: 0.8, slots: 1, tier: 'support', reason: 'Soft armor neck and throat panel. Mounts to IOTV and full-coverage carriers. Protects against fragmentation, shrapnel, and pistol-caliber threats to the neck and lower face.'},
-          {id: 'groin-flap', name: 'Groin & Lower Abdominal Protector', category: 'armor', weight: 1.2, slots: 1, tier: 'support', reason: 'Ballistic-rated groin flap for IOTV and CIRAS carriers. Soft armor construction. Provides femoral artery and lower abdominal protection from fragmentation and direct pistol threats.'},
-          {id: 'shoulder-guards', name: 'Shoulder Armor Pads', category: 'armor', weight: 1.0, slots: 1, tier: 'support', reason: 'Soft-shell shoulder drape protection panels. Clips to IOTV and CIRAS shoulder runs. Protects brachial artery and shoulder girdle from indirect fragmentation and shrapnel.'},
-          {id: 'ballistic-eyewear', name: 'Ballistic Eyewear (APEL-rated)', category: 'armor', weight: 0.2, slots: 1, tier: 'support', reason: 'ANSI Z87.1 and MIL-PRF-32432 rated lenses. Protects against fragmentation, blast overpressure debris, and UV. APEL list approval required for issued equipment in US service.'},
-          {id: 'carrier-ifak', name: 'Rip-Away IFAK Pouch (carrier-mount)', category: 'armor', weight: 1.2, slots: 1, tier: 'critical', reason: 'Rip-away IFAK mounts to carrier cummerbund or rear panel. Contains tourniquet, chest seal, hemostatic gauze, and airway. Immediate trauma access without removing the bag.'},
-          {id: 'admin-chest-pouch', name: 'Admin Chest Pouch (MOLLE)', category: 'armor', weight: 0.4, slots: 1, tier: 'support', reason: 'Chest-mount admin panel for IDs, grid maps, pens, and SOPs. MOLLE-compatible for JPC, TacTec, CIRAS, and IOTV chest panel. Quick-access flat-lay organization.'}
-        ];
-
-        const PRESETS = {
-          office: {
-            label: 'Office Exit',
-            bag: 'brief',
-            items: ['collapsible-pouch', 'otc-med-sleeve', 'power-bank', 'charger-kit', 'doc-wallet', 'headlamp'],
-            targets: {water: 1, medical: 1, shelter: 1, food: 1, power: 2, navigation: 1, comms: 1, tools: 1},
-            note: 'Minimal office-safe load built around IDs, charging, meds, and enough light to bridge a controlled building exit.'
-          },
-          roadside: {
-            label: 'Roadside Reset',
-            bag: 'seatback',
-            items: ['collapsible-pouch', 'electrolyte-tabs', 'med-pouch', 'power-bank', 'charger-kit', 'doc-wallet', 'multitool'],
-            targets: {water: 1, medical: 1, shelter: 1, food: 1, power: 2, navigation: 1, comms: 1, tools: 1},
-            note: 'Vehicle-adjacent kit for breakdowns, long tow windows, or overnight delays where admin, charging, and first aid matter most.'
-          },
-          commuter: {
-            label: 'Transit Delay',
-            bag: 'panel',
-            items: ['water-bladder', 'med-pouch', 'ration-bars', 'power-bank', 'headlamp', 'charger-kit', 'doc-wallet', 'hand-crank-radio', 'repair-tape', 'whistle-light'],
-            targets: {water: 1, medical: 1, shelter: 1, food: 1, power: 2, navigation: 1, comms: 2, tools: 1},
-            note: 'Built for train, bus, and city movement when the trip home turns into a longer transit problem.'
-          },
-          outage: {
-            label: 'Urban Outage',
-            bag: 'daypack',
-            items: ['water-bladder', 'collapsible-pouch', 'med-pouch', 'ration-bars', 'power-bank', 'headlamp', 'charger-kit', 'doc-wallet', 'hand-crank-radio', 'repair-tape', 'gloves-mask'],
-            targets: {water: 1, medical: 1, shelter: 1, food: 1, power: 2, navigation: 1, comms: 1, tools: 1},
-            note: 'Fast apartment or office exit with enough power, documents, and comms depth for a night away from home.'
-          },
-          storm: {
-            label: 'Storm Evac',
-            bag: 'daypack',
-            items: ['water-bladder', 'filter-straw', 'med-pouch', 'tarp-bivy', 'rain-shell', 'power-bank', 'headlamp', 'doc-wallet', 'hand-crank-radio', 'gloves-mask'],
-            targets: {water: 2, medical: 1, shelter: 2, food: 1, power: 2, navigation: 1, comms: 1, tools: 1},
-            note: 'Weather-forward stack that assumes wet ground, blocked roads, and uncertain indoor shelter access.'
-          },
-          rainline: {
-            label: 'Rain Line',
-            bag: 'rolltop',
-            items: ['water-bladder', 'filter-straw', 'med-pouch', 'tarp-bivy', 'rain-shell', 'power-bank', 'headlamp', 'doc-wallet', 'hand-crank-radio', 'utility-cord', 'gloves-mask'],
-            targets: {water: 2, medical: 1, shelter: 2, food: 1, power: 2, navigation: 1, comms: 1, tools: 1},
-            note: 'Wet-weather preset for storm bands, flood detours, and long periods of standing rain or spray.'
-          },
-          vehicle: {
-            label: 'Vehicle Bugout',
-            bag: 'vehicle',
-            items: ['water-bladder', 'filter-straw', 'electrolyte-tabs', 'med-pouch', 'hygiene-kit', 'tarp-bivy', 'rain-shell', 'ration-bars', 'metal-cup', 'power-bank', 'battery-caddy', 'headlamp', 'charger-kit', 'paper-map', 'doc-wallet', 'hand-crank-radio', 'whistle-light', 'multitool', 'repair-tape', 'gloves-mask'],
-            targets: {water: 2, medical: 2, shelter: 2, food: 2, power: 2, navigation: 2, comms: 2, tools: 2},
-            note: 'Uses vehicle space to carry comfort, repair, and shelter depth without forcing all weight onto your back.'
-          },
-          hike: {
-            label: 'Hike-Out',
-            bag: 'ruck',
-            items: ['water-bladder', 'filter-straw', 'purification-drops', 'electrolyte-tabs', 'med-pouch', 'blister-burn-roll', 'tarp-bivy', 'rain-shell', 'ration-bars', 'metal-cup', 'power-bank', 'headlamp', 'paper-map', 'doc-wallet', 'hand-crank-radio', 'whistle-light', 'multitool'],
-            targets: {water: 2, medical: 1, shelter: 2, food: 2, power: 2, navigation: 2, comms: 2, tools: 1},
-            note: 'Biases toward self-supported foot movement where water, shelter, and offline navigation matter more than convenience.'
-          },
-          trail: {
-            label: 'Trail Sustain',
-            bag: 'trail',
-            items: ['water-bladder', 'filter-straw', 'purification-drops', 'med-pouch', 'blister-burn-roll', 'tarp-bivy', 'rain-shell', 'ration-bars', 'meal-pouch', 'metal-cup', 'power-bank', 'folding-solar-panel', 'paper-map', 'rite-notebook', 'doc-wallet', 'hand-crank-radio', 'multitool'],
-            targets: {water: 2, medical: 2, shelter: 2, food: 2, power: 3, navigation: 2, comms: 1, tools: 1},
-            note: 'Extended-carry trail preset for full-day foot movement where power endurance and route notes matter more than speed.'
-          },
-          family: {
-            label: 'Family Evac',
-            bag: 'duffel',
-            items: ['water-bladder', 'collapsible-pouch', 'filter-straw', 'purification-drops', 'electrolyte-tabs', 'med-pouch', 'otc-med-sleeve', 'hygiene-kit', 'tarp-bivy', 'rain-shell', 'ration-bars', 'meal-pouch', 'power-bank', 'battery-caddy', 'headlamp', 'charger-kit', 'paper-map', 'doc-wallet', 'hand-crank-radio', 'frs-handset', 'whistle-light', 'repair-tape'],
-            targets: {water: 3, medical: 2, shelter: 2, food: 2, power: 3, navigation: 2, comms: 3, tools: 2},
-            note: 'Broader vehicle-first preset for multi-person movement, duplicate comms, and longer shelter transitions.'
-          },
-          lightarmor: {
-            label: 'Light Armor',
-            bag: 'vehicle',
-            items: ['jpc-2', 'lvl3-pe', 'mich-2000', 'ballistic-eyewear', 'carrier-ifak', 'water-bladder', 'med-pouch', 'power-bank', 'headlamp', 'doc-wallet', 'gloves-mask'],
-            targets: {water: 1, medical: 2, power: 1, navigation: 1, tools: 1, armor: 3},
-            note: 'Lightweight protection rig — JPC 2.0 carrier with PE plates and MICH helmet. Minimizes worn weight while maintaining ballistic coverage for vehicle movement or active threat environments.'
-          },
-          fullarmor: {
-            label: 'Full Armor Rig',
-            bag: 'vehicle',
-            items: ['iotv-gen4', 'lvl4-ceramic', 'side-plates', 'ach-helmet', 'collar-throat', 'groin-flap', 'ballistic-eyewear', 'carrier-ifak', 'admin-chest-pouch', 'water-bladder', 'filter-straw', 'med-pouch', 'power-bank', 'headlamp', 'doc-wallet', 'hand-crank-radio', 'gloves-mask'],
-            targets: {water: 1, medical: 2, power: 1, navigation: 1, comms: 1, tools: 1, armor: 6},
-            note: 'Maximum protection loadout — IOTV Gen IV with Level IV ceramic plates, side plates, collar, groin, and ACH. Vehicle-first; not a walking load. Represents full US Army base protection standard.'
-          }
-        };
-
-        const state = {
-          bagId: 'daypack',
-          presetId: 'outage',
-          selectedIds: [],
-          filter: 'all'
-        };
-
-        const bagSelect = document.getElementById('bagSelect');
-        const presetRow = document.getElementById('presetRow');
-        const filterRow = document.getElementById('filterRow');
-        const itemGrid = document.getElementById('itemGrid');
-        const rackSummary = document.getElementById('rackSummary');
-        const missionCopy = document.getElementById('missionCopy');
-        const loadStatus = document.getElementById('loadStatus');
-        const bagCard = document.getElementById('bagCard');
-        const meterGrid = document.getElementById('meterGrid');
-        const coverageGrid = document.getElementById('coverageGrid');
-        const manifestList = document.getElementById('manifestList');
-        const copyManifestBtn = document.getElementById('copyManifest');
-        const exportManifestBtn = document.getElementById('exportManifest');
-        const resetLoadoutBtn = document.getElementById('resetLoadout');
-
-        function currentBag() {
-          return BAGS.find(bag => bag.id === state.bagId) || BAGS[0];
-        }
-
-        function currentPreset() {
-          return PRESETS[state.presetId] || PRESETS.outage;
-        }
-
-        function selectedItems() {
-          return ITEMS.filter(item => state.selectedIds.includes(item.id));
-        }
-
-        function totalWeight() {
-          return selectedItems().reduce((sum, item) => sum + item.weight, 0);
-        }
-
-        function totalSlots() {
-          return selectedItems().reduce((sum, item) => sum + item.slots, 0);
-        }
-
-        function usageClass(ratio) {
-          if (ratio > 1) return 'alert';
-          if (ratio > 0.85) return 'warn';
-          return 'ok';
-        }
-
-        function coverageForCategory(category) {
-          return selectedItems().filter(item => item.category === category).length;
-        }
-
-        function saveState() {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            bagId: state.bagId,
-            presetId: state.presetId,
-            selectedIds: state.selectedIds,
-            filter: state.filter
-          }));
-        }
-
-        function loadState() {
-          try {
-            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-            if (typeof saved.bagId === 'string' && BAGS.some(bag => bag.id === saved.bagId)) state.bagId = saved.bagId;
-            if (typeof saved.presetId === 'string' && PRESETS[saved.presetId]) state.presetId = saved.presetId;
-            if (Array.isArray(saved.selectedIds)) state.selectedIds = saved.selectedIds.filter(id => ITEMS.some(item => item.id === id));
-            if (typeof saved.filter === 'string' && CATEGORY_LABELS[saved.filter]) state.filter = saved.filter;
-          } catch (_) {
-            state.bagId = 'daypack';
-            state.presetId = 'outage';
-            state.selectedIds = [];
-            state.filter = 'all';
-          }
-        }
-
-        function applyPreset(presetId) {
-          const preset = PRESETS[presetId];
-          if (!preset) return;
-          state.presetId = presetId;
-          state.bagId = preset.bag;
-          state.selectedIds = preset.items.slice();
-          state.filter = 'all';
-          renderAll();
-          setStatus(`${preset.label} loaded. Tune the bag if your route, weather, or vehicle situation changes.`);
-        }
-
-        function setStatus(message, tone) {
-          loadStatus.textContent = message;
-          loadStatus.classList.toggle('alert', tone === 'alert');
-        }
-
-        function canAdd(item) {
-          const bag = currentBag();
-          const nextWeight = totalWeight() + item.weight;
-          const nextSlots = totalSlots() + item.slots;
-          return nextWeight <= bag.capacity && nextSlots <= bag.slots;
-        }
-
-        function toggleItem(itemId) {
-          const exists = state.selectedIds.includes(itemId);
-          const item = ITEMS.find(entry => entry.id === itemId);
-          if (!item) return;
-
-          if (exists) {
-            state.selectedIds = state.selectedIds.filter(id => id !== itemId);
-            renderAll();
-            setStatus(`${item.name} removed from the bag.`, 'ok');
-            return;
-          }
-
-          if (!canAdd(item)) {
-            setStatus(`${item.name} would overload the current bag. Pick a bigger platform or unload another module first.`, 'alert');
-            return;
-          }
-
-          state.selectedIds = [...state.selectedIds, itemId];
-          renderAll();
-          setStatus(`${item.name} loaded into the current bag.`, 'ok');
-        }
-
-        function renderBagSelect() {
-          bagSelect.innerHTML = BAGS.map(bag => `<option value="${bag.id}">${bag.name} | ${bag.capacity} lb | ${bag.slots} slots</option>`).join('');
-          bagSelect.value = state.bagId;
-        }
-
-        function renderPresets() {
-          presetRow.innerHTML = Object.entries(PRESETS).map(([presetId, preset]) => `<button class="preset-btn ${state.presetId === presetId ? 'active' : ''}" data-preset="${presetId}">${preset.label}</button>`).join('');
-          missionCopy.innerHTML = `<strong>${currentPreset().label}</strong>${currentPreset().note}`;
-        }
-
-        function renderFilters() {
-          filterRow.innerHTML = Object.entries(CATEGORY_LABELS).map(([category, label]) => `<button class="filter-chip ${state.filter === category ? 'active' : ''}" data-filter="${category}">${label}</button>`).join('');
-        }
-
-        function renderRackSummary() {
-          const visibleItems = ITEMS.filter(item => state.filter === 'all' || item.category === state.filter);
-          const coveredCategories = new Set(selectedItems().map(item => item.category)).size;
-          rackSummary.innerHTML = [
-            `<span>Filter <strong>${CATEGORY_LABELS[state.filter]}</strong></span>`,
-            `<span><strong>${visibleItems.length}</strong> visible modules</span>`,
-            `<span><strong>${selectedItems().length}</strong> loaded</span>`,
-            `<span><strong>${coveredCategories}</strong> categories covered</span>`
-          ].join('');
-        }
-
-        function renderItems() {
-          const visibleItems = ITEMS.filter(item => state.filter === 'all' || item.category === state.filter);
-          itemGrid.innerHTML = visibleItems.map(item => {
-            const loaded = state.selectedIds.includes(item.id);
-            return `
-              <article class="item-card ${loaded ? 'loaded' : ''}" data-cat="${item.category}">
-                <div class="item-top">
-                  <div>
-                    <h4 class="item-name">${item.name}</h4>
-                    <p class="item-meta">${CATEGORY_LABELS[item.category]} | ${item.slots} slot${item.slots === 1 ? '' : 's'}</p>
-                  </div>
-                  <span class="item-tier">${item.tier}</span>
-                </div>
-                <p>${item.reason}</p>
-                <div class="item-footer">
-                  <span class="item-weight">${item.weight.toFixed(1)} lb</span>
-                  <button class="item-toggle ${loaded ? 'loaded' : ''}" data-item="${item.id}">${loaded ? 'Loaded' : 'Load Module'}</button>
-                </div>
-              </article>
-            `;
-          }).join('');
-        }
-
-        function renderBagCard() {
-          const bag = currentBag();
-          const preset = currentPreset();
-          bagCard.innerHTML = `
-            <h4>${bag.name}</h4>
-            <p>${bag.desc}</p>
-            <div class="bag-meta">
-              <span class="bag-pill">Preset ${preset.label}</span>
-              <span class="bag-pill">${selectedItems().length} modules</span>
-            </div>
-          `;
-        }
-
-        function renderMeters() {
-          const bag = currentBag();
-          const weight = totalWeight();
-          const slots = totalSlots();
-          const criticalCount = selectedItems().filter(item => item.tier === 'critical').length;
-          const weightRatio = weight / bag.capacity;
-          const slotRatio = slots / bag.slots;
-          meterGrid.innerHTML = [
-            {label: 'Weight', value: `${weight.toFixed(1)} / ${bag.capacity} lb`, ratio: weightRatio},
-            {label: 'Slots', value: `${slots} / ${bag.slots}`, ratio: slotRatio},
-            {label: 'Critical Modules', value: `${criticalCount}`, ratio: Math.min(criticalCount / 8, 1)}
-          ].map(metric => `
-            <div class="meter-card">
-              <div class="meter-head"><span>${metric.label}</span><span>${metric.value}</span></div>
-              <div class="meter-bar"><div class="meter-fill ${usageClass(metric.ratio)}" style="width:${Math.min(metric.ratio * 100, 100)}%"></div></div>
-            </div>
-          `).join('');
-
-          if (weightRatio > 1 || slotRatio > 1) {
-            setStatus('Current load is over safe carry limits. Remove a module or shift to a larger bag.', 'alert');
-          } else if (weightRatio > 0.85 || slotRatio > 0.85) {
-            setStatus('Bag is near capacity. Keep only modules that directly support the selected scenario.', 'ok');
-          } else if (!loadStatus.textContent) {
-            setStatus('Load is balanced. Fine-tune by scenario, climate, and travel method.', 'ok');
-          }
-        }
-
-        function renderCoverage() {
-          const targets = currentPreset().targets;
-          coverageGrid.innerHTML = Object.entries(targets).map(([category, target]) => {
-            const count = coverageForCategory(category);
-            const ratio = Math.min(count / target, 1);
-            return `
-              <div class="coverage-row">
-                <span>${CATEGORY_LABELS[category]}</span>
-                <div class="meter-bar"><div class="meter-fill ${usageClass(ratio)}" style="width:${ratio * 100}%"></div></div>
-                <span>${count}/${target}</span>
-              </div>
-            `;
-          }).join('');
-        }
-
-        function renderManifest() {
-          const items = selectedItems();
-          if (!items.length) {
-            manifestList.innerHTML = '<div class="manifest-empty">No modules loaded. Apply a preset or start picking core water, medical, and document items.</div>';
-            return;
-          }
-          manifestList.innerHTML = items.map(item => `
-            <article class="manifest-item">
-              <div class="manifest-top">
-                <div>
-                  <strong>${item.name}</strong>
-                  <span>${CATEGORY_LABELS[item.category]} | ${item.weight.toFixed(1)} lb | ${item.slots} slot${item.slots === 1 ? '' : 's'}</span>
-                </div>
-                <button class="remove-chip" data-remove="${item.id}">Remove</button>
-              </div>
-              <p>${item.reason}</p>
-            </article>
-          `).join('');
-        }
-
-        function manifestText() {
-          const bag = currentBag();
-          const preset = currentPreset();
-          const items = selectedItems();
-          return [
-            'DELTA CIVILIAN LOADOUT',
-            `Preset: ${preset.label}`,
-            `Bag: ${bag.name}`,
-            `Weight: ${totalWeight().toFixed(1)} / ${bag.capacity} lb`,
-            `Slots: ${totalSlots()} / ${bag.slots}`,
-            '',
-            'Modules:',
-            ...items.map(item => `- ${item.name} (${CATEGORY_LABELS[item.category]}, ${item.weight.toFixed(1)} lb): ${item.reason}`)
-          ].join('\n');
-        }
-
-        function exportManifest() {
-          const blob = new Blob([manifestText()], {type: 'text/plain;charset=utf-8'});
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `delta_survival_${state.presetId}.txt`;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          URL.revokeObjectURL(url);
-          setStatus('Plain-text manifest exported.', 'ok');
-        }
-
-        async function copyManifest() {
-          try {
-            await navigator.clipboard.writeText(manifestText());
-            setStatus('Checklist copied to the clipboard.', 'ok');
-          } catch (_) {
-            setStatus('Clipboard copy failed on this browser. Use Export Manifest instead.', 'alert');
-          }
-        }
-
-        function clearLoadout() {
-          state.selectedIds = [];
-          renderAll();
-          setStatus('Bag cleared. Rebuild from the preset or add modules manually.', 'ok');
-        }
-
-        function renderAll() {
-          renderBagSelect();
-          renderPresets();
-          renderRackSummary();
-          renderFilters();
-          renderItems();
-          renderBagCard();
-          renderMeters();
-          renderCoverage();
-          renderManifest();
-          saveState();
-        }
-
-        presetRow.addEventListener('click', event => {
-          const button = event.target.closest('[data-preset]');
-          if (!button) return;
-          applyPreset(button.dataset.preset);
-        });
-
-        filterRow.addEventListener('click', event => {
-          const button = event.target.closest('[data-filter]');
-          if (!button) return;
-          state.filter = button.dataset.filter;
-          renderAll();
-        });
-
-        itemGrid.addEventListener('click', event => {
-          const button = event.target.closest('[data-item]');
-          if (!button) return;
-          toggleItem(button.dataset.item);
-        });
-
-        manifestList.addEventListener('click', event => {
-          const button = event.target.closest('[data-remove]');
-          if (!button) return;
-          toggleItem(button.dataset.remove);
-        });
-
-        bagSelect.addEventListener('change', event => {
-          state.bagId = event.target.value;
-          renderAll();
-          setStatus(`${currentBag().name} selected. Capacity bars updated for the new platform.`, 'ok');
-        });
-
-        copyManifestBtn.addEventListener('click', copyManifest);
-        exportManifestBtn.addEventListener('click', exportManifest);
-        resetLoadoutBtn.addEventListener('click', clearLoadout);
-
-        loadState();
-        if (!state.selectedIds.length) {
-          applyPreset(state.presetId);
-          return;
-        }
-        renderAll();
-      })();
-    </script>
+    <script src="{{ url_for('static', filename='survival_loadout.js', v='20260513r3') }}"></script>
     {%- include '_radio_footer.html' %}
 </body>
 </html>

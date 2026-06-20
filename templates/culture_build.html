@@ -1,0 +1,2441 @@
+{% macro rank_card(country_code, badge, title, native, phonetic, tier, image_file, source_page, license_label, actual_rank='', match_note='') -%}
+<div class="rank-card rank-card-{{ country_code }}">
+  <div class="rank-insignia-shell">
+    <span class="rank-insignia-badge">{{ badge }}</span>
+    <img class="rank-insignia-art" src="{{ image_file if '://' in image_file else url_for('static', filename='culture-ranks/' ~ image_file, v='20260518r1') }}" alt="{{ badge }} {{ actual_rank or title }} insignia reference" loading="lazy" />
+    <div class="rank-insignia-meta">
+      <span class="rank-tier">{{ tier }}</span>
+      {% if actual_rank %}
+      <span class="rank-actual">Shown: {{ actual_rank }}</span>
+      {% endif %}
+    </div>
+    {% if match_note %}
+    <div class="rank-match-note">{{ match_note }}</div>
+    {% endif %}
+    <div class="rank-source">
+      <a href="{{ source_page }}" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+      <span>{{ license_label }}</span>
+    </div>
+  </div>
+  <div class="rank-copy">
+    <div class="rank-title">{{ title }}</div>
+    <div class="rank-title-native">{{ native }}</div>
+    <div class="rank-phonetic">{{ phonetic }}</div>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro history_entry(period, heading, body) -%}
+<article class="history-entry">
+  <span class="history-period">{{ period }}</span>
+  <h4>{{ heading }}</h4>
+  <p>{{ body }}</p>
+</article>
+{%- endmacro %}
+
+{% macro location_map(country_code, focus_title, region_label, coords_label, lat, lon, zoom=4) -%}
+<div class="history-map-card">
+  <div class="history-map-meta">
+    <span class="history-map-label">{{ focus_title }}</span>
+    <span class="history-map-support">{{ region_label }}</span>
+    <span class="history-map-coords">{{ coords_label }}</span>
+  </div>
+  <div class="culture-mini-map" id="map-{{ country_code }}" data-country="{{ country_code }}" data-label="{{ focus_title }}" data-lat="{{ lat }}" data-lon="{{ lon }}" data-zoom="{{ zoom }}"></div>
+</div>
+{%- endmacro %}
+
+{% macro usa_branch_button(branch_code, branch_name, insignia_url, default_active=False) -%}
+<button type="button" class="usa-branch-button{% if default_active %} active{% endif %}" data-usa-branch="{{ branch_code }}" aria-controls="usa-branch-{{ branch_code }}" aria-pressed="{{ 'true' if default_active else 'false' }}" title="{{ branch_name }}">
+  <img src="{{ insignia_url }}" alt="{{ branch_name }} insignia" loading="lazy" />
+  <span class="sr-only">{{ branch_name }}</span>
+</button>
+{%- endmacro %}
+
+{% macro usa_branch_panel(branch_code, branch_name, branch_type, insignia_url, insignia_page, portrait_url, portrait_page, portrait_subject, context_url, context_page, context_subject, default_active=False) -%}
+<article id="usa-branch-{{ branch_code }}" class="usa-branch-panel{% if default_active %} active{% endif %}" data-usa-branch-panel="{{ branch_code }}" {% if not default_active %}hidden{% endif %}>
+  <div class="usa-branch-panel-head">
+    <span class="usa-branch-panel-kicker">{{ branch_type }}</span>
+    <h4 class="usa-branch-panel-title">{{ branch_name }}</h4>
+    <p class="usa-branch-panel-copy">Reference-only board with the branch insignia, an official portrait, and a face-visible field or ceremony photo.</p>
+  </div>
+  <div class="usa-branch-panel-grid">
+    <figure class="usa-branch-media">
+      <span class="usa-branch-media-label">Insignia</span>
+      <img class="usa-branch-insignia-art" src="{{ insignia_url }}" alt="{{ branch_name }} insignia reference" loading="lazy" />
+      <figcaption class="usa-branch-photo-caption">Primary insignia reference for the selected branch board.</figcaption>
+      <div class="usa-branch-source">
+        <a href="{{ insignia_page }}" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+        <span>Public domain</span>
+      </div>
+    </figure>
+    <figure class="usa-branch-media">
+      <span class="usa-branch-media-label">Official Portrait</span>
+      <img class="usa-branch-face-art" src="{{ portrait_url }}" alt="{{ portrait_subject }}" loading="lazy" />
+      <figcaption class="usa-branch-photo-caption">{{ portrait_subject }}</figcaption>
+      <div class="usa-branch-source">
+        <a href="{{ portrait_page }}" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+        <span>Public domain</span>
+      </div>
+    </figure>
+    <figure class="usa-branch-media">
+      <span class="usa-branch-media-label">Field / Ceremony Photo</span>
+      <img class="usa-branch-face-art" src="{{ context_url }}" alt="{{ context_subject }}" loading="lazy" />
+      <figcaption class="usa-branch-photo-caption">{{ context_subject }}</figcaption>
+      <div class="usa-branch-source">
+        <a href="{{ context_page }}" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
+        <span>Public domain</span>
+      </div>
+    </figure>
+  </div>
+</article>
+{%- endmacro %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Culture Build Reference - Delta Coding</title>
+    <meta name="description" content="Comprehensive cultural, military, and linguistic reference for Iran, China, Russia, Mexico, Israel, and the United States. Military ranks, holidays, phrases, history, and customs.">
+    <meta name="keywords" content="culture, military ranks, languages, holidays, ethnic groups, social structure, customs, reference guide">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Culture Build Reference - Delta Coding">
+    <meta property="og:description" content="Comprehensive cultural, military, and linguistic reference for Iran, China, Russia, Mexico, Israel, and the United States.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/culture">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Culture Build Reference - Delta Coding">
+    <meta name="twitter:description" content="Military ranks, holidays, phrases, history, and customs for Iran, China, Russia, Mexico, Israel, and the United States.">
+    <link rel="canonical" href="https://futurecodedelta.org/culture">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=20260619r1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
+    {% include "_culture_build_styles.html" %}
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/" class="delta-logo" aria-label="FutureCodeDelta home" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA — CULTURE BUILD REFERENCE</h1>
+        <p class="tag">MILITARY RANKS &bull; PHRASES &bull; HOLIDAYS &bull; HISTORY &bull; SOCIAL CUSTOMS</p>
+      </div>
+      {% include "_top_nav.html" %}
+    </header>
+
+<main class="culture-build-page">
+
+  <!-- Hero Section -->
+  <section class="culture-hero">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <span class="hero-kicker">Field Reference // Cross-Culture Brief</span>
+        <h1>Culture Build Reference</h1>
+        <p class="subtitle">Comprehensive cultural, military, linguistic, and geographic guide for Iran, China, Russia, Mexico, Israel, and the United States with fast-glance officer and enlisted rank visuals, mini theater maps, expanded history timelines, holidays, phrases, and customs in one tactical reference shell.</p>
+        <div class="hero-highlights">
+          <span class="hero-chip">6 country tabs</span>
+          <span class="hero-chip">98 real rank tiles</span>
+          <span class="hero-chip">officer + enlisted ladders</span>
+          <span class="hero-chip">mini location maps</span>
+          <span class="hero-chip">expanded history timelines</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab Navigation -->
+  <nav class="culture-tabs" aria-label="Country reference tabs">
+    <button id="tab-iran" type="button" class="tab-button active" data-tab="iran" aria-controls="iran" aria-selected="true">Iran</button>
+    <button id="tab-china" type="button" class="tab-button" data-tab="china" aria-controls="china" aria-selected="false">China</button>
+    <button id="tab-russia" type="button" class="tab-button" data-tab="russia" aria-controls="russia" aria-selected="false">Russia</button>
+    <button id="tab-mexico" type="button" class="tab-button" data-tab="mexico" aria-controls="mexico" aria-selected="false">Mexico</button>
+    <button id="tab-israel" type="button" class="tab-button" data-tab="israel" aria-controls="israel" aria-selected="false">Israel</button>
+    <button id="tab-usa" type="button" class="tab-button" data-tab="usa" aria-controls="usa" aria-selected="false">USA</button>
+  </nav>
+
+  <details class="culture-tabs-stealth" id="culture-tabs-stealth">
+    <summary class="culture-tabs-stealth-summary">
+      <span class="culture-tabs-stealth-label">Stealth Tabs</span>
+      <span class="culture-tabs-stealth-current" id="culture-tabs-current">Iran</span>
+    </summary>
+    <div class="culture-tabs-stealth-menu">
+      <button type="button" class="culture-stealth-option" data-tab="china" aria-pressed="false">China</button>
+      <button type="button" class="culture-stealth-option active" data-tab="iran" aria-pressed="true">Iran</button>
+      <button type="button" class="culture-stealth-option" data-tab="israel" aria-pressed="false">Israel</button>
+      <button type="button" class="culture-stealth-option" data-tab="mexico" aria-pressed="false">Mexico</button>
+      <button type="button" class="culture-stealth-option" data-tab="russia" aria-pressed="false">Russia</button>
+      <button type="button" class="culture-stealth-option" data-tab="usa" aria-pressed="false">USA</button>
+    </div>
+  </details>
+
+  <!-- Content Sections -->
+  <div class="culture-content">
+
+    <!-- ==================== IRAN ==================== -->
+    <div id="iran" class="country-section active" data-country="iran" role="tabpanel" aria-labelledby="tab-iran">
+      <h2 class="country-title">Iran (Islamic Republic of Iran)</h2>
+      
+      <!-- Military Ranks -->
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">Senior command through junior officer reference set for the current Iranian army system.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('iran', 'IRAN', 'Supreme Leader', 'رهبر', '(Rahbar)', 'Strategic command', 'iran-supreme-leader.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-9.svg', 'CC BY-SA 4.0', actual_rank='Arteshbod', match_note='Closest current army insignia; Supreme Leader is a command office, not a formal military rank.') }}
+          {{ rank_card('iran', 'IRAN', 'General', 'سرلشکر', '(Sar-lashkar)', 'Senior command', 'iran-general.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-9.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Brigadier General', 'سرتیپ دوم', '(Sartip dovom)', 'Brigade command', 'iran-brigadier-general.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-6b.svg', 'CC BY-SA 4.0', actual_rank='Sartip dovom') }}
+          {{ rank_card('iran', 'IRAN', 'Colonel', 'سرهنگ', '(Sarhengh)', 'Field command', 'iran-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-5.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Lieutenant Colonel', 'سرهنگ دوم', '(Sarhang dovom)', 'Executive command', 'iran-lieutenant-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-4.svg', 'CC BY-SA 4.0', actual_rank='Sarhang dovom') }}
+          {{ rank_card('iran', 'IRAN', 'Major', 'سروان', '(Servan)', 'Battalion grade', 'iran-major.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-3.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Captain', 'ستوان', '(Sotvan)', 'Company grade', 'iran-captain.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-2.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Lieutenant', 'ستوان یکم', '(Sotvan Yekom)', 'Junior officer', 'iran-lieutenant.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OF-1c.svg', 'CC BY-SA 4.0') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Full current Iranian Army other-ranks ladder from chief warrant through private.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('iran', 'IRAN', 'Chief Warrant Officer', 'استوار یکم', '(Ostovar yekom)', 'Senior warrant', 'iran-chief-warrant-officer.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-9.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Warrant Officer Junior Grade', 'استوار دوم', '(Ostovar dovom)', 'Warrant grade', 'iran-warrant-officer-junior-grade.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-8.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Sergeant First Class', 'گروهبان یکم', '(Goruhban yekom)', 'Senior NCO', 'iran-sergeant-first-class.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-7.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Sergeant Second Class', 'گروهبان دوم', '(Goruhban dovom)', 'NCO', 'iran-sergeant-second-class.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-6.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Sergeant Third Class', 'گروهبان سوم', '(Goruhban sevom)', 'Junior NCO', 'iran-sergeant-third-class.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-5.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Corporal', 'سرجوخه', '(Sarjukheh)', 'Team leader', 'iran-corporal.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-4.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Private First Class', 'سرباز یکم', '(Sarbaz yekom)', 'Senior private', 'iran-private-first-class.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-3.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Private Second Class', 'سرباز دوم', '(Sarbaz dovom)', 'Private', 'iran-private-second-class.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-2.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('iran', 'IRAN', 'Private', 'سرباز', '(Sarbaz)', 'Entry enlisted', 'iran-private.svg', 'https://commons.wikimedia.org/wiki/File:Iran-Army-OR-1.svg', 'CC BY-SA 4.0') }}
+        </div>
+      </section>
+
+      <!-- Holidays -->
+      <section class="culture-section">
+        <h3>📅 Major Holidays</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">Nowruz (Persian New Year)</div>
+            <div class="holiday-native">نوروز</div>
+            <div class="holiday-date">March 20-21</div>
+            <div class="holiday-desc">Most important Persian holiday; celebrates spring equinox and renewal</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Islamic Revolution Day</div>
+            <div class="holiday-native">روز انقلاب اسلامی</div>
+            <div class="holiday-date">February 11</div>
+            <div class="holiday-desc">Commemorates 1979 Islamic Revolution</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Imam Khomeini's Death Commemoration</div>
+            <div class="holiday-date">June 4</div>
+            <div class="holiday-desc">Marks death of Islamic Revolution founder</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Eid al-Fitr</div>
+            <div class="holiday-native">عید فطر</div>
+            <div class="holiday-date">Islamic calendar</div>
+            <div class="holiday-desc">End of Ramadan fasting month</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Eid al-Adha</div>
+            <div class="holiday-native">عید قربان</div>
+            <div class="holiday-date">Islamic calendar</div>
+            <div class="holiday-desc">Feast of the Sacrifice</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers & Commands -->
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">Yek</span>
+                <span class="native">یک</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Do</span>
+                <span class="native">دو</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Se</span>
+                <span class="native">سه</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Char</span>
+                <span class="native">چهار</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Panj</span>
+                <span class="native">پنج</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">Tavajo</span>
+                <span class="native">توجه</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">At Ease:</span>
+                <span class="translation">Araam</span>
+                <span class="native">آرام</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">Baysid</span>
+                <span class="native">بایستید</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">Benshinid</span>
+                <span class="native">بنشینید</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen:</span>
+                <span class="translation">Gosh Konid</span>
+                <span class="native">گوش کنید</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Basic Phrases -->
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello / Greetings</div>
+            <div class="phrase-english-desc">How to greet</div>
+            <div class="phrase-native">سلام</div>
+            <div class="phrase-phonetic">Salaam</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">تشکر</div>
+            <div class="phrase-phonetic">Tashakor</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">لطفاً</div>
+            <div class="phrase-phonetic">Lotfan</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">نام شما چیست؟</div>
+            <div class="phrase-phonetic">Naam-e shoma chist?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">نام من است</div>
+            <div class="phrase-phonetic">Naam-e man... ast</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">بیمارستان کجاست؟</div>
+            <div class="phrase-phonetic">Bimaarestaan kojast?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">متوجه نشدم</div>
+            <div class="phrase-phonetic">Motavajeh nashodam</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">انگلیسی صحبت می کنید؟</div>
+            <div class="phrase-phonetic">Engleesi sohbat mikoniid?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural History -->
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('iran', 'Tehran // National Focus', 'Southwest Asia // Iranian Plateau', '32.4279 N / 53.6880 E', 32.4279, 53.6880, 4) }}
+          <div class="history-scroll">
+            {{ history_entry('c. 3000 BCE - 651 CE', 'Imperial Persian foundations', 'Elamite, Median, Achaemenid, Parthian, and Sasanian states established Iran as one of the major imperial centers of the ancient world, linking Mesopotamia, Central Asia, and the eastern Mediterranean through roads, taxation, and court culture.') }}
+            {{ history_entry('7th century - 1501', 'Islamization and Persian literary renewal', 'The Arab conquest brought Islam into the Iranian plateau, but Persian language and administrative traditions remained powerful. Courts, scholars, and poets built a durable Persianate world that influenced everything from law and theology to epic literature.') }}
+            {{ history_entry('1501 - 1925', 'Safavid identity and early modern statecraft', 'The Safavid dynasty made Twelver Shi\'a Islam a pillar of state identity, helping define modern Iranian religious life. Later Qajar rulers faced imperial pressure while merchants, clerics, and reformers pushed constitutional politics into the modern era.') }}
+            {{ history_entry('1925 - present', 'Revolution, war, and modern continuity', 'Pahlavi centralization accelerated state modernization, but the 1979 Islamic Revolution reordered political authority around clerical leadership. The Iran-Iraq War, sanctions, and regional rivalry shaped modern society, while Persian poetry, family networks, and ritual calendars remain central cultural anchors.') }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Ethnic Groups -->
+      <section class="culture-section">
+        <h3>👥 Ethnic Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">Persian</span>
+            <span class="demo-percent">~61%</span>
+            <span class="demo-info">Primary ethnic group; majority in central and southern Iran</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Azeri</span>
+            <span class="demo-percent">~16%</span>
+            <span class="demo-info">Turkic-speaking; concentrated in northwest; speak Azerbaijani</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Kurdish</span>
+            <span class="demo-percent">~10%</span>
+            <span class="demo-info">Indo-European; northwest and western regions; speak Kurdish</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Baloch</span>
+            <span class="demo-percent">~3%</span>
+            <span class="demo-info">Southeast region; Indo-European; traditionally nomadic</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Arab</span>
+            <span class="demo-percent">~2%</span>
+            <span class="demo-info">Southwest region; speak Arabic and Persian</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Turkomans & Others</span>
+            <span class="demo-percent">~8%</span>
+            <span class="demo-info">Various smaller groups and minorities</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Structure & Religions -->
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family Unit:</strong> Extended family oriented; patriarchal traditions</li>
+              <li><strong>Social Hierarchy:</strong> Religious clerics hold significant authority</li>
+              <li><strong>Gender Roles:</strong> Traditional; women increasingly educated and employed</li>
+              <li><strong>Class System:</strong> Secular and religious elites; merchant class; working classes</li>
+              <li><strong>Respect:</strong> Age, education, and religious knowledge highly valued</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Shi'a Islam</span>
+                <span class="religion-percent">~90-99%</span>
+                <span class="religion-info">State religion; largest denomination</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Sunni Islam</span>
+                <span class="religion-percent">~5-10%</span>
+                <span class="religion-info">Minority; mainly among Kurds and Arabs</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Zoroastrianism</span>
+                <span class="religion-percent">~0.1%</span>
+                <span class="religion-info">Ancient Persian religion; small community</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Christianity & Judaism</span>
+                <span class="religion-percent">~0.1%</span>
+                <span class="religion-info">Small religious minorities</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural Customs -->
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Nowruz Celebrations</div>
+            <div class="custom-desc">Spring renewal festival; families gather for Haft Sin (seven symbolic items); involves house cleaning, new clothes, and family gatherings</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Carpet Weaving</div>
+            <div class="custom-desc">Ancient Persian art form; intricate designs with historical and symbolic meanings; highly valued as cultural heritage</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Tea & Hospitality</div>
+            <div class="custom-desc">Strong tea culture (chai); offering tea is sign of hospitality; social gatherings revolve around chai</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Poetry & Literature</div>
+            <div class="custom-desc">Rich literary tradition; works by Rumi, Hafiz, Omar Khayyam celebrated; poetry readings important cultural activity</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Courtyard Culture</div>
+            <div class="custom-desc">Traditional homes built around central courtyards; important for family privacy and social life</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Bazaar Trade</div>
+            <div class="custom-desc">Ancient covered markets (bazaars); important for commerce, social interaction, and cultural exchange</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== CHINA ==================== -->
+    <div id="china" class="country-section" data-country="china" role="tabpanel" aria-labelledby="tab-china" hidden>
+      <h2 class="country-title">China (People's Republic of China)</h2>
+      
+      <!-- Military Ranks -->
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks (PLA)</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">Modern PLA ground-force leadership ladder plus the legacy marshal insignia used as the closest top-command reference.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('china', 'PLA', 'Field Marshal', '元帥', '(Yuánshuài)', 'Strategic command', 'china-field-marshal.svg', 'https://commons.wikimedia.org/wiki/File:Marshal_of_the_PRC_rank_insignia_%28vertical%29.svg', 'CC BY-SA 4.0', actual_rank='Yuan shuai', match_note='Historical PLA marshal insignia from the 1955-1965 system; the modern PLA has no field marshal rank.') }}
+          {{ rank_card('china', 'PLA', 'General', '上將', '(Shàngjìang)', 'Senior command', 'china-general.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0720-GEN.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Lieutenant General', '中將', '(Zhōngjìang)', 'Regional command', 'china-lieutenant-general.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0719-LTG.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Major General', '少將', '(Shàojìang)', 'Division grade', 'china-major-general.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0718-MG.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Senior Colonel', '大校', '(Dàxiào)', 'Senior field grade', 'china-senior-colonel.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0717-SNC.png', 'CC BY-SA 4.0', actual_rank='Daxiao', match_note='Senior Colonel is the modern PLA step between Colonel and Major General.') }}
+          {{ rank_card('china', 'PLA', 'Colonel', '上校', '(Shàngxiào)', 'Regimental command', 'china-colonel.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0716-COL.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Lieutenant Colonel', '中校', '(Zhōngxiào)', 'Battalion-regiment grade', 'china-lieutenant-colonel.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0715-LTC.png', 'CC BY-SA 4.0', actual_rank='Zhongxiao') }}
+          {{ rank_card('china', 'PLA', 'Major', '少校', '(Shàoxiào)', 'Field officer', 'china-major.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0714-MAJ.png', 'CC BY-SA 4.0') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Full current PLA ground-force other-ranks ladder. Commons retains one pre-2022 filename while the displayed title uses current rank naming.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('china', 'PLA', 'Master Sergeant First Class', '一级军士长', '(Yī jí jūn shì zhǎng)', 'Senior enlisted', 'china-master-sergeant-first-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0709-1CSGT.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Master Sergeant Second Class', '二级军士长', '(Èr jí jūn shì zhǎng)', 'Senior enlisted', 'china-master-sergeant-second-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0708-2CSGT.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Master Sergeant Third Class', '三级军士长', '(Sān jí jūn shì zhǎng)', 'NCO backbone', 'china-master-sergeant-third-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0707-3CSGT.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Staff Sergeant First Class', '一级上士', '(Yī jí shàng shì)', 'Company NCO', 'china-staff-sergeant-first-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0706-4CSGT.png', 'CC BY-SA 4.0', actual_rank='Pre-2022 Master Sergeant Fourth Class', match_note='Closest current shoulder-board match for 一级上士 after the 2022 PLA reform.') }}
+          {{ rank_card('china', 'PLA', 'Staff Sergeant Second Class', '二级上士', '(Èr jí shàng shì)', 'Senior squad NCO', 'china-staff-sergeant-second-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0705-SSG.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Sergeant', '中士', '(Zhōng shì)', 'NCO', 'china-sergeant.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0704-SGT.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Corporal', '下士', '(Xià shì)', 'Junior NCO', 'china-corporal.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0703-CPL.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Private First Class', '上等兵', '(Shàng děng bīng)', 'Senior private', 'china-private-first-class.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0702-PFC.png', 'CC BY-SA 4.0') }}
+          {{ rank_card('china', 'PLA', 'Private', '列兵', '(Liè bīng)', 'Entry enlisted', 'china-private.png', 'https://commons.wikimedia.org/wiki/File:PLAGF-0701-PVT.png', 'CC BY-SA 4.0') }}
+        </div>
+      </section>
+
+      <!-- Holidays -->
+      <section class="culture-section">
+        <h3>📅 Major Holidays & Festivals</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">Chinese New Year (Spring Festival)</div>
+            <div class="holiday-native">春節</div>
+            <div class="holiday-date">Late January - February</div>
+            <div class="holiday-desc">Lunar New Year; most important Chinese holiday; family reunions, fireworks, red decorations</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Qingming Festival</div>
+            <div class="holiday-native">清明節</div>
+            <div class="holiday-date">April 4-6</div>
+            <div class="holiday-desc">Tomb-Sweeping Day; honor ancestors; family gatherings and outdoor activities</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Dragon Boat Festival</div>
+            <div class="holiday-native">端午節</div>
+            <div class="holiday-date">Fifth day of fifth lunar month</div>
+            <div class="holiday-desc">Racing dragon boats; eating zongzi; commemoration of poet Qu Yuan</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Mid-Autumn Festival</div>
+            <div class="holiday-native">中秋節</div>
+            <div class="holiday-date">Fifteenth day of eighth lunar month</div>
+            <div class="holiday-desc">Moon cakes, lanterns, family gatherings; celebrates harvest and full moon</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">National Day</div>
+            <div class="holiday-native">國慶節</div>
+            <div class="holiday-date">October 1</div>
+            <div class="holiday-desc">Celebrates founding of People's Republic; parades and national celebrations</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers & Commands -->
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">Yī</span>
+                <span class="native">一</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Èr</span>
+                <span class="native">二</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Sān</span>
+                <span class="native">三</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Sì</span>
+                <span class="native">四</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Wǔ</span>
+                <span class="native">五</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">Zhùyì</span>
+                <span class="native">注意</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">Qǐlì</span>
+                <span class="native">起立</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">Zuòxià</span>
+                <span class="native">坐下</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen Carefully:</span>
+                <span class="translation">Xiōngxin Tīng</span>
+                <span class="native">仔細聽</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Forward March:</span>
+                <span class="translation">Xiàng Qián Zǒu</span>
+                <span class="native">向前走</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Basic Phrases -->
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello</div>
+            <div class="phrase-english-desc">Basic greeting</div>
+            <div class="phrase-native">你好</div>
+            <div class="phrase-phonetic">Nǐ hǎo</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">謝謝</div>
+            <div class="phrase-phonetic">Xièxie</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">請</div>
+            <div class="phrase-phonetic">Qǐng</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">你叫什麼名字？</div>
+            <div class="phrase-phonetic">Nǐ jiào shénme míngzi?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">我叫...名字</div>
+            <div class="phrase-phonetic">Wǒ jiào... míngzi</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">醫院在哪裡？</div>
+            <div class="phrase-phonetic">Yīyuàn zài nǎlǐ?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">我不明白</div>
+            <div class="phrase-phonetic">Wǒ bù míngbai</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">你會說英文嗎？</div>
+            <div class="phrase-phonetic">Nǐ huì shuō yīngwén ma?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural History -->
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('china', 'Beijing // National Focus', 'East Asia // North China Plain to interior heartland', '35.8617 N / 104.1954 E', 35.8617, 104.1954, 3) }}
+          <div class="history-scroll">
+            {{ history_entry('c. 1600 BCE - 220 CE', 'Bronze Age states to imperial unification', 'Shang and Zhou political traditions laid the groundwork for Chinese writing, ritual, and dynastic legitimacy. Qin unification standardized weights, roads, and script, while the Han dynasty expanded bureaucracy and frontier power across a continental state.') }}
+            {{ history_entry('220 - 1644', 'Dynastic cycles and cultural synthesis', 'Successive dynasties refined Confucian administration, taxation, and military organization while Buddhism and Daoism reshaped intellectual life. Tang and Song eras became reference points for poetry, commerce, urban life, printing, and technological innovation.') }}
+            {{ history_entry('1644 - 1949', 'Late imperial crisis and revolution', 'The Qing empire ruled vast multiethnic territories but faced internal rebellions, foreign wars, and uneven modernization. The fall of the dynasty, republican turmoil, and civil war transformed debates over sovereignty, identity, and the future of the Chinese state.') }}
+            {{ history_entry('1949 - present', 'PRC consolidation and reform era', 'The People\'s Republic centralized rule under the Communist Party, then experienced mass campaigns including the Cultural Revolution. Since 1978, reform and opening drove industrialization, urban growth, and global influence while older values around hierarchy, education, and collective duty persisted in new forms.') }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Ethnic Groups -->
+      <section class="culture-section">
+        <h3>👥 Ethnic Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">Han Chinese</span>
+            <span class="demo-percent">~92%</span>
+            <span class="demo-info">Dominant ethnic group; main carriers of Chinese civilization</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Zhuang</span>
+            <span class="demo-percent">~1.3%</span>
+            <span class="demo-info">Largest minority; southern China; own language</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Hui</span>
+            <span class="demo-percent">~0.8%</span>
+            <span class="demo-info">Muslim ethnic group; spread throughout China</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Tibetan</span>
+            <span class="demo-percent">~0.7%</span>
+            <span class="demo-info">Plateau regions; distinct culture and language</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Uyghur</span>
+            <span class="demo-percent">~1%</span>
+            <span class="demo-info">Northwest China; Muslim; Turkic language</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Other Minorities</span>
+            <span class="demo-percent">~4.2%</span>
+            <span class="demo-info">55 officially recognized ethnic minorities</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Structure & Religions -->
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family:</strong> Hierarchical; eldest male traditionally holds authority</li>
+              <li><strong>Confucian Values:</strong> Respect for elders, loyalty, filial piety</li>
+              <li><strong>Social Hierarchy:</strong> Communist Party leadership; governmental structure</li>
+              <li><strong>Class System:</strong> Party cadres; intellectuals; workers; peasants</li>
+              <li><strong>Gender:</strong> Traditionally patriarchal; modern society increasingly egalitarian</li>
+              <li><strong>Community:</strong> Collective identity emphasized over individualism</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Non-Religious / Atheist</span>
+                <span class="religion-percent">~70-75%</span>
+                <span class="religion-info">Official state position; majority identification</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Buddhism</span>
+                <span class="religion-percent">~8-10%</span>
+                <span class="religion-info">Significant cultural influence; temples active</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Taoism</span>
+                <span class="religion-percent">~4-5%</span>
+                <span class="religion-info">Ancient Chinese spiritual tradition</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Christianity</span>
+                <span class="religion-percent">~3-4%</span>
+                <span class="religion-info">Growing but monitored; state-controlled churches</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Islam</span>
+                <span class="religion-percent">~2-3%</span>
+                <span class="religion-info">Hui Muslims and Uyghur Muslims</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural Customs -->
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Lunar New Year Celebrations</div>
+            <div class="custom-desc">Red lanterns, firecrackers, family dinners, giving money in red envelopes; represents renewal and good fortune</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Tea Ceremony</div>
+            <div class="custom-desc">Ritualistic preparation and serving of tea; meditative practice; social bonding; regional variations</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Feng Shui</div>
+            <div class="custom-desc">Harmony with environment; spatial arrangement principles; influences architecture, furniture placement, business</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Calligraphy & Painting</div>
+            <div class="custom-desc">Ancient artistic traditions; respected as high art forms; meditative practice; spiritual expression</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Ancestor Veneration</div>
+            <div class="custom-desc">Honoring deceased family members; altar maintenance; offerings; believed to bring blessings</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Martial Arts Philosophy</div>
+            <div class="custom-desc">Tai Chi, Kung Fu; balance of mind, body, spirit; martial discipline combined with spiritual development</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== RUSSIA ==================== -->
+    <div id="russia" class="country-section" data-country="russia" role="tabpanel" aria-labelledby="tab-russia" hidden>
+      <h2 class="country-title">Russia (Russian Federation)</h2>
+      
+      <!-- Military Ranks -->
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks (Russian Armed Forces)</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">Modern Russian army command ranks from marshal-equivalent reference through field officers.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('russia', 'RUS', 'Field Marshal', 'Маршал', '(Marshal)', 'Strategic command', 'russia-field-marshal.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-10-2010.svg', 'CC BY-SA 4.0', actual_rank='Marshal of the Russian Federation', match_note='Closest official modern rank title.') }}
+          {{ rank_card('russia', 'RUS', 'General of the Army', 'Генерал армии', '(General armii)', 'Army command', 'russia-general-of-the-army.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-9-2013.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Colonel General', 'Генерал-полковник', '(General-polkovnik)', 'Senior command', 'russia-colonel-general.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-8-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Lieutenant General', 'Генерал-лейтенант', '(General-leytenant)', 'Corps command', 'russia-lieutenant-general.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-7-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Major General', 'Генерал-майор', '(General-mayor)', 'Division command', 'russia-major-general.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-6-2010.svg', 'CC BY-SA 4.0', actual_rank='General-mayor') }}
+          {{ rank_card('russia', 'RUS', 'Colonel', 'Полковник', '(Polkovnik)', 'Regimental command', 'russia-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-5-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Lieutenant Colonel', 'Подполковник', '(Podpolkovnik)', 'Executive command', 'russia-lieutenant-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-4-2010.svg', 'CC BY-SA 4.0', actual_rank='Podpolkovnik') }}
+          {{ rank_card('russia', 'RUS', 'Major', 'Майор', '(Mayor)', 'Field officer', 'russia-major.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OF-3-2010.svg', 'CC BY-SA 4.0') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Modern Russian army other-ranks ladder from senior warrant officer through private. Commons rank labels are inconsistent on some source pages, so the displayed titles follow the modern rank names.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('russia', 'RUS', 'Senior Warrant Officer', 'Старший прапорщик', '(Stárshiy práporshchik)', 'Senior warrant', 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Russia-Army-OR-9b-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-9b-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Warrant Officer', 'Прапорщик', '(Práporshchik)', 'Warrant grade', 'https://upload.wikimedia.org/wikipedia/commons/0/04/Russia-Army-OR-9a-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-9a-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Starshina (First Sergeant)', 'Старшина', '(Starshiná)', 'Senior NCO', 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Russia-Army-OR-8-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-8-2010.svg', 'CC BY-SA 4.0', actual_rank='Starshina', match_note='English translations vary; Commons often labels this insignia as First Sergeant.') }}
+          {{ rank_card('russia', 'RUS', 'Senior Sergeant', 'Старший сержант', '(Stárshiy serzhánt)', 'Senior NCO', 'https://upload.wikimedia.org/wikipedia/commons/3/39/Russia-Army-OR-7-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-7-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Sergeant', 'Сержант', '(Serzhánt)', 'NCO', 'https://upload.wikimedia.org/wikipedia/commons/5/5d/Russia-Army-OR-5-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-5-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Junior Sergeant', 'Младший сержант', '(Mládshiy serzhánt)', 'Junior NCO', 'https://upload.wikimedia.org/wikipedia/commons/c/c2/Russia-Army-OR-4-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-4-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Corporal', 'Ефрейтор', '(Yefréytor)', 'Junior enlisted leader', 'https://upload.wikimedia.org/wikipedia/commons/1/14/Russia-Army-OR-2-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-2-2010.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('russia', 'RUS', 'Private', 'Рядовой', '(Ryadovóy)', 'Entry enlisted', 'https://upload.wikimedia.org/wikipedia/commons/3/35/Russia-Army-OR-1-2010.svg', 'https://commons.wikimedia.org/wiki/File:Russia-Army-OR-1-2010.svg', 'CC BY-SA 4.0') }}
+        </div>
+      </section>
+
+      <!-- Holidays -->
+      <section class="culture-section">
+        <h3>📅 Major Holidays & Celebrations</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">New Year</div>
+            <div class="holiday-native">Новый год</div>
+            <div class="holiday-date">January 1-8</div>
+            <div class="holiday-desc">Major celebration; family gatherings; resembles Western Christmas in customs (Ded Moroz/Grandfather Frost figure)</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Orthodox Christmas</div>
+            <div class="holiday-native">Рождество</div>
+            <div class="holiday-date">January 7</div>
+            <div class="holiday-desc">Religious celebration following Julian calendar; traditional church services</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Victory Day</div>
+            <div class="holiday-native">День Победы</div>
+            <div class="holiday-date">May 9</div>
+            <div class="holiday-desc">WWII victory commemoration; military parades; most solemn national holiday; red carnations given</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Russia Day</div>
+            <div class="holiday-native">День России</div>
+            <div class="holiday-date">June 12</div>
+            <div class="holiday-desc">National holiday; celebrates sovereignty of Russia; parades and celebrations</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">International Women's Day</div>
+            <div class="holiday-native">8 Марта</div>
+            <div class="holiday-date">March 8</div>
+            <div class="holiday-desc">Celebrates women; men give flowers and gifts; social gatherings</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers & Commands -->
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">Odin</span>
+                <span class="native">Один</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Dva</span>
+                <span class="native">Два</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Tri</span>
+                <span class="native">Три</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Chetyre</span>
+                <span class="native">Четыре</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Pyat</span>
+                <span class="native">Пять</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">Vnimanie!</span>
+                <span class="native">Внимание!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">Vstavay!</span>
+                <span class="native">Вставай!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">Sadis!</span>
+                <span class="native">Садись!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen:</span>
+                <span class="translation">Slushayte!</span>
+                <span class="native">Слушайте!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Forward March:</span>
+                <span class="translation">Vpered, marsh!</span>
+                <span class="native">Вперед, марш!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Basic Phrases -->
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello</div>
+            <div class="phrase-english-desc">Basic greeting</div>
+            <div class="phrase-native">Привет</div>
+            <div class="phrase-phonetic">Privet</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">Спасибо</div>
+            <div class="phrase-phonetic">Spasibo</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">Пожалуйста</div>
+            <div class="phrase-phonetic">Pozhaluysta</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">Как вас зовут?</div>
+            <div class="phrase-phonetic">Kak vas zovut?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">Меня зовут...</div>
+            <div class="phrase-phonetic">Menya zovut...</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">Где больница?</div>
+            <div class="phrase-phonetic">Gde bolnitsa?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">Я не понимаю</div>
+            <div class="phrase-phonetic">Ya ne ponimayu</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">Вы говорите по-английски?</div>
+            <div class="phrase-phonetic">Vy govorite po-angliyski?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural History -->
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('russia', 'Moscow // Western Core', 'Northern Eurasia // European Russia to Siberia', '61.5240 N / 105.3188 E', 61.5240, 105.3188, 2) }}
+          <div class="history-scroll">
+            {{ history_entry('9th century - 1547', 'Rus\' origins and Orthodox identity', 'Kievan Rus\' formed the early East Slavic political and trading network that later Russian states claimed as their civilizational origin. The adoption of Eastern Orthodoxy tied faith, monarchy, and ritual to the long arc of Russian identity.') }}
+            {{ history_entry('1547 - 1917', 'Tsardom and imperial expansion', 'Muscovy consolidated authority, then Romanov rulers built a vast empire stretching across Siberia, the Caucasus, and Central Asia. Court reform, serfdom, military modernization, and literary culture all coexisted within a strongly centralized state tradition.') }}
+            {{ history_entry('1917 - 1991', 'Revolution and Soviet transformation', 'The 1917 revolutions ended the monarchy and produced the Soviet Union, which reordered politics, class, and economic life through one-party rule. Industrialization, wartime sacrifice, and the Cold War made Soviet experience central to Russian memory and public symbolism.') }}
+            {{ history_entry('1991 - present', 'Post-Soviet state and historical layering', 'After the Soviet collapse, Russia navigated market upheaval, oligarchic power, and a rebuilt security state. Contemporary national identity often combines Orthodox revival, Soviet victory narratives, and older imperial imagery into a single political story.') }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Ethnic Groups -->
+      <section class="culture-section">
+        <h3>👥 Ethnic Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">Russian</span>
+            <span class="demo-percent">~77%</span>
+            <span class="demo-info">Dominant ethnic group; Slavic; primary culture bearers</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Tatar</span>
+            <span class="demo-percent">~3.7%</span>
+            <span class="demo-info">Turkic-speaking; concentrated in Volga region; historic Khanate</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Ukrainian</span>
+            <span class="demo-percent">~1.4%</span>
+            <span class="demo-info">Slavic; historical ties and recent conflicts</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Chechen</span>
+            <span class="demo-percent">~1%</span>
+            <span class="demo-info">Caucasus region; Muslim; distinct culture and language</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Bashkir</span>
+            <span class="demo-percent">~1.15%</span>
+            <span class="demo-info">Turkic; Ural region; historically independent</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Other Minorities</span>
+            <span class="demo-percent">~14.75%</span>
+            <span class="demo-info">190+ ethnic groups; vast geographic diversity</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Structure & Religions -->
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family:</strong> Multigenerational; strong kinship ties; women often economic providers</li>
+              <li><strong>Community:</strong> Collective history; shared Soviet/imperial past; strong patriotism</li>
+              <li><strong>Leadership:</strong> Vertical power structure; centralized authority</li>
+              <li><strong>Social Hierarchy:</strong> Government elites; business oligarchs; intellectuals; working classes</li>
+              <li><strong>Gender:</strong> Equality in education/work; traditional expectations persist</li>
+              <li><strong>Respect:</strong> Intellectual achievement; cultural sophistication; endurance valued</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Russian Orthodox</span>
+                <span class="religion-percent">~73%</span>
+                <span class="religion-info">Dominant; resurgence after Soviet suppression; state-favored</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Islam</span>
+                <span class="religion-percent">~10-15%</span>
+                <span class="religion-info">Tatars, Caucasus peoples; Sunni majority</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Atheist/Non-Religious</span>
+                <span class="religion-percent">~15-18%</span>
+                <span class="religion-info">Soviet legacy; younger generation primarily</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Other Christian</span>
+                <span class="religion-percent">~2%</span>
+                <span class="religion-info">Catholic, Protestant minorities</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Buddhism & Others</span>
+                <span class="religion-percent">~1%</span>
+                <span class="religion-info">Siberian minorities; small Jewish population</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural Customs -->
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Vodka Culture</div>
+            <div class="custom-desc">Central to social gatherings and celebration; toasts important; ritualistic consumption patterns</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Victory Day Commemoration</div>
+            <div class="custom-desc">WWII memorial; national pride; military parades; red carnations; solemn remembrance</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Hospitality & Gathering</div>
+            <div class="custom-desc">Traditional welcome includes abundant food; communal meals; sharing meals builds bonds</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Dacha Culture</div>
+            <div class="custom-desc">Country cottages used for escape; gardening and self-sufficiency; social gathering spaces</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Banya Bathing</div>
+            <div class="custom-desc">Traditional sauna; social and spiritual practice; hot steam combined with cold water immersion</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Literary Tradition</div>
+            <div class="custom-desc">Rich literary heritage; poetry salons; intellectual discussion valued; book culture strong</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== MEXICO ==================== -->
+    <div id="mexico" class="country-section" data-country="mexico" role="tabpanel" aria-labelledby="tab-mexico" hidden>
+      <h2 class="country-title">Mexico (United Mexican States)</h2>
+      
+      <!-- Military Ranks -->
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">Mexican Army officer ladder from senior command reference through company-grade command.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('mexico', 'MEX', 'Field Marshal', 'Mariscal de Campo', '(Mah-ree-SAHL)', 'Strategic command', 'mexico-field-marshal.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF9.svg', 'CC BY-SA 4.0', actual_rank='Secretary of National Defense insignia', match_note='Closest available senior office insignia; Mexico has no field marshal rank.') }}
+          {{ rank_card('mexico', 'MEX', 'General', 'General', '(Hen-eh-RAHL)', 'Senior command', 'mexico-general.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF8.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Brigade General', 'General de brigada', '(Hen-eh-RAHL deh bree-GAH-dah)', 'Regional command', 'mexico-brigade-general.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF7.svg', 'CC BY-SA 4.0', actual_rank='General de brigada') }}
+          {{ rank_card('mexico', 'MEX', 'Brigadier General', 'General Brigadier', '(Hen-eh-RAHL Bree-gah-dee-EH)', 'Brigade command', 'mexico-brigadier-general.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF6.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Colonel', 'Coronel', '(Koh-roh-NEL)', 'Regimental command', 'mexico-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF5.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Lieutenant Colonel', 'Teniente coronel', '(Teh-nee-EN-teh koh-roh-NEL)', 'Battalion command', 'mexico-lieutenant-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF4.svg', 'CC BY-SA 4.0', actual_rank='Teniente coronel') }}
+          {{ rank_card('mexico', 'MEX', 'Major', 'Mayor', '(Mah-YOR)', 'Field officer', 'mexico-major.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF3.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Captain', 'Capitán', '(Kah-pee-TAHN)', 'Company grade', 'mexico-captain.svg', 'https://commons.wikimedia.org/wiki/File:Mexico_army_OF2b.svg', 'CC BY-SA 4.0', actual_rank='Capitán primero') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Commons exposes a sparse Mexican Army other-rank set, so this ladder follows the available modern sergeant-to-soldier insignia progression.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('mexico', 'MEX', 'First Sergeant', 'Sargento primero', '(Sar-HEN-toh pree-MEH-roh)', 'Senior NCO', 'mexico-first-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Mexico-Army-OR-7.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Second Sergeant', 'Sargento segundo', '(Sar-HEN-toh seh-GOON-doh)', 'NCO', 'mexico-second-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Mexico-Army-OR-5.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Corporal', 'Cabo', '(KAH-boh)', 'Junior NCO', 'https://upload.wikimedia.org/wikipedia/commons/7/79/Mexico-Army-OR-3.svg', 'https://commons.wikimedia.org/wiki/File:Mexico-Army-OR-3.svg', 'CC BY-SA 4.0') }}
+          {{ rank_card('mexico', 'MEX', 'Soldier', 'Soldado', '(Sol-DAH-doh)', 'Enlisted', 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Mexico-Army-OR-1.svg', 'https://commons.wikimedia.org/wiki/File:Mexico-Army-OR-1.svg', 'CC BY-SA 4.0') }}
+        </div>
+      </section>
+
+      <!-- Holidays -->
+      <section class="culture-section">
+        <h3>📅 Major Holidays & Festivals</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">Day of the Dead</div>
+            <div class="holiday-native">Día de Muertos</div>
+            <div class="holiday-date">November 1-2</div>
+            <div class="holiday-desc">Celebrates deceased; altars, marigolds, sugar skulls; UNESCO Intangible Heritage</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Independence Day</div>
+            <div class="holiday-native">Día de Independencia</div>
+            <div class="holiday-date">September 16</div>
+            <div class="holiday-desc">Celebrates independence from Spain; national pride; parades and celebrations</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Cinco de Mayo</div>
+            <div class="holiday-native">Cinco de Mayo</div>
+            <div class="holiday-date">May 5</div>
+            <div class="holiday-desc">Battle of Puebla (1862); Mexican victory over French intervention</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Day of Saints</div>
+            <div class="holiday-native">Día de Santos</div>
+            <div class="holiday-date">November 1</div>
+            <div class="holiday-desc">Catholic tradition; honors saints; part of Day of the Dead observance</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Christmas & New Year</div>
+            <div class="holiday-native">Navidad</div>
+            <div class="holiday-date">December 25, January 1</div>
+            <div class="holiday-desc">Religious celebration; family gatherings; Posadas processions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers & Commands -->
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">Uno</span>
+                <span class="native">Uno</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Dos</span>
+                <span class="native">Dos</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Tres</span>
+                <span class="native">Tres</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Cuatro</span>
+                <span class="native">Cuatro</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Cinco</span>
+                <span class="native">Cinco</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">¡Atención!</span>
+                <span class="native">¡Atención!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">¡De pie!</span>
+                <span class="native">¡De pie!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">¡Siéntense!</span>
+                <span class="native">¡Siéntense!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen:</span>
+                <span class="translation">¡Escuchen!</span>
+                <span class="native">¡Escuchen!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Forward March:</span>
+                <span class="translation">¡Adelante, marchen!</span>
+                <span class="native">¡Adelante, marchen!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Basic Phrases -->
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello / Good Day</div>
+            <div class="phrase-english-desc">Basic greeting</div>
+            <div class="phrase-native">¡Hola! / ¡Buen día!</div>
+            <div class="phrase-phonetic">OH-lah / Bwen DEE-ah</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">Gracias</div>
+            <div class="phrase-phonetic">GRAH-see-ahs</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">Por favor</div>
+            <div class="phrase-phonetic">Por fah-VOR</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">¿Cuál es tu nombre?</div>
+            <div class="phrase-phonetic">¿KWAL es too NOM-breh?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">Mi nombre es...</div>
+            <div class="phrase-phonetic">Mee NOM-breh es...</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">¿Dónde está el hospital?</div>
+            <div class="phrase-phonetic">¿DON-deh es-TAH el os-pee-TAHL?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">No entiendo</div>
+            <div class="phrase-phonetic">No en-tee-EN-doh</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">¿Hablas inglés?</div>
+            <div class="phrase-phonetic">¿AH-blahs een-GLÉS?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural History -->
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('mexico', 'Mexico City // Central Plateau', 'North America // Mesoamerican core', '23.6345 N / -102.5528 W', 23.6345, -102.5528, 4) }}
+          <div class="history-scroll">
+            {{ history_entry('c. 1500 BCE - 1521', 'Mesoamerican civilizations and sacred cities', 'Olmec, Maya, Zapotec, Mixtec, and Mexica traditions built complex cities, calendars, agriculture, and ceremonial systems long before European conquest. The Aztec capital of Tenochtitlan stood as one of the great urban centers of the early modern world.') }}
+            {{ history_entry('1521 - 1821', 'Colonial rule and cultural blending', 'Spanish conquest reorganized land, labor, and religion under the Viceroyalty of New Spain. Catholic institutions, indigenous communities, African diasporic influence, and Spanish language culture fused into a layered colonial society that still shapes modern Mexico.') }}
+            {{ history_entry('1821 - 1920', 'Independence, reform, and revolution', 'Independence severed formal rule from Spain, but the nineteenth century remained turbulent with foreign intervention, liberal reform, and uneven nation-building. The Mexican Revolution then recast land, labor, education, and national myth around popular struggle.') }}
+            {{ history_entry('1920 - present', 'Modern nationalism and living heritage', 'Twentieth-century state builders promoted mestizaje and public culture through murals, schools, and civic ritual, while indigenous identities remained vital across the country. Contemporary Mexico blends regional pride, Catholic and local traditions, urban modernity, and globally influential food, music, and film.') }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Ethnic Groups -->
+      <section class="culture-section">
+        <h3>👥 Ethnic Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">Mestizo</span>
+            <span class="demo-percent">~60-62%</span>
+            <span class="demo-info">Mixed Spanish and indigenous ancestry; largest demographic</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Indigenous (Various)</span>
+            <span class="demo-percent">~7-10%</span>
+            <span class="demo-info">Nahua, Maya, Mixtec, Zapotec; over 60 indigenous groups</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">White/European</span>
+            <span class="demo-percent">~15-18%</span>
+            <span class="demo-info">Spanish and other European descent</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Mulatto</span>
+            <span class="demo-percent">~5-6%</span>
+            <span class="demo-info">African and European ancestry; smaller but significant</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Afro-Mexican</span>
+            <span class="demo-percent">~1-2%</span>
+            <span class="demo-info">African descent; historical legacy of colonial slavery</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Asian & Other</span>
+            <span class="demo-percent">~3-4%</span>
+            <span class="demo-info">Chinese, Lebanese, and other immigrant communities</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Structure & Religions -->
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family:</strong> Central to identity; extended family important; strong kinship bonds</li>
+              <li><strong>Gender Roles:</strong> Traditionally patriarchal; machismo cultural concept; women's roles changing</li>
+              <li><strong>Social Hierarchy:</strong> Class divisions; indigenous peoples historically marginalized</li>
+              <li><strong>Community:</strong> Pueblo/village community strong; fiesta culture; collective celebrations</li>
+              <li><strong>Respect:</strong> Age, family honor, cultural heritage deeply valued</li>
+              <li><strong>Religion:</strong> Faith integral to daily life and cultural identity</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Roman Catholic</span>
+                <span class="religion-percent">~82%</span>
+                <span class="religion-info">Dominant; colonial legacy; blended with indigenous beliefs</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Protestant</span>
+                <span class="religion-percent">~7-9%</span>
+                <span class="religion-info">Growing evangelical movement; recent growth</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Non-Religious</span>
+                <span class="religion-percent">~4-5%</span>
+                <span class="religion-info">Secular movement growing among younger generations</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Indigenous Spirituality</span>
+                <span class="religion-percent">~3%</span>
+                <span class="religion-info">Pre-Columbian practices mixed with Catholicism</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Other Faiths</span>
+                <span class="religion-percent">~1%</span>
+                <span class="religion-info">Jewish, Muslim, Buddhist communities</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural Customs -->
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Día de Muertos (Day of the Dead)</div>
+            <div class="custom-desc">UNESCO heritage; altars for deceased; marigolds and sugar skulls; celebrates continuity between living and dead</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Fiestas Patronales</div>
+            <div class="custom-desc">Town saint celebrations; religious processions combined with secular festivities; community gathering</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Mariachi Music</div>
+            <div class="custom-desc">Traditional street bands; romantic serenades; folkloric performances; UNESCO heritage</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Piñata Tradition</div>
+            <div class="custom-desc">Festive game at celebrations; candy-filled pottery vessel; symbolizes triumph over evil</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Comida Mexicana (Mexican Cuisine)</div>
+            <div class="custom-desc">UNESCO Intangible Heritage; regional varieties; central to cultural identity and family gatherings</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Handcrafts & Textiles</div>
+            <div class="custom-desc">Weaving, pottery, embroidery; indigenous artisan traditions; cultural expression and economic activity</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== ISRAEL ==================== -->
+    <div id="israel" class="country-section" data-country="israel" role="tabpanel" aria-labelledby="tab-israel" hidden>
+      <h2 class="country-title">Israel (State of Israel)</h2>
+      
+      <!-- Military Ranks -->
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks (IDF)</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">Modern IDF officer ladder with the chief-of-staff rank used as the top command reference.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('israel', 'IDF', 'Field Marshal', 'רב אלוף', '(Rav Aluf)', 'Strategic command', 'israel-field-marshal.svg', 'https://commons.wikimedia.org/wiki/File:IDF_rav_aluf.svg', 'CC BY-SA 3.0 + GFDL', actual_rank='Rav aluf', match_note='Rav aluf is the chief of staff rank, not a field marshal grade.') }}
+          {{ rank_card('israel', 'IDF', 'General', 'אלוף', '(Aluf)', 'Senior command', 'israel-general.svg', 'https://commons.wikimedia.org/wiki/File:IDF_aluf.svg', 'CC BY-SA 3.0 + GFDL', actual_rank='Aluf (Major General)', match_note='Modern IDF translation aligns most closely with Major General.') }}
+          {{ rank_card('israel', 'IDF', 'Brigadier General', 'תת אלוף', '(Tat Aluf)', 'Brigade command', 'israel-brigadier-general.svg', 'https://commons.wikimedia.org/wiki/File:IDF_tat_aluf.svg', 'CC BY-SA 3.0 + GFDL') }}
+          {{ rank_card('israel', 'IDF', 'Colonel', 'אלוף משנה', '(Aluf mishne)', 'Field command', 'israel-colonel.svg', 'https://commons.wikimedia.org/wiki/File:IDF_aluf_mishne.svg', 'CC BY-SA 3.0 + GFDL', actual_rank='Aluf mishne') }}
+          {{ rank_card('israel', 'IDF', 'Lieutenant Colonel', 'סגן אלוף', '(Sgan aluf)', 'Battalion command', 'israel-lieutenant-colonel.svg', 'https://commons.wikimedia.org/wiki/File:IDF_sgan_aluf.svg', 'CC BY-SA 3.0 + GFDL', actual_rank='Sgan aluf') }}
+          {{ rank_card('israel', 'IDF', 'Major', 'רב סרן', '(Rav Seren)', 'Battalion grade', 'israel-major.svg', 'https://commons.wikimedia.org/wiki/File:IDF_rav_seren.svg', 'CC BY-SA 3.0 + GFDL') }}
+          {{ rank_card('israel', 'IDF', 'Captain', 'סרן', '(Seren)', 'Company grade', 'israel-captain.svg', 'https://commons.wikimedia.org/wiki/File:IDF_seren.svg', 'CC BY-SA 3.0 + GFDL') }}
+          {{ rank_card('israel', 'IDF', 'Lieutenant', 'סגן', '(Segen)', 'Platoon grade', 'israel-lieutenant.svg', 'https://commons.wikimedia.org/wiki/File:IDF_segen.svg', 'CC BY-SA 3.0 + GFDL', actual_rank='Segen') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Current IDF enlisted and career-NCO ladder using the Commons acronym file titles tied to each Hebrew rank. Turai has no insignia in the current system, so the display ends at corporal.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('israel', 'IDF', 'Chief Warrant Officer', 'רב-נגד', '(Rav nagad)', 'Senior warrant', 'https://upload.wikimedia.org/wikipedia/commons/e/e4/IDF_Ranks_Ranag.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Ranag.svg', 'CC BY-SA 3.0', actual_rank='Ranag', match_note='Commons file title uses the IDF acronym for rav nagad.') }}
+          {{ rank_card('israel', 'IDF', 'Warrant Officer', 'רב-סמל בכיר', '(Rav samal bakhir)', 'Warrant grade', 'https://upload.wikimedia.org/wikipedia/commons/6/62/IDF_Ranks_Rasab.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Rasab.svg', 'CC BY-SA 3.0', actual_rank='Rasab', match_note='Commons file title uses the IDF acronym for rav samal bakhir.') }}
+          {{ rank_card('israel', 'IDF', 'Sergeant Major', 'רב-סמל מתקדם', '(Rav samal mitkadem)', 'Senior NCO', 'https://upload.wikimedia.org/wikipedia/commons/3/36/IDF_Ranks_Rasam.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Rasam.svg', 'CC BY-SA 3.0', actual_rank='Rasam', match_note='Commons file title uses the IDF acronym for rav samal mitkadem.') }}
+          {{ rank_card('israel', 'IDF', 'Master Sergeant', 'רב-סמל ראשון', '(Rav samal rishon)', 'NCO', 'https://upload.wikimedia.org/wikipedia/commons/c/c7/IDF_Ranks_Rasar.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Rasar.svg', 'CC BY-SA 3.0', actual_rank='Rasar', match_note='Commons file title uses the IDF acronym for rav samal rishon.') }}
+          {{ rank_card('israel', 'IDF', 'Sergeant First Class', 'רב-סמל', '(Rav samal)', 'Senior NCO', 'https://upload.wikimedia.org/wikipedia/commons/3/3f/IDF_Ranks_Rasal.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Rasal.svg', 'CC BY-SA 3.0', actual_rank='Rasal', match_note='Commons file title uses the IDF acronym for rav samal.') }}
+          {{ rank_card('israel', 'IDF', 'Staff Sergeant', 'סמל ראשון', '(Samal rishon)', 'NCO', 'https://upload.wikimedia.org/wikipedia/commons/4/4c/IDF_Ranks_Samar.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Samar.svg', 'CC BY-SA 3.0', actual_rank='Samar', match_note='Commons file title uses the IDF acronym for samal rishon.') }}
+          {{ rank_card('israel', 'IDF', 'Sergeant', 'סמל', '(Samal)', 'Junior NCO', 'https://upload.wikimedia.org/wikipedia/commons/8/85/IDF_Ranks_Samal.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Samal.svg', 'CC BY-SA 3.0') }}
+          {{ rank_card('israel', 'IDF', 'Corporal', 'רב-טוראי', '(Rav turai)', 'Enlisted', 'https://upload.wikimedia.org/wikipedia/commons/7/71/IDF_Ranks_Rav_turai.svg', 'https://commons.wikimedia.org/wiki/File:IDF_Ranks_Rav_turai.svg', 'CC BY-SA 3.0') }}
+        </div>
+      </section>
+
+      <!-- Holidays -->
+      <section class="culture-section">
+        <h3>📅 Major Holidays & Festivals</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">Passover</div>
+            <div class="holiday-native">פסח (Pesach)</div>
+            <div class="holiday-date">March/April (Nisan)</div>
+            <div class="holiday-desc">Commemorates exodus from Egypt; Seders; unleavened bread; 8-day celebration</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Yom Kippur</div>
+            <div class="holiday-native">יום כיפור</div>
+            <div class="holiday-date">September/October (Tishrei)</div>
+            <div class="holiday-desc">Day of Atonement; most solemn Jewish holiday; fasting and prayer</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Sukkot</div>
+            <div class="holiday-native">סוכות</div>
+            <div class="holiday-date">September/October</div>
+            <div class="holiday-desc">Feast of Tabernacles; temporary shelters; harvest festival; 7-8 days</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Hanukkah</div>
+            <div class="holiday-native">חנוכה</div>
+            <div class="holiday-date">November/December (Kislev)</div>
+            <div class="holiday-desc">Festival of Lights; 8-day celebration; commemoration of rededication of temple</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Israeli Independence Day</div>
+            <div class="holiday-native">יום העצמאות</div>
+            <div class="holiday-date">May (Iyar)</div>
+            <div class="holiday-desc">Celebrates 1948 establishment of state; national pride; parades and festivities</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Numbers & Commands -->
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">Echad</span>
+                <span class="native">אחד</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Shtayim</span>
+                <span class="native">שתיים</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Shalosh</span>
+                <span class="native">שלוש</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Arba</span>
+                <span class="native">ארבע</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Chamesh</span>
+                <span class="native">חמש</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">Ziruz!</span>
+                <span class="native">זריז!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">Kumu!</span>
+                <span class="native">קומו!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">Shvu!</span>
+                <span class="native">שבו!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen:</span>
+                <span class="translation">Shim'u!</span>
+                <span class="native">שימעו!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Forward March:</span>
+                <span class="translation">Kadimah, tzad!</span>
+                <span class="native">קדימה צעד!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Basic Phrases -->
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello / Shalom</div>
+            <div class="phrase-english-desc">Basic greeting</div>
+            <div class="phrase-native">שלום</div>
+            <div class="phrase-phonetic">Shalom</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">תודה</div>
+            <div class="phrase-phonetic">Todah</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">בבקשה</div>
+            <div class="phrase-phonetic">B'vakasha</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">מה שמך?</div>
+            <div class="phrase-phonetic">Ma shimcha?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">השם שלי הוא</div>
+            <div class="phrase-phonetic">Ha-shem sheli hu...</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">איפה בית החולים?</div>
+            <div class="phrase-phonetic">Eifoh beit ha-cholim?</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">אני לא מבין</div>
+            <div class="phrase-phonetic">Ani lo mevin</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">האם אתה מדבר אנגלית?</div>
+            <div class="phrase-phonetic">Ha-im atah medaber anglit?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural History -->
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('israel', 'Jerusalem // National Focus', 'Eastern Mediterranean // Southern Levant', '31.0461 N / 34.8516 E', 31.0461, 34.8516, 6) }}
+          <div class="history-scroll">
+            {{ history_entry('Ancient era - 70 CE', 'Biblical kingdoms and sacred geography', 'Ancient Israelite and Judean polities gave the land enduring religious significance in Jewish memory, later shared through Christian and Islamic traditions. Jerusalem, temple worship, and exile narratives became central reference points for identity and ritual.') }}
+            {{ history_entry('70 CE - early 20th century', 'Diaspora continuity and regional empires', 'After Roman conquest and dispersion, Jewish communities preserved law, language, and liturgy across Europe, North Africa, and the Middle East while the Levant passed through Byzantine, Islamic, Crusader, Ottoman, and British rule. Diaspora traditions diversified into Ashkenazi, Sephardi, Mizrahi, and other communal worlds.') }}
+            {{ history_entry('Late 19th century - 1948', 'Zionism, mandate rule, and state formation', 'Modern Zionism framed Jewish national revival around migration, settlement, Hebrew revival, and political organization. The Holocaust intensified global urgency, and the end of the British Mandate culminated in the creation of the State of Israel in 1948.') }}
+            {{ history_entry('1948 - present', 'Immigration, security, and high-tech society', 'Mass immigration, compulsory service, agricultural collectivism, and repeated wars shaped early Israeli institutions and social memory. Contemporary Israel combines advanced technology sectors with strong religious currents, deep Holocaust remembrance, and an ongoing conflict environment that continues to influence daily life and politics.') }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Ethnic Groups -->
+      <section class="culture-section">
+        <h3>👥 Ethnic & Jewish Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">Ashkenazi Jews</span>
+            <span class="demo-percent">~35-40%</span>
+            <span class="demo-info">Central/Eastern European origin; historical political dominance; Yiddish heritage</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Sephardic & Mizrahi Jews</span>
+            <span class="demo-percent">~35-40%</span>
+            <span class="demo-info">Spanish and Middle Eastern/North African origin; Ladino and Arabic heritage</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Israeli-Arab (Palestinian)</span>
+            <span class="demo-percent">~20-21%</span>
+            <span class="demo-info">Arab citizens; Muslim majority; Christian and Druze minorities; Arabic speakers</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Druze</span>
+            <span class="demo-percent">~1-2%</span>
+            <span class="demo-info">Monotheistic faith; Arabic-speaking; integrated into Israeli society</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Ethiopian Jews (Beta Israel)</span>
+            <span class="demo-percent">~1%</span>
+            <span class="demo-info">Historic Jewish community; immigrated primarily post-1980</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Other Jewish Communities</span>
+            <span class="demo-percent">~3-5%</span>
+            <span class="demo-info">Recent immigrants from former Soviet Union and other diaspora communities</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Structure & Religions -->
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family:</strong> Central unit; extended family valued; kin support networks</li>
+              <li><strong>Religious Authority:</strong> Rabbinic courts handle personal law; Orthodox authority in mainstream society</li>
+              <li><strong>Military Service:</strong> Central to identity; compulsory for most; social bonding mechanism</li>
+              <li><strong>Social Hierarchy:</strong> Jewish citizens hold political power; Arab minority marginalized in some contexts</li>
+              <li><strong>Gender:</strong> Egalitarian in many sectors; Orthodox religious restrictions in others</li>
+              <li><strong>Values:</strong> Emphasis on education, national service, collective responsibility, tikkun olam (repairing world)</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Judaism</span>
+                <span class="religion-percent">~73-74%</span>
+                <span class="religion-info">State religion; various movements (Orthodox, Conservative, Reform); central to identity</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Islam</span>
+                <span class="religion-percent">~17-18%</span>
+                <span class="religion-info">Arab minority; Sunni majority; Palestinian and Bedouin communities</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Christianity</span>
+                <span class="religion-percent">~2%</span>
+                <span class="religion-info">Arab Christian minority; various denominations; pilgrimage sites</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Druze</span>
+                <span class="religion-percent">~1.6%</span>
+                <span class="religion-info">Monotheistic; Arab minority; integrated population</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Other/Unaffiliated</span>
+                <span class="religion-percent">~6-7%</span>
+                <span class="religion-info">Secular; mixed faiths; other minorities</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cultural Customs -->
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Shabbat Observance</div>
+            <div class="custom-desc">Weekly Sabbath (Friday sunset to Saturday nightfall); family gatherings; candles, challah, wine</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Holiday Seders</div>
+            <div class="custom-desc">Passover Seder rituals; telling of exodus story; symbolic foods; family centerpiece</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Israeli Hospitality</div>
+            <div class="custom-desc">Direct communication; warm social interaction; coffee/tea culture; family and friend gatherings</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Sabra Culture</div>
+            <div class="custom-desc">Native-born Israeli identity; informality; directness; connection to land; kibbutz ideals</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Mediterranean & Middle Eastern Cuisine</div>
+            <div class="custom-desc">Hummus, falafel, fresh produce; fusion cuisine; communal eating; Passover dietary laws</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Education & Intellectual Engagement</div>
+            <div class="custom-desc">Educational emphasis; Talmudic debate traditions; intellectual discussion; arts and culture valued</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== USA ==================== -->
+    <div id="usa" class="country-section" data-country="usa" role="tabpanel" aria-labelledby="tab-usa" hidden>
+      <h2 class="country-title">United States (United States of America)</h2>
+
+      <section class="culture-section">
+        <h3>🛡️ Service &amp; Federal Agency Boards</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">USA selector</span>
+          <h4 class="rank-subsection-title">Icon-only branch buttons</h4>
+          <p class="rank-subsection-copy">Tap any insignia button to bring up the selected U.S. service or federal agency insignia with both a formal portrait and a face-visible field or ceremony photo.</p>
+        </div>
+        <div class="usa-branch-deck">
+          <div class="usa-branch-selector" role="toolbar" aria-label="United States service and federal agency boards">
+            {{ usa_branch_button('marines', 'United States Marine Corps', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Emblem_of_the_United_States_Marine_Corps.svg', True) }}
+            {{ usa_branch_button('army', 'United States Army', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Mark_of_the_United_States_Army.svg') }}
+            {{ usa_branch_button('navy', 'United States Navy', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Emblem_of_the_United_States_Navy.svg') }}
+            {{ usa_branch_button('air-force', 'United States Air Force', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:U.S._Air_Force_service_mark.svg') }}
+            {{ usa_branch_button('space-force', 'United States Space Force', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_United_States_Space_Force.svg') }}
+            {{ usa_branch_button('fbi', 'Federal Bureau of Investigation', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:New_seal_of_the_Federal_Bureau_of_Investigation.svg') }}
+            {{ usa_branch_button('cia', 'Central Intelligence Agency', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_Central_Intelligence_Agency.svg') }}
+            {{ usa_branch_button('coast-guard', 'United States Coast Guard', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_United_States_Coast_Guard.svg') }}
+          </div>
+          <div class="usa-branch-panels">
+            {{ usa_branch_panel('marines', 'United States Marine Corps', 'Armed service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Emblem_of_the_United_States_Marine_Corps.svg', 'https://commons.wikimedia.org/wiki/File:Emblem_of_the_United_States_Marine_Corps.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Lieutenant_General_Eric_M._Smith.jpg', 'https://commons.wikimedia.org/wiki/File:Lieutenant_General_Eric_M._Smith.jpg', 'Official portrait of Lt. Gen. Eric M. Smith.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Face_detail,_Commander,_U.S._Southern_Command_Gen._John_F._Kelly,_U.S._Marine_Corps,_briefs_the_media_in_the_Pentagon_on_March_20,_2013_130320-D-TT977-044_(cropped).jpg', 'https://commons.wikimedia.org/wiki/File:Face_detail,_Commander,_U.S._Southern_Command_Gen._John_F._Kelly,_U.S._Marine_Corps,_briefs_the_media_in_the_Pentagon_on_March_20,_2013_130320-D-TT977-044_(cropped).jpg', 'Gen. John F. Kelly briefing reporters at the Pentagon.', True) }}
+            {{ usa_branch_panel('army', 'United States Army', 'Armed service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Mark_of_the_United_States_Army.svg', 'https://commons.wikimedia.org/wiki/File:Mark_of_the_United_States_Army.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:GEN_Randy_A._George_%282%29.jpg', 'https://commons.wikimedia.org/wiki/File:GEN_Randy_A._George_%282%29.jpg', 'Official portrait of Gen. Randy A. George.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:GEN_Randy_George_is_Sworn_in_as_the_41st_Chief_of_Staff_of_the_Army_230921-A-LW866-1013.jpg', 'https://commons.wikimedia.org/wiki/File:GEN_Randy_George_is_Sworn_in_as_the_41st_Chief_of_Staff_of_the_Army_230921-A-LW866-1013.jpg', 'Gen. Randy George speaking after his swearing-in as Army chief.') }}
+            {{ usa_branch_panel('navy', 'United States Navy', 'Sea service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Emblem_of_the_United_States_Navy.svg', 'https://commons.wikimedia.org/wiki/File:Emblem_of_the_United_States_Navy.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:ADM_Lisa_M._Franchetti%2C_USN_%28March_2024%29.jpg', 'https://commons.wikimedia.org/wiki/File:ADM_Lisa_M._Franchetti%2C_USN_%28March_2024%29.jpg', 'Official portrait of Adm. Lisa M. Franchetti.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:US_Navy_100713-N-6410J-019_Capt._Lisa_M._Franchetti,_commander_of_Pacific_Partnership_2010,_poses_for_a_photo_with_an_Indonesian_girl_before_participating_in_the_opening_ceremony.jpg', 'https://commons.wikimedia.org/wiki/File:US_Navy_100713-N-6410J-019_Capt._Lisa_M._Franchetti,_commander_of_Pacific_Partnership_2010,_poses_for_a_photo_with_an_Indonesian_girl_before_participating_in_the_opening_ceremony.jpg', 'Capt. Lisa M. Franchetti before the Pacific Partnership opening ceremony.') }}
+            {{ usa_branch_panel('air-force', 'United States Air Force', 'Armed service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:U.S._Air_Force_service_mark.svg', 'https://commons.wikimedia.org/wiki/File:U.S._Air_Force_service_mark.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Gen_David_W._Allvin_%283%29.jpg', 'https://commons.wikimedia.org/wiki/File:Gen_David_W._Allvin_%283%29.jpg', 'Official portrait of Gen. David W. Allvin.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:2023_Welcome_Ceremony_for_the_23rd_Chief_of_Staff_of_the_Air_Force_231117-F-LE393-1311.jpg', 'https://commons.wikimedia.org/wiki/File:2023_Welcome_Ceremony_for_the_23rd_Chief_of_Staff_of_the_Air_Force_231117-F-LE393-1311.jpg', 'Gen. David W. Allvin speaking during his welcome ceremony.') }}
+            {{ usa_branch_panel('space-force', 'United States Space Force', 'Armed service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_United_States_Space_Force.svg', 'https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Space_Force.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Gen_B._Chance_Saltzman_%282%29.jpg', 'https://commons.wikimedia.org/wiki/File:Gen_B._Chance_Saltzman_%282%29.jpg', 'Official portrait of Gen. B. Chance Saltzman.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Chief_of_Space_Operations_Gen._Chance_Saltzman_speaks_during_the_McAleese_Defense_Program_Conference_at_the_Ronald_Reagan_Building_and_International_Trade_Center,_Washington,_D.C.,_March_15,_2023.jpg', 'https://commons.wikimedia.org/wiki/File:Chief_of_Space_Operations_Gen._Chance_Saltzman_speaks_during_the_McAleese_Defense_Program_Conference_at_the_Ronald_Reagan_Building_and_International_Trade_Center,_Washington,_D.C.,_March_15,_2023.jpg', 'Gen. Chance Saltzman speaking at the McAleese Defense Program Conference.') }}
+            {{ usa_branch_panel('fbi', 'Federal Bureau of Investigation', 'Federal agency', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:New_seal_of_the_Federal_Bureau_of_Investigation.svg', 'https://commons.wikimedia.org/wiki/File:New_seal_of_the_Federal_Bureau_of_Investigation.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Chris_Wray_official_photo_%283x4_cropped%29.jpg', 'https://commons.wikimedia.org/wiki/File:Chris_Wray_official_photo_%283x4_cropped%29.jpg', 'Official portrait of FBI Director Christopher A. Wray.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Attorney_General_Jeff_Sessions_on_the_Swearing_in_of_FBI_Director_Christopher_A._Wray,_August_2,_2017.jpg', 'https://commons.wikimedia.org/wiki/File:Attorney_General_Jeff_Sessions_on_the_Swearing_in_of_FBI_Director_Christopher_A._Wray,_August_2,_2017.jpg', 'Christopher A. Wray taking the oath as FBI Director.') }}
+            {{ usa_branch_panel('cia', 'Central Intelligence Agency', 'Intelligence agency', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_Central_Intelligence_Agency.svg', 'https://commons.wikimedia.org/wiki/File:Seal_of_the_Central_Intelligence_Agency.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:CIA_Director_Burns.jpg', 'https://commons.wikimedia.org/wiki/File:CIA_Director_Burns.jpg', 'Official portrait of CIA Director William J. Burns.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:William_Burns_Swear-In.jpg', 'https://commons.wikimedia.org/wiki/File:William_Burns_Swear-In.jpg', 'William J. Burns ceremonially sworn in as CIA Director.') }}
+            {{ usa_branch_panel('coast-guard', 'United States Coast Guard', 'Sea service', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Seal_of_the_United_States_Coast_Guard.svg', 'https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Coast_Guard.svg', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Admiral_Linda_L._Fagan%2C_Coast_Guard_Vice_Commandant.jpg', 'https://commons.wikimedia.org/wiki/File:Admiral_Linda_L._Fagan%2C_Coast_Guard_Vice_Commandant.jpg', 'Official portrait of Adm. Linda L. Fagan.', 'https://commons.wikimedia.org/wiki/Special:FilePath/File:Vice_Adm._Linda_Fagan_promoted_to_rank_of_admiral_210618-G-BI776-2001.jpg', 'https://commons.wikimedia.org/wiki/File:Vice_Adm._Linda_Fagan_promoted_to_rank_of_admiral_210618-G-BI776-2001.jpg', 'Linda L. Fagan being promoted to admiral at Coast Guard Headquarters.') }}
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>🎖️ Military Ranks (U.S. Army)</h3>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Commissioned</span>
+          <h4 class="rank-subsection-title">Officer &amp; Command Insignia</h4>
+          <p class="rank-subsection-copy">U.S. Army officer ladder from the historical five-star reference through executive field grade.</p>
+        </div>
+        <div class="ranks-grid">
+          {{ rank_card('usa', 'USA', 'Field Marshal', 'General of the Army', '(General of the Army)', 'Strategic command', 'usa-field-marshal.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-10.svg', 'Public domain', actual_rank='General of the Army', match_note='Historical five-star U.S. Army rank; closest American equivalent to a field marshal slot.') }}
+          {{ rank_card('usa', 'USA', 'General', 'General', '(General)', 'Theater command', 'usa-general.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-09.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Lieutenant General', 'Lieutenant General', '(Lieutenant General)', 'Corps command', 'usa-lieutenant-general.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-08.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Major General', 'Major General', '(Major General)', 'Division command', 'usa-major-general.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-07.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Brigadier General', 'Brigadier General', '(Brigadier General)', 'Brigade command', 'usa-brigadier-general.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-06.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Colonel', 'Colonel', '(Colonel)', 'Regimental command', 'usa-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-05.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Lieutenant Colonel', 'Lieutenant Colonel', '(Lieutenant Colonel)', 'Battalion command', 'usa-lieutenant-colonel.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-04.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Major', 'Major', '(Major)', 'Executive field grade', 'usa-major.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OF-03.svg', 'Public domain') }}
+        </div>
+        <div class="rank-subsection-head">
+          <span class="rank-subsection-kicker">Enlisted</span>
+          <h4 class="rank-subsection-title">Enlisted &amp; NCO Insignia</h4>
+          <p class="rank-subsection-copy">Full U.S. Army enlisted ladder with appointment variants for the E-8 and E-9 tiers. PV1 has no insignia, so the display ends at PV2.</p>
+        </div>
+        <div class="ranks-grid ranks-grid-enlisted">
+          {{ rank_card('usa', 'USA', 'Sergeant Major of the Army', 'Sergeant Major of the Army', '(SMA)', 'Top Army enlisted appointment', 'usa-sergeant-major-of-the-army.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-09a.svg', 'Public domain', match_note='Unique Army-wide E-9 appointment, distinct from the generic Sergeant Major grade.') }}
+          {{ rank_card('usa', 'USA', 'Command Sergeant Major', 'Command Sergeant Major', '(CSM)', 'Senior command appointment', 'usa-command-sergeant-major.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-09b.svg', 'Public domain', match_note='E-9 command assignment variant at the same paygrade as Sergeant Major.') }}
+          {{ rank_card('usa', 'USA', 'Sergeant Major', 'Sergeant Major', '(SGM)', 'Senior enlisted leader', 'usa-sergeant-major.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-09c.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'First Sergeant', 'First Sergeant', '(1SG)', 'Leadership appointment', 'usa-first-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-08a.svg', 'Public domain', match_note='First Sergeant is the E-8 leadership appointment distinct from Master Sergeant.') }}
+          {{ rank_card('usa', 'USA', 'Master Sergeant', 'Master Sergeant', '(MSG)', 'Senior NCO', 'usa-master-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-08b.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Sergeant First Class', 'Sergeant First Class', '(SFC)', 'Platoon NCO', 'usa-sergeant-first-class.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-07.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Staff Sergeant', 'Staff Sergeant', '(SSG)', 'Section leader', 'usa-staff-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-06.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Sergeant', 'Sergeant', '(SGT)', 'Squad NCO', 'usa-sergeant.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-05.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Corporal', 'Corporal', '(CPL)', 'Junior NCO', 'usa-corporal.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-04a.svg', 'Public domain', match_note='Corporal is the NCO track for E-4, distinct from the specialist track.') }}
+          {{ rank_card('usa', 'USA', 'Specialist', 'Specialist', '(SPC)', 'Enlisted specialist', 'usa-specialist.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-04b.svg', 'Public domain', match_note='Parallel E-4 enlisted grade; not an NCO.') }}
+          {{ rank_card('usa', 'USA', 'Private First Class', 'Private First Class', '(PFC)', 'Junior enlisted', 'usa-private-first-class.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-03.svg', 'Public domain') }}
+          {{ rank_card('usa', 'USA', 'Private (PV2)', 'Private', '(PV2)', 'Entry enlisted', 'usa-private-second-class.svg', 'https://commons.wikimedia.org/wiki/File:Army-USA-OR-02.svg', 'Public domain', actual_rank='Private E-2') }}
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>📅 Major Holidays</h3>
+        <div class="holidays-list">
+          <div class="holiday-item">
+            <div class="holiday-name">Independence Day</div>
+            <div class="holiday-native">Fourth of July</div>
+            <div class="holiday-date">July 4</div>
+            <div class="holiday-desc">Marks the 1776 Declaration of Independence; fireworks, flags, parades, and family cookouts</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Thanksgiving</div>
+            <div class="holiday-native">National Thanksgiving</div>
+            <div class="holiday-date">Fourth Thursday in November</div>
+            <div class="holiday-desc">Family-centered meal holiday focused on gratitude, travel, and harvest traditions</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Memorial Day</div>
+            <div class="holiday-native">Memorial Observance</div>
+            <div class="holiday-date">Last Monday in May</div>
+            <div class="holiday-desc">Honors military personnel who died in service; ceremonies at cemeteries and memorials</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Veterans Day</div>
+            <div class="holiday-native">Veterans Day</div>
+            <div class="holiday-date">November 11</div>
+            <div class="holiday-desc">Recognizes living military veterans; civic ceremonies, school observances, and community events</div>
+          </div>
+          <div class="holiday-item">
+            <div class="holiday-name">Juneteenth</div>
+            <div class="holiday-native">Juneteenth National Independence Day</div>
+            <div class="holiday-date">June 19</div>
+            <div class="holiday-desc">Commemorates the end of slavery in the United States; freedom celebrations, education, and remembrance</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>🔢 Numbers & Military Commands</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Numbers (1-10)</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">One:</span>
+                <span class="translation">One</span>
+                <span class="native">One</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Two:</span>
+                <span class="translation">Two</span>
+                <span class="native">Two</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Three:</span>
+                <span class="translation">Three</span>
+                <span class="native">Three</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Four:</span>
+                <span class="translation">Four</span>
+                <span class="native">Four</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Five:</span>
+                <span class="translation">Five</span>
+                <span class="native">Five</span>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <h4>Basic Military Commands</h4>
+            <div class="phrase-list">
+              <div class="phrase-row">
+                <span class="label">Attention:</span>
+                <span class="translation">Attention!</span>
+                <span class="native">Attention!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">At Ease:</span>
+                <span class="translation">At ease!</span>
+                <span class="native">At ease!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Stand Up:</span>
+                <span class="translation">On your feet!</span>
+                <span class="native">On your feet!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Sit Down:</span>
+                <span class="translation">Take a seat!</span>
+                <span class="native">Take a seat!</span>
+              </div>
+              <div class="phrase-row">
+                <span class="label">Listen:</span>
+                <span class="translation">Listen up!</span>
+                <span class="native">Listen up!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>💬 Basic Phrases & Questions</h3>
+        <div class="phrase-grid">
+          <div class="phrase-card">
+            <div class="phrase-english">Hello</div>
+            <div class="phrase-english-desc">Basic greeting</div>
+            <div class="phrase-native">Hello</div>
+            <div class="phrase-phonetic">heh-LOH</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Thank You</div>
+            <div class="phrase-english-desc">Expression of gratitude</div>
+            <div class="phrase-native">Thank you</div>
+            <div class="phrase-phonetic">THANGK yoo</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Please</div>
+            <div class="phrase-english-desc">Polite request</div>
+            <div class="phrase-native">Please</div>
+            <div class="phrase-phonetic">PLEEZ</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">What is your name?</div>
+            <div class="phrase-english-desc">Asking someone's name</div>
+            <div class="phrase-native">What is your name?</div>
+            <div class="phrase-phonetic">wuht iz yor naym</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">My name is...</div>
+            <div class="phrase-english-desc">Introducing yourself</div>
+            <div class="phrase-native">My name is...</div>
+            <div class="phrase-phonetic">my naym iz...</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Where is the hospital?</div>
+            <div class="phrase-english-desc">Emergency need</div>
+            <div class="phrase-native">Where is the hospital?</div>
+            <div class="phrase-phonetic">wair iz thuh HOSS-pih-tuhl</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">I don't understand</div>
+            <div class="phrase-english-desc">Communication issue</div>
+            <div class="phrase-native">I don't understand</div>
+            <div class="phrase-phonetic">eye dont un-der-STAND</div>
+          </div>
+          <div class="phrase-card">
+            <div class="phrase-english">Do you speak English?</div>
+            <div class="phrase-english-desc">Language check</div>
+            <div class="phrase-native">Do you speak English?</div>
+            <div class="phrase-phonetic">doo yoo speek ING-glish</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>🗺️ Location & Cultural History</h3>
+        <div class="history-layout">
+          {{ location_map('usa', 'Washington, D.C. // National Focus', 'North America // Continental federal core', '39.8283 N / -98.5795 W', 39.8283, -98.5795, 4) }}
+          <div class="history-scroll">
+            {{ history_entry('Pre-1600s - 1776', 'Indigenous nations and colonial settlement', 'Thousands of Indigenous nations shaped the continent long before European empires arrived. British, Spanish, French, and Dutch colonies layered new settlement patterns, trade systems, and conflict onto older Native political landscapes.') }}
+            {{ history_entry('1776 - 1865', 'Revolution, constitution, and civil war', 'The American Revolution created an independent republic built around federal institutions and constitutional law. Expansion across the continent, slavery, and regional political conflict culminated in the Civil War, which redefined the union and citizenship.') }}
+            {{ history_entry('1865 - 1945', 'Industrial growth and world-war power', 'Rapid industrialization, mass immigration, labor conflict, and urbanization transformed the United States into a continental economic power. By the end of the two world wars, the country had become a central military, financial, and cultural actor on the global stage.') }}
+            {{ history_entry('1945 - present', 'Superpower era and plural civic culture', 'Cold War strategy, civil-rights reform, suburban growth, and the digital economy shaped modern national life. Contemporary American identity balances federal symbolism with strong regional cultures, immigrant diversity, civic volunteerism, consumer media, and a powerful military tradition.') }}
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>👥 Ethnic Groups</h3>
+        <div class="demographics-list">
+          <div class="demo-item">
+            <span class="demo-name">White (Non-Hispanic)</span>
+            <span class="demo-percent">~58-59%</span>
+            <span class="demo-info">Largest demographic category; regionally varied across suburbs, towns, and rural communities</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Hispanic / Latino</span>
+            <span class="demo-percent">~19%</span>
+            <span class="demo-info">Fast-growing multilingual population with roots in Mexico, the Caribbean, Central, and South America</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Black / African American</span>
+            <span class="demo-percent">~13-14%</span>
+            <span class="demo-info">Foundational community in U.S. history and culture; major influence on politics, music, religion, and military service</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Asian American</span>
+            <span class="demo-percent">~6-7%</span>
+            <span class="demo-info">Highly diverse communities with East, South, and Southeast Asian backgrounds concentrated in major metro areas</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Multiracial</span>
+            <span class="demo-percent">~3-4%</span>
+            <span class="demo-info">Rapidly growing population reflecting intermarriage, mixed heritage, and changing census identification</span>
+          </div>
+          <div class="demo-item">
+            <span class="demo-name">Native American, Alaska Native & Pacific Islander</span>
+            <span class="demo-percent">~2-3%</span>
+            <span class="demo-info">Indigenous and island communities with strong tribal, local, and ceremonial identities</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>⛪ Social Structure & Religions</h3>
+        <div class="two-column">
+          <div class="column">
+            <h4>Social Structure</h4>
+            <ul class="structure-list">
+              <li><strong>Family:</strong> Household models vary widely; nuclear and blended families are common; mobility can separate extended kin</li>
+              <li><strong>Government:</strong> Federal republic with strong state and local identities layered under national institutions</li>
+              <li><strong>Class & Work:</strong> Professional, service, industrial, and gig-economy divisions coexist with persistent wealth inequality</li>
+              <li><strong>Military Service:</strong> Volunteer force; service culture carries strong public symbolism even outside military families</li>
+              <li><strong>Values:</strong> Individual initiative, free expression, local community loyalty, and civic participation remain strong ideals</li>
+              <li><strong>Regional Identity:</strong> Northeast, South, Midwest, West Coast, and rural/urban divides shape speech, politics, and customs</li>
+            </ul>
+          </div>
+          <div class="column">
+            <h4>Religious Composition</h4>
+            <div class="religion-list">
+              <div class="religion-item">
+                <span class="religion-name">Protestant</span>
+                <span class="religion-percent">~39-40%</span>
+                <span class="religion-info">Largest Christian family; evangelical, mainline, and historically Black churches all influential</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Catholic</span>
+                <span class="religion-percent">~19-20%</span>
+                <span class="religion-info">Nationwide presence with strong immigrant, urban, and Hispanic community ties</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Unaffiliated</span>
+                <span class="religion-percent">~28-30%</span>
+                <span class="religion-info">Includes secular, agnostic, atheist, and culturally religious populations</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Other Christian</span>
+                <span class="religion-percent">~4-5%</span>
+                <span class="religion-info">Latter-day Saints, Orthodox Christians, and independent churches</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Jewish</span>
+                <span class="religion-percent">~2%</span>
+                <span class="religion-info">Large, historically influential communities in major metro corridors</span>
+              </div>
+              <div class="religion-item">
+                <span class="religion-name">Muslim, Hindu, Buddhist & Other</span>
+                <span class="religion-percent">~4-5%</span>
+                <span class="religion-info">Growing plural-faith landscape driven by immigration and urban diversity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="culture-section">
+        <h3>🎭 Cultural Customs & Traditions</h3>
+        <div class="customs-list">
+          <div class="custom-item">
+            <div class="custom-name">Thanksgiving Tables</div>
+            <div class="custom-desc">Long-distance family travel, shared meals, football broadcasts, and gratitude rituals remain major seasonal traditions</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Memorial & Veterans Observances</div>
+            <div class="custom-desc">Flags, parades, cemetery visits, and school ceremonies publicly mark military service and sacrifice</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Backyard Grilling & Tailgates</div>
+            <div class="custom-desc">Cookouts, college and professional sports gatherings, and casual hospitality are widespread social rituals</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Road Trips & National Parks</div>
+            <div class="custom-desc">Long-distance driving, summer travel, camping, and park visits express a strong recreation and frontier mythology</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Volunteer & Civic Service</div>
+            <div class="custom-desc">PTAs, churches, charities, veterans organizations, and local clubs remain important community structures</div>
+          </div>
+          <div class="custom-item">
+            <div class="custom-name">Homecoming, Fairs & Local Festivals</div>
+            <div class="custom-desc">County fairs, state festivals, marching bands, and school or town celebrations reinforce regional identity and pride</div>
+          </div>
+        </div>
+      </section>
+
+      {% set leadership_entries = [
+        {
+          'country': 'Iran',
+          'president': 'Masoud Pezeshkian',
+          'deputy_role': 'First Vice President',
+          'deputy_name': 'Mohammad Reza Aref',
+          'note': 'Iran uses a first vice president office, so the current deputy is shown with the exact national title.'
+        },
+        {
+          'country': 'China',
+          'president': 'Xi Jinping',
+          'deputy_role': 'Vice President',
+          'deputy_name': 'Han Zheng',
+          'note': 'China maintains a standing vice president office alongside the presidency.'
+        },
+        {
+          'country': 'Russia',
+          'president': 'Vladimir Putin',
+          'deputy_role': 'Prime Minister',
+          'deputy_name': 'Mikhail Mishustin',
+          'note': 'Russia does not maintain a standing vice president office, so the head of government is shown as the closest executive deputy.'
+        },
+        {
+          'country': 'Mexico',
+          'president': 'Claudia Sheinbaum',
+          'deputy_role': 'Interior Secretary',
+          'deputy_name': 'Rosa Icela Rodriguez',
+          'note': 'Mexico does not maintain a standing vice president office; the interior secretary is listed here as the closest executive deputy in constitutional succession.'
+        },
+        {
+          'country': 'Israel',
+          'president': 'Isaac Herzog',
+          'deputy_role': 'Prime Minister',
+          'deputy_name': 'Benjamin Netanyahu',
+          'note': 'Israel does not maintain a standing vice president office, so the head of government is shown as the closest executive deputy.'
+        },
+        {
+          'country': 'USA',
+          'president': 'Donald Trump',
+          'deputy_role': 'Vice President',
+          'deputy_name': 'JD Vance',
+          'note': 'The United States maintains a standing vice president office with a direct constitutional role.'
+        }
+      ] %}
+
+      <section class="culture-section leadership-overview" aria-labelledby="leadership-reference-title">
+        <div class="leadership-overview-head">
+          <span class="leadership-kicker">Bottom Page Reference</span>
+          <h3 id="leadership-reference-title">🏛️ Presidents &amp; Vice Presidents</h3>
+          <p class="leadership-copy">Quick leadership board for every country on this page. Where a country does not keep a standing vice-president office, the closest current executive deputy is shown instead.</p>
+        </div>
+        <div class="leadership-match-shell">
+          <div class="leadership-match-label">Country Match</div>
+          <div class="leadership-match-table-wrap">
+            <table class="leadership-match-table" aria-label="Country-to-president reference">
+              <thead>
+                <tr>
+                  <th scope="col">Country</th>
+                  <th scope="col">President</th>
+                  <th scope="col">Vice President or Closest Deputy</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for entry in leadership_entries %}
+                <tr>
+                  <th scope="row">{{ entry.country }}</th>
+                  <td>{{ entry.president }}</td>
+                  <td>
+                    <span class="leadership-match-role">{{ entry.deputy_role }}</span>
+                    <span class="leadership-match-name">{{ entry.deputy_name }}</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="leadership-grid">
+          {% for entry in leadership_entries %}
+          <article class="leadership-card">
+            <div class="leadership-country">{{ entry.country }}</div>
+            <div class="leadership-role">President</div>
+            <div class="leadership-name">{{ entry.president }}</div>
+            <div class="leadership-role">{{ entry.deputy_role }}</div>
+            <div class="leadership-name">{{ entry.deputy_name }}</div>
+            <p class="leadership-note">{{ entry.note }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.tab-button');
+  const stealthTabs = document.querySelectorAll('.culture-stealth-option');
+  const sections = document.querySelectorAll('.country-section');
+  const stealthCurrent = document.getElementById('culture-tabs-current');
+  const stealthMenu = document.getElementById('culture-tabs-stealth');
+  const miniMaps = new Map();
+  const usaBranchButtons = document.querySelectorAll('.usa-branch-button');
+  const usaBranchPanels = document.querySelectorAll('.usa-branch-panel');
+
+  function getTabLabel(targetId) {
+    const tab = document.querySelector('.tab-button[data-tab="' + targetId + '"]');
+    return tab ? tab.textContent.trim() : targetId.toUpperCase();
+  }
+
+  function buildMiniMap(node) {
+    if (!window.L || !node || miniMaps.has(node.id)) {
+      return;
+    }
+
+    const latitude = Number(node.dataset.lat);
+    const longitude = Number(node.dataset.lon);
+    const zoom = Number(node.dataset.zoom || 4);
+    const label = node.dataset.label || node.dataset.country || 'Country focus';
+
+    const map = L.map(node, {
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      touchZoom: false,
+      tap: false,
+    }).setView([latitude, longitude], zoom);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    L.circleMarker([latitude, longitude], {
+      radius: 8,
+      color: '#F3F8DF',
+      weight: 2,
+      fillColor: '#A4B87A',
+      fillOpacity: 0.95,
+    }).addTo(map).bindTooltip(label, {
+      direction: 'top',
+      offset: [0, -8],
+    });
+
+    miniMaps.set(node.id, map);
+  }
+
+  function buildMiniMaps() {
+    document.querySelectorAll('.culture-mini-map').forEach(buildMiniMap);
+  }
+
+  function refreshActiveMap(targetId) {
+    const section = document.getElementById(targetId);
+    const mapNode = section ? section.querySelector('.culture-mini-map') : null;
+
+    if (!mapNode) {
+      return;
+    }
+
+    const map = miniMaps.get(mapNode.id);
+
+    if (map) {
+      window.setTimeout(() => map.invalidateSize(), 90);
+    }
+  }
+
+  function activateTab(targetId) {
+    tabs.forEach(tab => {
+      const isActive = tab.getAttribute('data-tab') === targetId;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      tab.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    stealthTabs.forEach(tab => {
+      const isActive = tab.getAttribute('data-tab') === targetId;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    if (stealthCurrent) {
+      stealthCurrent.textContent = getTabLabel(targetId);
+    }
+
+    sections.forEach(section => {
+      const isActive = section.id === targetId;
+      section.classList.toggle('active', isActive);
+      if (isActive) {
+        section.removeAttribute('hidden');
+      } else {
+        section.setAttribute('hidden', 'hidden');
+      }
+    });
+
+    if (stealthMenu && stealthMenu.open) {
+      stealthMenu.open = false;
+    }
+
+    refreshActiveMap(targetId);
+  }
+
+  function activateUsaBranch(targetId) {
+    usaBranchButtons.forEach(button => {
+      const isActive = button.getAttribute('data-usa-branch') === targetId;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    usaBranchPanels.forEach(panel => {
+      const isActive = panel.getAttribute('data-usa-branch-panel') === targetId;
+      panel.classList.toggle('active', isActive);
+      if (isActive) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', 'hidden');
+      }
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-tab');
+      activateTab(targetId);
+
+      // Smooth scroll to top of content
+      document.querySelector('.culture-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  stealthTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-tab');
+      activateTab(targetId);
+      document.querySelector('.culture-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  usaBranchButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      activateUsaBranch(this.getAttribute('data-usa-branch'));
+    });
+  });
+
+  buildMiniMaps();
+
+  if (usaBranchButtons.length) {
+    const initialUsaBranch = document.querySelector('.usa-branch-button.active') || usaBranchButtons[0];
+    activateUsaBranch(initialUsaBranch.getAttribute('data-usa-branch'));
+  }
+
+  const initialTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+  activateTab(initialTab);
+});
+</script>
+  {% include "_radio_footer.html" %}
+  </body>
+</html>

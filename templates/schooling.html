@@ -1,0 +1,1979 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Delta Coding — Schooling Core Reference</title>
+    <meta name="description" content="Basic schooling reference for maths, science, English, and land navigation. Core rules, worked examples, study prompts, and field fundamentals in one page.">
+    <meta name="keywords" content="schooling, maths, math, science, English, grammar, fractions, algebra, scientific method, reading, writing, study guide, land navigation, map reading, compass, pace count">
+    <meta name="robots" content="index, follow">
+    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
+    <meta property="og:title" content="Delta Coding — Schooling Core Reference">
+    <meta property="og:description" content="Basic maths, science, English, and land navigation in one reference page with examples, study prompts, and field fundamentals.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://futurecodedelta.org/schooling">
+    <meta property="og:site_name" content="FutureCodeDelta">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Schooling Core Reference">
+    <meta name="twitter:description" content="Core maths, science, English, and land-navigation lessons with quick examples and study drills.">
+    <link rel="canonical" href="https://futurecodedelta.org/schooling">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <style>
+      .container{display:block;height:auto}
+      .schooling-wrap{max-width:1180px;margin:0 auto;padding:20px}
+      .schooling-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:18px;align-items:stretch;margin-bottom:22px}
+      .schooling-brief,.schooling-status,.schooling-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:0 16px 30px rgba(0,0,0,.16)}
+      .schooling-brief,.schooling-status{padding:22px}
+      .schooling-kicker,.section-kicker,.cycle-kicker,.formula-chip,.study-tag,.workstation-kicker{display:inline-flex;align-items:center;width:max-content;padding:7px 12px;border-radius:999px;border:1px solid rgba(139,157,106,.24);background:rgba(18,24,16,.86);color:var(--accent-bright);font:800 10px/1 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase}
+      .schooling-brief h2,.section-head h2{margin:14px 0 10px;color:var(--accent-bright);font:900 clamp(1.8rem,3.4vw,2.8rem)/1.08 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+      .schooling-brief p,.section-head p,.lesson-copy,.cycle-note,.example-box p,.table-note{color:var(--text2);line-height:1.7}
+      .schooling-brief p{margin:0 0 16px;font-size:.98rem}
+      .subject-jump{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+      .subject-jump a{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(139,157,106,.18);background:linear-gradient(180deg,rgba(53,63,39,.9),rgba(22,29,18,.98));color:#edf4db;font:700 .8rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+      .subject-jump a:hover{transform:translateY(-2px);border-color:rgba(200,213,163,.52);box-shadow:0 10px 18px rgba(0,0,0,.18)}
+      .hero-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
+      .hero-stat{padding:14px;border-radius:14px;background:rgba(18,24,16,.72);border:1px solid rgba(139,157,106,.14)}
+      .hero-stat strong{display:block;margin-bottom:6px;color:var(--text);font:700 .92rem/1.3 'JetBrains Mono',monospace;text-transform:uppercase}
+      .hero-stat span{display:block;color:var(--muted);font-size:.84rem;line-height:1.55}
+      .schooling-status h3{margin:12px 0 10px;color:var(--sand);font:800 1rem/1.3 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+      .cycle-grid{display:grid;gap:10px;margin-top:14px}
+      .cycle-step{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:14px;background:rgba(18,24,16,.74);border:1px solid rgba(139,157,106,.14)}
+      .cycle-step strong{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:12px;background:rgba(200,213,163,.12);color:var(--accent-bright);font:800 .76rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .cycle-step span{display:block;color:var(--text2);font-size:.88rem;line-height:1.55}
+      .study-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .study-tag{background:rgba(200,213,163,.1);color:var(--sand)}
+      .schooling-section{padding:22px;margin:18px 0}
+      .section-head{margin-bottom:18px}
+      .section-head p{margin:0;max-width:760px;font-size:.95rem}
+      .lesson-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+      .lesson-card{display:grid;gap:12px;padding:18px;border-radius:16px;background:linear-gradient(180deg,rgba(29,36,24,.9),rgba(15,20,13,.96));border:1px solid rgba(139,157,106,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);transition:transform .2s ease,border-color .2s ease}
+      .lesson-card:hover{transform:translateY(-3px);border-color:rgba(200,213,163,.34)}
+      .lesson-card h4{margin:0;color:var(--text);font:800 1rem/1.35 'JetBrains Mono',monospace;letter-spacing:.03em;text-transform:uppercase}
+      .lesson-copy{margin:0;font-size:.88rem}
+      .study-list{display:grid;gap:8px;margin:0;padding-left:18px;color:var(--text2);font-size:.9rem;line-height:1.6}
+      .example-box{padding:12px 14px;border-radius:14px;background:rgba(10,14,10,.72);border:1px solid rgba(255,255,255,.06)}
+      .example-box strong{display:block;margin-bottom:6px;color:var(--gold);font:700 .74rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .example-box p{margin:0;font-size:.88rem}
+      .formula-strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+      .formula-chip{background:rgba(200,213,163,.1);color:var(--sand);border-color:rgba(200,213,163,.18)}
+      .table-shell{margin-top:18px;padding:16px;border-radius:16px;background:rgba(17,22,15,.8);border:1px solid rgba(139,157,106,.14)}
+      .table-shell h3{margin:0 0 12px;color:var(--accent-bright);font:800 .95rem/1.3 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+      .reference-table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:12px}
+      .reference-table th,.reference-table td{padding:10px 12px;border-bottom:1px solid rgba(139,157,106,.12);text-align:left;font-size:.88rem}
+      .reference-table th{color:var(--sand);font:700 .75rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;background:rgba(200,213,163,.08)}
+      .reference-table td{color:var(--text2);background:rgba(12,17,11,.58)}
+      .reference-table tr:last-child td{border-bottom:none}
+      .table-note{margin:12px 0 0;font-size:.85rem}
+      .maths-examples-shell{position:relative;margin-top:22px;padding:0;overflow:hidden;border-radius:24px;border:1px solid rgba(196,162,101,.24);background:radial-gradient(circle at 100% 0%,rgba(200,213,163,.16),transparent 30%),radial-gradient(circle at 0% 0%,rgba(196,162,101,.16),transparent 24%),linear-gradient(180deg,rgba(39,30,18,.98),rgba(16,20,14,.98));box-shadow:0 24px 42px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04)}
+      .maths-examples-shell::before{content:'';position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,rgba(241,228,186,.76),rgba(196,162,101,.42),transparent)}
+      .maths-examples-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;padding:22px 22px 18px;border-bottom:1px solid rgba(196,162,101,.18);background:linear-gradient(180deg,rgba(67,50,28,.34),rgba(17,21,14,0))}
+      .maths-examples-kicker,.maths-examples-badge,.maths-focus-tag,.maths-problem-label,.maths-examples-note-label{display:inline-flex;align-items:center;width:max-content;font:800 10px/1 'JetBrains Mono',monospace;letter-spacing:1.2px;text-transform:uppercase}
+      .maths-examples-kicker{padding:7px 12px;border-radius:999px;border:1px solid rgba(241,228,186,.22);background:rgba(41,31,18,.86);color:#f2e2aa}
+      .maths-examples-head h3{margin:14px 0 10px;color:#f5e7b0;font:900 clamp(1.2rem,2vw,1.65rem)/1.15 'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase}
+      .maths-examples-copy{margin:0;max-width:760px;color:rgba(236,232,220,.82);font-size:.92rem;line-height:1.75}
+      .maths-examples-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-self:start}
+      .maths-examples-badge{padding:8px 11px;border-radius:999px;border:1px solid rgba(200,213,163,.16);background:rgba(15,19,13,.68);color:var(--sand)}
+      .maths-examples-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:18px 18px 12px}
+      .maths-example-card{position:relative;display:grid;gap:16px;padding:18px;border-radius:20px;border:1px solid rgba(196,162,101,.16);background:linear-gradient(180deg,rgba(18,22,16,.96),rgba(11,14,10,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 18px 28px rgba(0,0,0,.18);overflow:hidden}
+      .maths-example-card::before{content:'';position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,rgba(241,228,186,.52),rgba(200,213,163,.18),transparent)}
+      .maths-example-card::after{content:'';position:absolute;right:-42px;top:-42px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(196,162,101,.12),transparent 68%);pointer-events:none}
+      .maths-example-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+      .maths-example-body{display:grid;gap:14px;position:relative;z-index:1}
+      .maths-focus-tag{padding:8px 12px;border-radius:999px;border:1px solid rgba(241,228,186,.18);background:rgba(44,34,20,.84);color:#f6ebc1}
+      .maths-focus-caption{color:rgba(236,232,220,.64);font:700 .68rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .maths-problem-card,.maths-steps-card{display:grid;gap:10px;padding:14px;border-radius:16px;border:1px solid rgba(200,213,163,.1);background:linear-gradient(180deg,rgba(31,38,25,.82),rgba(16,20,14,.94));box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
+      .maths-problem-cell{display:grid;gap:10px}
+      .maths-problem-label{padding:0;color:var(--accent-soft)}
+      .maths-problem-chip{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;padding:11px 14px;border-radius:14px;border:1px solid rgba(200,213,163,.18);background:linear-gradient(180deg,rgba(58,68,43,.9),rgba(25,31,21,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 20px rgba(0,0,0,.16);color:#f6f8ee;font:800 .96rem/1.2 'JetBrains Mono',monospace;letter-spacing:.03em}
+      .maths-steps-cell{display:grid;gap:10px}
+      .maths-step-list{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+      .maths-step-list li{padding:11px 12px;border-radius:13px;border:1px solid rgba(200,213,163,.08);background:linear-gradient(180deg,rgba(28,35,23,.9),rgba(16,21,14,.95));box-shadow:inset 0 1px 0 rgba(255,255,255,.02);color:var(--text);font-size:.9rem;line-height:1.65}
+      .maths-examples-note{display:grid;gap:10px;margin:0;padding:0 22px 22px;color:rgba(236,232,220,.82);font-size:.88rem;line-height:1.75}
+      .maths-examples-note-label{padding:8px 12px;border-radius:999px;border:1px solid rgba(196,162,101,.18);background:rgba(24,18,11,.74);color:#f2e2aa}
+      .operations-grid{margin-top:14px}
+      .workstation-shell{display:grid;gap:16px;margin:0 0 22px;padding:18px;border-radius:18px;background:linear-gradient(180deg,rgba(25,31,21,.94),rgba(11,15,10,.98));border:1px solid rgba(139,157,106,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 14px 28px rgba(0,0,0,.16)}
+      .workstation-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+      .workstation-head h3{margin:12px 0 8px;color:var(--accent-bright);font:800 1rem/1.35 'JetBrains Mono',monospace;letter-spacing:.04em;text-transform:uppercase}
+      .workstation-head p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.65}
+      .workstation-meta{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+      .workstation-stat{min-width:112px;padding:12px;border-radius:14px;background:rgba(18,24,16,.78);border:1px solid rgba(139,157,106,.14)}
+      .workstation-stat span{display:block;color:var(--muted);font:700 .65rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .workstation-stat strong{display:block;margin-top:7px;color:var(--text);font:800 .92rem/1.2 'JetBrains Mono',monospace}
+      .workstation-form{display:grid;gap:14px}
+      .workstation-problem-index{display:inline-flex;width:max-content;padding:7px 10px;border-radius:999px;background:rgba(200,213,163,.1);border:1px solid rgba(200,213,163,.16);color:var(--sand);font:700 .72rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .workstation-problem{padding:16px;border-radius:16px;background:rgba(12,17,11,.74);border:1px solid rgba(255,255,255,.05);color:var(--text);font-size:1rem;line-height:1.65}
+      .workstation-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+      .workstation-choice{display:block;cursor:pointer}
+      .workstation-choice input{position:absolute;opacity:0;pointer-events:none}
+      .workstation-choice span{display:block;min-height:100%;padding:14px 16px;border-radius:14px;background:rgba(18,24,16,.74);border:1px solid rgba(139,157,106,.14);color:var(--text2);font-size:.9rem;line-height:1.55;transition:transform .2s ease,border-color .2s ease,background .2s ease,color .2s ease}
+      .workstation-choice:hover span{transform:translateY(-2px);border-color:rgba(200,213,163,.34);background:rgba(29,37,23,.92);color:var(--text)}
+      .workstation-choice input:checked + span{border-color:rgba(200,213,163,.56);background:linear-gradient(180deg,rgba(66,80,48,.96),rgba(26,34,20,.98));color:#f3f8df;box-shadow:0 12px 20px rgba(0,0,0,.16)}
+      .workstation-submit-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+      .workstation-submit{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border:none;border-radius:12px;background:linear-gradient(180deg,rgba(139,157,106,.96),rgba(88,104,63,.98));color:#11170d;font:800 .8rem/1 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:transform .2s ease,filter .2s ease}
+      .workstation-submit:hover{transform:translateY(-2px);filter:brightness(1.05)}
+      .workstation-feedback{padding:12px 14px;border-radius:14px;background:rgba(18,24,16,.76);border:1px solid rgba(139,157,106,.14);color:var(--sand);font-size:.87rem;line-height:1.6}
+      .workstation-feedback-static{margin-top:8px}
+      @media(max-width:960px){
+        .schooling-hero{grid-template-columns:1fr}
+        .hero-stat-grid{grid-template-columns:1fr}
+        .workstation-head{grid-template-columns:1fr}
+        .workstation-meta{justify-content:flex-start}
+      }
+      @media(max-width:700px){
+        .schooling-wrap{padding:16px 12px 22px}
+        .schooling-brief,.schooling-status,.schooling-section{padding:18px}
+        .schooling-brief h2,.section-head h2{font-size:1.5rem}
+        .lesson-grid{grid-template-columns:1fr}
+        .cycle-step{grid-template-columns:1fr}
+        .subject-jump a{width:100%}
+        .workstation-shell{padding:16px}
+        .workstation-choices{grid-template-columns:1fr}
+        .workstation-submit-row{grid-template-columns:1fr}
+        .workstation-submit{width:100%}
+        .maths-examples-head{grid-template-columns:1fr;align-items:start;padding:18px 18px 14px}
+        .maths-examples-badges{justify-content:flex-start}
+        .maths-examples-grid{grid-template-columns:1fr;padding:14px 14px 10px}
+        .reference-table,.reference-table tbody,.reference-table tr,.reference-table th,.reference-table td{display:block;width:100%}
+        .reference-table thead{display:none}
+        .reference-table tr{margin-bottom:10px;border:1px solid rgba(139,157,106,.12);border-radius:12px;overflow:hidden}
+        .reference-table td{border-bottom:1px solid rgba(139,157,106,.12)}
+        .reference-table td:last-child{border-bottom:none}
+        .maths-example-card{padding:16px}
+        .maths-problem-chip{width:100%;justify-content:flex-start}
+        .maths-examples-note{padding:0 18px 18px}
+      }
+      @media(max-width:420px){
+        .schooling-wrap{padding:12px 10px 18px}
+        .schooling-brief,.schooling-status,.schooling-section{padding:14px}
+        .schooling-brief h2,.section-head h2{font-size:1.25rem}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <a href="/" class="delta-logo" aria-hidden="true" title="Ops Center" style="text-decoration:none">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#1a1f16"/>
+          <path d="M32 10L54 50H10L32 10Z" fill="none" stroke="#8B9D6A" stroke-width="3"/>
+          <path d="M32 20L46 46H18L32 20Z" fill="#8B9D6A" opacity="0.3"/>
+          <line x1="32" y1="24" x2="32" y2="46" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="25" y1="32" x2="39" y2="32" stroke="#C8D5A3" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+      <div class="title">
+        <h1>DELTA CODING</h1>
+        <p class="tag">SCHOOLING CORE REFERENCE &bull; MATHS &bull; SCIENCE &bull; ENGLISH &bull; LAND NAVIGATION</p>
+      </div>
+      {% include '_top_nav.html' %}
+    </header>
+
+    <main class="container">
+      <div class="schooling-wrap">
+        <section class="schooling-hero">
+          <article class="schooling-brief">
+            <span class="schooling-kicker">Core Learning Surface</span>
+            <h2>Schooling Core Reference</h2>
+            <p>Basic maths, science, English, and land navigation in one study page with quick rules, worked examples, review tables, and a simple practice cycle you can repeat every day.</p>
+            <div class="subject-jump">
+              <a href="#math">Maths</a>
+              <a href="#landnav">Land Nav</a>
+              <a href="#science">Science</a>
+              <a href="#english">English</a>
+            </div>
+            <div class="hero-stat-grid">
+              <div class="hero-stat">
+                <strong>Maths Basics</strong>
+                <span>Numbers, arithmetic, fractions, algebra, geometry, and data reading.</span>
+              </div>
+              <div class="hero-stat">
+                <strong>Science Basics</strong>
+                <span>Scientific method, matter, motion, life science, Earth systems, and safety.</span>
+              </div>
+              <div class="hero-stat">
+                <strong>English Basics</strong>
+                <span>Grammar, sentence building, punctuation, reading response, and paragraph writing.</span>
+              </div>
+              <div class="hero-stat">
+                <strong>Land Navigation</strong>
+                <span>Map orientation, grid coordinates, compass bearings, pace count, and route control.</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="schooling-status">
+            <span class="cycle-kicker">Practice Cycle</span>
+            <h3>Daily Study Flow</h3>
+            <p class="cycle-note">Use the same loop for each subject so review stays simple: recall old work, learn one new idea, solve or write something, then explain it back in your own words.</p>
+            <div class="cycle-grid">
+              <div class="cycle-step">
+                <strong>10 min</strong>
+                <span>Review yesterday's notes, formulas, or vocabulary before opening new work.</span>
+              </div>
+              <div class="cycle-step">
+                <strong>20 min</strong>
+                <span>Learn one core rule or concept and copy one worked example step by step.</span>
+              </div>
+              <div class="cycle-step">
+                <strong>15 min</strong>
+                <span>Answer practice questions, write one paragraph, or solve a short problem set.</span>
+              </div>
+              <div class="cycle-step">
+                <strong>5 min</strong>
+                <span>Teach the idea back out loud in simple words to check understanding.</span>
+              </div>
+            </div>
+            <div class="study-tags">
+              <span class="study-tag">Review</span>
+              <span class="study-tag">Example</span>
+              <span class="study-tag">Practice</span>
+              <span class="study-tag">Explain</span>
+              <span class="study-tag">Field Skills</span>
+            </div>
+          </aside>
+        </section>
+
+        <section id="math" class="schooling-section">
+          <div class="section-head">
+            <span class="section-kicker">Maths</span>
+            <h2>Basic Maths</h2>
+            <p>Start with number sense and arithmetic, then move through fractions, algebra, geometry, and graphs. Keep every step written clearly so you can check where a mistake happened.</p>
+          </div>
+
+          <div class="workstation-shell" data-workstation="math">
+            <div class="workstation-head">
+              <div>
+                <span class="workstation-kicker">Maths Workstation</span>
+                <h3>100 addition and subtraction problems, one at a time</h3>
+                <p>Progress saves in this browser. This first maths bank stays on addition and subtraction only. Submit each answer to refresh to the next problem, then reshuffle after all 100 are answered.</p>
+              </div>
+              <div class="workstation-meta">
+                <div class="workstation-stat">
+                  <span>Cycle</span>
+                  <strong data-workstation-cycle>1</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Answered</span>
+                  <strong data-workstation-answered>0 / 100</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Correct</span>
+                  <strong data-workstation-correct>0 / 100</strong>
+                </div>
+              </div>
+            </div>
+            <form class="workstation-form" data-workstation-form novalidate>
+              <span class="workstation-problem-index" data-workstation-number>Problem 1 of 100</span>
+              <div class="workstation-problem" data-workstation-prompt>Loading first problem...</div>
+              <div class="workstation-choices" data-workstation-choices></div>
+              <div class="workstation-submit-row">
+                <button class="workstation-submit" type="submit">Submit and Refresh</button>
+                <div class="workstation-feedback" data-workstation-feedback aria-live="polite">Select an answer and submit to refresh the workstation. Answer explanation appears here after each response.</div>
+              </div>
+              <noscript>
+                <div class="workstation-feedback workstation-feedback-static">Turn on JavaScript to use the one-at-a-time workstation.</div>
+              </noscript>
+            </form>
+          </div>
+
+          <div class="workstation-shell" data-workstation="math-multdiv">
+            <div class="workstation-head">
+              <div>
+                <span class="workstation-kicker">Maths Workstation</span>
+                <h3>100 multiplication and division problems, one at a time</h3>
+                <p>Progress saves in this browser. This second maths bank stays on multiplication and division. Submit each answer to refresh to the next problem, then reshuffle after all 100 are answered.</p>
+              </div>
+              <div class="workstation-meta">
+                <div class="workstation-stat">
+                  <span>Cycle</span>
+                  <strong data-workstation-cycle>1</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Answered</span>
+                  <strong data-workstation-answered>0 / 100</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Correct</span>
+                  <strong data-workstation-correct>0 / 100</strong>
+                </div>
+              </div>
+            </div>
+            <form class="workstation-form" data-workstation-form novalidate>
+              <span class="workstation-problem-index" data-workstation-number>Problem 1 of 100</span>
+              <div class="workstation-problem" data-workstation-prompt>Loading first problem...</div>
+              <div class="workstation-choices" data-workstation-choices></div>
+              <div class="workstation-submit-row">
+                <button class="workstation-submit" type="submit">Submit and Refresh</button>
+                <div class="workstation-feedback" data-workstation-feedback aria-live="polite">Select an answer and submit to refresh the workstation. Answer explanation appears here after each response.</div>
+              </div>
+              <noscript>
+                <div class="workstation-feedback workstation-feedback-static">Turn on JavaScript to use the one-at-a-time workstation.</div>
+              </noscript>
+            </form>
+          </div>
+
+          <div class="workstation-shell" data-workstation="math-distance">
+            <div class="workstation-head">
+              <div>
+                <span class="workstation-kicker">Maths Workstation</span>
+                <h3>100 distance conversion problems, one at a time</h3>
+                <p>Progress saves in this browser. This third maths bank stays on distance conversions. Submit each answer to refresh to the next problem, then reshuffle after all 100 are answered.</p>
+              </div>
+              <div class="workstation-meta">
+                <div class="workstation-stat">
+                  <span>Cycle</span>
+                  <strong data-workstation-cycle>1</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Answered</span>
+                  <strong data-workstation-answered>0 / 100</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Correct</span>
+                  <strong data-workstation-correct>0 / 100</strong>
+                </div>
+              </div>
+            </div>
+            <form class="workstation-form" data-workstation-form novalidate>
+              <span class="workstation-problem-index" data-workstation-number>Problem 1 of 100</span>
+              <div class="workstation-problem" data-workstation-prompt>Loading first problem...</div>
+              <div class="workstation-choices" data-workstation-choices></div>
+              <div class="workstation-submit-row">
+                <button class="workstation-submit" type="submit">Submit and Refresh</button>
+                <div class="workstation-feedback" data-workstation-feedback aria-live="polite">Select an answer and submit to refresh the workstation. Answer explanation appears here after each response.</div>
+              </div>
+              <noscript>
+                <div class="workstation-feedback workstation-feedback-static">Turn on JavaScript to use the one-at-a-time workstation.</div>
+              </noscript>
+            </form>
+          </div>
+
+          <div class="table-shell">
+            <h3>Operations Breakdown</h3>
+            <p class="table-note">Use these four quick maths sections when you want to isolate one operation at a time before mixing them together again.</p>
+            <div class="lesson-grid operations-grid">
+              <article class="lesson-card">
+                <h4>Addition Drills</h4>
+                <p class="lesson-copy">Addition combines parts into one total.</p>
+                <ul class="study-list">
+                  <li>Line up place values when numbers have more than one digit.</li>
+                  <li>Regroup when a column adds to 10 or more.</li>
+                  <li>Check your sum by subtracting one addend from the total.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>248 + 137 = 385.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Subtraction Drills</h4>
+                <p class="lesson-copy">Subtraction finds how much is left or how far apart two values are.</p>
+                <ul class="study-list">
+                  <li>Rewrite the larger number on top before subtracting.</li>
+                  <li>Borrow from the next place value when the top digit is too small.</li>
+                  <li>Check your answer by adding the difference back to the smaller number.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>503 - 186 = 317.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Multiplication Drills</h4>
+                <p class="lesson-copy">Multiplication is fast repeated addition and helps with equal groups, area, and scaling.</p>
+                <ul class="study-list">
+                  <li>Memorize small facts first so larger problems move faster.</li>
+                  <li>Break harder products into easier chunks such as 7 x 12 = 7 x 10 + 7 x 2.</li>
+                  <li>Check a product by dividing it by one factor.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>8 x 14 = 8 x 10 + 8 x 4 = 80 + 32 = 112.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Division Drills</h4>
+                <p class="lesson-copy">Division splits a total into equal groups or tells how many groups fit.</p>
+                <ul class="study-list">
+                  <li>Think of the matching multiplication fact before dividing.</li>
+                  <li>Check whether there is a remainder when the total does not split evenly.</li>
+                  <li>Verify by multiplying the quotient by the divisor.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>96 / 8 = 12 because 12 x 8 = 96.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="table-shell">
+            <h3>Distance Conversion Drills</h3>
+            <p class="table-note">Work these conversions when you need to swap between metric and imperial distance units quickly and keep a good field estimate.</p>
+            <div class="lesson-grid operations-grid">
+              <article class="lesson-card">
+                <h4>Meters to Feet</h4>
+                <p class="lesson-copy">Use meters to feet when you need to move from metric distance into a more common U.S. length reference.</p>
+                <ul class="study-list">
+                  <li>Multiply meters by about 3.28 to estimate feet.</li>
+                  <li>Round to the nearest tenth when you want a clean quick answer.</li>
+                  <li>Double-check by asking whether the feet value is a little more than three times the meters value.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>10 meters is about 32.8 feet.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Miles to Kilometers</h4>
+                <p class="lesson-copy">Use miles to kilometers when you need to convert road or map distance into metric form.</p>
+                <ul class="study-list">
+                  <li>Multiply miles by about 1.61 to estimate kilometers.</li>
+                  <li>Use one decimal place for fast travel and map checks.</li>
+                  <li>If the kilometer result is not larger than the miles value, recheck the multiplication.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>5 miles is about 8.1 kilometers.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Inches to Centimeters</h4>
+                <p class="lesson-copy">Use inches to centimeters when you need to convert a smaller imperial length into metric form.</p>
+                <ul class="study-list">
+                  <li>Multiply inches by 2.54 to convert to centimeters.</li>
+                  <li>Keep one decimal place when you want a clean quick answer.</li>
+                  <li>If the centimeters result is not more than double the inches value, recheck the calculation.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>12 inches is 30.5 centimeters.</p>
+                </div>
+              </article>
+
+              <article class="lesson-card">
+                <h4>Yards to Meters</h4>
+                <p class="lesson-copy">Use yards to meters when you need to swap a field or map distance into metric form.</p>
+                <ul class="study-list">
+                  <li>Multiply yards by about 0.91 to estimate meters.</li>
+                  <li>Round to the nearest tenth for fast comparisons.</li>
+                  <li>If the meter answer is larger than the yards value, check the work again.</li>
+                </ul>
+                <div class="example-box">
+                  <strong>Worked example</strong>
+                  <p>10 yards is about 9.1 meters.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="lesson-grid">
+            <article class="lesson-card">
+              <h4>Number Sense &amp; Order of Operations</h4>
+              <p class="lesson-copy">Know how big a number is, what each digit means, and what order to solve parts of an expression.</p>
+              <ul class="study-list">
+                <li>Place value runs ones, tens, hundreds, thousands, and beyond.</li>
+                <li>Use &lt;, &gt;, and = to compare numbers accurately.</li>
+                <li>Follow parentheses, exponents, multiplication/division, then addition/subtraction.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>18 - (6 / 2) + 4 = 18 - 3 + 4 = 19.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Addition, Subtraction, Multiplication &amp; Division</h4>
+              <p class="lesson-copy">These four operations are the base of almost every later maths topic.</p>
+              <ul class="study-list">
+                <li>Add to combine amounts and subtract to find the difference.</li>
+                <li>Multiply for equal groups and divide to split or share equally.</li>
+                <li>Check division with multiplication and subtraction with addition.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>7 x 6 = 42, so 42 / 6 = 7 and 42 / 7 = 6.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Fractions, Decimals &amp; Percentages</h4>
+              <p class="lesson-copy">These are three ways to name parts of a whole amount.</p>
+              <ul class="study-list">
+                <li>The denominator shows total equal parts and the numerator shows chosen parts.</li>
+                <li>Decimals are place-value fractions based on tenths, hundredths, and thousandths.</li>
+                <li>Percent means out of 100.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>3/4 = 0.75 = 75%.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Ratios &amp; Algebra Basics</h4>
+              <p class="lesson-copy">Algebra uses letters to stand for numbers you do not know yet.</p>
+              <ul class="study-list">
+                <li>A ratio compares two amounts, such as 2:3.</li>
+                <li>An equation balances both sides, so whatever you do to one side must happen to the other.</li>
+                <li>Collect like terms before solving.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If x + 5 = 13, subtract 5 from both sides to get x = 8.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Geometry &amp; Measurement</h4>
+              <p class="lesson-copy">Geometry studies shape, space, length, area, and volume.</p>
+              <ul class="study-list">
+                <li>Perimeter is the distance around a shape.</li>
+                <li>Area is the amount of surface inside a flat shape.</li>
+                <li>Volume measures space inside a 3D object.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>A rectangle 8 cm by 3 cm has perimeter 22 cm and area 24 cm squared.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Data, Graphs &amp; Probability</h4>
+              <p class="lesson-copy">Read charts carefully and match the graph type to the information shown.</p>
+              <ul class="study-list">
+                <li>Bar graphs compare categories and line graphs show change over time.</li>
+                <li>The mean is the average, the median is the middle, and the mode appears most often.</li>
+                <li>Probability ranges from 0 impossible to 1 certain.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Scores 4, 5, 5, 6 give mean 5, median 5, and mode 5.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="formula-strip">
+            <span class="formula-chip">Perimeter = sum of side lengths</span>
+            <span class="formula-chip">Area of rectangle = length x width</span>
+            <span class="formula-chip">Percentage = part / whole x 100</span>
+            <span class="formula-chip">Average = total / number of items</span>
+            <span class="formula-chip">1 meter is about 3.28 feet</span>
+            <span class="formula-chip">1 mile is about 1.61 kilometers</span>
+            <span class="formula-chip">1 inch = 2.54 centimeters</span>
+            <span class="formula-chip">1 yard is about 0.91 meters</span>
+          </div>
+
+          {% set maths_examples = [
+            {'focus': 'Addition', 'problem': '248 + 137', 'steps': ['1. Add ones: 8 + 7 = 15, write 5 and carry 1.', '2. Add tens: 4 + 3 + 1 = 8.', '3. Add hundreds: 2 + 1 = 3. Answer: 385.']},
+            {'focus': 'Subtraction', 'problem': '503 - 186', 'steps': ['1. Borrow from the tens because 3 is smaller than 6, so 13 - 6 = 7.', '2. Borrow from the hundreds because 0 is smaller than 8, so 9 - 8 = 1.', '3. Subtract hundreds: 4 - 1 = 3. Answer: 317.']},
+            {'focus': 'Multiplication', 'problem': '8 x 14', 'steps': ['1. Break 14 into 10 and 4.', '2. Multiply 8 x 10 = 80.', '3. Multiply 8 x 4 = 32.', '4. Add 80 + 32 = 112. Answer: 112.']},
+            {'focus': 'Division', 'problem': '96 / 8', 'steps': ['1. Ask what number times 8 gives 96.', '2. 12 x 8 = 96.', '3. So 96 / 8 = 12. Answer: 12.']},
+            {'focus': 'Meters to Feet', 'problem': '10 meters to feet', 'steps': ['1. Multiply meters by 3.28.', '2. 10 x 3.28 = 32.8.', '3. Label the answer in feet. Answer: about 32.8 feet.']},
+            {'focus': 'Miles to Kilometers', 'problem': '5 miles to kilometers', 'steps': ['1. Multiply miles by 1.61.', '2. 5 x 1.61 = 8.05.', '3. Round to one decimal place for a quick field answer. Answer: about 8.1 kilometers.']},
+            {'focus': 'Inches to Centimeters', 'problem': '12 inches to centimeters', 'steps': ['1. Multiply inches by 2.54.', '2. 12 x 2.54 = 30.48.', '3. Round if needed. Answer: about 30.5 centimeters.']},
+            {'focus': 'Yards to Meters', 'problem': '10 yards to meters', 'steps': ['1. Multiply yards by 0.91.', '2. 10 x 0.91 = 9.1.', '3. Keep the answer in meters. Answer: about 9.1 meters.']},
+            {'focus': 'Order of Operations', 'problem': '18 - (6 / 2) + 4', 'steps': ['1. Solve inside the parentheses first: 6 / 2 = 3.', '2. Subtract next: 18 - 3 = 15.', '3. Add last: 15 + 4 = 19. Answer: 19.']},
+            {'focus': 'Fractions, Decimals, and Percent', 'problem': '3/4', 'steps': ['1. Divide numerator by denominator: 3 / 4 = 0.75.', '2. Multiply the decimal by 100 to get percent: 0.75 x 100 = 75.', '3. Write the percent sign. Answer: 3/4 = 0.75 = 75%.']},
+            {'focus': 'Ratios and Algebra', 'problem': 'x + 5 = 13', 'steps': ['1. Subtract 5 from the left side.', '2. Subtract 5 from the right side too so the equation stays balanced.', '3. x = 8.', '4. Check: 8 + 5 = 13. Answer: x = 8.']},
+            {'focus': 'Geometry and Measurement', 'problem': 'Rectangle 8 cm by 3 cm', 'steps': ['1. Add all four sides for perimeter: 8 + 3 + 8 + 3 = 22 cm.', '2. Multiply length by width for area: 8 x 3 = 24.', '3. Label area in square units. Answer: perimeter 22 cm and area 24 square cm.']},
+            {'focus': 'Data and Graphs', 'problem': 'Scores 4, 5, 5, 6', 'steps': ['1. Add the scores: 4 + 5 + 5 + 6 = 20.', '2. Divide by 4 to get the mean: 20 / 4 = 5.', '3. Put the numbers in order to find the median: 4, 5, 5, 6, so the middle is 5.', '4. The mode is the number used most often: 5. Answer: mean 5, median 5, mode 5.']},
+            {'focus': 'Operation Check', 'problem': '42 / 6', 'steps': ['1. Think of the matching multiplication fact.', '2. 7 x 6 = 42.', '3. So 42 / 6 = 7.', '4. Check by multiplying back: 7 x 6 = 42. Answer: 7.']}
+          ] %}
+
+          <div class="table-shell maths-examples-shell">
+            <div class="maths-examples-head">
+              <div>
+                <span class="maths-examples-kicker">Signature Tutor Layout</span>
+                <h3>Step-by-Step Maths Examples</h3>
+                <p class="maths-examples-copy">This section is the polished walk-through board for every maths focus. Each problem is laid out like a premium study guide so the focus, sample problem, and exact solve order are easy to scan and repeat.</p>
+              </div>
+              <div class="maths-examples-badges">
+                <span class="maths-examples-badge">Clean Solve Order</span>
+                <span class="maths-examples-badge">Worked Start To Finish</span>
+                <span class="maths-examples-badge">Quick Check Ready</span>
+              </div>
+            </div>
+            <div class="maths-examples-grid">
+              {% for example in maths_examples %}
+              <article class="maths-example-card">
+                <div class="maths-example-head">
+                  <span class="maths-focus-tag">{{ example.focus }}</span>
+                  <span class="maths-focus-caption">Worked Example</span>
+                </div>
+                <div class="maths-example-body">
+                  <div class="maths-problem-card maths-problem-cell">
+                    <span class="maths-problem-label">Sample Problem</span>
+                    <span class="maths-problem-chip">{{ example.problem }}</span>
+                  </div>
+                  <div class="maths-steps-card maths-steps-cell">
+                    <span class="maths-problem-label">How To Work It Out Step By Step</span>
+                    <ol class="maths-step-list">
+                      {% for step in example.steps %}
+                      <li>{{ step }}</li>
+                      {% endfor %}
+                    </ol>
+                  </div>
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+            <p class="table-note maths-examples-note"><span class="maths-examples-note-label">Solve Standard</span>Use the same pattern every time: read the problem carefully, do one step at a time in order, and check the answer with the opposite operation or a quick estimate.</p>
+          </div>
+
+          <div class="table-shell">
+            <h3>Quick Fraction Reference</h3>
+            <table class="reference-table">
+              <thead>
+                <tr>
+                  <th>Fraction</th>
+                  <th>Decimal</th>
+                  <th>Percent</th>
+                  <th>How To Work It Out</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1/2</td>
+                  <td>0.5</td>
+                  <td>50%</td>
+                  <td>1 ÷ 2 = 0.5, then 0.5 × 100 = 50%.</td>
+                </tr>
+                <tr>
+                  <td>1/4</td>
+                  <td>0.25</td>
+                  <td>25%</td>
+                  <td>1 ÷ 4 = 0.25, then 0.25 × 100 = 25%.</td>
+                </tr>
+                <tr>
+                  <td>3/4</td>
+                  <td>0.75</td>
+                  <td>75%</td>
+                  <td>3 ÷ 4 = 0.75, then 0.75 × 100 = 75%.</td>
+                </tr>
+                <tr>
+                  <td>1/5</td>
+                  <td>0.2</td>
+                  <td>20%</td>
+                  <td>1 ÷ 5 = 0.2, then 0.2 × 100 = 20%.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="table-note">When a fraction does not convert quickly in your head, divide the numerator by the denominator first, then multiply by 100 for percent.</p>
+          </div>
+        </section>
+
+        <section id="landnav" class="schooling-section">
+          <div class="section-head">
+            <span class="section-kicker">Field Skills</span>
+            <h2>Land Navigation Basics</h2>
+            <p>Land navigation combines map reading, compass work, terrain association, and disciplined note taking. Learn how to orient the map, plot the route, walk the leg, and relocate if the ground stops matching the plan.</p>
+          </div>
+
+          <div class="lesson-grid">
+            <article class="lesson-card">
+              <h4>Map Orientation &amp; Terrain Association</h4>
+              <p class="lesson-copy">Start by making the map and the ground agree before you move.</p>
+              <ul class="study-list">
+                <li>Set north on the map to match north on the ground before reading the route.</li>
+                <li>Match big terrain shapes such as ridges, valleys, roads, streams, and hilltops first.</li>
+                <li>Use handrails like roads, trails, ridgelines, or rivers to keep movement simple.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If the creek should stay on your left and the hill mass should rise ahead, the terrain picture should match that map picture as you move.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Grid Coordinates &amp; Plotting</h4>
+              <p class="lesson-copy">Read grid references the same way every time so points are plotted accurately.</p>
+              <ul class="study-list">
+                <li>Read right first for the easting, then up for the northing.</li>
+                <li>A 4-digit grid gives a square, a 6-digit grid narrows to 100 meters, and an 8-digit grid narrows to 10 meters.</li>
+                <li>Use a protractor or grid tool to measure the tenths inside the square instead of guessing.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Grid 123456 means go to easting 12, then northing 34, then measure 0.3 across and 0.6 up inside that square.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Compass Bearings &amp; Back Azimuths</h4>
+              <p class="lesson-copy">An azimuth gives direction, and a back azimuth tells you how to return or verify the reverse line.</p>
+              <ul class="study-list">
+                <li>Hold the compass level, read the direction of travel arrow, and keep the bezel or dial steady.</li>
+                <li>To get a back azimuth, add 180 degrees if the azimuth is under 180, or subtract 180 if it is 180 or more.</li>
+                <li>Always note whether you are using magnetic north or grid north before sharing a bearing.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If your azimuth is 70 degrees, your back azimuth is 250 degrees. If your azimuth is 240 degrees, your back azimuth is 60 degrees.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Pace Count &amp; Distance Control</h4>
+              <p class="lesson-copy">Distance discipline keeps you from drifting too far past or too short of the point.</p>
+              <ul class="study-list">
+                <li>Know how many paces you take over 100 meters on flat ground before you need the number in the field.</li>
+                <li>Heavy load, darkness, slope, mud, and vegetation all change pace count and walking speed.</li>
+                <li>Break long legs into shorter checkpoints so you can confirm progress before the final point.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If your pace count is 62 paces per 100 meters, then about 310 paces is about 500 meters.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Route Planning, Attack Points &amp; Catching Features</h4>
+              <p class="lesson-copy">Good routes are controlled by recognizable features, not just by one long straight line.</p>
+              <ul class="study-list">
+                <li>Use checkpoints along the way so each leg has a clear start, line of travel, and end.</li>
+                <li>Pick an attack point near the final location so the last movement is short and precise.</li>
+                <li>Choose a catching feature beyond the objective so you know when you have gone too far.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Move road to creek bend to saddle, then use the saddle as the attack point and the ridgeline beyond the objective as the catching feature.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Relocation &amp; Resection</h4>
+              <p class="lesson-copy">If you lose confidence in your location, stop, confirm, and relocate before moving farther.</p>
+              <ul class="study-list">
+                <li>Look for two or three known terrain features that you can identify on the map and on the ground.</li>
+                <li>Take bearings to those features and draw back azimuths to estimate your position.</li>
+                <li>When visibility is poor, relocate from the last point you knew for sure instead of chasing guesses.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If two back azimuth lines cross near the bridge symbol on the map, that crossing gives your best relocation estimate.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="formula-strip">
+            <span class="formula-chip">Read right, then up</span>
+            <span class="formula-chip">6-digit grid = 100 m precision</span>
+            <span class="formula-chip">8-digit grid = 10 m precision</span>
+            <span class="formula-chip">Back azimuth = azimuth ± 180</span>
+            <span class="formula-chip">Distance = paces / pace-count-per-100 m x 100</span>
+            <span class="formula-chip">Handrails • attack points • catching features</span>
+          </div>
+
+          <div class="table-shell">
+            <h3>Land Navigation Quick Reference</h3>
+            <table class="reference-table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Rule</th>
+                  <th>Quick Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Grid reading</td>
+                  <td>Read right first, then up.</td>
+                  <td>Easting 12, then northing 34 becomes grid 1234.</td>
+                </tr>
+                <tr>
+                  <td>Back azimuth</td>
+                  <td>Add 180 below 180 degrees; subtract 180 at 180 degrees or above.</td>
+                  <td>65 degrees becomes 245 degrees. 240 degrees becomes 60 degrees.</td>
+                </tr>
+                <tr>
+                  <td>Pace count</td>
+                  <td>Know your paces for 100 meters before the route begins.</td>
+                  <td>62 paces x 5 legs is about 500 meters.</td>
+                </tr>
+                <tr>
+                  <td>Route control</td>
+                  <td>Use handrails, checkpoints, attack points, and catching features.</td>
+                  <td>Road to creek bend to hilltop is easier to verify than one long blind leg.</td>
+                </tr>
+                <tr>
+                  <td>Relocation</td>
+                  <td>Stop and resection from known points instead of guessing forward.</td>
+                  <td>Use two hilltops or towers to draw back azimuths and find the intersection.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="table-note">Good land navigation is controlled movement: orient first, confirm often, and only speed up after the map, compass, and terrain all agree.</p>
+          </div>
+        </section>
+
+        <section id="science" class="schooling-section">
+          <div class="section-head">
+            <span class="section-kicker">Science</span>
+            <h2>Basic Science</h2>
+            <p>Science asks questions, gathers evidence, tests ideas, and explains how the natural world works. Write down observations carefully and separate what you saw from what you guessed.</p>
+          </div>
+
+          <div class="workstation-shell" data-workstation="science">
+            <div class="workstation-head">
+              <div>
+                <span class="workstation-kicker">Science Workstation</span>
+                <h3>100 science problems, one at a time</h3>
+                <p>Progress saves in this browser. Submit each answer to refresh the workstation to the next science problem. After all 100 are answered, the bank reshuffles and starts a new cycle.</p>
+              </div>
+              <div class="workstation-meta">
+                <div class="workstation-stat">
+                  <span>Cycle</span>
+                  <strong data-workstation-cycle>1</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Answered</span>
+                  <strong data-workstation-answered>0 / 100</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Correct</span>
+                  <strong data-workstation-correct>0 / 100</strong>
+                </div>
+              </div>
+            </div>
+            <form class="workstation-form" data-workstation-form novalidate>
+              <span class="workstation-problem-index" data-workstation-number>Problem 1 of 100</span>
+              <div class="workstation-problem" data-workstation-prompt>Loading first problem...</div>
+              <div class="workstation-choices" data-workstation-choices></div>
+              <div class="workstation-submit-row">
+                <button class="workstation-submit" type="submit">Submit and Refresh</button>
+                <div class="workstation-feedback" data-workstation-feedback aria-live="polite">Select an answer and submit to refresh the workstation. Answer explanation appears here after each response.</div>
+              </div>
+              <noscript>
+                <div class="workstation-feedback workstation-feedback-static">Turn on JavaScript to use the one-at-a-time workstation.</div>
+              </noscript>
+            </form>
+          </div>
+
+          <div class="lesson-grid">
+            <article class="lesson-card">
+              <h4>Scientific Method</h4>
+              <p class="lesson-copy">A simple science cycle keeps investigations clear and repeatable.</p>
+              <ul class="study-list">
+                <li>Ask a question based on something you notice.</li>
+                <li>Build a hypothesis that can be tested.</li>
+                <li>Run an experiment, collect results, and compare them with the hypothesis.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Question: Do plants grow faster in sunlight? Test equal plants with different light levels and measure growth each day.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Matter, Forces &amp; Life Science</h4>
+              <p class="lesson-copy">Science basics connect what things are made of, how they move, and how living things survive.</p>
+              <ul class="study-list">
+                <li>Matter has mass and takes up space; it can be solid, liquid, or gas.</li>
+                <li>Forces such as push, pull, friction, and gravity change motion.</li>
+                <li>Living things need energy, respond to their environment, and reproduce.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>A ball slows on grass because friction acts against its motion.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Atoms, Elements &amp; Compounds</h4>
+              <p class="lesson-copy">Atoms are tiny building blocks, elements use one kind of atom, and compounds join different atoms together.</p>
+              <ul class="study-list">
+                <li>The periodic table organizes elements by their properties.</li>
+                <li>Molecules form when atoms bond.</li>
+                <li>Physical changes alter form, while chemical changes create a new substance.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Ice melting is a physical change; iron rusting is a chemical change.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Energy, Heat &amp; Motion</h4>
+              <p class="lesson-copy">Energy does work and can change form from one type to another.</p>
+              <ul class="study-list">
+                <li>Kinetic energy is energy of motion and potential energy is stored energy.</li>
+                <li>Heat moves from warmer objects to cooler ones.</li>
+                <li>Speed tells how fast something moves over a distance.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If a car travels 120 km in 2 hours, its average speed is 60 km/h.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Earth, Weather &amp; Space</h4>
+              <p class="lesson-copy">Earth science connects land, water, air, climate, and the solar system.</p>
+              <ul class="study-list">
+                <li>Weather describes short-term air conditions and climate describes long-term patterns.</li>
+                <li>Earth rotates once every day and revolves around the sun each year.</li>
+                <li>The moon changes phase as its lit side is viewed from Earth at different angles.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Summer and winter happen because Earth is tilted while it travels around the sun.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Observation, Variables &amp; Safety</h4>
+              <p class="lesson-copy">Good science uses clear observations and safe habits.</p>
+              <ul class="study-list">
+                <li>An independent variable is the one you change; a dependent variable is what you measure.</li>
+                <li>Keep control conditions the same for a fair test.</li>
+                <li>Wear eye protection, read instructions, and never mix unknown chemicals.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If you test plant growth, light amount is the independent variable and plant height is the dependent variable.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="formula-strip">
+            <span class="formula-chip">Speed = distance / time</span>
+            <span class="formula-chip">Density = mass / volume</span>
+            <span class="formula-chip">Hypothesis = testable prediction</span>
+            <span class="formula-chip">Control = conditions kept the same</span>
+          </div>
+        </section>
+
+        <section id="english" class="schooling-section">
+          <div class="section-head">
+            <span class="section-kicker">English</span>
+            <h2>Basic English</h2>
+            <p>English class builds clear reading, speaking, and writing. Focus on sentence structure first, then expand into paragraphs, responses, and vocabulary work.</p>
+          </div>
+
+          <div class="workstation-shell" data-workstation="english">
+            <div class="workstation-head">
+              <div>
+                <span class="workstation-kicker">English Workstation</span>
+                <h3>100 English problems, one at a time</h3>
+                <p>Progress saves in this browser. Submit each answer to refresh the workstation to the next English problem. After all 100 are answered, the bank reshuffles and starts a new cycle.</p>
+              </div>
+              <div class="workstation-meta">
+                <div class="workstation-stat">
+                  <span>Cycle</span>
+                  <strong data-workstation-cycle>1</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Answered</span>
+                  <strong data-workstation-answered>0 / 100</strong>
+                </div>
+                <div class="workstation-stat">
+                  <span>Correct</span>
+                  <strong data-workstation-correct>0 / 100</strong>
+                </div>
+              </div>
+            </div>
+            <form class="workstation-form" data-workstation-form novalidate>
+              <span class="workstation-problem-index" data-workstation-number>Problem 1 of 100</span>
+              <div class="workstation-problem" data-workstation-prompt>Loading first problem...</div>
+              <div class="workstation-choices" data-workstation-choices></div>
+              <div class="workstation-submit-row">
+                <button class="workstation-submit" type="submit">Submit and Refresh</button>
+                <div class="workstation-feedback" data-workstation-feedback aria-live="polite">Select an answer and submit to refresh the workstation. Answer explanation appears here after each response.</div>
+              </div>
+              <noscript>
+                <div class="workstation-feedback workstation-feedback-static">Turn on JavaScript to use the one-at-a-time workstation.</div>
+              </noscript>
+            </form>
+          </div>
+
+          <div class="lesson-grid">
+            <article class="lesson-card">
+              <h4>Sentence Building &amp; Grammar</h4>
+              <p class="lesson-copy">A complete sentence needs a subject and a verb and must express a full thought.</p>
+              <ul class="study-list">
+                <li>Nouns name people, places, things, or ideas.</li>
+                <li>Verbs show action or state of being.</li>
+                <li>Adjectives describe nouns and adverbs describe verbs, adjectives, or other adverbs.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>The student writes neatly every day. Subject: student. Verb: writes.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Punctuation &amp; Capitalization</h4>
+              <p class="lesson-copy">Punctuation controls clarity, pace, and meaning.</p>
+              <ul class="study-list">
+                <li>Use capitals for sentence openings, names, places, days, and months.</li>
+                <li>Use periods for statements, question marks for questions, and exclamation points sparingly.</li>
+                <li>Use commas to separate items in a list or pause after an opener.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>After lunch, Maya, David, and Amina finished their project.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Reading Comprehension</h4>
+              <p class="lesson-copy">Good readers identify the main idea, important details, tone, and evidence.</p>
+              <ul class="study-list">
+                <li>Ask who, what, when, where, why, and how while reading.</li>
+                <li>Highlight topic sentences and repeated ideas.</li>
+                <li>Support every answer with proof from the text.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>If the text says a storm flooded roads and delayed buses, the main effect is travel disruption caused by the storm.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Paragraph Writing &amp; Reading Response</h4>
+              <p class="lesson-copy">A strong paragraph stays on one idea and proves it with detail.</p>
+              <ul class="study-list">
+                <li>Start with a topic sentence that states the main point.</li>
+                <li>Add evidence, examples, or explanation in the middle.</li>
+                <li>Close with a sentence that sums up the idea or links to the next point.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Topic sentence: Reading every day improves vocabulary. Supporting details explain new words, sentence patterns, and better comprehension.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Vocabulary &amp; Spelling</h4>
+              <p class="lesson-copy">New words stick better when you say them, write them, define them, and use them in sentences.</p>
+              <ul class="study-list">
+                <li>Break long words into prefixes, roots, and suffixes.</li>
+                <li>Use context clues to infer meaning before checking a dictionary.</li>
+                <li>Review difficult words several times across the week.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Preview means to see before. Prefix: pre = before. Root: view = see.</p>
+              </div>
+            </article>
+
+            <article class="lesson-card">
+              <h4>Speaking, Listening &amp; Editing</h4>
+              <p class="lesson-copy">Strong communication includes listening well, speaking clearly, and revising written work.</p>
+              <ul class="study-list">
+                <li>Read your writing aloud to catch awkward wording.</li>
+                <li>Check spelling, punctuation, grammar, and sentence variety during editing.</li>
+                <li>Answer with complete sentences during discussion when possible.</li>
+              </ul>
+              <div class="example-box">
+                <strong>Worked example</strong>
+                <p>Edit this: he dont like runing. Correct version: He does not like running.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="table-shell">
+            <h3>Quick Writing Check</h3>
+            <table class="reference-table">
+              <thead>
+                <tr>
+                  <th>Check</th>
+                  <th>Question to Ask</th>
+                  <th>Fix if Needed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Subject + Verb</td>
+                  <td>Does every sentence say who or what plus the action?</td>
+                  <td>Add the missing subject or verb.</td>
+                </tr>
+                <tr>
+                  <td>Punctuation</td>
+                  <td>Did each sentence end correctly?</td>
+                  <td>Add a period, question mark, or exclamation point.</td>
+                </tr>
+                <tr>
+                  <td>Capital Letters</td>
+                  <td>Did the sentence and names start with capitals?</td>
+                  <td>Capitalize the first word and proper nouns.</td>
+                </tr>
+                <tr>
+                  <td>Main Idea</td>
+                  <td>Does the paragraph stay on one topic?</td>
+                  <td>Remove off-topic lines or rewrite the topic sentence.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="table-note">Before handing in work, reread it once for meaning and a second time just for grammar and punctuation.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+    (function() {
+      const WORKSTATION_TOTAL = 100;
+      const WORKSTATION_STATE_VERSION = 3;
+      const WORKSTATION_STORAGE_KEY_PREFIX = 'schooling-workstation-v3:';
+
+      function shuffleCopy(list) {
+        const copy = list.slice();
+        for (let index = copy.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+        }
+        return copy;
+      }
+
+      function normalizeChoices(correctChoice, choices) {
+        const correctText = String(correctChoice);
+        const unique = [];
+
+        choices.map((choice) => String(choice)).forEach((choice) => {
+          if (!unique.includes(choice)) {
+            unique.push(choice);
+          }
+        });
+
+        let fillerIndex = 1;
+        while (unique.length < 4) {
+          const filler = `${correctText} (${fillerIndex})`;
+          if (!unique.includes(filler)) {
+            unique.push(filler);
+          }
+          fillerIndex += 1;
+        }
+
+        return unique.slice(0, 4);
+      }
+
+      function getWorkstationStorage() {
+        try {
+          return window.localStorage;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function createDefaultWorkstationState(problemBank) {
+        return {
+          version: WORKSTATION_STATE_VERSION,
+          cycle: 1,
+          answered: 0,
+          correct: 0,
+          pointer: 0,
+          order: problemBank.map((_, index) => index),
+        };
+      }
+
+      function hasValidOrder(order, total) {
+        if (!Array.isArray(order) || order.length !== total) {
+          return false;
+        }
+
+        const seen = new Set();
+
+        for (const value of order) {
+          if (!Number.isInteger(value) || value < 0 || value >= total || seen.has(value)) {
+            return false;
+          }
+          seen.add(value);
+        }
+
+        return true;
+      }
+
+      function loadWorkstationState(subject, problemBank) {
+        const storage = getWorkstationStorage();
+        if (!storage) {
+          return null;
+        }
+
+        const storageKey = `${WORKSTATION_STORAGE_KEY_PREFIX}${subject}`;
+
+        try {
+          const raw = storage.getItem(storageKey);
+          if (!raw) {
+            return null;
+          }
+
+          const parsed = JSON.parse(raw);
+          const answered = Number(parsed.answered);
+          const correct = Number(parsed.correct);
+          const pointer = Number(parsed.pointer);
+          const cycle = Number(parsed.cycle);
+
+          if (
+            parsed.version !== WORKSTATION_STATE_VERSION ||
+            !Number.isInteger(cycle) || cycle < 1 ||
+            !Number.isInteger(answered) || answered < 0 || answered >= WORKSTATION_TOTAL ||
+            !Number.isInteger(correct) || correct < 0 || correct > answered ||
+            !Number.isInteger(pointer) || pointer !== answered ||
+            !hasValidOrder(parsed.order, problemBank.length)
+          ) {
+            storage.removeItem(storageKey);
+            return null;
+          }
+
+          return {
+            version: WORKSTATION_STATE_VERSION,
+            cycle,
+            answered,
+            correct,
+            pointer,
+            order: parsed.order.slice(),
+          };
+        } catch (error) {
+          try {
+            storage.removeItem(storageKey);
+          } catch (removeError) {
+          }
+          return null;
+        }
+      }
+
+      function saveWorkstationState(subject, state) {
+        const storage = getWorkstationStorage();
+        if (!storage) {
+          return;
+        }
+
+        try {
+          storage.setItem(`${WORKSTATION_STORAGE_KEY_PREFIX}${subject}`, JSON.stringify({
+            version: WORKSTATION_STATE_VERSION,
+            cycle: state.cycle,
+            answered: state.answered,
+            correct: state.correct,
+            pointer: state.pointer,
+            order: state.order,
+          }));
+        } catch (error) {
+        }
+      }
+
+      function buildExplanation(prompt, correctText) {
+        let match = prompt.match(/^What is (\d+) \+ (\d+)\?$/);
+        if (match) {
+          const left = Number(match[1]);
+          const right = Number(match[2]);
+          return `Add ${left} and ${right} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is (\d+) - (\d+)\?$/);
+        if (match) {
+          const top = Number(match[1]);
+          const bottom = Number(match[2]);
+          return `Subtract ${bottom} from ${top} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is (\d+) x (\d+)\?$/);
+        if (match) {
+          const left = Number(match[1]);
+          const right = Number(match[2]);
+          return `Multiply ${left} by ${right} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is (\d+) \/ (\d+)\?$/);
+        if (match) {
+          const dividend = Number(match[1]);
+          const divisor = Number(match[2]);
+          return `Divide ${dividend} by ${divisor} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^Solve \((\d+) \+ (\d+)\) x (\d+)\.$/);
+        if (match) {
+          const first = Number(match[1]);
+          const second = Number(match[2]);
+          const third = Number(match[3]);
+          return `Work inside the parentheses first: ${first} + ${second} = ${first + second}, then multiply by ${third} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^Solve (\d+) \+ (\d+) x (\d+)\.$/);
+        if (match) {
+          const first = Number(match[1]);
+          const second = Number(match[2]);
+          const third = Number(match[3]);
+          return `Use order of operations: multiply ${second} x ${third} = ${second * third}, then add ${first} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^Solve (\d+) - (\d+) \+ (\d+)\.$/);
+        if (match) {
+          const first = Number(match[1]);
+          const second = Number(match[2]);
+          const third = Number(match[3]);
+          return `Work left to right: ${first} - ${second} = ${first - second}, then add ${third} to get ${correctText}.`;
+        }
+
+        match = prompt.match(/^Which decimal matches (\d+)\/(\d+)\?$/);
+        if (match) {
+          const numerator = Number(match[1]);
+          const denominator = Number(match[2]);
+          return `${numerator}/${denominator} means ${numerator} divided by ${denominator}, which equals ${correctText}.`;
+        }
+
+        match = prompt.match(/^Which percent matches (\d+)\/(\d+)\?$/);
+        if (match) {
+          const numerator = Number(match[1]);
+          const denominator = Number(match[2]);
+          return `${numerator}/${denominator} = ${numerator / denominator}, which is ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is (\d+)% of (\d+)\?$/);
+        if (match) {
+          const percent = Number(match[1]);
+          const total = Number(match[2]);
+          return `${percent}% means ${percent}/100, so ${percent}/100 x ${total} = ${correctText}.`;
+        }
+
+        match = prompt.match(/^If x \+ (\d+) = (\d+), what is x\?$/);
+        if (match) {
+          const addend = Number(match[1]);
+          const total = Number(match[2]);
+          return `Undo the addition by subtracting ${addend} from ${total}, so x = ${correctText}.`;
+        }
+
+        match = prompt.match(/^If 2x = (\d+), what is x\?$/);
+        if (match) {
+          const product = Number(match[1]);
+          return `Undo the multiplication by dividing ${product} by 2, so x = ${correctText}.`;
+        }
+
+        match = prompt.match(/^A rectangle is (\d+) cm by (\d+) cm\. What is its area\?$/);
+        if (match) {
+          const length = Number(match[1]);
+          const width = Number(match[2]);
+          return `Area of a rectangle is length x width, so ${length} x ${width} = ${correctText}.`;
+        }
+
+        match = prompt.match(/^A rectangle is (\d+) cm by (\d+) cm\. What is its perimeter\?$/);
+        if (match) {
+          const length = Number(match[1]);
+          const width = Number(match[2]);
+          return `Perimeter of a rectangle is 2 x (length + width), so 2 x (${length} + ${width}) = ${correctText}.`;
+        }
+
+        match = prompt.match(/^A square has sides of (\d+) cm\. What is its perimeter\?$/);
+        if (match) {
+          const side = Number(match[1]);
+          return `A square has four equal sides, so 4 x ${side} = ${correctText}.`;
+        }
+
+        match = prompt.match(/^A box is (\d+) cm by (\d+) cm by (\d+) cm\. What is its volume\?$/);
+        if (match) {
+          const length = Number(match[1]);
+          const width = Number(match[2]);
+          const height = Number(match[3]);
+          return `Volume of a box is length x width x height, so ${length} x ${width} x ${height} = ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is the mean of (\d+), (\d+), (\d+), and (\d+)\?$/);
+        if (match) {
+          const values = match.slice(1).map(Number);
+          const total = values.reduce((sum, value) => sum + value, 0);
+          return `Add the numbers to get ${total}, then divide by 4 to get the mean ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is the median of (\d+), (\d+), (\d+), (\d+), and (\d+)\?$/);
+        if (match) {
+          return `The median is the middle value in order, so the center number is ${correctText}.`;
+        }
+
+        match = prompt.match(/^What is the mode of (\d+), (\d+), (\d+), (\d+), and (\d+)\?$/);
+        if (match) {
+          return `The mode is the value that appears most often, so ${correctText} is the repeated number.`;
+        }
+
+        match = prompt.match(/^A bag has (\d+) red marbles and (\d+) blue marbles\. What is the probability of picking a red marble\?$/);
+        if (match) {
+          const red = Number(match[1]);
+          const blue = Number(match[2]);
+          return `There are ${red} favorable outcomes out of ${red + blue} total marbles, so the probability is ${correctText}.`;
+        }
+
+        if (prompt === 'A coin is flipped once. What is the probability of heads?') {
+          return `A fair coin has two equally likely outcomes, so heads is 1 out of 2 or ${correctText}.`;
+        }
+
+        match = prompt.match(/^About how many feet are in (\d+) meters\?$/);
+        if (match) {
+          const meters = Number(match[1]);
+          return `Multiply meters by about 3.28, so ${meters} x 3.28 = ${correctText} feet.`;
+        }
+
+        match = prompt.match(/^About how many kilometers are in (\d+) miles\?$/);
+        if (match) {
+          const miles = Number(match[1]);
+          return `Multiply miles by about 1.61, so ${miles} x 1.61 = ${correctText} kilometers.`;
+        }
+
+        match = prompt.match(/^About how many centimeters are in (\d+) inches\?$/);
+        if (match) {
+          const inches = Number(match[1]);
+          return `Multiply inches by 2.54, so ${inches} x 2.54 = ${correctText} centimeters.`;
+        }
+
+        match = prompt.match(/^About how many meters are in (\d+) yards\?$/);
+        if (match) {
+          const yards = Number(match[1]);
+          return `Multiply yards by about 0.91, so ${yards} x 0.91 = ${correctText} meters.`;
+        }
+
+        if (prompt.includes('dependent variable')) {
+          return `The dependent variable is what gets measured, so ${correctText} is the result being observed.`;
+        }
+
+        if (prompt.includes('independent variable')) {
+          return `The independent variable is what gets changed on purpose, so ${correctText} is the test condition.`;
+        }
+
+        if (prompt.includes('example of a...') && correctText === 'Physical change') {
+          return 'A physical change affects size, shape, or state without making a new substance.';
+        }
+
+        if (prompt.includes('example of a...') && correctText === 'Chemical change') {
+          return 'A chemical change creates a new substance with different properties.';
+        }
+
+        if (prompt.startsWith('Which state of matter') || prompt.includes(' is a...')) {
+          return `${correctText} is the science term that matches the description in the question.`;
+        }
+
+        if (prompt.includes('force') || prompt.includes('Force')) {
+          return `${correctText} is the force or motion idea that best fits the situation described.`;
+        }
+
+        if (prompt.includes('energy') || prompt.includes('Energy') || prompt.includes('radiation') || prompt.includes('conduction') || prompt.includes('convection')) {
+          return `${correctText} names the energy type or energy transfer described in the question.`;
+        }
+
+        if (prompt.startsWith('Choose the sentence with correct verb agreement.')) {
+          return `The correct choice matches the subject with the right verb form: ${correctText}`;
+        }
+
+        if (prompt.startsWith('Which sentence uses capitals correctly?')) {
+          return `The correct sentence capitalizes names, places, days, months, and sentence starts correctly: ${correctText}`;
+        }
+
+        if (prompt.startsWith('Which sentence is punctuated correctly?')) {
+          return `The correct choice uses the punctuation marks in the right places: ${correctText}`;
+        }
+
+        if (prompt.startsWith('Which choice is a complete sentence?')) {
+          return `A complete sentence needs a subject, a verb, and a full idea, so ${correctText} is the complete sentence.`;
+        }
+
+        if (prompt.includes('which word is an adjective') || prompt.includes('which word is an adverb') || prompt.includes('which word is a noun') || prompt.includes('which word is a verb') || prompt.includes('which word is the verb')) {
+          return `${correctText} is the part of speech that matches what the question asked you to find.`;
+        }
+
+        if (prompt.startsWith('Which sentence works best as a topic sentence')) {
+          return `A topic sentence states the main idea of the paragraph, so ${correctText} is the strongest overview sentence.`;
+        }
+
+        if (prompt.startsWith('What does the prefix') || prompt.startsWith('What does the suffix') || prompt.startsWith('If a story says') || prompt.startsWith('If a passage says') || prompt.startsWith('If a writer says') || prompt.startsWith('What does the root word')) {
+          return `Use the word clue and meaning in context; ${correctText} is the best match.`;
+        }
+
+        if (prompt.startsWith('Choose the best corrected sentence.')) {
+          return `The corrected sentence fixes the grammar, spelling, or punctuation problem: ${correctText}`;
+        }
+
+        if (prompt.includes('What can you infer?') || prompt.includes('What is the best inference?')) {
+          return `The best inference is the answer most strongly supported by the clues in the sentence, so ${correctText} fits best.`;
+        }
+
+        if (prompt.startsWith('Choose the sentence with the correct pronoun.') || prompt.startsWith('Choose the sentence with the correct verb tense.')) {
+          return `This choice uses the correct grammar form for the sentence: ${correctText}`;
+        }
+
+        return `The correct answer is ${correctText} because it matches the rule or fact described in the question.`;
+      }
+
+      function createChoiceProblem(prompt, correctChoice, choices) {
+        const correctText = String(correctChoice);
+        return {
+          prompt,
+          correct: correctText,
+          explanation: buildExplanation(prompt, correctText),
+          choices: shuffleCopy(normalizeChoices(correctText, choices)),
+        };
+      }
+
+      function createProblem(prompt, correctChoice, wrongChoices) {
+        return createChoiceProblem(prompt, correctChoice, [correctChoice].concat(wrongChoices));
+      }
+
+      function pushTupleSet(problemList, tuples) {
+        tuples.forEach(([prompt, correct, wrongOne, wrongTwo, wrongThree]) => {
+          problemList.push(createChoiceProblem(prompt, correct, [correct, wrongOne, wrongTwo, wrongThree]));
+        });
+      }
+
+      function buildMathProblemBank() {
+        const problems = [];
+
+        for (let index = 0; index < 50; index += 1) {
+          const left = 18 + index * 2;
+          const right = 7 + (index % 8) * 3;
+          const correct = left + right;
+          problems.push(createProblem(`What is ${left} + ${right}?`, correct, [correct + 2, correct - 3, correct + 10]));
+        }
+
+        for (let index = 0; index < 50; index += 1) {
+          const top = 90 + index * 3;
+          const bottom = 12 + (index % 9) * 2;
+          const correct = top - bottom;
+          problems.push(createProblem(`What is ${top} - ${bottom}?`, correct, [correct + 4, correct - 4, correct + 9]));
+        }
+
+        return problems.slice(0, WORKSTATION_TOTAL);
+      }
+
+      function buildMultiplyDivideProblemBank() {
+        const problems = [];
+
+        for (let index = 0; index < 50; index += 1) {
+          const left = 3 + (index % 10);
+          const right = 4 + ((index * 2) % 9);
+          const correct = left * right;
+          problems.push(createProblem(`What is ${left} x ${right}?`, correct, [correct + left, correct - right, correct + right]));
+        }
+
+        for (let index = 0; index < 50; index += 1) {
+          const divisor = 3 + (index % 9);
+          const correct = 4 + index;
+          const dividend = divisor * correct;
+          problems.push(createProblem(`What is ${dividend} / ${divisor}?`, correct, [correct + 1, correct - 1, correct + 3]));
+        }
+
+        return problems.slice(0, WORKSTATION_TOTAL);
+      }
+
+      function buildDistanceProblemBank() {
+        const problems = [];
+
+        for (let index = 0; index < 25; index += 1) {
+          const meters = 2 + index * 2;
+          const correct = Number((meters * 3.28).toFixed(1));
+          problems.push(createProblem(`About how many feet are in ${meters} meters?`, correct, [
+            Number((correct + 2.4).toFixed(1)),
+            Number((correct - 3.1).toFixed(1)),
+            Number((meters * 1.61).toFixed(1)),
+          ]));
+        }
+
+        for (let index = 0; index < 25; index += 1) {
+          const miles = 1 + index;
+          const correct = Number((miles * 1.61).toFixed(1));
+          problems.push(createProblem(`About how many kilometers are in ${miles} miles?`, correct, [
+            Number((correct + 1.7).toFixed(1)),
+            Number((correct - 0.8).toFixed(1)),
+            Number((miles * 3.28).toFixed(1)),
+          ]));
+        }
+
+        for (let index = 0; index < 25; index += 1) {
+          const inches = 6 + index * 2;
+          const correct = Number((inches * 2.54).toFixed(1));
+          problems.push(createProblem(`About how many centimeters are in ${inches} inches?`, correct, [
+            Number((correct + 4.2).toFixed(1)),
+            Number((correct - 3.6).toFixed(1)),
+            Number((inches * 0.91).toFixed(1)),
+          ]));
+        }
+
+        for (let index = 0; index < 25; index += 1) {
+          const yards = 1 + index;
+          const correct = Number((yards * 0.91).toFixed(1));
+          problems.push(createProblem(`About how many meters are in ${yards} yards?`, correct, [
+            Number((correct + 1.3).toFixed(1)),
+            Number((correct - 0.6).toFixed(1)),
+            Number((yards * 1.61).toFixed(1)),
+          ]));
+        }
+
+        return problems.slice(0, WORKSTATION_TOTAL);
+      }
+
+      function buildScienceProblemBank() {
+        const problems = [];
+
+        const variableScenarios = [
+          ['amount of sunlight', 'plant height', 'type of pot', 'kind of soil'],
+          ['water given each day', 'bean growth', 'room temperature', 'same seed type'],
+          ['amount of fertilizer', 'tomato mass', 'garden bed size', 'tool color'],
+          ['study time', 'quiz score', 'desk used', 'pencil color'],
+          ['ramp height', 'toy car distance', 'toy car model', 'floor surface'],
+          ['amount of detergent', 'stain removed', 'shirt color', 'sink size'],
+          ['lamp distance', 'shadow length', 'wall color', 'ruler brand'],
+          ['exercise minutes', 'heart rate', 'shoe brand', 'playlist choice'],
+          ['wind speed', 'pinwheel spins per minute', 'pinwheel size', 'stopwatch model'],
+          ['ice cube size', 'time to melt', 'plate color', 'room poster'],
+        ];
+
+        variableScenarios.forEach(([changed, measured, controlOne, controlTwo]) => {
+          problems.push(createChoiceProblem(`A student changes the ${changed} and measures ${measured}. What is the dependent variable?`, measured, [measured, changed, controlOne, controlTwo]));
+          problems.push(createChoiceProblem(`A student changes the ${changed} and measures ${measured}. What is the independent variable?`, changed, [changed, measured, controlOne, controlTwo]));
+        });
+
+        pushTupleSet(problems, [
+          ['Ice melting in a cup is an example of a...', 'Physical change', 'Chemical change', 'Living change', 'Nuclear change'],
+          ['Wood burning in a fire is an example of a...', 'Chemical change', 'Physical change', 'Seasonal change', 'Measurement change'],
+          ['Tearing paper into pieces is an example of a...', 'Physical change', 'Chemical change', 'Energy source', 'Food chain'],
+          ['Apple slices turning brown is an example of a...', 'Chemical change', 'Physical change', 'Sound wave', 'Gravity pull'],
+          ['Water freezing into ice is an example of a...', 'Physical change', 'Chemical change', 'Cell process', 'Weather front'],
+          ['Iron rusting outdoors is an example of a...', 'Chemical change', 'Physical change', 'Motion graph', 'Magnetic field'],
+          ['Sugar dissolving in tea is usually treated as a...', 'Physical change', 'Chemical change', 'Planet orbit', 'Energy loss'],
+          ['Baking a cake is an example of a...', 'Chemical change', 'Physical change', 'Simple machine', 'Measurement tool'],
+          ['Breaking glass is an example of a...', 'Physical change', 'Chemical change', 'Food web', 'Water cycle'],
+          ['Cooking an egg is an example of a...', 'Chemical change', 'Physical change', 'Mass only', 'Moon phase'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which state of matter keeps its own shape?', 'Solid', 'Liquid', 'Gas', 'Plasma ball'],
+          ['Which state of matter takes the shape of its container but keeps the same volume?', 'Liquid', 'Solid', 'Gas', 'Shadow'],
+          ['Which state of matter fills the entire container?', 'Gas', 'Solid', 'Liquid', 'Rock'],
+          ['Water vapor is a...', 'Gas', 'Liquid', 'Solid', 'Metal'],
+          ['Ice is a...', 'Solid', 'Liquid', 'Gas', 'Sound'],
+          ['Juice poured into a cup is a...', 'Liquid', 'Solid', 'Gas', 'Force'],
+          ['Which state has particles far apart moving freely?', 'Gas', 'Solid', 'Liquid', 'Crystal only'],
+          ['Which state has particles packed tightly and mostly vibrating in place?', 'Solid', 'Liquid', 'Gas', 'Mist'],
+          ['Which state flows but does not spread to fill all available space?', 'Liquid', 'Solid', 'Gas', 'Dust'],
+          ['Helium in a balloon is a...', 'Gas', 'Liquid', 'Solid', 'Compound only'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which force pulls a dropped book toward the floor?', 'Gravity', 'Friction', 'Magnetism', 'Evaporation'],
+          ['Which force slows a bicycle when the brakes rub the wheel?', 'Friction', 'Gravity', 'Inertia', 'Photosynthesis'],
+          ['A magnet picking up a paperclip is showing...', 'Magnetism', 'Gravity', 'Radiation', 'Condensation'],
+          ['A seat belt helps because your body has...', 'Inertia', 'Evaporation', 'Photosynthesis', 'Melting point'],
+          ['Pushing a shopping cart shows that a force can change...', 'Motion', 'Mass', 'Color only', 'Species'],
+          ['Which force helps a parachute fall more slowly?', 'Air resistance', 'Magnetism', 'Electric current', 'Refraction'],
+          ['A ball rolling down a hill speeds up mostly because of...', 'Gravity', 'Friction', 'Camouflage', 'Condensation'],
+          ['Which force acts when your shoes grip the floor?', 'Friction', 'Gravity', 'Sound', 'Reflection'],
+          ['Which force keeps planets moving in orbit around a star?', 'Gravity', 'Magnetism', 'Static electricity', 'Friction'],
+          ['A tug-of-war rope moves when one side applies a greater...', 'Force', 'Color', 'Temperature only', 'Volume'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['A moving skateboard has...', 'Kinetic energy', 'Potential energy', 'Chemical energy only', 'Nuclear energy'],
+          ['A stretched rubber band stores...', 'Potential energy', 'Kinetic energy', 'Sound only', 'Light only'],
+          ['The Sun warming your skin is mostly...', 'Radiation', 'Conduction', 'Convection', 'Freezing'],
+          ['Heat moving through a metal spoon by touch is...', 'Conduction', 'Radiation', 'Convection', 'Reflection'],
+          ['Warm air rising in a room is...', 'Convection', 'Conduction', 'Radiation', 'Condensation'],
+          ['A battery mainly stores...', 'Chemical energy', 'Sound energy', 'Wind energy', 'Gravitational pull'],
+          ['A lamp changes electrical energy mostly into...', 'Light and heat', 'Only gravity', 'Only mass', 'Only color'],
+          ['Food gives your body...', 'Chemical energy', 'Magnetic energy', 'Radioactive waste', 'No energy'],
+          ['Sound travels in...', 'Waves', 'Cubes', 'Cells only', 'Roots'],
+          ['Solar panels use energy from...', 'The Sun', 'The Moon only', 'Rocks', 'Soil'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Plants use sunlight to make food in a process called...', 'Photosynthesis', 'Respiration', 'Evaporation', 'Erosion'],
+          ['Roots mainly absorb...', 'Water and minerals', 'Sunlight only', 'Sound waves', 'Air pressure'],
+          ['The heart mainly helps the body by...', 'Pumping blood', 'Digesting food', 'Making bones', 'Producing leaves'],
+          ['Lungs help the body take in...', 'Oxygen', 'Gravity', 'Minerals', 'Chlorophyll'],
+          ['A habitat is...', 'The place where an organism lives', 'Only what an organism eats', 'A type of weather tool', 'A force that slows motion'],
+          ['All living things need...', 'Energy', 'Only metal', 'No water ever', 'Only darkness'],
+          ['In many plants, seeds can form in the...', 'Flower', 'Root hair', 'Cloud', 'Pebble'],
+          ['The basic unit of life is the...', 'Cell', 'Atom', 'Planet', 'Bar graph'],
+          ['Animals in a food chain get energy from...', 'Food', 'Magnets', 'Moonlight only', 'Rust'],
+          ['Camouflage helps an animal...', 'Avoid danger or catch prey', 'Turn into a plant', 'Stop breathing', 'Change the weather'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['The smallest unit of an element is an...', 'Atom', 'Planet', 'Cell', 'Weather map'],
+          ['Water is a...', 'Compound', 'Element', 'Single atom', 'Force'],
+          ['Oxygen is an example of an...', 'Element', 'Compound', 'Planet', 'Sentence'],
+          ['When atoms join together, they can form...', 'Molecules', 'Clouds only', 'Forces only', 'Shadows only'],
+          ['A material made from only one kind of atom is a...', 'Pure element', 'Food web', 'Living cell', 'Motion graph'],
+          ['Table salt is best described as a...', 'Compound', 'Element', 'Planet', 'Lab tool'],
+          ['The periodic table organizes...', 'Elements', 'Paragraphs', 'Moons only', 'Weather seasons'],
+          ['A change that makes a new substance is a...', 'Chemical change', 'Physical change', 'Color shade', 'Sound effect'],
+          ['Water is made from hydrogen and oxygen, so it is a...', 'Compound', 'Single element', 'Force', 'Cell'],
+          ['Atoms are far too small to see clearly with the...', 'Unaided eye', 'Calendar', 'Rain gauge', 'Compass'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Earth spinning on its axis causes...', 'Day and night', 'A year', 'The moon to shine', 'A chemical change'],
+          ['Earth moving around the Sun causes...', 'A year', 'Day and night', 'Only tides', 'Only weather'],
+          ['Weather describes...', 'Short-term atmospheric conditions', 'Long-term average patterns only', 'Only rocks underground', 'Only ocean depth'],
+          ['Climate describes...', 'Long-term weather patterns', 'Only today\'s temperature', 'A single storm', 'A moon phase'],
+          ['Water changing from liquid to gas is...', 'Evaporation', 'Condensation', 'Freezing', 'Rusting'],
+          ['Water falling from clouds is called...', 'Precipitation', 'Photosynthesis', 'Conduction', 'Magnetism'],
+          ['The Moon does not make its own light; it...', 'Reflects sunlight', 'Creates fire', 'Makes oxygen', 'Stops gravity'],
+          ['One complete path Earth takes around the Sun is a...', 'Revolution', 'Rotation', 'Friction cycle', 'Food chain'],
+          ['The layer of gases around Earth is the...', 'Atmosphere', 'Core', 'Mantle', 'Crust only'],
+          ['The force that helps keep planets in orbit is...', 'Gravity', 'Friction', 'Camouflage', 'Refraction'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['What should you wear to protect your eyes in a lab?', 'Safety goggles', 'Open-toe shoes', 'A scarf', 'No protection'],
+          ['What should you do first if you spill a chemical in class?', 'Tell the teacher or supervisor', 'Taste it', 'Ignore it', 'Run with the bottle'],
+          ['Which conditions should stay the same in a fair test?', 'The control conditions', 'Only the title', 'Only the classroom clock', 'Nothing at all'],
+          ['A testable prediction is called a...', 'Hypothesis', 'Graph key', 'Planet orbit', 'Sound wave'],
+          ['Data from an experiment should be...', 'Recorded clearly and honestly', 'Changed to fit the guess', 'Hidden from everyone', 'Thrown away'],
+          ['If a container has no label, you should...', 'Not use it until an adult identifies it', 'Smell it closely', 'Mix it with water', 'Taste a drop'],
+          ['Why should you read all directions before starting?', 'To work safely and follow the steps correctly', 'To make the room louder', 'To skip the experiment', 'To change the results'],
+          ['What is the safest way to smell a chemical when instructed it is safe?', 'Waft the scent gently', 'Put your nose in the container', 'Shake it over your face', 'Never look at the label'],
+          ['Why do scientists repeat trials?', 'To check that results are reliable', 'To make the experiment longer only', 'To avoid writing notes', 'To change the laws of science'],
+          ['A conclusion should be based on...', 'Evidence from the test', 'A random guess', 'Only the title', 'What a friend hoped would happen'],
+        ]);
+
+        return problems.slice(0, WORKSTATION_TOTAL);
+      }
+
+      function buildEnglishProblemBank() {
+        const problems = [];
+
+        pushTupleSet(problems, [
+          ['Choose the sentence with correct verb agreement.', 'The dog runs fast.', 'The dog run fast.', 'The dogs runs fast.', 'The dog running fast.'],
+          ['Choose the sentence with correct verb agreement.', 'My friends enjoy reading.', 'My friends enjoys reading.', 'My friend enjoy reading.', 'My friends enjoying reading.'],
+          ['Choose the sentence with correct verb agreement.', 'The class is ready for the test.', 'The class are ready for the test.', 'The class be ready for the test.', 'The class ready for the test.'],
+          ['Choose the sentence with correct verb agreement.', 'These apples taste sweet.', 'These apples tastes sweet.', 'This apples taste sweet.', 'These apples tasting sweet.'],
+          ['Choose the sentence with correct verb agreement.', 'Maya writes in her notebook every night.', 'Maya write in her notebook every night.', 'Maya writing in her notebook every night.', 'Maya are writing in her notebook every night.'],
+          ['Choose the sentence with correct verb agreement.', 'The buses arrive early on Fridays.', 'The buses arrives early on Fridays.', 'The bus arrive early on Fridays.', 'The buses arriving early on Fridays.'],
+          ['Choose the sentence with correct verb agreement.', 'Each student has a pencil.', 'Each student have a pencil.', 'Each student having a pencil.', 'Each students has a pencil.'],
+          ['Choose the sentence with correct verb agreement.', 'The birds sing at sunrise.', 'The birds sings at sunrise.', 'The bird sing at sunrise.', 'The birds singing at sunrise.'],
+          ['Choose the sentence with correct verb agreement.', 'My brother and sister live nearby.', 'My brother and sister lives nearby.', 'My brother and sister living nearby.', 'My brother and sister is nearby live.'],
+          ['Choose the sentence with correct verb agreement.', 'The teacher explains the lesson clearly.', 'The teacher explain the lesson clearly.', 'The teacher explaining the lesson clearly.', 'The teacher explain clearly the lessons.'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which sentence uses capitals correctly?', 'On Tuesday, Maria visited Chicago.', 'on Tuesday, Maria visited Chicago.', 'On tuesday, Maria visited Chicago.', 'On Tuesday, maria visited chicago.'],
+          ['Which sentence uses capitals correctly?', 'My birthday is in July.', 'My Birthday is in july.', 'my birthday is in July.', 'My birthday is in july.'],
+          ['Which sentence uses capitals correctly?', 'We read about Mars in science class.', 'We read about mars in science class.', 'we read about Mars in science class.', 'We read about Mars in Science class.'],
+          ['Which sentence uses capitals correctly?', 'Aunt Lena lives in Texas.', 'aunt Lena lives in Texas.', 'Aunt lena lives in texas.', 'Aunt Lena lives in texas.'],
+          ['Which sentence uses capitals correctly?', 'Jordan travels on Monday.', 'Jordan travels on monday.', 'jordan travels on Monday.', 'Jordan travels on monday.'],
+          ['Which sentence uses capitals correctly?', 'Our principal, Mr. Reed, waved hello.', 'Our principal, mr. Reed, waved hello.', 'our principal, Mr. Reed, waved hello.', 'Our Principal, Mr. reed, waved hello.'],
+          ['Which sentence uses capitals correctly?', 'The Nile River is in Africa.', 'The nile river is in Africa.', 'The Nile river is in africa.', 'the Nile River is in Africa.'],
+          ['Which sentence uses capitals correctly?', 'Friday is the best day for art club.', 'friday is the best day for art club.', 'Friday is the best Day for art club.', 'Friday is the best day for Art Club.'],
+          ['Which sentence uses capitals correctly?', 'My friend Olivia read Charlotte\'s Web.', 'My friend olivia read Charlotte\'s Web.', 'My friend Olivia read charlotte\'s web.', 'my friend Olivia read Charlotte\'s Web.'],
+          ['Which sentence uses capitals correctly?', 'Dad drove us to Denver in April.', 'dad drove us to Denver in April.', 'Dad drove us to denver in april.', 'Dad drove us to Denver in april.'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which sentence is punctuated correctly?', 'Where are your shoes?', 'Where are your shoes.', 'Where are your shoes!', 'Where are your shoes'],
+          ['Which sentence is punctuated correctly?', 'Please bring your notebook, pencil, and ruler.', 'Please bring your notebook pencil and ruler.', 'Please bring your notebook pencil, and ruler', 'Please bring your notebook, pencil and ruler'],
+          ['Which sentence is punctuated correctly?', 'After lunch, we practiced music.', 'After lunch we practiced music.', 'After lunch we practiced music', 'After lunch; we practiced music.'],
+          ['Which sentence is punctuated correctly?', 'I am tired, but I will finish my homework.', 'I am tired but, I will finish my homework.', 'I am tired but I will finish my homework', 'I am tired but I will finish my homework!'],
+          ['Which sentence is punctuated correctly?', 'Watch out!', 'Watch out.', 'Watch out?', 'Watch out'],
+          ['Which sentence is punctuated correctly?', 'My favorite colors are green, blue, and gold.', 'My favorite colors are green blue and gold.', 'My favorite colors are green, blue and gold', 'My favorite colors are green blue, and gold.'],
+          ['Which sentence is punctuated correctly?', 'Did you finish the project?', 'Did you finish the project.', 'Did you finish the project!', 'Did you finish the project'],
+          ['Which sentence is punctuated correctly?', 'Before we started, the teacher reviewed the plan.', 'Before we started the teacher reviewed the plan.', 'Before we started the teacher reviewed the plan', 'Before we started; the teacher reviewed the plan.'],
+          ['Which sentence is punctuated correctly?', 'Kai packed snacks, water, and a flashlight.', 'Kai packed snacks water, and a flashlight.', 'Kai packed snacks water and a flashlight.', 'Kai packed snacks, water and a flashlight'],
+          ['Which sentence is punctuated correctly?', 'The bell rang, so everyone lined up.', 'The bell rang so, everyone lined up.', 'The bell rang so everyone lined up', 'The bell rang, so everyone lined up'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which choice is a complete sentence?', 'The storm passed before sunset.', 'Before sunset in the storm.', 'Passing before sunset.', 'When the storm before sunset.'],
+          ['Which choice is a complete sentence?', 'My sister baked cookies for the class.', 'Baked cookies for the class.', 'My sister for the class.', 'Because my sister baked cookies.'],
+          ['Which choice is a complete sentence?', 'The library opens at nine o\'clock.', 'The library at nine o\'clock.', 'Opens at nine o\'clock.', 'When the library opens.'],
+          ['Which choice is a complete sentence?', 'We cleaned the field after the game.', 'After the game on the field.', 'Cleaned the field after the game.', 'Because we cleaned the field.'],
+          ['Which choice is a complete sentence?', 'The baby laughed at the silly hat.', 'The baby at the silly hat.', 'Laughed at the silly hat.', 'When the baby laughed.'],
+          ['Which choice is a complete sentence?', 'Our team practiced every afternoon.', 'Our team every afternoon.', 'Practiced every afternoon.', 'Because our team practiced.'],
+          ['Which choice is a complete sentence?', 'The candles flickered in the wind.', 'In the wind the candles.', 'Flickered in the wind.', 'When the candles flickered.'],
+          ['Which choice is a complete sentence?', 'Lena found the missing key.', 'Found the missing key.', 'Lena the missing key.', 'Because Lena found the key.'],
+          ['Which choice is a complete sentence?', 'The movie ended with a surprise.', 'With a surprise at the end.', 'Ended with a surprise.', 'After the movie ended.'],
+          ['Which choice is a complete sentence?', 'The river flooded the lower road.', 'The river the lower road.', 'Flooded the lower road.', 'Because the river flooded.'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['In the sentence "The bright lantern glowed softly," which word is an adjective?', 'bright', 'glowed', 'softly', 'lantern'],
+          ['In the sentence "Mina carefully stacked the books," which word is an adverb?', 'carefully', 'Mina', 'stacked', 'books'],
+          ['In the sentence "The captain shouted orders," which word is a noun?', 'captain', 'shouted', 'orders', 'The'],
+          ['In the sentence "We walked home slowly," which word is a verb?', 'walked', 'home', 'slowly', 'We'],
+          ['In the sentence "That enormous whale surfaced," which word is an adjective?', 'enormous', 'surfaced', 'whale', 'That'],
+          ['In the sentence "Jordan solved the puzzle quickly," which word is an adverb?', 'quickly', 'Jordan', 'solved', 'puzzle'],
+          ['In the sentence "The children laughed loudly," which word is a verb?', 'laughed', 'children', 'loudly', 'The'],
+          ['In the sentence "The green backpack feels heavy," which word is a noun?', 'backpack', 'green', 'feels', 'heavy'],
+          ['In the sentence "Our friendly neighbor waved," which word is an adjective?', 'friendly', 'neighbor', 'waved', 'Our'],
+          ['In the sentence "The rabbit hopped away," which word is the verb?', 'hopped', 'rabbit', 'away', 'The'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Which sentence works best as a topic sentence for a paragraph about brushing your teeth?', 'Brushing your teeth every day keeps your mouth healthy.', 'My toothbrush is blue and white.', 'Toothpaste comes in many flavors.', 'I woke up late today.'],
+          ['Which sentence works best as a topic sentence for a paragraph about recycling?', 'Recycling helps reduce waste and protect resources.', 'The bin near my desk is green.', 'Glass can look shiny in sunlight.', 'We ate lunch outside yesterday.'],
+          ['Which sentence works best as a topic sentence for a paragraph about reading at night?', 'Reading before bed can help people relax and learn new ideas.', 'My lamp is on the left side of the bed.', 'The blanket on my bed is soft.', 'I drank juice after dinner.'],
+          ['Which sentence works best as a topic sentence for a paragraph about exercise?', 'Regular exercise helps the body stay strong and healthy.', 'Running shoes come in many colors.', 'My cousin likes the school gym.', 'The whistle was loud during practice.'],
+          ['Which sentence works best as a topic sentence for a paragraph about saving water?', 'Saving water at home is an easy way to protect a valuable resource.', 'The kitchen sink is near the window.', 'Water bottles can be made of plastic.', 'My brother washed the car on Sunday.'],
+          ['Which sentence works best as a topic sentence for a paragraph about teamwork?', 'Teamwork helps people finish difficult tasks together.', 'The jerseys were hung in the locker room.', 'Our bus left after lunch.', 'The field was wet from rain.'],
+          ['Which sentence works best as a topic sentence for a paragraph about healthy food?', 'Healthy food gives the body energy and important nutrients.', 'My lunchbox has two zippers.', 'The store opened at eight o\'clock.', 'We sat near the window at lunch.'],
+          ['Which sentence works best as a topic sentence for a paragraph about library rules?', 'Library rules help everyone read and study in a calm space.', 'The carpet in the library is gray.', 'Some books are very old.', 'I sharpened my pencil before class.'],
+          ['Which sentence works best as a topic sentence for a paragraph about pets?', 'Pets need food, shelter, and care every day.', 'My dog sleeps near the sofa.', 'Bird cages can be tall or short.', 'The weather was sunny this morning.'],
+          ['Which sentence works best as a topic sentence for a paragraph about school uniforms?', 'School uniforms can help create a neat and focused learning environment.', 'The sweater has a small logo.', 'My locker is close to the office.', 'The hallway clock is round.'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['What does the prefix "pre-" usually mean?', 'Before', 'After', 'Small', 'Again'],
+          ['What does the suffix "-ful" usually show?', 'Full of', 'Without', 'Past tense', 'Place'],
+          ['If a story says the room was "silent," what does silent most nearly mean?', 'Very quiet', 'Very bright', 'Very crowded', 'Very heavy'],
+          ['What does the prefix "un-" usually mean?', 'Not', 'Many', 'Under water', 'Quickly'],
+          ['If a passage says a trail is "narrow," what does narrow most nearly mean?', 'Not wide', 'Very tall', 'Very clean', 'Very loud'],
+          ['What does the root word "port" often relate to?', 'Carry', 'See', 'Write', 'Sleep'],
+          ['If a writer says the soup was "steaming," what can you tell?', 'It was hot', 'It was frozen', 'It was empty', 'It was silent'],
+          ['What does the suffix "-less" usually mean?', 'Without', 'Full of', 'Before', 'Again'],
+          ['If a sentence says a runner is "swift," what does swift most nearly mean?', 'Fast', 'Tired', 'Late', 'Careful'],
+          ['What does the prefix "re-" usually mean?', 'Again', 'Never', 'Below', 'Tiny'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Choose the best corrected sentence.', 'He does not like running.', 'He dont like runing.', 'He do not like running.', 'He does not likes running.'],
+          ['Choose the best corrected sentence.', 'Sara and I went to the store.', 'Sara and me went to the store.', 'Sara and I goed to the store.', 'Sara and I gone to the store.'],
+          ['Choose the best corrected sentence.', 'The puppies were playful and noisy.', 'The puppies was playful and noisy.', 'The puppies were playful and noisey.', 'The puppies is playful and noisy.'],
+          ['Choose the best corrected sentence.', 'Did you finish your homework?', 'Did you finished your homework?', 'Did you finish your homework.', 'Did you finish youre homework?'],
+          ['Choose the best corrected sentence.', 'We saw two deer near the fence.', 'We seen two deer near the fence.', 'We saw two deers near the fence.', 'We saw two deer near the fence'],
+          ['Choose the best corrected sentence.', 'My aunt lives in Florida.', 'My Aunt lives in florida.', 'My aunt live in Florida.', 'My aunt lives in florida.'],
+          ['Choose the best corrected sentence.', 'The children are playing outside.', 'The children is playing outside.', 'The children are play outside.', 'The childrens are playing outside.'],
+          ['Choose the best corrected sentence.', 'Please place the books on the shelf.', 'Please put the books on the shelf', 'Please place the books on the shelf', 'Please place the books on the shelve.'],
+          ['Choose the best corrected sentence.', 'She wrote a note to her teacher.', 'She writed a note to her teacher.', 'She written a note to her teacher.', 'She wrote a note too her teacher.'],
+          ['Choose the best corrected sentence.', 'Our team was ready for the game.', 'Our team were ready for the game.', 'Our team ready for the game.', 'Our team was ready for the game'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Lena packed an umbrella before leaving for school. What can you infer?', 'It might rain soon.', 'She forgot her backpack.', 'She stayed home all day.', 'It was snowing heavily indoors.'],
+          ['The class cheered when the final bell rang on Friday. What is the best inference?', 'They were excited for the weekend.', 'They were starting a test.', 'They had lost their homework.', 'They were about to eat breakfast.'],
+          ['Marcus wore gloves and a thick coat before going outside. What can you infer?', 'The weather was cold.', 'The weather was very hot.', 'He was going swimming.', 'He was painting a wall.'],
+          ['A sign said "Wet Paint," and nobody touched the bench. What can you infer?', 'People wanted to avoid getting paint on themselves.', 'The bench was broken.', 'The bench was freezing.', 'Nobody saw the sign.'],
+          ['Nina reread the directions before starting the puzzle. What can you infer?', 'She wanted to understand the task clearly.', 'She had already finished everything.', 'She was hiding the puzzle pieces.', 'She was leaving the room forever.'],
+          ['The lights flickered and thunder boomed outside. What can you infer?', 'A storm was nearby.', 'It was a sunny morning.', 'The library was closing quietly.', 'The wind had stopped completely.'],
+          ['Owen practiced the speech three times before class. What can you infer?', 'He wanted to be prepared.', 'He was skipping the assignment.', 'He had forgotten the topic.', 'He was writing a shopping list.'],
+          ['The dog scratched at the door and wagged its tail. What can you infer?', 'The dog wanted to go outside or greet someone.', 'The dog was asleep.', 'The dog was reading a book.', 'The dog had turned into a statue.'],
+          ['The players carried water bottles and towels to the bench. What can you infer?', 'They were getting ready for physical activity.', 'They were planting a garden.', 'They were cooking dinner.', 'They were studying math at home.'],
+          ['Jada turned on a flashlight when the room went dark. What can you infer?', 'The lights were out.', 'It was bright noon outside.', 'She was watering plants.', 'She was mailing a letter.'],
+        ]);
+
+        pushTupleSet(problems, [
+          ['Choose the sentence with the correct pronoun.', 'Mina said she would finish the project.', 'Mina said her would finish the project.', 'Mina said himself would finish the project.', 'Mina said them would finish the project.'],
+          ['Choose the sentence with the correct verb tense.', 'Yesterday, we walked to the park.', 'Yesterday, we walk to the park.', 'Yesterday, we walking to the park.', 'Yesterday, we walks to the park.'],
+          ['Choose the sentence with the correct pronoun.', 'The coach gave them a new schedule.', 'The coach gave they a new schedule.', 'The coach gave their a new schedule.', 'The coach gave he a new schedule.'],
+          ['Choose the sentence with the correct verb tense.', 'Right now, the baby is sleeping.', 'Right now, the baby slept.', 'Right now, the baby sleep.', 'Right now, the baby sleeping.'],
+          ['Choose the sentence with the correct pronoun.', 'Jordan and I finished the poster.', 'Jordan and me finished the poster.', 'Jordan and myself finished the poster.', 'Jordan and mine finished the poster.'],
+          ['Choose the sentence with the correct verb tense.', 'Tomorrow, we will begin the new chapter.', 'Tomorrow, we began the new chapter.', 'Tomorrow, we begins the new chapter.', 'Tomorrow, we beginning the new chapter.'],
+          ['Choose the sentence with the correct pronoun.', 'Please give the marker to him.', 'Please give the marker to he.', 'Please give the marker to his.', 'Please give the marker to they.'],
+          ['Choose the sentence with the correct verb tense.', 'Every morning, my father drinks coffee.', 'Every morning, my father drink coffee.', 'Every morning, my father drank coffee right now.', 'Every morning, my father drinking coffee.'],
+          ['Choose the sentence with the correct pronoun.', 'The kittens cleaned themselves after dinner.', 'The kittens cleaned theirselves after dinner.', 'The kittens cleaned itself after dinner.', 'The kittens cleaned them after dinner.'],
+          ['Choose the sentence with the correct verb tense.', 'Last week, the students studied for the exam.', 'Last week, the students study for the exam.', 'Last week, the students studying for the exam.', 'Last week, the students studies for the exam.'],
+        ]);
+
+        return problems.slice(0, WORKSTATION_TOTAL);
+      }
+
+      function initializeWorkstation(subject, problemBank) {
+        const root = document.querySelector(`[data-workstation="${subject}"]`);
+        if (!root || problemBank.length !== WORKSTATION_TOTAL) {
+          return;
+        }
+
+        const form = root.querySelector('[data-workstation-form]');
+        const cycleEl = root.querySelector('[data-workstation-cycle]');
+        const answeredEl = root.querySelector('[data-workstation-answered]');
+        const correctEl = root.querySelector('[data-workstation-correct]');
+        const numberEl = root.querySelector('[data-workstation-number]');
+        const promptEl = root.querySelector('[data-workstation-prompt]');
+        const choicesEl = root.querySelector('[data-workstation-choices]');
+        const feedbackEl = root.querySelector('[data-workstation-feedback]');
+
+        const restoredState = loadWorkstationState(subject, problemBank);
+        const state = restoredState || createDefaultWorkstationState(problemBank);
+
+        function updateStats() {
+          cycleEl.textContent = String(state.cycle);
+          answeredEl.textContent = `${state.answered} / ${WORKSTATION_TOTAL}`;
+          correctEl.textContent = `${state.correct} / ${WORKSTATION_TOTAL}`;
+          numberEl.textContent = `Problem ${state.answered + 1} of ${WORKSTATION_TOTAL}`;
+        }
+
+        function renderCurrentProblem() {
+          const problem = problemBank[state.order[state.pointer]];
+          promptEl.textContent = problem.prompt;
+          choicesEl.replaceChildren();
+
+          problem.choices.forEach((choice) => {
+            const label = document.createElement('label');
+            label.className = 'workstation-choice';
+
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `${subject}-answer`;
+            input.value = choice;
+
+            const text = document.createElement('span');
+            text.textContent = choice;
+
+            label.appendChild(input);
+            label.appendChild(text);
+            choicesEl.appendChild(label);
+          });
+
+          updateStats();
+          saveWorkstationState(subject, state);
+        }
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+
+          const selected = form.querySelector(`input[name="${subject}-answer"]:checked`);
+          if (!selected) {
+            feedbackEl.textContent = 'Select an answer before you submit.';
+            return;
+          }
+
+          const currentProblem = problemBank[state.order[state.pointer]];
+          const isCorrect = selected.value === currentProblem.correct;
+          const answerMessage = isCorrect
+            ? 'Correct.'
+            : `Incorrect. Correct answer: ${currentProblem.correct}.`;
+          const explanationMessage = `Explanation: ${currentProblem.explanation}`;
+
+          state.answered += 1;
+          if (isCorrect) {
+            state.correct += 1;
+          }
+
+          if (state.answered >= WORKSTATION_TOTAL) {
+            const completedCycle = state.cycle;
+            const completedCorrect = state.correct;
+
+            state.cycle += 1;
+            state.answered = 0;
+            state.correct = 0;
+            state.pointer = 0;
+            state.order = shuffleCopy(problemBank.map((_, index) => index));
+
+            feedbackEl.textContent = `${answerMessage} ${explanationMessage} Cycle ${completedCycle} complete with ${completedCorrect}/${WORKSTATION_TOTAL} correct. Problems reshuffled for cycle ${state.cycle}.`;
+            renderCurrentProblem();
+            return;
+          }
+
+          state.pointer += 1;
+          feedbackEl.textContent = `${answerMessage} ${explanationMessage} Next problem loaded.`;
+          renderCurrentProblem();
+        });
+
+        renderCurrentProblem();
+
+        if (restoredState) {
+          feedbackEl.textContent = `Progress restored in this browser. You are back on problem ${state.answered + 1} of ${WORKSTATION_TOTAL}. Answer explanation appears here after each response.`;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeWorkstation('math', buildMathProblemBank());
+        initializeWorkstation('math-multdiv', buildMultiplyDivideProblemBank());
+        initializeWorkstation('math-distance', buildDistanceProblemBank());
+        initializeWorkstation('science', buildScienceProblemBank());
+        initializeWorkstation('english', buildEnglishProblemBank());
+      });
+    })();
+    </script>
+
+    {%- include '_radio_footer.html' %}
+  </body>
+</html>
