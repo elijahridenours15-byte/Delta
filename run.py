@@ -1420,6 +1420,56 @@ def _fetch_topline_source(source, limit=4):
     return []
 
 
+DAILY_BIBLE_VERSES = (
+    {'ref': 'Genesis 1:1', 'text': 'In the beginning God created the heaven and the earth.'},
+    {'ref': 'John 3:16', 'text': 'For God so loved the world, that he gave his only begotten Son.'},
+    {'ref': 'Psalm 23:1', 'text': 'The LORD is my shepherd; I shall not want.'},
+    {'ref': 'Romans 8:28', 'text': 'All things work together for good to them that love God.'},
+    {'ref': 'Philippians 4:13', 'text': 'I can do all things through Christ which strengtheneth me.'},
+    {'ref': 'Isaiah 40:31', 'text': 'They that wait upon the LORD shall renew their strength.'},
+    {'ref': 'Matthew 5:9', 'text': 'Blessed are the peacemakers: for they shall be called the children of God.'},
+    {'ref': 'Psalm 46:1', 'text': 'God is our refuge and strength, a very present help in trouble.'},
+    {'ref': 'Joshua 1:9', 'text': 'Be strong and of a good courage; be not afraid, neither be thou dismayed.'},
+    {'ref': 'Proverbs 3:5-6', 'text': 'Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.'},
+    {'ref': 'Matthew 6:33', 'text': 'Seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.'},
+    {'ref': '2 Timothy 3:16', 'text': 'All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction.'},
+    {'ref': 'Jeremiah 29:11', 'text': 'For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil.'},
+    {'ref': 'Psalm 119:105', 'text': 'Thy word is a lamp unto my feet, and a light unto my path.'},
+    {'ref': 'Revelation 22:13', 'text': 'I am Alpha and Omega, the beginning and the end, the first and the last.'},
+    {'ref': 'John 14:6', 'text': 'Jesus saith unto him, I am the way, the truth, and the life.'},
+    {'ref': 'Romans 6:23', 'text': 'The wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord.'},
+    {'ref': 'Ephesians 6:11', 'text': 'Put on the whole armour of God, that ye may be able to stand against the wiles of the devil.'},
+    {'ref': 'Isaiah 54:17', 'text': 'No weapon that is formed against thee shall prosper.'},
+    {'ref': 'Psalm 91:2', 'text': 'I will say of the LORD, He is my refuge and my fortress: my God; in him will I trust.'},
+    {'ref': 'Matthew 24:14', 'text': 'This gospel of the kingdom shall be preached in all the world for a witness unto all nations.'},
+    {'ref': 'Daniel 1:17', 'text': 'God gave them knowledge and skill in all learning and wisdom.'},
+    {'ref': '1 John 4:4', 'text': 'Greater is he that is in you, than he that is in the world.'},
+    {'ref': 'Hebrews 11:1', 'text': 'Faith is the substance of things hoped for, the evidence of things not seen.'},
+    {'ref': '2 Chronicles 7:14', 'text': 'If my people, which are called by my name, shall humble themselves, and pray, and seek my face, and turn from their wicked ways; then will I hear from heaven.'},
+    {'ref': 'Psalm 34:7', 'text': 'The angel of the LORD encampeth round about them that fear him, and delivereth them.'},
+    {'ref': 'Nahum 1:7', 'text': 'The LORD is good, a strong hold in the day of trouble.'},
+    {'ref': 'Romans 12:2', 'text': 'Be not conformed to this world: but be ye transformed by the renewing of your mind.'},
+    {'ref': 'Mark 16:15', 'text': 'Go ye into all the world, and preach the gospel to every creature.'},
+    {'ref': 'Revelation 3:10', 'text': 'Because thou hast kept the word of my patience, I also will keep thee from the hour of temptation.'},
+    {'ref': 'Psalm 37:4', 'text': 'Delight thyself also in the LORD: and he shall give thee the desires of thine heart.'},
+)
+
+
+def _current_daily_verse(now=None):
+    current_date = (now or datetime.now(timezone.utc)).date()
+    day_of_year = current_date.timetuple().tm_yday
+    verse = DAILY_BIBLE_VERSES[day_of_year % len(DAILY_BIBLE_VERSES)]
+    return {
+        'kind': 'scripture',
+        'source_key': 'daily-verse',
+        'label': 'DAILY BIBLE VERSE',
+        'source': 'Daily Scripture',
+        'reference': verse['ref'],
+        'text': f"{verse['ref']} — {verse['text']}",
+        'url': '/bible',
+    }
+
+
 def _current_hourly_scripture(now=None):
     current_time = now or datetime.now(timezone.utc)
     verse = HOURLY_SCRIPTURES[current_time.hour % len(HOURLY_SCRIPTURES)]
@@ -1458,9 +1508,10 @@ def _get_topline_items(force_refresh=False):
         return TOPLINE_CACHE['items']
 
     scripture_item = _current_hourly_scripture()
+    daily_verse = _current_daily_verse()
     source_batches = []
     for source in TOPLINE_SOURCE_SPECS:
-        headlines = _fetch_topline_source(source, limit=4)
+        headlines = _fetch_topline_source(source, limit=8)
         if headlines:
             TOPLINE_SOURCE_CACHE[source['key']] = {
                 'timestamp': now_ts,
@@ -1468,9 +1519,11 @@ def _get_topline_items(force_refresh=False):
             }
         else:
             headlines = TOPLINE_SOURCE_CACHE.get(source['key'], {}).get('items', [])
-        source_batches.append(headlines[:3])
+        source_batches.append(headlines[:6])
 
     items = _merge_topline_batches(source_batches, scripture_item)
+    # Insert daily verse near the front of the ticker
+    items.insert(0, daily_verse)
 
     if len(items) == 1:
         items.append({

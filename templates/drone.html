@@ -144,6 +144,25 @@
       .drone-log .log-ok{color:var(--success)}
       .drone-log .log-warn{color:var(--warning)}
       .drone-log .log-err{color:var(--danger)}
+      /* ── TELLO SDK PANEL ── */
+      .drone-sdk-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+      .sdk-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--border)}
+      .sdk-badge{background:#3d4a1e;color:#a4b87a;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;padding:3px 8px;border-radius:3px;border:1px solid #5a6b2e;text-transform:uppercase}
+      .sdk-title{flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+      .sdk-copy-btn{background:transparent;color:var(--accent);border:1px solid var(--border);border-radius:3px;padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s;letter-spacing:1px}
+      .sdk-copy-btn:hover{border-color:var(--accent2);background:var(--bg2)}
+      .sdk-code{margin:0;padding:16px 18px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;background:var(--bg);color:var(--text);border-bottom:1px solid var(--border)}
+      .sdk-code code{all:unset}
+      .sdk-kw{color:#7eb8c9}
+      .sdk-cm{color:var(--muted);font-style:italic}
+      .sdk-fn{color:#a4b87a}
+      .sdk-st{color:#c8a46e}
+      .sdk-num{color:#9dc97c}
+      .sdk-op{color:var(--accent)}
+      .sdk-lit{color:#c678dd}
+      .sdk-install{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg2);font-family:'JetBrains Mono',monospace;font-size:11px}
+      .sdk-install-label{color:var(--muted);letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+      .sdk-install-cmd{color:#c8a46e;background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:3px;letter-spacing:.5px}
 
       /* ── LIVE FEEDS PANEL ── */
       .feeds-section{margin-bottom:16px}
@@ -656,6 +675,55 @@
               <iframe id="mil-viewer-frame" allowfullscreen></iframe>
             </div>
             <div class="mil-feed-grid" id="mil-feed-grid"></div>
+          </div>
+        </div>
+
+        <!-- ═══ DJI TELLO SDK — PYTHON STARTER ═══ -->
+        <div class="drone-sdk-panel" style="margin:18px 0">
+          <div class="sdk-header">
+            <span class="sdk-badge">&#x1F40D; PYTHON SDK</span>
+            <span class="sdk-title">DJI TELLO — LIVE CAMERA + FLIGHT CONTROL</span>
+            <button class="sdk-copy-btn" id="sdk-copy-btn" title="Copy code">&#x2398; COPY</button>
+          </div>
+          <pre class="sdk-code" id="sdk-code"><code><span class="sdk-kw">import</span> cv2
+<span class="sdk-kw">from</span> djitellopy <span class="sdk-kw">import</span> Tello
+
+<span class="sdk-cm"># 1. Initialize the drone and connect</span>
+tello <span class="sdk-op">=</span> Tello()
+tello.connect()
+
+<span class="sdk-cm"># 2. Start the video stream</span>
+tello.streamon()
+
+<span class="sdk-fn">print</span>(<span class="sdk-st">"Battery Level: "</span>, tello.get_battery(), <span class="sdk-st">"%"</span>)
+
+<span class="sdk-cm"># 3. Main loop — grab frame and display on laptop</span>
+<span class="sdk-kw">while</span> <span class="sdk-lit">True</span>:
+    <span class="sdk-cm"># Capture the frame from the drone's camera</span>
+    frame <span class="sdk-op">=</span> tello.get_frame_read().frame
+
+    <span class="sdk-cm"># Resize the window if it's too large for your screen</span>
+    frame <span class="sdk-op">=</span> cv2.resize(frame, (<span class="sdk-num">960</span>, <span class="sdk-num">720</span>))
+
+    <span class="sdk-cm"># Display the video feed on your laptop screen</span>
+    cv2.imshow(<span class="sdk-st">"Drone Camera Feed"</span>, frame)
+
+    <span class="sdk-cm"># Keyboard controls</span>
+    key <span class="sdk-op">=</span> cv2.waitKey(<span class="sdk-num">1</span>) <span class="sdk-op">&amp;</span> <span class="sdk-num">0xFF</span>
+    <span class="sdk-kw">if</span> key <span class="sdk-op">==</span> <span class="sdk-fn">ord</span>(<span class="sdk-st">'t'</span>):
+        tello.takeoff()       <span class="sdk-cm"># T — takeoff</span>
+    <span class="sdk-kw">elif</span> key <span class="sdk-op">==</span> <span class="sdk-fn">ord</span>(<span class="sdk-st">'l'</span>):
+        tello.land()          <span class="sdk-cm"># L — land</span>
+    <span class="sdk-kw">elif</span> key <span class="sdk-op">==</span> <span class="sdk-fn">ord</span>(<span class="sdk-st">'q'</span>):
+        <span class="sdk-kw">break</span>                 <span class="sdk-cm"># Q — quit</span>
+
+<span class="sdk-cm"># 4. Clean up</span>
+tello.streamoff()
+cv2.destroyAllWindows()
+</code></pre>
+          <div class="sdk-install">
+            <span class="sdk-install-label">INSTALL:</span>
+            <code class="sdk-install-cmd">pip install djitellopy opencv-python</code>
           </div>
         </div>
 
@@ -1960,6 +2028,32 @@
         });
       }
 
+    })();
+    </script>
+
+    <script>
+    // SDK copy button
+    (function(){
+      const btn = document.getElementById('sdk-copy-btn');
+      const codeEl = document.getElementById('sdk-code');
+      if(btn && codeEl){
+        btn.addEventListener('click', () => {
+          const text = codeEl.textContent || codeEl.innerText;
+          navigator.clipboard.writeText(text.trim()).then(() => {
+            btn.textContent = '\u2714 COPIED';
+            setTimeout(() => { btn.textContent = '\u2398 COPY'; }, 2000);
+          }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text.trim();
+            ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            btn.textContent = '\u2714 COPIED';
+            setTimeout(() => { btn.textContent = '\u2398 COPY'; }, 2000);
+          });
+        });
+      }
     })();
     </script>
 
