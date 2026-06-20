@@ -4,20 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Scripture Intel</title>
-    <meta name="description" content="Full Bible search and Scripture study tools. Look up any verse, passage, or keyword across the Old and New Testament. Free online Bible concordance.">
-    <meta name="keywords" content="Bible search, Scripture, Bible verses, concordance, Old Testament, New Testament, Bible study, free Bible, online Bible">
-    <meta name="robots" content="index, follow">
-    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
-    <meta property="og:title" content="Delta Coding — Scripture Intel">
-    <meta property="og:description" content="Free full-text Bible search and Scripture study tools. Look up any verse across the Old and New Testament.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://futurecodedelta.org/bible">
-    <meta property="og:site_name" content="FutureCodeDelta">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Scripture Intel — Free Bible Search">
-    <meta name="twitter:description" content="Search the full Bible by verse, keyword, or passage. Free Scripture study tools at FutureCodeDelta.org.">
-    <link rel="canonical" href="https://futurecodedelta.org/bible">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
       .container{display:block;height:auto}
       .bible-wrap{max-width:960px;margin:0 auto;padding:20px}
@@ -122,22 +109,22 @@
 
       /* ── RESPONSIVE ── */
       @media(max-width:600px){
-        .bible-wrap{padding:12px 10px 20px}
-        .bible-header h2{font-size:1.15rem;letter-spacing:1.4px}
-        .bible-header p{font-size:.78rem;line-height:1.6}
-        .bible-scripture-controls{padding:0 0 12px;gap:6px;flex-direction:column;align-items:stretch}
-        .bible-scripture-controls select{min-width:100%;width:100%}
-        .bible-scripture-controls button{width:100%}
-        .bible-nav{gap:6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-        .bible-nav button{font-size:.7rem;padding:8px 10px;min-height:38px;width:100%}
+        .bible-wrap{padding:10px}
+        .bible-controls{padding:10px;gap:6px;flex-direction:column;align-items:stretch}
+        .bible-controls select{min-width:100%;width:100%}
+        .bible-controls button{width:100%}
+        .bible-nav{gap:4px}
+        .bible-nav button{font-size:.7rem;padding:5px 10px}
         .bsc-row{flex-direction:column !important;align-items:stretch !important}
         .bsc-row input{flex:none !important;width:100% !important;min-width:0 !important}
-        .bsc-row button,.bsc-row select{width:100%;min-width:0}
+        .bsc-row button{width:100%}
+        .bsc-row select{width:100%}
         .bsc-lbl{display:none}
-        .bible-scripture-box{padding:14px 12px}
-        .bible-text{font-size:.88rem;line-height:1.7}
-        .ws-page-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-        .ws-page-btns button{width:100%;min-height:40px}
+        .bible-text{padding:14px 12px;font-size:.88rem;line-height:1.7}
+        .bible-audio-bar{padding:8px;gap:5px}
+        .bible-audio-bar button{font-size:.68rem;padding:5px 10px}
+        .bible-audio-bar select{font-size:.68rem}
+        .bible-audio-bar input[type=range]{width:60px}
         .bible-bookmarks button{font-size:.64rem;padding:3px 7px}
         .bible-display-tools{padding:10px 12px}
         .bible-display-tool-group{min-width:0;width:100%}
@@ -150,11 +137,9 @@
         .journal-btn{width:100%;min-height:40px}
       }
       @media(max-width:400px){
-        .bible-wrap{padding:8px 8px 18px}
-        .bible-nav,.ws-page-btns{grid-template-columns:1fr}
-        .bible-scripture-box{padding:10px 8px}
-        .bible-text{font-size:.84rem;line-height:1.65}
-        .bible-journal-shell{padding:12px}
+        .bible-wrap{padding:6px}
+        .bible-text{padding:10px 8px;font-size:.82rem}
+        .bible-audio-bar{flex-direction:column}
       }
     </style>
   </head>
@@ -173,7 +158,14 @@
         <h1>DELTA CODING</h1>
         <p class="tag">SCRIPTURE INTEL — Read &bull; Study &bull; Listen</p>
       </div>
-      {% include '_top_nav.html' %}
+      <nav class="top-nav">
+        <a href="/">Ops Center</a>
+        <a href="/cyber">Cyber Intel</a>
+        <a href="/ai">AI Recon</a>
+        <a href="/map">Tac Map</a>
+        <a href="/bible" class="active">Scripture</a>
+        <a href="/drone">Drone</a>
+      </nav>
     </header>
 
     <main class="container">
@@ -187,693 +179,63 @@
           <span class="bm-title">&#x2605; BOOKMARKS:</span>
         </div>
 
-        <div class="bible-display-tools" aria-label="Scripture text and highlight controls">
-          <div class="bible-display-tool-group">
-            <div>
-              <div class="bible-display-tools-label">Scripture Font Color</div>
-              <div class="bible-color-hint">Use the color wheel to choose any Scripture text color that gives you the best contrast.</div>
-            </div>
-            <div class="bible-color-wheel-controls" id="bible-color-wheel-controls">
-              <input class="bible-color-wheel" id="bible-text-color" type="color" value="#e7efe7" aria-label="Choose Scripture text color" title="Choose Scripture text color">
-              <button class="bible-color-reset" id="bible-text-color-reset" type="button">Reset</button>
-              <span class="bible-color-value" id="bible-text-color-value">#E7EFE7</span>
-            </div>
-          </div>
-          <div class="bible-display-tool-group">
-            <div>
-              <div class="bible-display-tools-label">Verse Highlighter</div>
-              <div class="bible-color-hint">Pick a highlight color, then click any verse to toggle it on or off. Click the same highlighted verse again to clear it.</div>
-            </div>
-            <div class="bible-color-wheel-controls" id="bible-highlight-wheel-controls">
-              <input class="bible-color-wheel" id="bible-highlight-color" type="color" value="#f4ec73" aria-label="Choose verse highlight color" title="Choose verse highlight color">
-              <button class="bible-color-reset" id="bible-highlight-reset" type="button">Reset</button>
-              <button class="bible-color-reset" id="bible-highlight-clear" type="button">Clear Highlights</button>
-              <span class="bible-color-value" id="bible-highlight-color-value">#F4EC73</span>
-            </div>
-          </div>
+        <div class="bible-nav">
+          <button id="prev-ch" title="Previous Chapter">&#x25C0; PREV</button>
+          <button id="next-ch" title="Next Chapter">NEXT &#x25B6;</button>
         </div>
 
-        <div class="bible-scripture-box" id="bible-scripture-box">
-          <div class="bible-scripture-controls" aria-label="Scripture translation, book, chapter, and chapter navigation controls">
-            <select id="translation">
-              <option value="kjv">KJV — King James</option>
-              <option value="web" selected>WEB — World English</option>
-              <option value="bbe">BBE — Basic English</option>
-              <option value="asv">ASV — American Standard</option>
-              <option value="darby">DARBY — Darby</option>
-              <option value="ylt">YLT — Young's Literal</option>
-              <option value="oeb-us">OEB — Open English</option>
-              <option value="webbe">WEBBE — WEB British</option>
-              <option value="clementine">CLEMENTINE — Latin Vulgate</option>
-              <option value="almeida">ALMEIDA — Portuguese</option>
-            </select>
-            <select id="book"></select>
-            <select id="chapter"></select>
-            <button id="btn-load">LOAD</button>
-          </div>
-          <div class="bible-nav">
-            <button id="prev-ch" title="Previous Chapter">&#x25C0; PREV</button>
-            <button id="next-ch" title="Next Chapter">NEXT &#x25B6;</button>
-          </div>
-          <div class="bible-text" id="bible-text">
-            <div class="loading">Select a book and chapter, then press LOAD...</div>
-          </div>
+        <div class="bible-audio-bar" id="bible-audio-bar">
+          <button id="ba-listen" title="Listen to chapter">&#x1F50A; LISTEN</button>
+          <button id="ba-pause" title="Pause/Resume" disabled>&#x23F8; PAUSE</button>
+          <button id="ba-stop" title="Stop" disabled>&#x25A0; STOP</button>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">VOL</label>
+          <input type="range" id="ba-vol" min="0" max="100" step="1" value="80" title="Volume" style="width:70px;accent-color:var(--accent)">
+          <label style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)">SPEED</label>
+          <select id="ba-speed" title="Playback Speed" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--panel2);color:var(--text);border:1px solid var(--border2);padding:4px 6px;border-radius:4px">
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+          </select>
+          <span class="ba-status" id="ba-status">REAL VOICE — KJV AUDIO</span>
+          <audio id="ba-audio" preload="none"></audio>
         </div>
 
-        <section class="bible-journal-shell" aria-label="Scripture journals">
-          <div class="bible-journal-head">
-            <h3>Scripture Journals</h3>
-            <p>Keep a public testimony feed for Scripture readers and a separate private journal that stays personal to your browser and account state.</p>
-          </div>
-
-          <div class="bible-journal-grid">
-            <article class="journal-card">
-              <div class="journal-card-head">
-                <div>
-                  <span class="journal-kicker">Community</span>
-                  <h4>Public Scripture Journal</h4>
-                  <p>Everyone can read these reflections. Posting is tied to the signed-in account shown in the top navigation.</p>
-                </div>
-                <span class="journal-chip" id="public-journal-auth-state">Read Only</span>
-              </div>
-              <div class="journal-focus" id="public-journal-focus">Current focus: preparing Scripture context...</div>
-              <div class="journal-helper" id="public-journal-helper"><strong>Sign in</strong> from the top navigation to add a public Scripture entry.</div>
-              <div class="journal-moderation-shell" id="journal-moderation-shell" data-initial-moderator="{{ 'true' if journal_moderation_enabled else 'false' }}">
-                <div class="journal-moderation-head">
-                  <span class="journal-chip" id="journal-moderation-badge">Moderator Locked</span>
-                  <button class="journal-btn secondary" id="journal-moderation-logout" type="button" hidden>End Moderation</button>
-                </div>
-                <form class="journal-form journal-moderation-form" id="journal-moderation-form" autocomplete="off">
-                  <input type="password" id="journal-moderation-password" placeholder="Moderator access password" autocomplete="new-password">
-                  <div class="journal-actions">
-                    <button class="journal-btn secondary" id="journal-moderation-submit" type="submit">Unlock Moderation</button>
-                    <span class="journal-status" id="journal-moderation-status"></span>
-                  </div>
-                </form>
-              </div>
-              <form class="journal-form" id="public-journal-form">
-                <textarea id="public-journal-entry" rows="4" placeholder="Share a public Scripture reflection tied to the current passage..." disabled></textarea>
-                <div class="journal-actions">
-                  <button class="journal-btn primary" id="public-journal-submit" type="submit" disabled>Post Public Entry</button>
-                  <span class="journal-status" id="public-journal-status"></span>
-                </div>
-              </form>
-              <div class="journal-list" id="public-journal-entries"></div>
-            </article>
-
-            <article class="journal-card">
-              <div class="journal-card-head">
-                <div>
-                  <span class="journal-kicker">Private</span>
-                  <h4>Personal Journal</h4>
-                  <p>Private notes stay on this device and sync to your signed-in account state when you are logged in.</p>
-                </div>
-                <span class="journal-chip is-live">Personal Only</span>
-              </div>
-              <div class="journal-focus" id="private-journal-focus">Current focus: preparing Scripture context...</div>
-              <div class="journal-helper">Use this space for private prayer notes, study outlines, or reflections you do not want added to the public feed.</div>
-              <form class="journal-form" id="private-journal-form">
-                <textarea id="private-journal-entry" rows="5" placeholder="Write a private Scripture note for your own study..."></textarea>
-                <div class="journal-actions">
-                  <button class="journal-btn primary" id="private-journal-submit" type="submit">Save Private Entry</button>
-                  <button class="journal-btn secondary" id="private-journal-clear" type="button">Clear All Private Notes</button>
-                  <span class="journal-status" id="private-journal-status"></span>
-                </div>
-              </form>
-              <div class="journal-list" id="private-journal-entries"></div>
-            </article>
-          </div>
-        </section>
+        <div class="bible-text" id="bible-text">
+          <div class="loading">Select a book and chapter, then press LOAD...</div>
         </div>
       </div>
-
-    <script>
-    const PRIVATE_JOURNAL_STORAGE_KEY = 'deltaBiblePersonalJournalV1';
-    const PRIVATE_JOURNAL_LIMIT = 60;
-    const BIBLE_TEXT_COLOR_STORAGE_KEY = 'deltaBibleTextToneV1';
-    const BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY = 'deltaBibleHighlightColorV1';
-    const BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY = 'deltaBibleVerseHighlightsV1';
-    const DEFAULT_BIBLE_TEXT_COLOR = '#e7efe7';
-    const DEFAULT_BIBLE_HIGHLIGHT_COLOR = '#f4ec73';
-    const bibleTextEl = document.getElementById('bible-text');
-    const bibleTextColorInput = document.getElementById('bible-text-color');
-    const bibleTextColorResetBtn = document.getElementById('bible-text-color-reset');
-    const bibleTextColorValueEl = document.getElementById('bible-text-color-value');
-    const bibleHighlightColorInput = document.getElementById('bible-highlight-color');
-    const bibleHighlightResetBtn = document.getElementById('bible-highlight-reset');
-    const bibleHighlightClearBtn = document.getElementById('bible-highlight-clear');
-    const bibleHighlightColorValueEl = document.getElementById('bible-highlight-color-value');
-    const publicJournalEntriesEl = document.getElementById('public-journal-entries');
-    const publicJournalForm = document.getElementById('public-journal-form');
-    const publicJournalEntryInput = document.getElementById('public-journal-entry');
-    const publicJournalSubmitBtn = document.getElementById('public-journal-submit');
-    const publicJournalStatusEl = document.getElementById('public-journal-status');
-    const publicJournalHelperEl = document.getElementById('public-journal-helper');
-    const publicJournalAuthStateEl = document.getElementById('public-journal-auth-state');
-    const publicJournalFocusEl = document.getElementById('public-journal-focus');
-    const journalModerationShellEl = document.getElementById('journal-moderation-shell');
-    const journalModerationForm = document.getElementById('journal-moderation-form');
-    const journalModerationPasswordInput = document.getElementById('journal-moderation-password');
-    const journalModerationStatusEl = document.getElementById('journal-moderation-status');
-    const journalModerationBadgeEl = document.getElementById('journal-moderation-badge');
-    const journalModerationLogoutBtn = document.getElementById('journal-moderation-logout');
-    const privateJournalEntriesEl = document.getElementById('private-journal-entries');
-    const privateJournalForm = document.getElementById('private-journal-form');
-    const privateJournalEntryInput = document.getElementById('private-journal-entry');
-    const privateJournalClearBtn = document.getElementById('private-journal-clear');
-    const privateJournalStatusEl = document.getElementById('private-journal-status');
-    const privateJournalFocusEl = document.getElementById('private-journal-focus');
-    let journalModeratorActive = journalModerationShellEl && journalModerationShellEl.dataset.initialModerator === 'true';
-
-    function escapeHtml(value) {
-      const div = document.createElement('div');
-      div.textContent = value == null ? '' : String(value);
-      return div.innerHTML;
-    }
-
-    function setJournalStatus(element, message, tone) {
-      if (!element) return;
-      element.textContent = message || '';
-      element.classList.remove('is-success', 'is-error');
-      if (tone === 'success') element.classList.add('is-success');
-      if (tone === 'error') element.classList.add('is-error');
-    }
-
-    function formatJournalDate(value) {
-      if (!value) return '';
-      const parsed = new Date(value);
-      if (Number.isNaN(parsed.getTime())) return '';
-      return parsed.toLocaleString();
-    }
-
-    function normalizeBibleTextColor(value) {
-      const raw = value == null ? '' : String(value).trim();
-      if (!raw) return '';
-      if (raw === '1') return DEFAULT_BIBLE_TEXT_COLOR;
-      if (raw === '2') return '#f3e3b0';
-      if (raw === '3') return '#d8f0ff';
-      if (/^#[0-9a-f]{3}$/i.test(raw)) {
-        return '#' + raw.slice(1).split('').map((char) => char + char).join('').toLowerCase();
-      }
-      if (/^#[0-9a-f]{6}$/i.test(raw)) {
-        return raw.toLowerCase();
-      }
-      return '';
-    }
-
-    function loadBibleTextColor() {
-      return normalizeBibleTextColor(window.localStorage.getItem(BIBLE_TEXT_COLOR_STORAGE_KEY));
-    }
-
-    function loadBibleHighlightColor() {
-      return normalizeBibleTextColor(window.localStorage.getItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY));
-    }
-
-    function updateBibleTextColorUi(color) {
-      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_TEXT_COLOR;
-      if (bibleTextColorInput) bibleTextColorInput.value = normalized;
-      if (bibleTextColorValueEl) bibleTextColorValueEl.textContent = normalized.toUpperCase();
-    }
-
-    function applyBibleTextColor(color, options) {
-      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_TEXT_COLOR;
-      if (bibleTextEl) {
-        bibleTextEl.style.setProperty('--bible-scripture-color', normalized);
-      }
-      updateBibleTextColorUi(normalized);
-      if (!options || options.persist !== false) {
-        window.localStorage.setItem(BIBLE_TEXT_COLOR_STORAGE_KEY, normalized);
-      }
-    }
-
-    function resetBibleTextColor(options) {
-      if (bibleTextEl) {
-        bibleTextEl.style.removeProperty('--bible-scripture-color');
-      }
-      updateBibleTextColorUi(DEFAULT_BIBLE_TEXT_COLOR);
-      if (!options || options.persist !== false) {
-        window.localStorage.removeItem(BIBLE_TEXT_COLOR_STORAGE_KEY);
-      }
-    }
-
-    function updateBibleHighlightColorUi(color) {
-      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
-      if (bibleHighlightColorInput) bibleHighlightColorInput.value = normalized;
-      if (bibleHighlightColorValueEl) bibleHighlightColorValueEl.textContent = normalized.toUpperCase();
-    }
-
-    function applyBibleHighlightColor(color, options) {
-      const normalized = normalizeBibleTextColor(color) || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
-      updateBibleHighlightColorUi(normalized);
-      if (!options || options.persist !== false) {
-        window.localStorage.setItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY, normalized);
-      }
-    }
-
-    function resetBibleHighlightColor(options) {
-      updateBibleHighlightColorUi(DEFAULT_BIBLE_HIGHLIGHT_COLOR);
-      if (!options || options.persist !== false) {
-        window.localStorage.removeItem(BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY);
-      }
-    }
-
-    function loadBibleVerseHighlights() {
-      try {
-        const parsed = JSON.parse(window.localStorage.getItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY) || '{}');
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-        const normalized = {};
-        Object.keys(parsed).forEach((key) => {
-          const color = normalizeBibleTextColor(parsed[key]);
-          if (key && color) normalized[key] = color;
-        });
-        return normalized;
-      } catch (_) {
-        return {};
-      }
-    }
-
-    function saveBibleVerseHighlights(highlights) {
-      window.localStorage.setItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY, JSON.stringify(highlights));
-    }
-
-    function hexColorToRgba(color, alpha) {
-      const normalized = normalizeBibleTextColor(color);
-      if (!normalized) return '';
-      const red = Number.parseInt(normalized.slice(1, 3), 16);
-      const green = Number.parseInt(normalized.slice(3, 5), 16);
-      const blue = Number.parseInt(normalized.slice(5, 7), 16);
-      return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-    }
-
-    function applyBibleVerseHighlightVisual(verseEl, color) {
-      if (!verseEl) return;
-      const normalized = normalizeBibleTextColor(color);
-      if (!normalized) {
-        verseEl.classList.remove('is-highlighted');
-        verseEl.style.removeProperty('--bible-verse-highlight-bg');
-        verseEl.style.removeProperty('--bible-verse-highlight-edge');
-        return;
-      }
-      verseEl.classList.add('is-highlighted');
-      verseEl.style.setProperty('--bible-verse-highlight-bg', hexColorToRgba(normalized, 0.34));
-      verseEl.style.setProperty('--bible-verse-highlight-edge', hexColorToRgba(normalized, 0.62));
-    }
-
-    function refreshRenderedBibleHighlights(root) {
-      if (!root) return;
-      const highlights = loadBibleVerseHighlights();
-      root.querySelectorAll('[data-bible-highlight-key]').forEach((verseEl) => {
-        const key = verseEl.getAttribute('data-bible-highlight-key') || '';
-        applyBibleVerseHighlightVisual(verseEl, highlights[key]);
-      });
-    }
-
-    function toggleBibleVerseHighlight(key, root) {
-      if (!key) return;
-      const highlights = loadBibleVerseHighlights();
-      const nextColor = loadBibleHighlightColor() || DEFAULT_BIBLE_HIGHLIGHT_COLOR;
-      const currentColor = normalizeBibleTextColor(highlights[key]);
-      if (currentColor && currentColor === nextColor) delete highlights[key];
-      else highlights[key] = nextColor;
-      saveBibleVerseHighlights(highlights);
-      refreshRenderedBibleHighlights(root);
-    }
-
-    function clearBibleVerseHighlights(root) {
-      window.localStorage.removeItem(BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY);
-      refreshRenderedBibleHighlights(root || bibleTextEl);
-    }
-
-    function authBootstrapState() {
-      const el = document.getElementById('delta-auth-bootstrap');
-      if (!el) return { authenticated: false, user: null };
-      try {
-        const parsed = JSON.parse(el.textContent || '{}');
-        return parsed && typeof parsed === 'object' ? parsed : { authenticated: false, user: null };
-      } catch (_) {
-        return { authenticated: false, user: null };
-      }
-    }
-
-    function currentAuthUser() {
-      const bootstrap = authBootstrapState();
-      return bootstrap.authenticated && bootstrap.user ? bootstrap.user : null;
-    }
-
-    function currentPassageLabel() {
-      const translationSelect = document.getElementById('translation');
-      const bookSelect = document.getElementById('book');
-      const chapterSelect = document.getElementById('chapter');
-      const bookLabel = bookSelect && bookSelect.selectedOptions.length ? bookSelect.selectedOptions[0].textContent.trim() : '';
-      const chapterLabel = chapterSelect && chapterSelect.value ? chapterSelect.value : '';
-      const translationLabel = translationSelect && translationSelect.selectedOptions.length ? translationSelect.selectedOptions[0].textContent.split('—')[0].trim() : '';
-      if (!bookLabel || !chapterLabel) {
-        return 'No passage loaded yet';
-      }
-      return `${bookLabel} ${chapterLabel}${translationLabel ? ` • ${translationLabel}` : ''}`;
-    }
-
-    function updateJournalFocus() {
-      const label = `Current focus: ${currentPassageLabel()}`;
-      publicJournalFocusEl.textContent = label;
-      privateJournalFocusEl.textContent = label;
-    }
-
-    function syncJournalModerationUi() {
-      if (!journalModerationBadgeEl || !journalModerationForm || !journalModerationPasswordInput || !journalModerationLogoutBtn) return;
-      journalModerationBadgeEl.textContent = journalModeratorActive ? 'Moderator Active' : 'Moderator Locked';
-      journalModerationBadgeEl.classList.toggle('is-live', journalModeratorActive);
-      journalModerationPasswordInput.disabled = journalModeratorActive;
-      const submitButton = journalModerationForm.querySelector('button[type="submit"]');
-      if (submitButton) submitButton.disabled = journalModeratorActive;
-      journalModerationLogoutBtn.hidden = !journalModeratorActive;
-    }
-
-    function renderPublicJournalEntries(entries) {
-      if (!publicJournalEntriesEl) return;
-      if (!Array.isArray(entries) || !entries.length) {
-        publicJournalEntriesEl.innerHTML = '<div class="journal-empty">No public Scripture entries yet. Sign in to post the first testimony or study reflection.</div>';
-        return;
-      }
-
-      publicJournalEntriesEl.innerHTML = entries.map((entry) => {
-        const author = escapeHtml(entry.author || 'Anonymous');
-        const created = escapeHtml(formatJournalDate(entry.created));
-        const passage = entry.passage ? `<div class="journal-item-passage">${escapeHtml(entry.passage)}</div>` : '';
-        const moderationAction = journalModeratorActive && entry.id
-          ? `<button class="journal-item-delete" type="button" data-public-entry-delete="${entry.id}">Delete</button>`
-          : '';
-        return `<article class="journal-item">
-          <div class="journal-item-head">
-            <div>
-              <div class="journal-item-author">${author}</div>
-              ${passage}
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
-              <div class="journal-item-date">${created}</div>
-              ${moderationAction}
-            </div>
-          </div>
-          <div class="journal-item-body">${escapeHtml(entry.entry || '')}</div>
-        </article>`;
-      }).join('');
-
-      publicJournalEntriesEl.querySelectorAll('[data-public-entry-delete]').forEach((button) => {
-        button.addEventListener('click', async function() {
-          const entryId = Number.parseInt(button.getAttribute('data-public-entry-delete') || '', 10);
-          if (!Number.isInteger(entryId)) return;
-          if (!window.confirm('Delete this public Scripture entry?')) return;
-          button.disabled = true;
-          setJournalStatus(journalModerationStatusEl, 'Removing public entry...', '');
-          try {
-            const response = await fetch('/api/journal/moderation/delete', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'same-origin',
-              body: JSON.stringify({ id: entryId }),
-            });
-            const data = await response.json();
-            if (!response.ok || !data.ok) {
-              throw new Error(data.error || 'Failed to delete entry');
-            }
-            setJournalStatus(journalModerationStatusEl, 'Public entry removed.', 'success');
-            await loadJournalEntries();
-          } catch (error) {
-            setJournalStatus(journalModerationStatusEl, error.message || 'Failed to delete entry.', 'error');
-            button.disabled = false;
-          }
-        });
-      });
-    }
-
-    async function loadJournalEntries() {
-      if (!publicJournalEntriesEl) return;
-      publicJournalEntriesEl.innerHTML = '<div class="journal-empty">Loading public Scripture journal...</div>';
-      try {
-        const response = await fetch('/api/journal', { credentials: 'same-origin' });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Failed to load public journal');
-        }
-        journalModeratorActive = Boolean(data.moderation_enabled);
-        syncJournalModerationUi();
-        renderPublicJournalEntries(data.entries || []);
-      } catch (error) {
-        publicJournalEntriesEl.innerHTML = `<div class="journal-empty">Unable to load public journal: ${escapeHtml(error.message || 'Unknown error')}</div>`;
-      }
-    }
-
-    function syncPublicJournalComposer() {
-      const user = currentAuthUser();
-      const authenticated = Boolean(user && user.username);
-      publicJournalEntryInput.disabled = !authenticated;
-      publicJournalSubmitBtn.disabled = !authenticated;
-      publicJournalAuthStateEl.textContent = authenticated ? `Posting as ${user.username}` : 'Read Only';
-      publicJournalAuthStateEl.classList.toggle('is-live', authenticated);
-      publicJournalHelperEl.innerHTML = authenticated
-        ? `<strong>${escapeHtml(user.username)}</strong> can post publicly from this page. Every post is visible to everyone.`
-        : '<strong>Sign in</strong> from the top navigation to add a public Scripture entry.';
-    }
-
-    journalModerationForm.addEventListener('submit', async function(event) {
-      event.preventDefault();
-      const password = journalModerationPasswordInput.value;
-      if (!password) {
-        setJournalStatus(journalModerationStatusEl, 'Enter the moderation password.', 'error');
-        return;
-      }
-
-      setJournalStatus(journalModerationStatusEl, 'Unlocking moderation...', '');
-      try {
-        const response = await fetch('/api/journal/moderation/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ password }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Failed to unlock moderation');
-        }
-        journalModeratorActive = Boolean(data.moderation_enabled);
-        journalModerationPasswordInput.value = '';
-        setJournalStatus(journalModerationStatusEl, 'Moderation unlocked.', 'success');
-        syncJournalModerationUi();
-        await loadJournalEntries();
-      } catch (error) {
-        setJournalStatus(journalModerationStatusEl, error.message || 'Failed to unlock moderation.', 'error');
-      }
-    });
-
-    journalModerationLogoutBtn.addEventListener('click', async function() {
-      setJournalStatus(journalModerationStatusEl, 'Ending moderation access...', '');
-      try {
-        const response = await fetch('/api/journal/moderation/logout', {
-          method: 'POST',
-          credentials: 'same-origin',
-        });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Failed to end moderation access');
-        }
-        journalModeratorActive = false;
-        journalModerationPasswordInput.value = '';
-        setJournalStatus(journalModerationStatusEl, 'Moderation locked.', 'success');
-        syncJournalModerationUi();
-        await loadJournalEntries();
-      } catch (error) {
-        setJournalStatus(journalModerationStatusEl, error.message || 'Failed to end moderation access.', 'error');
-      }
-    });
-
-    function loadPrivateJournalEntries() {
-      try {
-        const parsed = JSON.parse(window.localStorage.getItem(PRIVATE_JOURNAL_STORAGE_KEY) || '[]');
-        return Array.isArray(parsed) ? parsed.filter((entry) => entry && typeof entry.entry === 'string') : [];
-      } catch (_) {
-        return [];
-      }
-    }
-
-    function savePrivateJournalEntries(entries) {
-      window.localStorage.setItem(PRIVATE_JOURNAL_STORAGE_KEY, JSON.stringify(entries));
-    }
-
-    function renderPrivateJournalEntries() {
-      if (!privateJournalEntriesEl) return;
-      const entries = loadPrivateJournalEntries();
-      if (!entries.length) {
-        privateJournalEntriesEl.innerHTML = '<div class="journal-empty">No private journal entries saved yet. Your notes here stay personal and local to your account state.</div>';
-        return;
-      }
-
-      privateJournalEntriesEl.innerHTML = entries.map((entry, index) => {
-        const passage = entry.passage ? `<div class="journal-item-passage">${escapeHtml(entry.passage)}</div>` : '';
-        return `<article class="journal-item">
-          <div class="journal-item-head">
-            <div>
-              <div class="journal-item-author">Private Entry</div>
-              ${passage}
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
-              <div class="journal-item-date">${escapeHtml(formatJournalDate(entry.created))}</div>
-              <button class="journal-item-delete" type="button" data-private-entry-delete="${index}">Delete</button>
-            </div>
-          </div>
-          <div class="journal-item-body">${escapeHtml(entry.entry || '')}</div>
-        </article>`;
-      }).join('');
-
-      privateJournalEntriesEl.querySelectorAll('[data-private-entry-delete]').forEach((button) => {
-        button.addEventListener('click', function() {
-          const index = Number.parseInt(button.getAttribute('data-private-entry-delete') || '', 10);
-          if (!Number.isInteger(index)) return;
-          const entries = loadPrivateJournalEntries();
-          entries.splice(index, 1);
-          savePrivateJournalEntries(entries);
-          renderPrivateJournalEntries();
-          setJournalStatus(privateJournalStatusEl, 'Private entry removed.', 'success');
-        });
-      });
-    }
-
-    publicJournalForm.addEventListener('submit', async function(event) {
-      event.preventDefault();
-      const user = currentAuthUser();
-      if (!user) {
-        syncPublicJournalComposer();
-        setJournalStatus(publicJournalStatusEl, 'Sign in to post to the public journal.', 'error');
-        return;
-      }
-
-      const entry = publicJournalEntryInput.value.trim();
-      if (!entry) {
-        setJournalStatus(publicJournalStatusEl, 'Write a reflection before posting.', 'error');
-        return;
-      }
-
-      publicJournalSubmitBtn.disabled = true;
-      setJournalStatus(publicJournalStatusEl, 'Posting public entry...', '');
-      try {
-        const response = await fetch('/api/journal/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({
-            entry,
-            passage: currentPassageLabel(),
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Failed to post public entry');
-        }
-        publicJournalEntryInput.value = '';
-        setJournalStatus(publicJournalStatusEl, 'Public entry posted.', 'success');
-        await loadJournalEntries();
-      } catch (error) {
-        setJournalStatus(publicJournalStatusEl, error.message || 'Failed to post public entry.', 'error');
-      } finally {
-        syncPublicJournalComposer();
-      }
-    });
-
-    privateJournalForm.addEventListener('submit', function(event) {
-      event.preventDefault();
-      const entry = privateJournalEntryInput.value.trim();
-      if (!entry) {
-        setJournalStatus(privateJournalStatusEl, 'Write a private note before saving.', 'error');
-        return;
-      }
-
-      const entries = loadPrivateJournalEntries();
-      entries.unshift({
-        entry,
-        passage: currentPassageLabel(),
-        created: new Date().toISOString(),
-      });
-      savePrivateJournalEntries(entries.slice(0, PRIVATE_JOURNAL_LIMIT));
-      privateJournalEntryInput.value = '';
-      renderPrivateJournalEntries();
-      setJournalStatus(privateJournalStatusEl, 'Private entry saved.', 'success');
-    });
-
-    privateJournalClearBtn.addEventListener('click', function() {
-      if (!window.confirm('Clear all private journal entries on this device?')) return;
-      window.localStorage.removeItem(PRIVATE_JOURNAL_STORAGE_KEY);
-      renderPrivateJournalEntries();
-      setJournalStatus(privateJournalStatusEl, 'Private journal cleared.', 'success');
-    });
-
-    window.addEventListener('storage', function(event) {
-      if (event.key === PRIVATE_JOURNAL_STORAGE_KEY) {
-        renderPrivateJournalEntries();
-      }
-      if (event.key === BIBLE_TEXT_COLOR_STORAGE_KEY) {
-        if (event.newValue) applyBibleTextColor(event.newValue, { persist: false });
-        else resetBibleTextColor({ persist: false });
-      }
-      if (event.key === BIBLE_HIGHLIGHT_COLOR_STORAGE_KEY) {
-        if (event.newValue) applyBibleHighlightColor(event.newValue, { persist: false });
-        else resetBibleHighlightColor({ persist: false });
-      }
-      if (event.key === BIBLE_VERSE_HIGHLIGHTS_STORAGE_KEY) {
-        refreshRenderedBibleHighlights(bibleTextEl);
-      }
-    });
-
-    ['book', 'chapter', 'translation'].forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) {
-        element.addEventListener('change', updateJournalFocus);
-      }
-    });
-
-    if (bibleTextColorInput) {
-      bibleTextColorInput.addEventListener('input', function() {
-        applyBibleTextColor(bibleTextColorInput.value);
-      });
-    }
-
-    if (bibleTextColorResetBtn) {
-      bibleTextColorResetBtn.addEventListener('click', function() {
-        resetBibleTextColor();
-      });
-    }
-
-    if (bibleHighlightColorInput) {
-      bibleHighlightColorInput.addEventListener('input', function() {
-        applyBibleHighlightColor(bibleHighlightColorInput.value);
-      });
-    }
-
-    if (bibleHighlightResetBtn) {
-      bibleHighlightResetBtn.addEventListener('click', function() {
-        resetBibleHighlightColor();
-      });
-    }
-
-    if (bibleHighlightClearBtn) {
-      bibleHighlightClearBtn.addEventListener('click', function() {
-        clearBibleVerseHighlights();
-      });
-    }
-
-    window.setTimeout(() => {
-      const storedBibleTextColor = loadBibleTextColor();
-      if (storedBibleTextColor) applyBibleTextColor(storedBibleTextColor, { persist: false });
-      else resetBibleTextColor({ persist: false });
-      const storedBibleHighlightColor = loadBibleHighlightColor();
-      if (storedBibleHighlightColor) applyBibleHighlightColor(storedBibleHighlightColor, { persist: false });
-      else resetBibleHighlightColor({ persist: false });
-      updateJournalFocus();
-      syncPublicJournalComposer();
-      syncJournalModerationUi();
-      renderPrivateJournalEntries();
-      void loadJournalEntries();
-    }, 0);
-    </script>
     </main>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
 
     <script>
     (function(){
@@ -1075,6 +437,24 @@
     })();
     </script>
 
-    {%- include '_radio_footer.html' %}
-</body>
+    <!-- RADIO FOOTER SCRIPT -->
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      // Restore state on load
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
 </html>

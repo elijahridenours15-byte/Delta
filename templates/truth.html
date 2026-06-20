@@ -7,7 +7,6 @@
     <meta name="description" content="Public files and historical evidence documenting the death, burial, and resurrection of Jesus Christ. Primary sources from Josephus, Tacitus, Pliny, the Talmud, and Scripture. Archaeological and scholarly research freely available.">
     <meta name="keywords" content="Jesus Christ, death of Jesus, resurrection of Jesus, crucifixion, historical evidence, Josephus, Tacitus, Pontius Pilate, empty tomb, public records, Bible, Gospel, risen, alive">
     <meta name="robots" content="index, follow">
-    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
     <meta property="og:title" content="The Death and Resurrection of Jesus Christ — Public Historical Files">
     <meta property="og:description" content="Freely accessible public files documenting the historical evidence for the death, burial, and resurrection of Jesus Christ from ancient historians, archaeologists, and Scripture.">
     <meta property="og:type" content="article">
@@ -26,7 +25,7 @@
       "articleSection": "Historical Research"
     }
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
       .container{display:block;height:auto}
       .truth-wrap{max-width:1100px;margin:0 auto;padding:20px}
@@ -91,29 +90,6 @@
       .truth-listen button{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;padding:8px 20px;border-radius:6px;border:1px solid var(--border2);background:var(--panel2);color:var(--text);cursor:pointer;letter-spacing:1px}
       .truth-listen button:hover{border-color:var(--accent);color:var(--accent-bright)}
       .truth-listen button.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
-      @media(max-width:700px){
-        .truth-wrap{padding:16px 12px 22px}
-        .truth-header h2{font-size:1.2rem;letter-spacing:2px}
-        .truth-header p{font-size:.82rem;line-height:1.6}
-        .truth-search{flex-direction:column;align-items:stretch;gap:10px}
-        .truth-search input,.truth-search button{width:100%;max-width:none}
-        .truth-search button{min-height:44px}
-        .truth-topics{justify-content:flex-start}
-        .truth-topic{min-height:36px;display:inline-flex;align-items:center}
-        .truth-results-header{flex-direction:column;align-items:flex-start;gap:6px;padding:12px 14px}
-        .truth-results-body{padding:14px}
-        .truth-card{padding:14px 16px}
-        .truth-ai{padding:16px 18px}
-        .truth-listen button{width:100%;min-height:42px}
-      }
-      @media(max-width:420px){
-        .truth-wrap{padding:12px 10px 18px}
-        .truth-cross{width:38px;height:auto}
-        .truth-header h2{font-size:1.05rem;letter-spacing:1.2px}
-        .truth-header p,.truth-card .tc-text,.truth-ai .tai-text{font-size:.82rem}
-        .truth-topic{width:100%;justify-content:center}
-        .truth-card{padding:12px 14px}
-      }
     </style>
   </head>
   <body>
@@ -131,7 +107,14 @@
         <h1>THE TRUTH</h1>
         <p class="tag">Public Files &bull; The Death &amp; Resurrection of Jesus Christ &bull; Scripture &bull; Historical Evidence</p>
       </div>
-      {% include '_top_nav.html' %}
+      <nav class="top-nav">
+        <a href="/">Ops Center</a>
+        <a href="/cyber">Cyber Intel</a>
+        <a href="/ai">AI Recon</a>
+        <a href="/map">Tac Map</a>
+        <a href="/bible">Scripture</a>
+        <a href="/drone">Drone</a>
+      </nav>
     </header>
 
     <main class="container">
@@ -353,6 +336,35 @@
       </div>
     </main>
 
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
 
     <script>
     (function(){
@@ -473,17 +485,16 @@
         return matches.map(m => m.key);
       }
 
-      // AI Summary via site backend
+      // AI Summary via Pollinations
       async function getAISummary(query){
         try {
-          const resp = await fetch('/api/truth/summary', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ query })
+          const prompt = `You are a biblical scholar and historian. Answer this question about Jesus Christ in 3-4 paragraphs using scripture references and historical evidence. Be factual, reverent, and thorough. Question: ${query}`;
+          const resp = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt), {
+            method: 'GET'
           });
-          const data = await resp.json();
-          if(!resp.ok || !data.ok) return null;
-          return (data.text || '').trim();
+          if(!resp.ok) return null;
+          const text = await resp.text();
+          return text.trim();
         } catch(e){ return null; }
       }
 
@@ -609,6 +620,23 @@
     })();
     </script>
 
-    {%- include '_radio_footer.html' %}
-</body>
+    <!-- RADIO FOOTER SCRIPT -->
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
 </html>

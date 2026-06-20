@@ -4,20 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Cyber Intel</title>
-    <meta name="description" content="Cybersecurity intelligence tools: CVE lookup, encryption/decryption, HTTP security header analysis, and resource scanning. Free cyber tools at FutureCodeDelta.org.">
-    <meta name="keywords" content="CVE lookup, cybersecurity tools, encryption tool, HTTP headers, security scanner, cyber intelligence, free security tools, vulnerability database">
-    <meta name="robots" content="index, follow">
-    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
-    <meta property="og:title" content="Delta Coding — Cyber Intel">
-    <meta property="og:description" content="Free cybersecurity tools: CVE search, encryption, HTTP header analysis, and security resource scanning.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://futurecodedelta.org/cyber">
-    <meta property="og:site_name" content="FutureCodeDelta">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Delta Coding — Cyber Intel">
-    <meta name="twitter:description" content="Free CVE search, encryption tools, and HTTP security header analysis at FutureCodeDelta.org.">
-    <link rel="canonical" href="https://futurecodedelta.org/cyber">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
     <header class="hero">
@@ -34,7 +21,14 @@
         <h1>DELTA — CYBER INTEL</h1>
         <p class="tag">CVE DATABASE &bull; ENCRYPTION TOOLS &bull; SECURITY SCANNERS &bull; FIELD RESOURCES</p>
       </div>
-      {% include '_top_nav.html' %}
+      <nav class="top-nav">
+        <a href="/">Ops Center</a>
+        <a href="/cyber" class="active">Cyber Intel</a>
+        <a href="/ai">AI Recon</a>
+        <a href="/map">Tac Map</a>
+        <a href="/bible">Scripture</a>
+        <a href="/drone">Drone</a>
+      </nav>
     </header>
 
     <main class="cyber-container">
@@ -265,6 +259,52 @@
         } catch (e) { console.warn(e); }
       })();
     </script>
-    {%- include '_radio_footer.html' %}
-</body>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
 </html>

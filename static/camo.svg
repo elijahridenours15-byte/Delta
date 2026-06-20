@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
+  <defs>
+    <!-- Near-black dark blobs -->
+    <filter id="dk" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.008 0.010" numOctaves="3" seed="5" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix"
+        values="0 0 0 0 0.022
+                0 0 0 0 0.031
+                0 0 0 0 0.016
+                12 0 0 0 -8.4"/>
+    </filter>
+    <!-- Olive/green blobs -->
+    <filter id="ol" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.012 0.009" numOctaves="3" seed="13" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix"
+        values="0 0 0 0 0.173
+                0 0 0 0 0.290
+                0 0 0 0 0.094
+                12 0 0 0 -7.8"/>
+    </filter>
+    <!-- Tan/earth blobs -->
+    <filter id="tn" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="turbulence" baseFrequency="0.018 0.015" numOctaves="2" seed="19" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix"
+        values="0 0 0 0 0.235
+                0 0 0 0 0.188
+                0 0 0 0 0.086
+                12 0 0 0 -8.8"/>
+    </filter>
+  </defs>
+  <!-- Base dark olive -->
+  <rect width="600" height="600" fill="#0e110b"/>
+  <!-- Dark near-black patches -->
+  <rect width="600" height="600" filter="url(#dk)"/>
+  <!-- Olive green patches -->
+  <rect width="600" height="600" filter="url(#ol)"/>
+  <!-- Tan/earth patches -->
+  <rect width="600" height="600" filter="url(#tn)"/>
+</svg>

@@ -4,20 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delta Coding — Tactical Dev Platform</title>
-    <meta name="description" content="Live coding playground for Python, Java, HTML, CSS, and JavaScript. Build, run, and share code in the browser. Free tactical developer tools at FutureCodeDelta.org.">
-    <meta name="keywords" content="online code editor, Python playground, Java online, HTML editor, run code online, web IDE, coding tools, developer platform">
-    <meta name="robots" content="index, follow">
-    <meta name="msvalidate.01" content="F077E13F960DDC26CBE66555BFBB8672" />
-    <meta property="og:title" content="Delta Coding — Tactical Dev Platform">
-    <meta property="og:description" content="Live coding playground for Python, Java, HTML, CSS, and JS. Build, run, and share code in the browser for free.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://futurecodedelta.org/">
-    <meta property="og:site_name" content="FutureCodeDelta">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Delta Coding — Tactical Dev Platform">
-    <meta name="twitter:description" content="Free online code editor for Python, Java, HTML, CSS, and JS. Run code in your browser at FutureCodeDelta.org.">
-    <link rel="canonical" href="https://futurecodedelta.org/">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260619r1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
     <header class="hero">
@@ -34,15 +21,18 @@
         <h1>DELTA CODING</h1>
         <p class="tag">TACTICAL DEV PLATFORM — Python &bull; Java &bull; HTML &bull; CSS &bull; JS</p>
       </div>
-      {% include '_top_nav.html' %}
+      <nav class="top-nav">
+        <a href="/" class="active">Ops Center</a>
+        <a href="/cyber">Cyber Intel</a>
+        <a href="/ai">AI Recon</a>
+        <a href="/map">Tac Map</a>
+        <a href="/bible">Scripture</a>
+        <a href="/drone">Drone</a>
+      </nav>
     </header>
 
-    <main>
-      <div class="container">
-        <section class="editor">
-        {% if execution_locked %}
-        <p class="backend-status-text" style="margin:0 0 10px">Run and Agent are locked on this deployment until an admin token is configured.</p>
-        {% endif %}
+    <main class="container">
+      <section class="editor">
         <div class="controls">
           <label for="language">Language</label>
           <select id="language">
@@ -71,9 +61,9 @@
           <div id="editorCss" class="editor-pane sub-editor" style="display:none;"></div>
           <div id="editorJs" class="editor-pane sub-editor" style="display:none;"></div>
         </div>
-        </section>
+      </section>
 
-        <aside class="output">
+      <aside class="output">
         <div class="agent-controls">
           <h2>Agent</h2>
           <textarea id="instruction" placeholder="Tell the agent what to build (e.g., 'create a Flask web API')"></textarea>
@@ -96,95 +86,13 @@
             <div id="projectList" style="margin-top:8px"></div>
         </div>
 
-        <div class="backend-tools">
-          <h2>Backend</h2>
-          <div class="backend-status-row">
-            <span class="status-pill" id="backendStatus">Checking…</span>
-            <span class="backend-status-text" id="backendStatusText">Verifying live backend APIs.</span>
-          </div>
-          <div class="share-row">
-            <button id="shareCode">Share Current Code</button>
-            <button id="copyShareLink" disabled>Copy Link</button>
-            <button id="downloadOfflineSite">Download Offline App</button>
-          </div>
-          <input id="shareLink" class="share-link-input" type="text" readonly placeholder="Share link will appear here" />
-        </div>
-
         <h2>Output</h2>
         <pre id="output">Awaiting code...</pre>
         <iframe id="htmlPreview" class="html-preview" style="display:none" sandbox="allow-scripts"></iframe>
 
-          <h3>Agent Result</h3>
-          <pre id="agent_output">No agent activity yet.</pre>
-        </aside>
-      </div>
-
-      <section class="home-ops-section" aria-labelledby="home-ops-title">
-        <div class="home-ops-intro">
-          <span class="home-ops-kicker">Mission Brief</span>
-          <h2 id="home-ops-title">Operational lanes for build, recon, and deployment</h2>
-          <p class="home-ops-copy">
-            Delta Coding is more than the browser editor. Use the command stack below to jump straight into the platform's live field tools.
-          </p>
-          <div class="home-ops-signals" aria-label="Platform signals">
-            <div class="home-ops-signal">
-              <span class="home-ops-signal-value">5</span>
-              <span class="home-ops-signal-label">Languages in the live editor</span>
-            </div>
-            <div class="home-ops-signal">
-              <span class="home-ops-signal-value">24/7</span>
-              <span class="home-ops-signal-label">Access to recon, map, and field pages</span>
-            </div>
-            <div class="home-ops-signal">
-              <span class="home-ops-signal-value">1 click</span>
-              <span class="home-ops-signal-label">Launch to an active operational surface</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="home-ops-grid" aria-label="Quick access tools">
-          <a class="home-ops-card" href="/ai">
-            <span class="home-ops-card-tag">AI Recon</span>
-            <strong>Draft and expand build instructions</strong>
-            <p>Move from idea to runnable project prompts with the agent workflow already wired into the stack.</p>
-          </a>
-          <a class="home-ops-card" href="/map">
-            <span class="home-ops-card-tag">Tac Map</span>
-            <strong>Open navigation, range, and offline map tools</strong>
-            <p>Jump into the tactical map surface for terrain viewing, overlays, and offline route planning.</p>
-          </a>
-          <a class="home-ops-card" href="/drone">
-            <span class="home-ops-card-tag">Drone Command</span>
-            <strong>Access drone-focused field references</strong>
-            <p>Review drone guidance, operational notes, and command-oriented layouts built for the site.</p>
-          </a>
-          <a class="home-ops-card" href="/weapons">
-            <span class="home-ops-card-tag">Weapons Desk</span>
-            <strong>Inspect weapon systems and supporting gear</strong>
-            <p>Move into the weapons library for platform breakdowns, attachments, and field loadout context.</p>
-          </a>
-          <a class="home-ops-card" href="/survival">
-            <span class="home-ops-card-tag">Survival</span>
-            <strong>Review bug-out and sustainment resources</strong>
-            <p>Check the survival page for carried gear, mission sustainment items, and readiness references.</p>
-          </a>
-          <a class="home-ops-card" href="/survival/meal-bible">
-            <span class="home-ops-card-tag">Meal Bible</span>
-            <strong>Open all 1,000 field meal builds</strong>
-            <p>Jump directly into the Tactical Meal Bible with the full perishable and nonperishable meal library, filters, and export tools.</p>
-          </a>
-          <a class="home-ops-card" href="/culture">
-            <span class="home-ops-card-tag">Culture Build</span>
-            <strong>Open the five-country culture reference</strong>
-            <p>Move straight into the Iran, China, Russia, Mexico, and Israel culture guide from the main Ops Center surface.</p>
-          </a>
-          <a class="home-ops-card" href="/bible">
-            <span class="home-ops-card-tag">Scripture Intel</span>
-            <strong>Move from the headline rail into the full scripture index</strong>
-            <p>Open the scripture page for the broader library behind the hourly verse rotation in the top bar.</p>
-          </a>
-        </div>
-      </section>
+        <h3>Agent Result</h3>
+        <pre id="agent_output">No agent activity yet.</pre>
+      </aside>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js"></script>
@@ -201,22 +109,6 @@
       const langEl = document.getElementById('language');
       const outEl = document.getElementById('output');
       const previewEl = document.getElementById('htmlPreview');
-      const backendStatusEl = document.getElementById('backendStatus');
-      const backendStatusTextEl = document.getElementById('backendStatusText');
-      const shareLinkEl = document.getElementById('shareLink');
-      const shareCodeBtn = document.getElementById('shareCode');
-      const copyShareLinkBtn = document.getElementById('copyShareLink');
-      const downloadOfflineSiteBtn = document.getElementById('downloadOfflineSite');
-      const opsTokenEl = document.getElementById('opsToken');
-
-      function buildJsonHeaders() {
-        const headers = {'Content-Type': 'application/json'};
-        const token = opsTokenEl ? opsTokenEl.value.trim() : '';
-        if (token) {
-          headers['X-Admin-Token'] = token;
-        }
-        return headers;
-      }
 
       // ─── Single-mode Ace editor ───
       const editor = ace.edit('editor');
@@ -260,7 +152,8 @@
             const h = editorHtml.getValue(), c = editorCss.getValue(), j = editorJs.getValue();
             let combined = h;
             if (c) combined = combined.includes('</head>') ? combined.replace('</head>', `<style>${c}</style>\n</head>`) : `<style>${c}</style>\n` + combined;
-            if (j) combined = combined.includes('</body>') ? combined.replace('</body>', `<script>${j}<\/script>\n</body>`) : combined + `\n<script>${j}<\/script>`;            previewEl.srcdoc = combined;
+            if (j) combined = combined.includes('</body>') ? combined.replace('</body>', `<script>${j}<\/script>\n</body>`) : combined + `\n<script>${j}<\/script>`;
+            previewEl.srcdoc = combined;
           }
         }, 400);
       }
@@ -270,90 +163,6 @@
 
       const modes = { python: 'ace/mode/python', java: 'ace/mode/java', html: 'ace/mode/html', css: 'ace/mode/css' };
       const templates = { python: pythonTemplate, java: javaTemplate, html: htmlTemplate, css: cssTemplate };
-
-      function currentSharePayload() {
-        if (langEl.value === 'web') {
-          return {
-            language: 'web',
-            code: editorHtml.getValue(),
-            css: editorCss.getValue(),
-            js: editorJs.getValue(),
-          };
-        }
-        return {
-          language: langEl.value,
-          code: editor.getValue(),
-        };
-      }
-
-      function applySharedSnippet(snippet) {
-        if (!snippet || !snippet.language) return;
-        langEl.value = snippet.language;
-        setTemplate();
-        if (snippet.language === 'web') {
-          editorHtml.setValue(snippet.code || '', -1);
-          editorCss.setValue(snippet.css || '', -1);
-          editorJs.setValue(snippet.js || '', -1);
-          previewEl.style.display = 'block';
-          outEl.style.display = 'none';
-          autoPreview();
-          return;
-        }
-        editor.setValue(snippet.code || '', -1);
-      }
-
-      async function refreshBackendStatus() {
-        try {
-          const res = await fetch('/healthz');
-          const data = await res.json();
-          if (res.ok && data.ok) {
-            backendStatusEl.textContent = 'ONLINE';
-            backendStatusEl.classList.add('ok');
-            backendStatusTextEl.textContent = 'Run, AI, share, project, cyber, and scripture APIs are reachable.';
-            return;
-          }
-          throw new Error(data.error || 'Backend unavailable');
-        } catch (err) {
-          backendStatusEl.textContent = 'OFFLINE';
-          backendStatusEl.classList.add('error');
-          backendStatusTextEl.textContent = err.message;
-        }
-      }
-
-      async function shareCurrentCode() {
-        shareCodeBtn.disabled = true;
-        try {
-          const res = await fetch('/api/share', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(currentSharePayload())
-          });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error || 'Unable to create share link');
-          const shareUrl = new URL(data.share_url || `/share/${data.id}`, window.location.origin).toString();
-          shareLinkEl.value = shareUrl;
-          copyShareLinkBtn.disabled = false;
-          backendStatusTextEl.textContent = 'Share link created from the live backend API.';
-        } catch (err) {
-          backendStatusTextEl.textContent = 'Share failed: ' + err.message;
-        } finally {
-          shareCodeBtn.disabled = false;
-        }
-      }
-
-      async function loadSharedSnippetFromPath() {
-        const match = window.location.pathname.match(/^\/share\/([^/]+)$/);
-        if (!match) return;
-        try {
-          const res = await fetch(`/api/share/${encodeURIComponent(match[1])}`);
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error || 'Snippet not found');
-          applySharedSnippet(data);
-          backendStatusTextEl.textContent = `Loaded shared snippet ${match[1]}.`;
-        } catch (err) {
-          backendStatusTextEl.textContent = 'Share load failed: ' + err.message;
-        }
-      }
 
       function setTemplate() {
         const lang = langEl.value;
@@ -538,26 +347,56 @@
         if (lastProject) window.location = `/download/${encodeURIComponent(lastProject)}`;
       });
 
-      shareCodeBtn.addEventListener('click', shareCurrentCode);
-      downloadOfflineSiteBtn.addEventListener('click', () => {
-        backendStatusTextEl.textContent = 'Preparing the full offline site bundle download.';
-        window.location = '/download/offline-site';
-      });
-      copyShareLinkBtn.addEventListener('click', async () => {
-        if (!shareLinkEl.value) return;
-        try {
-          await navigator.clipboard.writeText(shareLinkEl.value);
-          backendStatusTextEl.textContent = 'Share link copied to clipboard.';
-        } catch (err) {
-          backendStatusTextEl.textContent = 'Copy failed: ' + err.message;
-        }
-      });
-
       setTemplate();
       fetchProjects();
-      refreshBackendStatus();
-      loadSharedSnippetFromPath();
     </script>
-    {%- include '_radio_footer.html' %}
-</body>
+
+    <!-- DELTA RADIO FOOTER -->
+    <div class="radio-footer" id="radio-footer">
+      <div class="rf-left">
+        <button class="rf-btn" id="rf-play" title="Play/Pause">&#x25B6;</button>
+        <button class="rf-btn" id="rf-stop" title="Stop">&#x25A0;</button>
+        <select class="rf-select" id="rf-station">
+          <option value="">— SELECT FREQ —</option>
+          <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
+          <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
+          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
+          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
+          <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
+          <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
+          <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>
+          <option value="https://stream.infowars.com/live">Infowars Live</option>
+          <option value="https://playerservices.streamtheworld.com/api/livestream-redirect/KABORAM.mp3">Bible Audio</option>
+        </select>
+      </div>
+      <div class="rf-center">
+        <div class="rf-viz" id="rf-viz"></div>
+        <span class="rf-now" id="rf-now">NO SIGNAL</span>
+      </div>
+      <div class="rf-right">
+        <input type="range" class="rf-vol" id="rf-vol" min="0" max="100" value="60">
+        <a href="/radio" class="rf-settings" title="SIGINT Radio Lab">&#x2699;</a>
+        <span class="rf-copy"><span class="copy-sym">&copy;</span> DELTA CODING</span>
+      </div>
+      <audio id="rf-audio" preload="none"></audio>
+    </div>
+    <script>
+    (function(){
+      const au=document.getElementById('rf-audio'),sel=document.getElementById('rf-station'),now=document.getElementById('rf-now'),viz=document.getElementById('rf-viz'),vol=document.getElementById('rf-vol');
+      let vizI=null,bars=[],userPaused=false;
+      for(let i=0;i<12;i++){const b=document.createElement('div');b.className='rf-bar';viz.appendChild(b);bars.push(b);}
+      function saveState(){localStorage.setItem('deltaRadio',JSON.stringify({src:au.src||'',vol:vol.value,playing:!au.paused&&!userPaused,station:sel.value,name:now.textContent}));}
+      function startV(){clearInterval(vizI);vizI=setInterval(()=>{bars.forEach(b=>{b.style.height=(2+Math.random()*14)+'px';});},120);}
+      function stopV(){clearInterval(vizI);bars.forEach(b=>{b.style.height='2px';});}
+      au.addEventListener('pause',()=>{if(!userPaused&&au.src){setTimeout(()=>{if(!userPaused&&au.src)au.play().catch(()=>{});},100);}});
+      sel.addEventListener('change',()=>{if(!sel.value){userPaused=true;au.pause();au.src='';now.textContent='NO SIGNAL';stopV();saveState();return;}userPaused=false;au.src=sel.value;au.play().catch(()=>{});now.textContent=sel.options[sel.selectedIndex].text;startV();saveState();});
+      document.getElementById('rf-play').addEventListener('click',()=>{if(!au.src)return;if(au.paused){userPaused=false;au.play().catch(()=>{});startV();}else{userPaused=true;au.pause();stopV();}saveState();});
+      document.getElementById('rf-stop').addEventListener('click',()=>{userPaused=true;au.pause();au.src='';sel.value='';now.textContent='NO SIGNAL';stopV();saveState();});
+      vol.addEventListener('input',()=>{au.volume=vol.value/100;saveState();});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden&&au.src&&!userPaused){au.play().catch(()=>{});startV();}});
+      // Restore state on load
+      try{const s=JSON.parse(localStorage.getItem('deltaRadio'));if(s&&s.src&&s.playing){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;au.src=s.src;userPaused=false;au.play().then(()=>{now.textContent=s.name||sel.options[sel.selectedIndex]?.text||'RECEIVING';startV();}).catch(()=>{now.textContent=s.name||'SIGNAL READY (tap play)';sel.value=s.station||'';});}else if(s){sel.value=s.station||'';vol.value=s.vol||60;au.volume=(s.vol||60)/100;if(s.station){au.src=s.src;now.textContent=s.name||'PAUSED';userPaused=true;}}}catch(e){}
+    })();
+    </script>
+  </body>
 </html>
