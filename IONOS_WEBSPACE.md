@@ -4,6 +4,12 @@ This path is for the static, browser-facing edition of the project in `webspace-
 
 Use this when you want a professional public website on your current IONOS products without buying additional hosting.
 
+Before uploading `webspace-site/`, export the shared tactical-map catalog so the standalone map stays aligned with the live Flask map:
+
+```bash
+python3 scripts/export_webspace_map_catalog.py
+```
+
 ## What to upload
 
 Upload the contents of `webspace-site/`, not the full Flask project.

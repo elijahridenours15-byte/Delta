@@ -6,6 +6,7 @@
     <title>Delta Coding — Tactical Map</title>
     <link rel="stylesheet" href="assets/style.css">
     <script src="assets/static-mode.js"></script>
+    <script src="assets/map-layer-catalog.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -63,6 +64,17 @@
         border:1px solid var(--border)!important;border-radius:4px!important
       }
       .leaflet-control-layers label{display:flex;align-items:center;gap:6px;padding:3px 0}
+      .leaflet-control-layers .leaflet-control-layers-list{padding-top:2px}
+      .leaflet-layer-section{padding:6px 0 4px}
+      .leaflet-layer-section + .leaflet-layer-section{border-top:1px solid rgba(164,184,122,.15)}
+      .leaflet-layer-section-title{
+        color:var(--accent);font-size:9px;font-weight:700;letter-spacing:1.3px;
+        text-transform:uppercase;margin-bottom:3px
+      }
+      .leaflet-layer-section-note{
+        color:var(--muted);font-size:9px;line-height:1.35;margin-bottom:4px
+      }
+      .leaflet-layer-section-list{display:flex;flex-direction:column;gap:2px}
       .leaflet-control-layers-separator{border-top:1px solid var(--border)!important}
 
       /* Crosshair */
@@ -110,6 +122,12 @@
       .map-btn.xray.active{background:#2A4A7A;color:#A0C8F0;border-color:#6B9FD4}
       .map-btn.print-btn{border-color:var(--gold);color:var(--gold)}
       .map-btn.print-btn:hover{box-shadow:0 0 8px rgba(196,162,101,.3)}
+      .map-btn.settings{border-color:#7F9461;color:#C8D5A3}
+      .map-btn.settings:hover{box-shadow:0 0 8px rgba(139,157,106,.3)}
+
+      #map.xray-mode .leaflet-pane.leaflet-tile-pane{
+        filter:grayscale(1) contrast(1.62) brightness(1.02) saturate(0.15);
+      }
 
       /* Conflict popup */
       .conflict-popup{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.5}
@@ -123,10 +141,29 @@
       .war-legend h4{margin:0 0 6px;color:var(--accent);font-size:11px;letter-spacing:1px}
       .legend-item{display:flex;align-items:center;gap:6px;margin:3px 0}
       .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+      .xray-legend{position:absolute;top:92px;left:12px;z-index:1000;background:rgba(12,18,24,.9);border:1px solid rgba(107,159,212,.45);border-radius:6px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#D6E8FF;display:none;backdrop-filter:blur(6px);max-width:250px;box-shadow:0 0 16px rgba(56,96,150,.18);pointer-events:none}
+      .xray-legend.show{display:block}
+      .xray-legend h4{margin:0 0 6px;color:#A0C8F0;font-size:11px;letter-spacing:1px}
+      .xray-legend .legend-item{color:#C7D9EE;align-items:flex-start}
+      .xray-legend .legend-dot{background:#6B9FD4;border-radius:3px;height:8px}
+      .xray-status{margin-top:8px;color:#A0C8F0;line-height:1.5}
+
+      .map-settings{position:absolute;top:12px;right:54px;z-index:1200;width:min(340px,calc(100% - 24px));background:rgba(14,17,11,.95);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:none;backdrop-filter:blur(8px);box-shadow:0 12px 28px rgba(0,0,0,.3)}
+      .map-settings.show{display:block}
+      .settings-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+      .settings-title h4{margin:0;color:var(--accent);font:700 11px 'JetBrains Mono',monospace;letter-spacing:1px}
+      .settings-title p{margin:4px 0 0;color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
+      .settings-kicker{color:var(--accent-bright);font:700 10px 'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+      .settings-group{display:grid;gap:8px;margin-top:10px}
+      .settings-label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--text2);font:400 10px 'JetBrains Mono',monospace;letter-spacing:.6px;text-transform:uppercase}
+      .settings-label input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+      .settings-select{width:100%;padding:7px 9px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font:400 11px 'JetBrains Mono',monospace}
+      .settings-actions{display:flex;gap:6px;flex-wrap:wrap}
+      .settings-note{color:var(--muted);font:400 10px/1.5 'JetBrains Mono',monospace}
 
       /* Print overlay */
       @media print{
-        .hero,.map-hud,.map-hud-row2,.radio-footer,.crosshair,.fs-btn,.measure-info,.war-legend,.leaflet-control-zoom,.leaflet-control-layers{display:none!important}
+        .hero,.map-hud,.map-hud-row2,.radio-footer,.crosshair,.fs-btn,.measure-info,.war-legend,.xray-legend,.map-settings,.leaflet-control-zoom,.leaflet-control-layers{display:none!important}
         .map-wrap{padding:0!important;height:100vh!important}
         #map{border:none!important;border-radius:0!important}
         body{padding-bottom:0!important;background:#fff!important}
@@ -145,6 +182,7 @@
         .map-toolbar{justify-content:center}
         .map-btn{font-size:9px;padding:5px 8px}
         .goto-input{width:80px;font-size:10px}
+        .map-settings{right:12px;left:12px;width:auto}
       }
     </style>
   </head>
@@ -204,12 +242,45 @@
       <div class="map-hud-row2">
         <button class="map-btn xray" id="btn-xray" title="X-Ray building view">&#x1F3D7; X-RAY</button>
         <button class="map-btn war" id="btn-conflicts" title="Live conflict zones">&#x1F4A5; CONFLICTS</button>
+        <button class="map-btn settings" id="btn-settings" title="Map settings">&#x2699; SETTINGS</button>
         <button class="map-btn print-btn" id="btn-print" title="Print map">&#x1F5A8; PRINT</button>
         <button class="map-btn print-btn" id="btn-download" title="Download map as image">&#x2B07; DOWNLOAD</button>
       </div>
 
       <div style="position:relative;flex:1;display:flex;flex-direction:column">
         <div id="map"></div>
+        <div class="map-settings" id="map-settings">
+          <div class="settings-title">
+            <div>
+              <h4>MAP SETTINGS</h4>
+              <p>Standalone Tac Map now exposes X-Ray, conflicts, and the same free basemap stack from one settings drawer.</p>
+            </div>
+          </div>
+          <div class="settings-group">
+            <div class="settings-kicker">Tac View Stack</div>
+            <label class="settings-label" for="map-base-layer">
+              <span>Base Layer</span>
+            </label>
+            <select class="settings-select" id="map-base-layer"></select>
+            <div class="settings-note">Open the map layer button for the Topo Portfolio: Land Nav Training HD, World Hillshade Reference, OpenTopoMap HD, World Topo HD, NatGeo Terrain, USGS Topo, and USGS Imagery + Topo.</div>
+            <label class="settings-label">
+              <span>X-Ray Structure Scan</span>
+              <input type="checkbox" id="settings-xray-toggle">
+            </label>
+            <label class="settings-label">
+              <span>Conflict Overlay</span>
+              <input type="checkbox" id="settings-conflicts-toggle">
+            </label>
+            <div class="settings-actions">
+              <button class="map-btn" id="settings-profile-recon">RECON VIEW</button>
+              <button class="map-btn" id="settings-profile-xray">X-RAY STACK</button>
+              <button class="map-btn" id="settings-profile-darkwatch">DARK WATCH</button>
+              <button class="map-btn" id="settings-profile-reset">RESET VIEW</button>
+            </div>
+            <div class="settings-note" id="settings-profile-note">X-Ray is now available from the same map-settings drawer, and the layer button now opens a Topo Portfolio with Land Nav Training HD, World Hillshade Reference, and USGS Topo.</div>
+            <div class="settings-note" id="settings-summary">Base: Topographic | Modes idle.</div>
+          </div>
+        </div>
         <!-- Center crosshair -->
         <div class="crosshair" id="crosshair">
           <svg viewBox="0 0 40 40">
@@ -229,41 +300,68 @@
           <div class="legend-item"><div class="legend-dot" style="background:#8B4513"></div> Insurgency / Terror</div>
           <div class="legend-item"><div class="legend-dot" style="background:#6B6020"></div> Tensions / Disputed</div>
         </div>
+        <div class="xray-legend" id="xray-legend">
+          <h4>STRUCTURE INTEL</h4>
+          <div class="legend-item"><div class="legend-dot"></div> High-contrast building outlines and label overlays</div>
+          <div class="legend-item"><div class="legend-dot"></div> Best used at zoom 14+ for tighter urban scans</div>
+          <div class="xray-status" id="xray-status">Stand by.</div>
+        </div>
       </div>
     </div>
 
     <script>
     (function(){
       // ── Tile Layers ────────────────────────────────────────
-      const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-      });
+      const mapLayerCatalog = Array.isArray(window.DELTA_MAP_LAYER_CATALOG) ? window.DELTA_MAP_LAYER_CATALOG : [];
+      const baseLayerGroupOrder = ['topo', 'tactical'];
+      const baseLayerGroupMetadata = {
+        topo: {
+          label: 'TOPO PORTFOLIO',
+          note: 'High-detail public land-nav, relief, and topo stacks from USGS, Esri, and OpenTopoMap.',
+        },
+        tactical: {
+          label: 'TACTICAL STACK',
+          note: 'Recon imagery, street, darkwatch, and response basemaps.',
+        },
+      };
 
-      const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: '&copy; Esri &mdash; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-      });
+      function buildTileLayer(layerDefinition, fallbackDefinition = {}) {
+        const merged = {...fallbackDefinition, ...layerDefinition};
+        const options = {
+          maxZoom: merged.maxZoom,
+          attribution: merged.attribution,
+        };
+        if (Number.isFinite(merged.maxNativeZoom)) options.maxNativeZoom = merged.maxNativeZoom;
+        if (merged.detectRetina) options.detectRetina = true;
+        if (merged.subdomains) options.subdomains = merged.subdomains;
+        if (Number.isFinite(merged.opacity)) options.opacity = merged.opacity;
+        if (merged.pane) options.pane = merged.pane;
+        return L.tileLayer(merged.tileUrl, options);
+      }
 
-      const osmStd = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      });
+      function buildNetworkBaseLayer(definition) {
+        if (Array.isArray(definition.layers) && definition.layers.length) {
+          const composite = L.layerGroup(definition.layers.map(layerDefinition => buildTileLayer(layerDefinition, definition)));
+          composite.getAttribution = () => definition.attribution;
+          return composite;
+        }
+        return buildTileLayer(definition);
+      }
 
-      const darkTactical = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-      });
-
-      const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles &copy; Esri'
-      });
-
-      const usgsImageryTopo = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 16,
-        attribution: 'Tiles &copy; USGS'
-      });
+      const networkBaseLayers = Object.fromEntries(
+        mapLayerCatalog.map(definition => [definition.key, buildNetworkBaseLayer(definition)])
+      );
+      const topoMap = networkBaseLayers.topographic;
+      const satellite = networkBaseLayers.satellite;
+      const esriTopo = networkBaseLayers.esriTopo;
+      const osmStd = networkBaseLayers.street;
+      const darkTactical = networkBaseLayers.dark;
+      const usgsImageryTopo = networkBaseLayers.usgs;
+      const baseLayerCatalogEntries = mapLayerCatalog.map(definition => ({
+        ...definition,
+        group: definition.group || 'tactical',
+        layer: networkBaseLayers[definition.key],
+      }));
 
       // ── Init Map ───────────────────────────────────────────
       const map = L.map('map', {
@@ -276,14 +374,19 @@
       });
 
       // ── Layer Control ──────────────────────────────────────
-      const baseMaps = {
-        "&#x1F3D4; Topographic": topoMap,
-        "&#x1F6F0; Satellite Recon": satellite,
-        "&#x1F5FA; ESRI Topo": esriTopo,
-        "&#x1F30D; Street Map": osmStd,
-        "&#x1F311; Dark Tactical": darkTactical,
-        "&#x1F1FA;&#x1F1F8; USGS Imagery + Topo": usgsImageryTopo
-      };
+      const baseMaps = Object.fromEntries(baseLayerCatalogEntries.map(entry => [entry.controlLabel, entry.layer]));
+      const baseLayerList = baseLayerCatalogEntries.map(entry => entry.layer);
+      let activeBaseLayer = topoMap;
+
+      function setBaseLayer(nextLayer) {
+        baseLayerList.forEach(layer => {
+          if (layer !== nextLayer && map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        if (!map.hasLayer(nextLayer)) nextLayer.addTo(map);
+        activeBaseLayer = nextLayer;
+        syncSettingsControls();
+        setSettingsSummary();
+      }
 
       // ── X-Ray / Building Overlay Layers ────────────────────
       const buildingFootprints = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
@@ -314,8 +417,60 @@
         "&#x1F6B6; Hiking Trails": trailsOverlay
       };
 
+      function decorateLayerControl() {
+        const baseContainer = layerControl.getContainer()?.querySelector('.leaflet-control-layers-base');
+        if (!baseContainer) return;
+
+        const labels = Array.from(baseContainer.querySelectorAll('label'));
+        if (labels.length !== baseLayerCatalogEntries.length) return;
+
+        const sections = new Map();
+        baseLayerGroupOrder.forEach(groupKey => {
+          const metadata = baseLayerGroupMetadata[groupKey];
+          if (!metadata) return;
+          const section = document.createElement('div');
+          section.className = 'leaflet-layer-section';
+
+          const title = document.createElement('div');
+          title.className = 'leaflet-layer-section-title';
+          title.textContent = metadata.label;
+
+          const note = document.createElement('div');
+          note.className = 'leaflet-layer-section-note';
+          note.textContent = metadata.note;
+
+          const list = document.createElement('div');
+          list.className = 'leaflet-layer-section-list';
+
+          section.appendChild(title);
+          section.appendChild(note);
+          section.appendChild(list);
+          sections.set(groupKey, {section, list});
+        });
+
+        labels.forEach((label, index) => {
+          const entry = baseLayerCatalogEntries[index];
+          const groupKey = sections.has(entry.group) ? entry.group : 'tactical';
+          sections.get(groupKey).list.appendChild(label);
+        });
+
+        baseContainer.innerHTML = '';
+        baseLayerGroupOrder.forEach(groupKey => {
+          const section = sections.get(groupKey);
+          if (section && section.list.childElementCount) {
+            baseContainer.appendChild(section.section);
+          }
+        });
+      }
+
       const layerControl = L.control.layers(baseMaps, overlayMaps, {position: 'topright', collapsed: true}).addTo(map);
+      decorateLayerControl();
       L.control.scale({metric: true, imperial: true, position: 'bottomleft'}).addTo(map);
+      map.on('baselayerchange', event => {
+        activeBaseLayer = event.layer;
+        syncSettingsControls();
+        setSettingsSummary();
+      });
 
       // ── HUD Updates ────────────────────────────────────────
       const hudLat = document.getElementById('hud-lat');
@@ -358,6 +513,70 @@
       map.on('mousemove', e => updateHUD(e.latlng));
       map.on('zoomend', () => updateHUD(map.getCenter()));
       updateHUD(map.getCenter());
+
+      const btnSettings = document.getElementById('btn-settings');
+      const settingsPanel = document.getElementById('map-settings');
+      const mapBaseLayerSelect = document.getElementById('map-base-layer');
+      const settingsXrayToggle = document.getElementById('settings-xray-toggle');
+      const settingsConflictsToggle = document.getElementById('settings-conflicts-toggle');
+      const settingsProfileRecon = document.getElementById('settings-profile-recon');
+      const settingsProfileXray = document.getElementById('settings-profile-xray');
+      const settingsProfileDarkwatch = document.getElementById('settings-profile-darkwatch');
+      const settingsProfileReset = document.getElementById('settings-profile-reset');
+      const settingsProfileNote = document.getElementById('settings-profile-note');
+      const settingsSummary = document.getElementById('settings-summary');
+      const xrayLegend = document.getElementById('xray-legend');
+      const xrayStatus = document.getElementById('xray-status');
+
+      const namedBaseLayers = Object.fromEntries(baseLayerCatalogEntries.map(entry => [entry.key, entry.layer]));
+
+      const baseLayerLabels = Object.fromEntries(baseLayerCatalogEntries.map(entry => [entry.key, entry.label]));
+
+      function getActiveBaseLayerKey() {
+        return Object.entries(namedBaseLayers).find(([, layer]) => layer === activeBaseLayer)?.[0] || 'topographic';
+      }
+
+      function populateBaseLayerSelect() {
+        mapBaseLayerSelect.innerHTML = '';
+        baseLayerGroupOrder.forEach(groupKey => {
+          const metadata = baseLayerGroupMetadata[groupKey];
+          const entries = baseLayerCatalogEntries.filter(entry => entry.group === groupKey);
+          if (!entries.length || !metadata) return;
+
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = metadata.label;
+
+          entries.forEach(definition => {
+            const option = document.createElement('option');
+            option.value = definition.key;
+            option.textContent = definition.label;
+            optgroup.appendChild(option);
+          });
+
+          mapBaseLayerSelect.appendChild(optgroup);
+        });
+      }
+
+      function syncSettingsControls() {
+        mapBaseLayerSelect.value = getActiveBaseLayerKey();
+        settingsXrayToggle.checked = xrayActive;
+        settingsConflictsToggle.checked = conflictsActive;
+      }
+
+      function setSettingsSummary() {
+        const modes = [];
+        if (xrayActive) modes.push('X-Ray');
+        if (conflictsActive) modes.push('Conflicts');
+        settingsSummary.textContent = modes.length
+          ? `Base: ${baseLayerLabels[getActiveBaseLayerKey()] || 'Topographic'} | Active: ${modes.join(' | ')}`
+          : `Base: ${baseLayerLabels[getActiveBaseLayerKey()] || 'Topographic'} | Modes idle.`;
+      }
+
+      function setSettingsProfileNote(message) {
+        settingsProfileNote.textContent = message;
+      }
+
+      populateBaseLayerSelect();
 
       // ── Marker System ──────────────────────────────────────
       const markers = [];
@@ -487,7 +706,6 @@
       // X-RAY BUILDING VIEW
       // ══════════════════════════════════════════════════════
       let xrayActive = false;
-      let xrayLayer = null;
 
       // High-contrast building-outline layer using Stadia Stamen Toner
       const xrayToner = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png', {
@@ -500,20 +718,27 @@
         maxZoom: 20, opacity: 0.7
       });
 
-      document.getElementById('btn-xray').addEventListener('click', function(){
-        xrayActive = !xrayActive;
-        this.classList.toggle('active', xrayActive);
+      function setXrayState(nextState) {
+        xrayActive = Boolean(nextState);
+        document.getElementById('btn-xray').classList.toggle('active', xrayActive);
+        map.getContainer().classList.toggle('xray-mode', xrayActive);
+        xrayLegend.classList.toggle('show', xrayActive);
         if (xrayActive) {
           xrayToner.addTo(map);
           xrayLabels.addTo(map);
-          // Zoom in for building detail if too far out
-          if (map.getZoom() < 14) {
-            map.setZoom(16);
-          }
+          if (map.getZoom() < 14) map.setZoom(16);
+          xrayStatus.textContent = 'X-Ray scan active. Tight urban detail is best from zoom 14 and closer.';
         } else {
           map.removeLayer(xrayToner);
           map.removeLayer(xrayLabels);
+          xrayStatus.textContent = 'Stand by.';
         }
+        syncSettingsControls();
+        setSettingsSummary();
+      }
+
+      document.getElementById('btn-xray').addEventListener('click', function(){
+        setXrayState(!xrayActive);
       });
 
       // ══════════════════════════════════════════════════════
@@ -594,20 +819,82 @@
         });
       }
 
-      document.getElementById('btn-conflicts').addEventListener('click', function(){
-        conflictsActive = !conflictsActive;
-        this.classList.toggle('active', conflictsActive);
+      function setConflictState(nextState, options = {}) {
+        conflictsActive = Boolean(nextState);
+        document.getElementById('btn-conflicts').classList.toggle('active', conflictsActive);
         warLegend.classList.toggle('show', conflictsActive);
         if (conflictsActive) {
           loadConflicts();
           conflictZones.addTo(map);
           conflictLayer.addTo(map);
-          map.setView([25, 40], 3); // Center on conflict-heavy region
+          if (options.focusView !== false) map.setView([25, 40], 3);
         } else {
           map.removeLayer(conflictLayer);
           map.removeLayer(conflictZones);
         }
+        syncSettingsControls();
+        setSettingsSummary();
+      }
+
+      document.getElementById('btn-conflicts').addEventListener('click', function(){
+        setConflictState(!conflictsActive);
       });
+
+      btnSettings.addEventListener('click', function(){
+        const nextState = !settingsPanel.classList.contains('show');
+        settingsPanel.classList.toggle('show', nextState);
+        this.classList.toggle('active', nextState);
+      });
+
+      mapBaseLayerSelect.addEventListener('change', function(){
+        setBaseLayer(namedBaseLayers[this.value] || topoMap);
+        setSettingsProfileNote(`${baseLayerLabels[this.value] || 'Map'} selected. X-Ray and conflict overlays remain available from the same settings drawer.`);
+      });
+
+      settingsXrayToggle.addEventListener('change', function(){
+        setXrayState(this.checked);
+      });
+
+      settingsConflictsToggle.addEventListener('change', function(){
+        setConflictState(this.checked, {focusView: false});
+      });
+
+      function applySettingsProfile(profile) {
+        if (profile === 'recon') {
+          setBaseLayer(satellite);
+          setConflictState(false, {focusView: false});
+          setXrayState(false);
+          setSettingsProfileNote('Recon view armed on satellite imagery for fast terrain and urban checks.');
+          return;
+        }
+        if (profile === 'xray') {
+          setBaseLayer(satellite);
+          setConflictState(false, {focusView: false});
+          setXrayState(true);
+          setSettingsProfileNote('X-Ray stack armed on satellite imagery. Building scan now lives inside map settings too.');
+          return;
+        }
+        if (profile === 'darkwatch') {
+          setBaseLayer(darkTactical);
+          setXrayState(true);
+          setConflictState(true, {focusView: false});
+          setSettingsProfileNote('Dark Watch profile armed: dark base, conflict overlay, and X-Ray structure scan together.');
+          return;
+        }
+
+        setBaseLayer(topoMap);
+        setConflictState(false, {focusView: false});
+        setXrayState(false);
+        setSettingsProfileNote('Tac view reset to the baseline topographic stack.');
+      }
+
+      settingsProfileRecon.addEventListener('click', function(){ applySettingsProfile('recon'); });
+      settingsProfileXray.addEventListener('click', function(){ applySettingsProfile('xray'); });
+      settingsProfileDarkwatch.addEventListener('click', function(){ applySettingsProfile('darkwatch'); });
+      settingsProfileReset.addEventListener('click', function(){ applySettingsProfile('reset'); });
+
+      syncSettingsControls();
+      setSettingsSummary();
 
       // ══════════════════════════════════════════════════════
       // PRINT & DOWNLOAD MAP
@@ -697,8 +984,6 @@
           <option value="">— SELECT FREQ —</option>
           <option value="https://radio.weatherusa.net/NWR/KEC80.mp3">NOAA Weather</option>
           <option value="https://broadcastify.cdnstream1.com/14747">Scanner Radio</option>
-          <option value="https://stream.live.vc.bbcmedia.co.uk/bbc_world_service">BBC World Svc</option>
-          <option value="https://npr-ice.streamguys1.com/live.mp3">NPR News</option>
           <option value="https://stream.wqxr.org/js-stream.aac">Classical WQXR</option>
           <option value="https://play.streamafrica.net/lofiradio">Lofi Beats</option>
           <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz FM</option>

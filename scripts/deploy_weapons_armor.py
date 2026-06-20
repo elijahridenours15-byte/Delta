@@ -23,8 +23,13 @@ DEFAULT_PORT = 22
 REGISTRY_PATH = Path.home() / "Library" / "Application Support" / "batcode-playground" / "ionos_deploy_keys.json"
 
 ROOT = Path(__file__).resolve().parent.parent
+ARMY_LIBRARY_PDF_DIR = ROOT / "static" / "manuals" / "army-library"
+CULTURE_RANK_DIR = ROOT / "static" / "culture-ranks"
+RADIO_UPLOAD_DIR = ROOT / "static" / "manuals" / "uploads" / "radio"
 UPLOADS = [
     (Path("run.py"), "run.py"),
+    (Path("security_hardening.py"), "security_hardening.py"),
+    (Path("ionos-backend/.htaccess"), ".htaccess"),
     (Path("manual_store.py"), "manual_store.py"),
     (Path("drone_bridge.py"), "drone_bridge.py"),
     (Path("drone_bridge_http.py"), "drone_bridge_http.py"),
@@ -33,6 +38,7 @@ UPLOADS = [
     (Path("templates/bible.html"), "templates/bible.html"),
     (Path("templates/cyber.html"), "templates/cyber.html"),
     (Path("templates/drone.html"), "templates/drone.html"),
+    (Path("templates/advertise.html"), "templates/advertise.html"),
     (Path("templates/index.html"), "templates/index.html"),
     (Path("templates/live_map.html"), "templates/live_map.html"),
     (Path("templates/manuals.html"), "templates/manuals.html"),
@@ -45,17 +51,34 @@ UPLOADS = [
     (Path("templates/mechanics_browser.html"), "templates/mechanics_browser.html"),
     (Path("templates/mechanics_gallery.html"), "templates/mechanics_gallery.html"),
     (Path("templates/radio.html"), "templates/radio.html"),
+    (Path("templates/schooling.html"), "templates/schooling.html"),
     (Path("templates/weapons.html"), "templates/weapons.html"),
     (Path("templates/weapons_armory.html"), "templates/weapons_armory.html"),
     (Path("templates/survival.html"), "templates/survival.html"),
+    (Path("templates/survival_army_library.html"), "templates/survival_army_library.html"),
+    (Path("templates/survival_army_library_offline.html"), "templates/survival_army_library_offline.html"),
+    (Path("templates/survival_army_library_binder.html"), "templates/survival_army_library_binder.html"),
+    (Path("templates/survival_meal_bible_page.html"), "templates/survival_meal_bible_page.html"),
+    (Path("templates/_meal_bible_initial_grid.html"), "templates/_meal_bible_initial_grid.html"),
+    (Path("templates/_meal_bible_initial_detail.html"), "templates/_meal_bible_initial_detail.html"),
+    (Path("templates/_culture_build_styles.html"), "templates/_culture_build_styles.html"),
+    (Path("templates/culture_build.html"), "templates/culture_build.html"),
     (Path("templates/truth.html"), "templates/truth.html"),
+    (Path("templates/_page_ad.html"), "templates/_page_ad.html"),
     (Path("templates/_radio_footer.html"), "templates/_radio_footer.html"),
     (Path("templates/_top_nav.html"), "templates/_top_nav.html"),
+    (Path("generated/monetization_config.json"), "generated/monetization_config.json"),
     (Path("static/sw.js"), "static/sw.js"),
     (Path("static/offline.html"), "static/offline.html"),
+    (Path("static/ads.txt"), "static/ads.txt"),
+    (Path("static/auth.js"), "static/auth.js"),
     (Path("static/BingSiteAuth.xml"), "static/BingSiteAuth.xml"),
     (Path("static/robots.txt"), "static/robots.txt"),
     (Path("static/style.css"), "static/style.css"),
+    (Path("static/map-layer-catalog.js"), "static/map-layer-catalog.js"),
+    (Path("static/scripture-hotspots.js"), "static/scripture-hotspots.js"),
+    (Path("static/survival_loadout.js"), "static/survival_loadout.js"),
+    (Path("static/survival_meal_bible.js"), "static/survival_meal_bible.js"),
     (Path("static/vendor/leaflet/leaflet.css"), "static/vendor/leaflet/leaflet.css"),
     (Path("static/vendor/leaflet/leaflet.js"), "static/vendor/leaflet/leaflet.js"),
     (Path("static/vendor/leaflet/images/marker-icon.png"), "static/vendor/leaflet/images/marker-icon.png"),
@@ -66,22 +89,53 @@ UPLOADS = [
     (Path("static/vendor/html2canvas.min.js"), "static/vendor/html2canvas.min.js"),
     (Path("static/sitemap.xml"), "static/sitemap.xml"),
 ]
+UPLOADS.extend(
+    (path.relative_to(ROOT), path.relative_to(ROOT).as_posix())
+    for path in sorted(ARMY_LIBRARY_PDF_DIR.glob("*.pdf"))
+)
+UPLOADS.extend(
+    (path.relative_to(ROOT), path.relative_to(ROOT).as_posix())
+    for path in sorted(CULTURE_RANK_DIR.glob("*"))
+)
+UPLOADS.extend(
+    (path.relative_to(ROOT), path.relative_to(ROOT).as_posix())
+    for path in sorted(p for p in RADIO_UPLOAD_DIR.rglob("*") if p.is_file())
+)
 CHECK_URLS = [
     "https://futurecodedelta.org/",
     "https://futurecodedelta.org/ai",
     "https://futurecodedelta.org/bible",
     "https://futurecodedelta.org/cyber",
     "https://futurecodedelta.org/drone",
+    "https://futurecodedelta.org/advertise",
     "https://futurecodedelta.org/map",
     "https://futurecodedelta.org/radio",
     "https://futurecodedelta.org/weapons",
     "https://futurecodedelta.org/weapons/armory",
     "https://futurecodedelta.org/survival",
+    "https://futurecodedelta.org/survival/army-library",
+    "https://futurecodedelta.org/survival/army-library/offline",
+    "https://futurecodedelta.org/survival/army-library/binder",
     "https://futurecodedelta.org/truth",
     "https://futurecodedelta.org/sw.js",
     "https://futurecodedelta.org/BingSiteAuth.xml",
     "https://futurecodedelta.org/robots.txt",
+    "https://futurecodedelta.org/ads.txt",
+    "https://futurecodedelta.org/static/auth.js",
     "https://futurecodedelta.org/static/offline.html",
+    "https://futurecodedelta.org/static/map-layer-catalog.js",
+    "https://futurecodedelta.org/static/scripture-hotspots.js",
+    "https://futurecodedelta.org/static/survival_loadout.js",
+    "https://futurecodedelta.org/static/survival_meal_bible.js",
+    "https://futurecodedelta.org/static/culture-ranks/iran-general.svg",
+    "https://futurecodedelta.org/static/culture-ranks/iran-chief-warrant-officer.svg",
+    "https://futurecodedelta.org/static/culture-ranks/iran-private.svg",
+    "https://futurecodedelta.org/static/culture-ranks/china-general.png",
+    "https://futurecodedelta.org/static/culture-ranks/china-master-sergeant-first-class.png",
+    "https://futurecodedelta.org/static/culture-ranks/china-private.png",
+    "https://futurecodedelta.org/static/culture-ranks/usa-general.svg",
+    "https://futurecodedelta.org/static/culture-ranks/usa-sergeant-major-of-the-army.svg",
+    "https://futurecodedelta.org/static/manuals/army-library/fm21-76.pdf",
     "https://futurecodedelta.org/static/vendor/leaflet/leaflet.js",
     "https://futurecodedelta.org/static/vendor/html2canvas.min.js",
     "https://futurecodedelta.org/sitemap.xml",

@@ -1,4 +1,4 @@
-Options +ExecCGI -MultiViews
+Options +ExecCGI -MultiViews -Indexes
 AddHandler cgi-script .cgi
 DirectorySlash Off
 
@@ -14,7 +14,7 @@ Header always unset Cross-Origin-Opener-Policy
 Header always unset Cross-Origin-Resource-Policy
 
 Header always set Strict-Transport-Security "max-age=31536000"
-Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' https:; frame-src 'self' https:; worker-src 'self' blob:; manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content"
+Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://unpkg.com https://cesium.com https://pagead2.googlesyndication.com https://partner.googleadservices.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cesium.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; media-src 'self' blob: data: https: http:; connect-src 'self' https: http:; frame-src 'self' https: http:; worker-src 'self' blob: https://cesium.com; manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content"
 Header always set X-Content-Type-Options "nosniff"
 Header always set X-Frame-Options "DENY"
 Header always set X-XSS-Protection "1; mode=block"
@@ -22,10 +22,45 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set Permissions-Policy "accelerometer=(), autoplay=(self), browsing-topics=(), camera=(self), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()"
 Header always set Cross-Origin-Opener-Policy "same-origin"
 Header always set Cross-Origin-Resource-Policy "same-site"
+Header always set X-DNS-Prefetch-Control "off"
+Header always set X-Permitted-Cross-Domain-Policies "none"
+</IfModule>
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType text/css "access plus 1 year"
+ExpiresByType application/javascript "access plus 1 year"
+ExpiresByType application/manifest+json "access plus 1 day"
+ExpiresByType image/svg+xml "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/gif "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
 DirectoryIndex index.cgi index.html
 RewriteEngine On
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK|DELETE|PUT|PATCH|CONNECT)$ [NC]
+RewriteRule .* - [F,L]
+
+# Defense-in-depth filters adapted from the staged htaccess firewall rules.
+RewriteCond %{THE_REQUEST} \?\ HTTP/ [NC,OR]
+RewriteCond %{THE_REQUEST} /\*\ HTTP/ [NC,OR]
+RewriteCond %{QUERY_STRING} (\.\./|%2e%2e%2f|%2e%2e/|\.\.%2f|%2e\.%2f|%2e\./|\.%2e%2f|\.%2e/) [NC,OR]
+RewriteCond %{QUERY_STRING} (\<|%3C).*(script|iframe|object|embed).*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} base64_(en|de)code[^\(]*\([^\)]*\) [NC,OR]
+RewriteCond %{QUERY_STRING} (GLOBALS|_REQUEST)(=|\[|\%[0-9A-Z]{0,2}) [NC]
+RewriteRule .* - [F,L]
+
+RewriteCond %{REQUEST_URI} (?:^|/)(?:wp-config\.php|bb-config\.php|timthumb\.php|phpthumb\.php|thumb\.php|thumbs\.php|debug\.log)$ [NC]
+RewriteRule .* - [F,L]
+
+RewriteRule (^|/)\.(?!well-known/) - [F,L]
+RedirectMatch gone ^/(?:generated|templates|tests|scripts|agent|memories)(?:/.*)?$
+RedirectMatch gone ^/(?:run\.py|manual_store\.py|drone_bridge(?:_http)?\.py|security_hardening\.py|performance_optimization\.py|flask_integration\.py|setup_hardening\.py|gunicorn_config\.py|monitor_health\.py|deploy_production\.sh|security_config\.json|\.env)$
+RedirectMatch gone (?i)^/.*\.(?:py|pyc|pyo|db|sqlite|sqlite3|bak|ini|inc|log|sh|md|toml|yaml|yml)(?:\..*)?$
+
 RewriteRule ^agent/?$ index.cgi/agent [QSA,L]
 RedirectMatch 302 ^/index\.html$ /
 RedirectMatch 302 ^/(ai|cyber|map|bible|drone|radio|truth)\.html$ /$1
