@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap');
 
 :root{
-  --bg:#4B5320;
+  --bg:#6B8E23;
   --bg2:#141912;
   --panel:#1a1f16;
   --panel2:#222a1c;
@@ -34,14 +34,7 @@ html,body{height:100%}
 body{
   margin:0;
   font-family:'Inter',system-ui,-apple-system,sans-serif;
-  background-color:#4B5320;
-  background-image: linear-gradient(135deg, #3B4218 25%, transparent 25%),
-                    linear-gradient(225deg, #3B4218 25%, transparent 25%),
-                    linear-gradient(135deg, transparent 75%, #3B4218 75%),
-                    linear-gradient(225deg, transparent 75%, #3B4218 75%),
-                    linear-gradient(135deg, #4B5320 0%, #4B5320 50%, #5C6B2E 50%, #5C6B2E 100%);
-  background-size: 60px 60px;
-  background-position: 0 0, 30px 0, 30px -30px, 0 30px, 0 0;
+  background-color:#6B8E23;
   color:var(--text);
   padding-bottom:70px;
 }

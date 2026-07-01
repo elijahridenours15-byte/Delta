@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'delta-shell-v31';
+const SHELL_CACHE = 'delta-shell-v32';
 const RUNTIME_CACHE = 'delta-runtime-v29';
 const MAP_PACK_CACHE = 'delta-map-pack-v29';
 const OFFLINE_FALLBACK_URL = '/static/offline.html';
