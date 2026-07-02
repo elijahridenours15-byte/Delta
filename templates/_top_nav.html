@@ -5,8 +5,9 @@
 {% set survival_active = path.startswith('/survival') %}
 {% set culture_active = path.startswith('/culture') %}
 {% set schooling_active = path.startswith('/schooling') %}
+{% set agents_active = path.startswith('/agents') %}
 {% set advertise_active = path in ['/advertise', '/ads'] %}
-{% set dropdown_active = path in ['/', '/ai', '/map', '/bible', '/cyber', '/drone', '/weapons', '/advertise', '/ads', '/download/offline-site'] or mechanics_active or survival_active or culture_active or schooling_active %}
+{% set dropdown_active = path in ['/', '/ai', '/map', '/bible', '/cyber', '/drone', '/weapons', '/advertise', '/ads', '/download/offline-site'] or mechanics_active or survival_active or culture_active or schooling_active or agents_active %}
 <div class="topline-strip" id="topline-strip">
   <div class="topline-kicker-wrap">
     <span class="topline-live-dot" aria-hidden="true"></span>
@@ -42,6 +43,7 @@
       <a href="/culture" class="{% if culture_active %}active{% endif %}">Culture Build</a>
       <a href="/schooling" class="{% if schooling_active %}active{% endif %}">Schooling</a>
       <a href="/mechanics" class="{% if mechanics_active %}active{% endif %}">Mechanics</a>
+      <a href="/agents" class="{% if agents_active %}active{% endif %}">AI Agents</a>
       <a href="/download/offline-site" class="nav-download">Offline App</a>
       <a href="/weapons" class="{% if weapons_active %}active{% endif %}">Weapons</a>
     </div>
